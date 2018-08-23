@@ -16,7 +16,23 @@
 
 'use strict';
 
-import * as meow from 'meow';
+import * as commandLineArgs from 'command-line-args';
+import {Generator} from './generator';
 
-const cli = meow('Usage TBD', {});
-cli.showHelp(-1);
+async function main() {
+  const optionDefinitions: commandLineArgs.OptionDefinition[] =
+      [{name: 'descriptor', type: String}];
+  const options = commandLineArgs(optionDefinitions);
+
+  if (options.descriptor) {
+    console.error('Descriptor option is not yet supported.');
+    process.exit(1);
+  }
+
+  const generator = new Generator();
+  await generator.initializeFromStdin();
+}
+
+main().catch(err => {
+  console.error(err);
+});
