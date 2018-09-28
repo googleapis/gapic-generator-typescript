@@ -31,6 +31,7 @@ async function main() {
 
   const generator = new Generator();
   await generator.initializeFromStdin();
+  await generator.generate();
 }
 
 main().catch(err => {

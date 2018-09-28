@@ -17,28 +17,40 @@
 import * as getStdin from 'get-stdin';
 import * as protobuf from 'protobufjs';
 import * as path from 'path';
+import * as plugin from '../../pbjs-genfiles/plugin';
 
 export class Generator {
-  constructor() {}
+  root: protobuf.Root;
+  request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
 
-  async initializeFromStdin() {
-    const root = new protobuf.Root();
-    root.resolvePath = (origin, target) => {
+  constructor() {
+    this.root = new protobuf.Root();
+    this.root.resolvePath = (origin, target) => {
       if (origin === '') {
         return target;
       }
       return path.join('proto', target);
     };
-    await root.load(path.join('proto', 'google', 'protobuf', 'compiler', 'plugin.proto'));
-    const CodeGeneratorRequestMessage = root.lookupType("google.protobuf.compiler.CodeGeneratorRequest");
-    const CodeGeneratorResponseMessage = root.lookupType("google.protobuf.compiler.CodeGeneratorResponse");
+    this.request =
+        plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
+  }
 
+  async initializeFromStdin() {
     const inputBuffer = await getStdin.buffer();
-    const request = CodeGeneratorRequestMessage.decode(inputBuffer);
-    console.warn(request);
+    this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.decode(
+        inputBuffer);
+    console.warn(this.request);
+  }
 
-    let response = CodeGeneratorResponseMessage.create();
-    const outputBuffer = CodeGeneratorResponseMessage.encode(response).finish();
+  async generate() {
+    const fileToGenerate = this.request.fileToGenerate;
+    console.warn(fileToGenerate);
+
+    const response =
+        plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
+    const outputBuffer =
+        plugin.google.protobuf.compiler.CodeGeneratorResponse.encode(response)
+            .finish();
     process.stdout.write(outputBuffer.toString());
   }
 }
