@@ -22,6 +22,7 @@ import * as plugin from '../../pbjs-genfiles/plugin';
 export class Generator {
   root: protobuf.Root;
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
+  response: plugin.google.protobuf.compiler.CodeGeneratorResponse;
 
   constructor() {
     this.root = new protobuf.Root();
@@ -33,6 +34,8 @@ export class Generator {
     };
     this.request =
         plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
+    this.response =
+        plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
   }
 
   async initializeFromStdin() {
@@ -42,15 +45,33 @@ export class Generator {
     console.warn(this.request);
   }
 
+  addProtosToResponse() {
+    const protoFilenames: string[] = [];
+    for (const proto of this.request.protoFile) {
+      if (proto.name) {
+        protoFilenames.push(proto.name);
+      }
+    }
+    const protoList =
+        plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+    protoList.name = 'proto.list';
+    protoList.content = protoFilenames.join('\n') + '\n';
+    this.response.file.push(protoList);
+  }
+
   async generate() {
     const fileToGenerate = this.request.fileToGenerate;
     console.warn(fileToGenerate);
 
-    const response =
+    this.response =
         plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
-    const outputBuffer =
-        plugin.google.protobuf.compiler.CodeGeneratorResponse.encode(response)
-            .finish();
-    process.stdout.write(outputBuffer.toString());
+
+    this.addProtosToResponse();
+
+    const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse
+                             .encode(this.response)
+                             .finish();
+    // @ts-ignore Argument of type 'Uint8Array' is not assignable to parameter of type 'string'.
+    process.stdout.write(outputBuffer);
   }
 }
