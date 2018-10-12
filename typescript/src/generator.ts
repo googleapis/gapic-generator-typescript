@@ -17,6 +17,8 @@
 import * as getStdin from 'get-stdin';
 import * as path from 'path';
 import * as plugin from '../../pbjs-genfiles/plugin';
+import {API} from './schema/api';
+import {commonPrefix} from './util';
 
 export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
@@ -50,10 +52,7 @@ export class Generator {
   }
 
   debug() {
-    const echoProtos = this.request.protoFile.filter(
-        pf => pf.name === 'google/showcase/v1alpha2/echo.proto');
-    const echoProto = echoProtos[0];
-    console.warn(echoProto.options);
+    // console.warn(JSON.stringify(this.request, null, '  '));
   }
 
   async generate() {
@@ -64,6 +63,16 @@ export class Generator {
 
     this.addProtosToResponse();
     this.debug();
+
+    const protoFilesToGenerate = this.request.protoFile.filter(
+        pf => pf.name && this.request.fileToGenerate.includes(pf.name));
+    const packageNamesToGenerate =
+        protoFilesToGenerate.map(pf => pf.package || '');
+    const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
+    if (packageName === '') {
+      throw new Error('Cannot get package name to generate.');
+    }
+    const api = new API(this.request.protoFile, packageName);
 
     const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse
                              .encode(this.response)

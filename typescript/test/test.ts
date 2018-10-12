@@ -15,7 +15,25 @@
 'use strict';
 
 import * as assert from 'assert';
+import {commonPrefix} from '../src/util';
 
 describe('Test', () => {
   it('should pass', async () => {});
+});
+
+describe('util.ts', () => {
+  describe('commonPrefix', () => {
+    it('should return correct result', () => {
+      assert.strictEqual(commonPrefix(['abc', 'abcd', 'ab']), 'ab');
+      assert.strictEqual(commonPrefix(['abcd', 'abc', 'ab']), 'ab');
+      assert.strictEqual(commonPrefix(['ab', 'abcd', 'abc']), 'ab');
+      assert.strictEqual(commonPrefix(['abc', '']), '');
+      assert.strictEqual(commonPrefix(['', 'abc']), '');
+      assert.strictEqual(commonPrefix(['a']), 'a');
+      assert.strictEqual(commonPrefix(['abc']), 'abc');
+      assert.strictEqual(commonPrefix(['', '']), '');
+      assert.strictEqual(commonPrefix(['']), '');
+      assert.strictEqual(commonPrefix([]), '');
+    });
+  });
 });
