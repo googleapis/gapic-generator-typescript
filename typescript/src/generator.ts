@@ -73,6 +73,7 @@ export class Generator {
       throw new Error('Cannot get package name to generate.');
     }
     const api = new API(this.request.protoFile, packageName);
+    // TODO: do all the stuff with api object!
 
     const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse
                              .encode(this.response)

@@ -27,9 +27,6 @@ export class Naming {
       throw new Error(`Cannot parse package name ${
           rootPackage}: namespace is not defined.`);
     }
-    console.warn(`rp: ${rootPackage}, ns: ${namespaces}, name: ${
-        name}, version: ${version}`);
-    console.warn(`pattern: ${pattern.toString()}`);
     this.name = name.capitalize();
     this.productName = this.name;
     this.namespace = namespaces.replace(/\.$/, '').split('.');
