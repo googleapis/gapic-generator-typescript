@@ -19,6 +19,11 @@ import * as path from 'path';
 import * as plugin from '../../pbjs-genfiles/plugin';
 import {API} from './schema/api';
 import {commonPrefix} from './util';
+import {processTemplates} from './templater';
+
+const templateDirectory = 'templates/typescript_gapic';
+// If needed, we can make it possible to load templates from different locations
+// to generate code for other languages.
 
 export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
@@ -51,19 +56,7 @@ export class Generator {
     this.response.file.push(protoList);
   }
 
-  debug() {
-    // console.warn(JSON.stringify(this.request, null, '  '));
-  }
-
-  async generate() {
-    const fileToGenerate = this.request.fileToGenerate;
-
-    this.response =
-        plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
-
-    this.addProtosToResponse();
-    this.debug();
-
+  buildAPIObject(): API {
     const protoFilesToGenerate = this.request.protoFile.filter(
         pf => pf.name && this.request.fileToGenerate.includes(pf.name));
     const packageNamesToGenerate =
@@ -73,7 +66,24 @@ export class Generator {
       throw new Error('Cannot get package name to generate.');
     }
     const api = new API(this.request.protoFile, packageName);
-    // TODO: do all the stuff with api object!
+    return api;
+  }
+
+  async processTemplates(api: API) {
+    const fileList = await processTemplates(templateDirectory, api);
+    this.response.file.push(...fileList);
+  }
+
+  async generate() {
+    const fileToGenerate = this.request.fileToGenerate;
+
+    this.response =
+        plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
+
+    this.addProtosToResponse();
+    const api = this.buildAPIObject();
+    await this.processTemplates(api);
+    // TODO: error handling
 
     const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse
                              .encode(this.response)
