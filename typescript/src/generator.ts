@@ -84,6 +84,7 @@ export class Generator {
     const api = this.buildAPIObject();
     await this.processTemplates(api);
     // TODO: error handling
+    console.warn(JSON.stringify(api.naming, null, ' '));
 
     const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse
                              .encode(this.response)
