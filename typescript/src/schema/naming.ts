@@ -6,7 +6,6 @@ export class Naming {
   namespace: string[];
   version: string;
   productName: string;
-  productUrl: string;
   protoPackage: string;
 
   constructor(fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]) {
@@ -40,27 +39,31 @@ export class Naming {
 
     // iterate all files and look for metadata, make sure the metadata is the
     // same across all files
-    const metadataSet = new Set<string>();
-    let metadata: plugin.google.api.IMetadata = {};
+    const explicitPkgs = new Set<string>();
+    let metadataName: string | null | undefined;
+    let metadataNamespace: string[] | null | undefined;
+    let metadataVersion: string | null | undefined;
     for (const file of fileDescriptors) {
       if (file.options) {
-        const fileMetadata = file.options['.google.api.metadata'];
-        if (fileMetadata) {
-          metadataSet.add(JSON.stringify(fileMetadata));
-          metadata = fileMetadata;
+        const pkg = file.options['.google.api.clientPackage'];
+        if (pkg) {
+          explicitPkgs.add(JSON.stringify(pkg));
+          metadataName = pkg.title || pkg.productTitle;
+          metadataNamespace = pkg.namespace;
+          metadataVersion = pkg.version;
         }
       }
     }
-    if (metadataSet.size > 1) {
+    if (explicitPkgs.size > 1) {
       throw new Error(
-          'If the google.api.metadata annotation is provided in more than one file, it must be consistent.');
+          'If the google.api.client_package annotation is provided in more than one file, it must be consistent.');
     }
 
-    this.productUrl = metadata.productUri || '';
     this.productName =
-        metadata.packageName || metadata.productName || this.productName || '';
-    if (metadata.packageNamespace && metadata.packageNamespace.length > 0) {
-      this.namespace = metadata.packageNamespace;
+        metadataName || this.productName || '';
+    if (metadataNamespace && metadataNamespace.length > 0) {
+      this.namespace = metadataNamespace;
     }
+    this.version = metadataVersion || this.version;
   }
 }
