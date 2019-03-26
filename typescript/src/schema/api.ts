@@ -10,6 +10,7 @@ export type ProtosMap = {
 export class API {
   naming: Naming;
   protos: ProtosMap;
+  // TODO: subpackages
 
   constructor(
       fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[],
@@ -22,5 +23,16 @@ export class API {
       }
       return map;
     }, {} as ProtosMap);
+  }
+
+  services() {
+    return Object.keys(this.protos)
+        .map(filename => this.protos[filename])
+        .filter(proto => proto.fileToGenerate)
+        .reduce((retval, proto) => {
+          retval.push(
+              ...Object.keys(proto.services).map(name => proto.services[name]));
+          return retval;
+        }, [] as plugin.google.protobuf.IServiceDescriptorProto[]);
   }
 }

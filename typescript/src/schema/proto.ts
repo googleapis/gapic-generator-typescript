@@ -29,6 +29,7 @@ export class Proto {
         return map;
       }, {} as ServicesMap);
     }
+
     if (fd.messageType) {
       this.messages = fd.messageType.reduce((map, message) => {
         if (message.name) {

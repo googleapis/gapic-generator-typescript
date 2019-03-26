@@ -40,9 +40,9 @@ export class Naming {
     // iterate all files and look for metadata, make sure the metadata is the
     // same across all files
     const explicitPkgs = new Set<string>();
-    let metadataName: string | null | undefined;
-    let metadataNamespace: string[] | null | undefined;
-    let metadataVersion: string | null | undefined;
+    let metadataName: string|null|undefined;
+    let metadataNamespace: string[]|null|undefined;
+    let metadataVersion: string|null|undefined;
     for (const file of fileDescriptors) {
       if (file.options) {
         const pkg = file.options['.google.api.clientPackage'];
@@ -59,8 +59,7 @@ export class Naming {
           'If the google.api.client_package annotation is provided in more than one file, it must be consistent.');
     }
 
-    this.productName =
-        metadataName || this.productName || '';
+    this.productName = metadataName || this.productName || '';
     if (metadataNamespace && metadataNamespace.length > 0) {
       this.namespace = metadataNamespace;
     }

@@ -31,19 +31,23 @@ async function recursiveFileList(
   return result;
 }
 
+async function processFile(basePath: string, file: string, api: API) {
+  const outputFilename = file.substr(basePath.length + 1).replace(/\.njk$/, '');
+  const processed = nunjucks.render(file, {api});
+  const output =
+      plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+  output.name = outputFilename;
+  output.content = processed;
+  return output;
+}
+
 export async function processTemplates(basePath: string, api: API) {
   basePath = basePath.replace(/\/*$/, '');
   const files = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] =
       [];
   for (const file of files) {
-    const outputFilename =
-        file.substr(basePath.length + 1).replace(/\.njk$/, '');
-    const processed = nunjucks.render(file, {api});
-    const output =
-        plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
-    output.name = outputFilename;
-    output.content = processed;
+    const output = await processFile(basePath, file, api);
     result.push(output);
   }
   return result;
