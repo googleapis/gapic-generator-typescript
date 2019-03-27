@@ -25,7 +25,7 @@ export class API {
     }, {} as ProtosMap);
   }
 
-  services() {
+  get services() {
     return Object.keys(this.protos)
         .map(filename => this.protos[filename])
         .filter(proto => proto.fileToGenerate)

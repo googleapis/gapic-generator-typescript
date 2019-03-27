@@ -1,7 +1,22 @@
+import {NEG_ONE} from 'long';
+
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
+interface MethodDescriptorProto extends
+    plugin.google.protobuf.IMethodDescriptorProto {
+  idempotence: 'idempotent'|'non_idempotent';
+  longRunning?: plugin.google.longrunning.IOperationInfo;
+  streaming: 'none'|'client'|'server'|'bidi';
+  paging: boolean;
+}
+
+interface ServiceDescriptorProto extends
+    plugin.google.protobuf.IServiceDescriptorProto {
+  method: MethodDescriptorProto[];
+}
+
 export type ServicesMap = {
-  [name: string]: plugin.google.protobuf.IServiceDescriptorProto
+  [name: string]: ServiceDescriptorProto
 };
 export type MessagesMap = {
   [name: string]: plugin.google.protobuf.IDescriptorProto
@@ -9,6 +24,74 @@ export type MessagesMap = {
 export type EnumsMap = {
   [name: string]: plugin.google.protobuf.IEnumDescriptorProto
 };
+
+// The following functions are used to add some metadata such as idempotence
+// flag, long running operation info, pagination, and streaming, to all the
+// methods of the given service, to use in templates.
+
+function idempotence(method: MethodDescriptorProto) {
+  if (method.options && method.options['.google.api.http'] &&
+      // @ts-ignore error TS2533
+      (method.options['.google.api.http']['get'] ||
+       // @ts-ignore error TS2533
+       method.options['.google.api.http']['put'])) {
+    return 'idempotent';
+  }
+  return 'non_idempotent';
+}
+
+function longrunning(method: MethodDescriptorProto) {
+  if (method.options && method.options['.google.longrunning.operationInfo']) {
+    return method.options['.google.longrunning.operationInfo']!;
+  }
+  return undefined;
+}
+
+function streaming(method: MethodDescriptorProto) {
+  if (method.serverStreaming && method.clientStreaming) {
+    return 'bidi';
+  }
+  if (method.clientStreaming) {
+    return 'client';
+  }
+  if (method.serverStreaming) {
+    return 'server';
+  }
+  return 'none';
+}
+
+function paging(messages: MessagesMap, method: MethodDescriptorProto) {
+  const inputType = messages[method.inputType!];
+  const outputType = messages[method.outputType!];
+  const hasPageToken =
+      inputType && inputType.field!.some(field => field.name === 'page_token');
+  const hasPageSize =
+      inputType && inputType.field!.some(field => field.name === 'page_size');
+  const hasNextPageToken = outputType &&
+      outputType.field!.some(field => field.name === 'next_page_token');
+  return hasPageToken && hasPageSize && hasNextPageToken;
+}
+
+function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
+  method = Object.assign(
+      {
+        idempotence: idempotence(method),
+        longRunning: longrunning(method),
+        streaming: streaming(method),
+        paging: paging(messages, method)
+      },
+      method);
+  return method;
+}
+
+function augmentService(
+    messages: MessagesMap,
+    service: plugin.google.protobuf.IServiceDescriptorProto) {
+  const augmentedService = service as ServiceDescriptorProto;
+  augmentedService.method =
+      augmentedService.method.map(method => augmentMethod(messages, method));
+  return augmentedService;
+}
 
 export class Proto {
   filePB2: plugin.google.protobuf.IFileDescriptorProto;
@@ -20,35 +103,34 @@ export class Proto {
 
   constructor(
       fd: plugin.google.protobuf.IFileDescriptorProto, packageName: string) {
+    fd.enumType = fd.enumType || [];
+    fd.messageType = fd.messageType || [];
+    fd.service = fd.service || [];
+
     this.filePB2 = fd;
-    if (fd.service) {
-      this.services = fd.service.reduce((map, service) => {
-        if (service.name) {
-          map[service.name] = service;
-        }
-        return map;
-      }, {} as ServicesMap);
-    }
 
-    if (fd.messageType) {
-      this.messages = fd.messageType.reduce((map, message) => {
-        if (message.name) {
-          map[message.name] = message;
-        }
-        return map;
-      }, {} as MessagesMap);
-    }
+    this.messages = fd.messageType.filter(message => message.name)
+                        .reduce((map, message) => {
+                          map['.' + fd.package! + '.' + message.name!] =
+                              message;
+                          return map;
+                        }, {} as MessagesMap);
 
-    if (fd.enumType) {
-      this.enums = fd.enumType.reduce((map, enum_) => {
-        if (enum_.name) {
-          map[enum_.name] = enum_;
-        }
-        return map;
-      }, {} as EnumsMap);
-    }
+    this.enums =
+        fd.enumType.filter(enum_ => enum_.name).reduce((map, enum_) => {
+          map[enum_.name!] = enum_;
+          return map;
+        }, {} as EnumsMap);
+
     this.fileToGenerate =
         fd.package ? fd.package.startsWith(packageName) : false;
+
+    this.services = fd.service.filter(service => service.name)
+                        .map(service => augmentService(this.messages, service))
+                        .reduce((map, service) => {
+                          map[service.name!] = service;
+                          return map;
+                        }, {} as ServicesMap);
   }
 }
 
