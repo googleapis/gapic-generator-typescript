@@ -51,6 +51,8 @@ describe('util.ts', () => {
       assert.deepEqual('test'.words(), ['test']);
       assert.deepEqual('camelCaseString'.words(), ['camel', 'case', 'string']);
       assert.deepEqual(
+          'PascalCaseString'.words(), ['pascal', 'case', 'string']);
+      assert.deepEqual(
           'snake_case_string'.words(), ['snake', 'case', 'string']);
       assert.deepEqual(
           'kebab-case-string'.words(), ['kebab', 'case', 'string']);
@@ -68,6 +70,7 @@ describe('util.ts', () => {
       assert.deepEqual(''.toCamelCase(), '');
       assert.deepEqual('test'.toCamelCase(), 'test');
       assert.deepEqual('camelCaseString'.toCamelCase(), 'camelCaseString');
+      assert.deepEqual('PascalCaseString'.toCamelCase(), 'pascalCaseString');
       assert.deepEqual('snake_case_string'.toCamelCase(), 'snakeCaseString');
       assert.deepEqual('kebab-case-string'.toCamelCase(), 'kebabCaseString');
       assert.deepEqual(
@@ -79,10 +82,27 @@ describe('util.ts', () => {
           'productName.v1p1beta1'.toCamelCase(), 'productNameV1p1beta1');
     });
 
+    it('should convert to PascalCase', () => {
+      assert.deepEqual(''.toPascalCase(), '');
+      assert.deepEqual('test'.toPascalCase(), 'Test');
+      assert.deepEqual('camelCaseString'.toPascalCase(), 'CamelCaseString');
+      assert.deepEqual('PascalCaseString'.toPascalCase(), 'PascalCaseString');
+      assert.deepEqual('snake_case_string'.toPascalCase(), 'SnakeCaseString');
+      assert.deepEqual('kebab-case-string'.toPascalCase(), 'KebabCaseString');
+      assert.deepEqual(
+          'random/separators-string'.toPascalCase(), 'RandomSeparatorsString');
+      assert.deepEqual(
+          'mixedType-string.SomewhatWeird'.toPascalCase(),
+          'MixedTypeStringSomewhatWeird');
+      assert.deepEqual(
+          'productName.v1p1beta1'.toPascalCase(), 'ProductNameV1p1beta1');
+    });
+
     it('should convert to kebab-case', () => {
       assert.deepEqual(''.toKebabCase(), '');
       assert.deepEqual('test'.toKebabCase(), 'test');
       assert.deepEqual('camelCaseString'.toKebabCase(), 'camel-case-string');
+      assert.deepEqual('PascalCaseString'.toKebabCase(), 'pascal-case-string');
       assert.deepEqual('snake_case_string'.toKebabCase(), 'snake-case-string');
       assert.deepEqual('kebab-case-string'.toKebabCase(), 'kebab-case-string');
       assert.deepEqual(
@@ -98,6 +118,7 @@ describe('util.ts', () => {
       assert.deepEqual(''.toSnakeCase(), '');
       assert.deepEqual('test'.toSnakeCase(), 'test');
       assert.deepEqual('camelCaseString'.toSnakeCase(), 'camel_case_string');
+      assert.deepEqual('PascalCaseString'.toSnakeCase(), 'pascal_case_string');
       assert.deepEqual('snake_case_string'.toSnakeCase(), 'snake_case_string');
       assert.deepEqual('kebab-case-string'.toSnakeCase(), 'kebab_case_string');
       assert.deepEqual(

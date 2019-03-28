@@ -7,16 +7,20 @@ interface MethodDescriptorProto extends
     plugin.google.protobuf.IMethodDescriptorProto {
   idempotence: 'idempotent'|'non_idempotent';
   longRunning?: plugin.google.longrunning.IOperationInfo;
-  streaming: 'none'|'client'|'server'|'bidi';
-  paging: boolean;
+  streaming: 'none'|'client'|'server'|undefined;
+  pagingFieldName: string|undefined;
 }
 
 interface ServiceDescriptorProto extends
     plugin.google.protobuf.IServiceDescriptorProto {
   method: MethodDescriptorProto[];
+  simpleMethods: MethodDescriptorProto[];
   longRunning: MethodDescriptorProto[];
   streaming: MethodDescriptorProto[];
   paging: MethodDescriptorProto[];
+  hostname: string;
+  port: number;
+  oauthScopes: string[];
 }
 
 export type ServicesMap = {
@@ -51,18 +55,18 @@ function longrunning(method: MethodDescriptorProto) {
 
 function streaming(method: MethodDescriptorProto) {
   if (method.serverStreaming && method.clientStreaming) {
-    return 'bidi';
+    return 'BIDI_STREAMING';
   }
   if (method.clientStreaming) {
-    return 'client';
+    return 'CLIENT_STREAMING';
   }
   if (method.serverStreaming) {
-    return 'server';
+    return 'SERVER_STREAMING';
   }
-  return 'none';
+  return undefined;
 }
 
-function paging(messages: MessagesMap, method: MethodDescriptorProto) {
+function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
@@ -71,18 +75,27 @@ function paging(messages: MessagesMap, method: MethodDescriptorProto) {
       inputType && inputType.field!.some(field => field.name === 'page_size');
   const hasNextPageToken = outputType &&
       outputType.field!.some(field => field.name === 'next_page_token');
-  return hasPageToken && hasPageSize && hasNextPageToken;
+  if (!hasPageToken || !hasPageSize || !hasNextPageToken) {
+    return undefined;
+  }
+  const repeatedFields = outputType.field!.filter(
+      field => field.label ===
+          plugin.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED);
+  if (repeatedFields.length !== 1) {
+    return undefined;
+  }
+  return repeatedFields[0].name;
 }
 
 function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
   method = Object.assign(
-      {
-        idempotence: idempotence(method),
-        longRunning: longrunning(method),
-        streaming: streaming(method),
-        paging: paging(messages, method)
-      },
-      method);
+               {
+                 idempotence: idempotence(method),
+                 longRunning: longrunning(method),
+                 streaming: streaming(method),
+                 pagingFieldName: pagingFieldName(messages, method)
+               },
+               method) as MethodDescriptorProto;
   return method;
 }
 
@@ -92,12 +105,33 @@ function augmentService(
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.method =
       augmentedService.method.map(method => augmentMethod(messages, method));
+  augmentedService.simpleMethods = augmentedService.method.filter(
+      method =>
+          !method.longRunning && !method.streaming && !method.pagingFieldName);
   augmentedService.longRunning =
       augmentedService.method.filter(method => method.longRunning);
   augmentedService.streaming =
-      augmentedService.method.filter(method => method.streaming !== 'none');
+      augmentedService.method.filter(method => method.streaming);
   augmentedService.paging =
-      augmentedService.method.filter(method => method.paging);
+      augmentedService.method.filter(method => method.pagingFieldName);
+
+  augmentedService.hostname = '';
+  augmentedService.port = 0;
+  if (augmentedService.options &&
+      augmentedService.options['.google.api.defaultHost']) {
+    const match = augmentedService.options['.google.api.defaultHost'].match(
+        /^(.*):(\d+)$/);
+    if (match) {
+      augmentedService.hostname = match[1];
+      augmentedService.port = Number.parseInt(match[2], 10);
+    }
+  }
+  augmentedService.oauthScopes = [];
+  if (augmentedService.options &&
+      augmentedService.options['.google.api.oauthScopes']) {
+    augmentedService.oauthScopes =
+        augmentedService.options['.google.api.oauthScopes'].split(',');
+  }
   return augmentedService;
 }
 
@@ -141,7 +175,3 @@ export class Proto {
                         }, {} as ServicesMap);
   }
 }
-
-// TODO for Proto class: just load messages, services, enums, etc. as is,
-// without creating wrapper classes. Extra functionality can be added by
-// changing prototypes.

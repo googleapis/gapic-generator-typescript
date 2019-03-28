@@ -39,6 +39,15 @@ String.prototype.toCamelCase = function(this: string): string {
   return result.join('');
 };
 
+String.prototype.toPascalCase = function(this: string): string {
+  const words = this.words();
+  if (words.length === 0) {
+    return this;
+  }
+  const result = words.map(w => w.capitalize());
+  return result.join('');
+};
+
 String.prototype.toKebabCase = function(this: string): string {
   const words = this.words();
   if (words.length === 0) {

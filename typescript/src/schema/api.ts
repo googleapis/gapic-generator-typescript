@@ -17,10 +17,8 @@ export class API {
       packageName: string) {
     this.naming = new Naming(fileDescriptors.filter(
         fd => fd.package && fd.package.startsWith(packageName)));
-    this.protos = fileDescriptors.reduce((map, fd) => {
-      if (fd.name) {
-        map[fd.name] = new Proto(fd, packageName);
-      }
+    this.protos = fileDescriptors.filter(fd => fd.name).reduce((map, fd) => {
+      map[fd.name!] = new Proto(fd, packageName);
       return map;
     }, {} as ProtosMap);
   }
@@ -34,5 +32,10 @@ export class API {
               ...Object.keys(proto.services).map(name => proto.services[name]));
           return retval;
         }, [] as plugin.google.protobuf.IServiceDescriptorProto[]);
+  }
+
+  get filesToGenerate() {
+    return Object.keys(this.protos)
+        .filter(proto => this.protos[proto].fileToGenerate);
   }
 }
