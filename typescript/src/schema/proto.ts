@@ -1,3 +1,4 @@
+import {ENGINE_METHOD_DIGESTS} from 'constants';
 import {NEG_ONE} from 'long';
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
@@ -13,6 +14,9 @@ interface MethodDescriptorProto extends
 interface ServiceDescriptorProto extends
     plugin.google.protobuf.IServiceDescriptorProto {
   method: MethodDescriptorProto[];
+  longRunning: MethodDescriptorProto[];
+  streaming: MethodDescriptorProto[];
+  paging: MethodDescriptorProto[];
 }
 
 export type ServicesMap = {
@@ -31,9 +35,7 @@ export type EnumsMap = {
 
 function idempotence(method: MethodDescriptorProto) {
   if (method.options && method.options['.google.api.http'] &&
-      // @ts-ignore error TS2533
       (method.options['.google.api.http']['get'] ||
-       // @ts-ignore error TS2533
        method.options['.google.api.http']['put'])) {
     return 'idempotent';
   }
@@ -90,6 +92,12 @@ function augmentService(
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.method =
       augmentedService.method.map(method => augmentMethod(messages, method));
+  augmentedService.longRunning =
+      augmentedService.method.filter(method => method.longRunning);
+  augmentedService.streaming =
+      augmentedService.method.filter(method => method.streaming !== 'none');
+  augmentedService.paging =
+      augmentedService.method.filter(method => method.paging);
   return augmentedService;
 }
 

@@ -16,7 +16,57 @@
 // ** https://github.com/googleapis/gapic-generator-typescript **
 // ** All changes to this file may be overwritten. **
 
+import * as path from 'path';
+import * as protobuf from 'protobufjs';
 import * as gax from 'google-gax';
-import gapicConfig from './echo_client_config';
-import merge = require('lodash.merge');
+import * as gapicConfig from './echo_client_config.json';
+import * as packageJson from '../../package.json';
+import * as protos from '../../pbjs-genfiles/{{ service.name.toLowerCase() }}';
+const version = packageJson.version;
 
+export interface GapicClientOptions extends gax.GrpcClientOptions,
+                                            gax.GoogleAuthOptions,
+                                            gax.ClientStubOptions {
+  libName?: string;
+  libVersion?: string;
+  clientConfig?: gax.ClientConfig;
+}
+
+export interface Descriptors {
+  page: {[name: string]: gax.PageDescriptor};
+  stream: {[name: string]: gax.StreamDescriptor};
+}
+
+export interface GapicCallback<ResponseObject> {
+  (err: Error|null, value?: ResponseObject|null): void;
+}
+
+{% if service.paging.length > 0 -%}
+export interface GapicPaginationCallback<
+    RequestObject, ResponseObject, ResponseType> {
+  (err: Error|null, values?: ResponseType[], nextPageRequest?: RequestObject,
+    rawResponse?: ResponseObject): void;
+}
+
+export interface GapicPaginationResponse<
+    RequestObject, ResponseObject, ResponseType> {
+  values?: ResponseType[];
+  nextPageRequest?: RequestObject;
+  rawResponse?: ResponseObject;
+}
+{%- endif %}
+
+export class {{ service.name }}Client {
+  constructor() {
+  }
+
+  test() {
+    console.log(protos);
+  }
+};
+
+/*
+{% for method in service.method %}
+{{ method.paging }}
+{% endfor %}
+*/

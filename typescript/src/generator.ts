@@ -90,8 +90,6 @@ export class Generator {
     const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse
                              .encode(this.response)
                              .finish();
-    // @ts-ignore Argument of type 'Uint8Array' is not assignable to parameter
-    // of type 'string'.
     process.stdout.write(outputBuffer);
   }
 }
