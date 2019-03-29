@@ -58,8 +58,8 @@ export interface PaginationResponse<
 }
 
 export class EchoClient {
-  _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
-  _innerApiCalls: {[name: string]: Function};
+  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
+  private _innerApiCalls: {[name: string]: Function};
   auth: gax.GoogleAuth;
 
   constructor(opts: ClientOptions) {
@@ -136,8 +136,7 @@ export class EchoClient {
       this._innerApiCalls[methodName] = gax.createApiCall(
           echoStub.then(
               // @ts-ignore
-              stub => function() {
-                const args = Array.prototype.slice.call(arguments, 0);
+              stub => (...args) => {
                 stub[methodName].apply(stub, args);
               },
               (err: Error|null|undefined) => () => {
@@ -191,19 +190,19 @@ export class EchoClient {
   // -- Service calls --
   // -------------------
   echo(
-      request: protos.google.showcase.v1alpha3.EchoRequest,
+      request: protos.google.showcase.v1alpha3.IEchoRequest,
       options?: gax.CallOptions):
-      Promise<protos.google.showcase.v1alpha3.EchoResponse>;
+      Promise<protos.google.showcase.v1alpha3.IEchoResponse>;
   echo(
-      request: protos.google.showcase.v1alpha3.EchoRequest,
+      request: protos.google.showcase.v1alpha3.IEchoRequest,
       options: gax.CallOptions,
-      callback: Callback<protos.google.showcase.v1alpha3.EchoResponse>): void;
+      callback: Callback<protos.google.showcase.v1alpha3.IEchoResponse>): void;
   echo(
-      request: protos.google.showcase.v1alpha3.EchoRequest,
+      request: protos.google.showcase.v1alpha3.IEchoRequest,
       optionsOrCallback?: gax.CallOptions|
-      Callback<protos.google.showcase.v1alpha3.EchoResponse>,
-      callback?: Callback<protos.google.showcase.v1alpha3.EchoResponse>):
-      Promise<protos.google.showcase.v1alpha3.EchoResponse>|void {
+      Callback<protos.google.showcase.v1alpha3.IEchoResponse>,
+      callback?: Callback<protos.google.showcase.v1alpha3.IEchoResponse>):
+      Promise<protos.google.showcase.v1alpha3.IEchoResponse>|void {
     let options = optionsOrCallback;
     if (typeof options === 'function') {
       callback = options;
@@ -213,11 +212,11 @@ export class EchoClient {
     if (callback) {
       return this._innerApiCalls.echo(request, options, callback);
     }
-    return new Promise<protos.google.showcase.v1alpha3.EchoResponse>(
+    return new Promise<protos.google.showcase.v1alpha3.IEchoResponse>(
         (resolve, reject) => {
           const promiseCallback =
               (err: Error|null|undefined,
-               response: protos.google.showcase.v1alpha3.EchoResponse) => {
+               response: protos.google.showcase.v1alpha3.IEchoResponse) => {
                 if (err) {
                   reject(err);
                 }
