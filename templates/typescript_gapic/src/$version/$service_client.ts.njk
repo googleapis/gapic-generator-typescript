@@ -40,8 +40,10 @@ interface Descriptors {
   longrunning: {[name: string]: gax.LongrunningDescriptor};
 }
 
-export interface Callback<ResponseObject> {
-  (err: Error|null|undefined, value?: ResponseObject|null): void;
+export interface Callback<
+    ResponseObject, NextRequestObject, RawResponseObject> {
+  (err: Error|null|undefined, value?: ResponseObject|null,
+   nextRequest?: NextRequestObject, rawResponse?: RawResponseObject): void;
 }
 {% if (service.paging.length > 0) %}
 export interface PaginationCallback<
@@ -244,8 +246,9 @@ export class {{ service.name }}Client {
    *   be called with the current project Id.
    */
   getProjectId(): Promise<string>;
-  getProjectId(callback: Callback<string>): void;
-  getProjectId(callback?: Callback<string>): Promise<string>|void {
+  getProjectId(callback: Callback<string, undefined, undefined>): void;
+  getProjectId(callback?: Callback<string, undefined, undefined>):
+      Promise<string>|void {
     if (callback) {
       this.auth.getProjectId(callback);
       return;
@@ -261,38 +264,37 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}(
       request: protos{{ method.inputInterface }},
       options?: gax.CallOptions):
-      Promise<protos{{ method.outputInterface }}>;
+      Promise<[
+        protos{{ method.outputInterface }},
+        protos{{ method.inputInterface }}|undefined, {}|undefined
+      ]>;
   {{ method.name.toCamelCase() }}(
       request: protos{{ method.inputInterface }},
       options: gax.CallOptions,
-      callback: Callback<protos{{ method.outputInterface }}>): void;
+      callback: Callback<
+          protos{{ method.outputInterface }},
+          protos{{ method.inputInterface }}|undefined,
+          {}|undefined>): void;
   {{ method.name.toCamelCase() }}(
       request: protos{{ method.inputInterface }},
-      optionsOrCallback?: gax.CallOptions|
-      Callback<protos{{ method.outputInterface }}>,
-      callback?: Callback<protos{{ method.outputInterface }}>):
-      Promise<protos{{ method.outputInterface }}>|void {
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protos{{ method.outputInterface }},
+          protos{{ method.inputInterface }}|undefined, {}|undefined>,
+      callback?: Callback<
+          protos{{ method.outputInterface }},
+          protos{{ method.inputInterface }}|undefined,
+          {}|undefined>):
+      Promise<[
+        protos{{ method.outputInterface }},
+        protos{{ method.inputInterface }}|undefined, {}|undefined
+      ]>|void {
     let options = optionsOrCallback;
-    if (typeof options === 'function') {
+    if (typeof options === 'function' && callback === undefined) {
       callback = options;
       options = {};
     }
     options = options || {};
-    if (callback) {
-      return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
-    }
-    return new Promise<protos{{ method.outputInterface }}>(
-        (resolve, reject) => {
-          const promiseCallback =
-              (err: Error|null|undefined,
-               response: protos{{ method.outputInterface }}) => {
-                if (err) {
-                  reject(err);
-                }
-                resolve(response);
-              };
-          this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, promiseCallback);
-        });
+    return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   } 
 {%- endfor%}
 
