@@ -1,45 +1,40 @@
 {
-  "repository": "GoogleCloudPlatform/google-cloud-node",
+  "repository": "googleapis/nodejs-showcase",
   "name": "showcase",
   "version": "0.1.0",
   "author": "Google LLC",
-  "description": "GAPIC Showcase API client for Node.js",
-  "main": "src/index.js",
+  "description": "GAPIC Showcase client for Node.js",
+  "main": "build/src/index.js",
   "files": [
     "protos",
-    "src",
+    "build/src",
+    "!build/src/**/*.map",
     "AUTHORS",
     "COPYING"
   ],
-  "keywords": [
-    "google apis client",
-    "google api client",
-    "google apis",
-    "google api",
-    "google",
-    "google cloud platform",
-    "google cloud",
-    "cloud",
-    "google showcase",
-    "showcase",
-    "GAPIC Showcase API"
-  ],
   "dependencies": {
-    "google-gax": "^0.25.3",
-    "lodash.merge": "^4.6.0",
-    "protobufjs": "^6.8.0"
+    "google-gax": "googleapis/gax-nodejs"
   },
   "devDependencies": {
-    "mocha": "^5.2.0",
-    "through2": "^2.0.3"
+    "@types/mocha": "^5.2.5",
+    "@types/through2": "^2.0.34",
+    "gts": "^0.9.0",
+    "mocha": "^6.0.0",
+    "through2": "^3.0.0",
+    "typescript": "~3.3.0"
   },
   "scripts": {
-    "publish-module": "node ../../scripts/publish.js showcase",
-    "smoke-test": "mocha smoke-test/*.js --timeout 5000",
-    "test": "mocha test/*.js"
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -p .",
+    "compile-protos": "pbjs -p protos -t static-module -o pbjs-genfiles/protos.js google/showcase/v1alpha3/echo.proto && pbts pbjs-genfiles/protos.js -o pbjs-genfiles/protos.d.ts",
+    "fix": "gts fix",
+    "prepare": "npm run compile-protos && npm run compile",
+    "pretest": "npm run compile-protos && npm run compile",
+    "posttest": "npm run check"
   },
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   }
 }
