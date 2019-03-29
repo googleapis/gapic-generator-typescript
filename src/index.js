@@ -1,4 +1,4 @@
-// Copyright 2018 Google LLC
+// Copyright 2019 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,25 +22,25 @@
  * @namespace google.cloud.showcase
  */
 /**
- * @namespace google.cloud.showcase.v1alpha2
+ * @namespace google.cloud.showcase.v1alpha3
  */
 
 'use strict';
 
 // Import the clients for each version supported by this package.
 const gapic = Object.freeze({
-  v1alpha2: require('./v1alpha2'),
+  v1alpha3: require('./v1alpha3'),
 });
 
 /**
  * The `showcase` package has the following named exports:
  *
  * - `EchoClient` - Reference to
- *   {@link v1alpha2.EchoClient}
- * - `v1alpha2` - This is used for selecting or pinning a
+ *   {@link v1alpha3.EchoClient}
+ * - `v1alpha3` - This is used for selecting or pinning a
  *   particular backend service version. It exports:
  *     - `EchoClient` - Reference to
- *       {@link v1alpha2.EchoClient}
+ *       {@link v1alpha3.EchoClient}
  *
  * @module {object} showcase
  * @alias nodejs-showcase
@@ -64,16 +64,16 @@ const gapic = Object.freeze({
 /**
  * @type {object}
  * @property {constructor} EchoClient
- *   Reference to {@link v1alpha2.EchoClient}
+ *   Reference to {@link v1alpha3.EchoClient}
  */
-module.exports = gapic.v1alpha2;
+module.exports = gapic.v1alpha3;
 
 /**
  * @type {object}
  * @property {constructor} EchoClient
- *   Reference to {@link v1alpha2.EchoClient}
+ *   Reference to {@link v1alpha3.EchoClient}
  */
-module.exports.v1alpha2 = gapic.v1alpha2;
+module.exports.v1alpha3 = gapic.v1alpha3;
 
 // Alias `module.exports` as `module.exports.default`, for future-proofing.
 module.exports.default = Object.assign({}, module.exports);

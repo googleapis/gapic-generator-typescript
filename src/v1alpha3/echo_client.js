@@ -1,4 +1,4 @@
-// Copyright 2018 Google LLC
+// Copyright 2019 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +14,11 @@
 
 'use strict';
 
-const gapicConfig = require('./echo_client_config');
+const gapicConfig = require('./echo_client_config.json');
 const gax = require('google-gax');
 const merge = require('lodash.merge');
 const path = require('path');
+const protobuf = require('protobufjs');
 
 const VERSION = require('../../package.json').version;
 
@@ -28,7 +29,7 @@ const VERSION = require('../../package.json').version;
  * paginated calls.
  *
  * @class
- * @memberof v1alpha2
+ * @memberof v1alpha3
  */
 class EchoClient {
   /**
@@ -95,20 +96,9 @@ class EchoClient {
       {},
       gaxGrpc.loadProto(
         path.join(__dirname, '..', '..', 'protos'),
-        'google/showcase/v1alpha2/echo.proto'
+        'google/showcase/v1alpha3/echo.proto'
       )
     );
-
-    // Some of the methods on this service return "paged" results,
-    // (e.g. 50 results at a time, with tokens to get subsequent
-    // pages). Denote the keys used for pagination and results.
-    this._descriptors.page = {
-      pagination: new gax.PageDescriptor(
-        'pageToken',
-        'nextPageToken',
-        'responses'
-      ),
-    };
 
     // Some of the methods on this service provide streaming responses.
     // Provide descriptors for these.
@@ -117,10 +107,39 @@ class EchoClient {
       collect: new gax.StreamDescriptor(gax.StreamType.CLIENT_STREAMING),
       chat: new gax.StreamDescriptor(gax.StreamType.BIDI_STREAMING),
     };
+    let protoFilesRoot = new gax.GoogleProtoFilesRoot();
+    protoFilesRoot = protobuf.loadSync(
+      path.join(__dirname, '..', '..', 'protos', 'google/showcase/v1alpha3/echo.proto'),
+      protoFilesRoot
+    );
+
+
+    // This API contains "long-running operations", which return a
+    // an Operation object that allows for tracking of the operation,
+    // rather than holding a request open.
+    this.operationsClient = new gax.lro({
+      auth: gaxGrpc.auth,
+      grpc: gaxGrpc.grpc,
+    }).operationsClient(opts);
+
+    const waitResponse = protoFilesRoot.lookup(
+      'google.showcase.v1alpha3.WaitResponse'
+    );
+    const waitMetadata = protoFilesRoot.lookup(
+      'google.showcase.v1alpha3.WaitMetadata'
+    );
+
+    this._descriptors.longrunning = {
+      wait: new gax.LongrunningDescriptor(
+        this.operationsClient,
+        waitResponse.decode.bind(waitResponse),
+        waitMetadata.decode.bind(waitMetadata)
+      ),
+    };
 
     // Put together the default options sent with requests.
     const defaults = gaxGrpc.constructSettings(
-      'google.showcase.v1alpha2.Echo',
+      'google.showcase.v1alpha3.Echo',
       gapicConfig,
       opts.clientConfig,
       {'x-goog-api-client': clientHeader.join(' ')}
@@ -132,9 +151,9 @@ class EchoClient {
     this._innerApiCalls = {};
 
     // Put together the "service stub" for
-    // google.showcase.v1alpha2.Echo.
+    // google.showcase.v1alpha3.Echo.
     const echoStub = gaxGrpc.createStub(
-      protos.google.showcase.v1alpha2.Echo,
+      protos.google.showcase.v1alpha3.Echo,
       opts
     );
 
@@ -146,7 +165,6 @@ class EchoClient {
       'collect',
       'chat',
       'wait',
-      'pagination',
     ];
     for (const methodName of echoStubMethods) {
       this._innerApiCalls[methodName] = gax.createApiCall(
@@ -155,10 +173,14 @@ class EchoClient {
             function() {
               const args = Array.prototype.slice.call(arguments, 0);
               return stub[methodName].apply(stub, args);
+            },
+          err =>
+            function() {
+              throw err;
             }
         ),
         defaults[methodName],
-        this._descriptors.page[methodName] || this._descriptors.stream[methodName]
+        this._descriptors.stream[methodName] || this._descriptors.longrunning[methodName]
       );
     }
   }
@@ -217,16 +239,16 @@ class EchoClient {
    * @param {function(?Error, ?Object)} [callback]
    *   The function which will be called with the result of the API call.
    *
-   *   The second parameter to the callback is an object representing [EchoResponse]{@link google.showcase.v1alpha2.EchoResponse}.
+   *   The second parameter to the callback is an object representing [EchoResponse]{@link google.showcase.v1alpha3.EchoResponse}.
    * @returns {Promise} - The promise which resolves to an array.
-   *   The first element of the array is an object representing [EchoResponse]{@link google.showcase.v1alpha2.EchoResponse}.
+   *   The first element of the array is an object representing [EchoResponse]{@link google.showcase.v1alpha3.EchoResponse}.
    *   The promise has a method named "cancel" which cancels the ongoing API call.
    *
    * @example
    *
-   * const showcase = require('showcase.v1alpha2');
+   * const showcase = require('showcase.v1alpha3');
    *
-   * const client = new showcase.v1alpha2.EchoClient({
+   * const client = new showcase.v1alpha3.EchoClient({
    *   // optional auth parameters.
    * });
    *
@@ -266,13 +288,13 @@ class EchoClient {
    *   Optional parameters. You can override the default settings for this call, e.g, timeout,
    *   retries, paginations, etc. See [gax.CallOptions]{@link https://googleapis.github.io/gax-nodejs/global.html#CallOptions} for the details.
    * @returns {Stream}
-   *   An object stream which emits [EchoResponse]{@link google.showcase.v1alpha2.EchoResponse} on 'data' event.
+   *   An object stream which emits [EchoResponse]{@link google.showcase.v1alpha3.EchoResponse} on 'data' event.
    *
    * @example
    *
-   * const showcase = require('showcase.v1alpha2');
+   * const showcase = require('showcase.v1alpha3');
    *
-   * const client = new showcase.v1alpha2.EchoClient({
+   * const client = new showcase.v1alpha3.EchoClient({
    *   // optional auth parameters.
    * });
    *
@@ -298,15 +320,15 @@ class EchoClient {
    * @param {function(?Error, ?Object)} [callback]
    *   The function which will be called with the result of the API call.
    *
-   *   The second parameter to the callback is an object representing [EchoResponse]{@link google.showcase.v1alpha2.EchoResponse}.
+   *   The second parameter to the callback is an object representing [EchoResponse]{@link google.showcase.v1alpha3.EchoResponse}.
    * @returns {Stream} - A writable stream which accepts objects representing
-   *   [EchoRequest]{@link google.showcase.v1alpha2.EchoRequest} for write() method.
+   *   [EchoRequest]{@link google.showcase.v1alpha3.EchoRequest} for write() method.
    *
    * @example
    *
-   * const showcase = require('showcase.v1alpha2');
+   * const showcase = require('showcase.v1alpha3');
    *
-   * const client = new showcase.v1alpha2.EchoClient({
+   * const client = new showcase.v1alpha3.EchoClient({
    *   // optional auth parameters.
    * });
    *
@@ -341,14 +363,14 @@ class EchoClient {
    *   retries, paginations, etc. See [gax.CallOptions]{@link https://googleapis.github.io/gax-nodejs/global.html#CallOptions} for the details.
    * @returns {Stream}
    *   An object stream which is both readable and writable. It accepts objects
-   *   representing [EchoRequest]{@link google.showcase.v1alpha2.EchoRequest} for write() method, and
-   *   will emit objects representing [EchoResponse]{@link google.showcase.v1alpha2.EchoResponse} on 'data' event asynchronously.
+   *   representing [EchoRequest]{@link google.showcase.v1alpha3.EchoRequest} for write() method, and
+   *   will emit objects representing [EchoResponse]{@link google.showcase.v1alpha3.EchoResponse} on 'data' event asynchronously.
    *
    * @example
    *
-   * const showcase = require('showcase.v1alpha2');
+   * const showcase = require('showcase.v1alpha3');
    *
-   * const client = new showcase.v1alpha2.EchoClient({
+   * const client = new showcase.v1alpha3.EchoClient({
    *   // optional auth parameters.
    * });
    *
@@ -371,8 +393,12 @@ class EchoClient {
    *
    * @param {Object} request
    *   The request object that will be sent.
-   * @param {Object} request.responseDelay
-   *   The amount of time to wait before returning a response.
+   * @param {Object} [request.endTime]
+   *   The time that this operation will complete.
+   *
+   *   This object should have the same structure as [Timestamp]{@link google.protobuf.Timestamp}
+   * @param {Object} [request.ttl]
+   *   The duration of this operation.
    *
    *   This object should have the same structure as [Duration]{@link google.protobuf.Duration}
    * @param {Object} [request.error]
@@ -381,37 +407,81 @@ class EchoClient {
    *
    *   This object should have the same structure as [Status]{@link google.rpc.Status}
    * @param {Object} [request.success]
-   *   The response to be returned that will signify successful method call.
+   *   The response to be returned on operation completion.
    *
-   *   This object should have the same structure as [WaitResponse]{@link google.showcase.v1alpha2.WaitResponse}
+   *   This object should have the same structure as [WaitResponse]{@link google.showcase.v1alpha3.WaitResponse}
    * @param {Object} [options]
    *   Optional parameters. You can override the default settings for this call, e.g, timeout,
    *   retries, paginations, etc. See [gax.CallOptions]{@link https://googleapis.github.io/gax-nodejs/global.html#CallOptions} for the details.
    * @param {function(?Error, ?Object)} [callback]
    *   The function which will be called with the result of the API call.
    *
-   *   The second parameter to the callback is an object representing [WaitResponse]{@link google.showcase.v1alpha2.WaitResponse}.
+   *   The second parameter to the callback is a [gax.Operation]{@link https://googleapis.github.io/gax-nodejs/Operation} object.
    * @returns {Promise} - The promise which resolves to an array.
-   *   The first element of the array is an object representing [WaitResponse]{@link google.showcase.v1alpha2.WaitResponse}.
+   *   The first element of the array is a [gax.Operation]{@link https://googleapis.github.io/gax-nodejs/Operation} object.
    *   The promise has a method named "cancel" which cancels the ongoing API call.
    *
    * @example
    *
-   * const showcase = require('showcase.v1alpha2');
+   * const showcase = require('showcase.v1alpha3');
    *
-   * const client = new showcase.v1alpha2.EchoClient({
+   * const client = new showcase.v1alpha3.EchoClient({
    *   // optional auth parameters.
    * });
    *
-   * const responseDelay = {};
-   * client.wait({responseDelay: responseDelay})
+   *
+   *
+   * // Handle the operation using the promise pattern.
+   * client.wait({})
    *   .then(responses => {
-   *     const response = responses[0];
-   *     // doThingsWith(response)
+   *     const [operation, initialApiResponse] = responses;
+   *
+   *     // Operation#promise starts polling for the completion of the LRO.
+   *     return operation.promise();
+   *   })
+   *   .then(responses => {
+   *     const result = responses[0];
+   *     const metadata = responses[1];
+   *     const finalApiResponse = responses[2];
    *   })
    *   .catch(err => {
    *     console.error(err);
    *   });
+   *
+   *
+   *
+   * // Handle the operation using the event emitter pattern.
+   * client.wait({})
+   *   .then(responses => {
+   *     const [operation, initialApiResponse] = responses;
+   *
+   *     // Adding a listener for the "complete" event starts polling for the
+   *     // completion of the operation.
+   *     operation.on('complete', (result, metadata, finalApiResponse) => {
+   *       // doSomethingWith(result);
+   *     });
+   *
+   *     // Adding a listener for the "progress" event causes the callback to be
+   *     // called on any change in metadata when the operation is polled.
+   *     operation.on('progress', (metadata, apiResponse) => {
+   *       // doSomethingWith(metadata)
+   *     });
+   *
+   *     // Adding a listener for the "error" event handles any errors found during polling.
+   *     operation.on('error', err => {
+   *       // throw(err);
+   *     });
+   *   })
+   *   .catch(err => {
+   *     console.error(err);
+   *   });
+   *
+   *
+   *
+   * // Handle the operation using the await pattern.
+   * const [operation] = await client.wait({});
+   *
+   * const [response] = await operation.promise();
    */
   wait(request, options, callback) {
     if (options instanceof Function && callback === undefined) {
@@ -422,157 +492,6 @@ class EchoClient {
 
     return this._innerApiCalls.wait(request, options, callback);
   }
-
-  /**
-   * This method returns a page containing numbers specified in the request.
-   * If the last number in the page is below the specified maximum, then the
-   * response will include a page token indicating the next page.
-   *
-   * @param {Object} request
-   *   The request object that will be sent.
-   * @param {number} request.maxResponse
-   *   The maximum number that will be returned in the response.
-   * @param {number} [request.pageSize]
-   *   The maximum number of resources contained in the underlying API
-   *   response. If page streaming is performed per-resource, this
-   *   parameter does not affect the return value. If page streaming is
-   *   performed per-page, this determines the maximum number of
-   *   resources in a page.
-   * @param {Object} [options]
-   *   Optional parameters. You can override the default settings for this call, e.g, timeout,
-   *   retries, paginations, etc. See [gax.CallOptions]{@link https://googleapis.github.io/gax-nodejs/global.html#CallOptions} for the details.
-   * @param {function(?Error, ?Array, ?Object, ?Object)} [callback]
-   *   The function which will be called with the result of the API call.
-   *
-   *   The second parameter to the callback is Array of number.
-   *
-   *   When autoPaginate: false is specified through options, it contains the result
-   *   in a single response. If the response indicates the next page exists, the third
-   *   parameter is set to be used for the next request object. The fourth parameter keeps
-   *   the raw response object of an object representing [PaginationResponse]{@link google.showcase.v1alpha2.PaginationResponse}.
-   * @returns {Promise} - The promise which resolves to an array.
-   *   The first element of the array is Array of number.
-   *
-   *   When autoPaginate: false is specified through options, the array has three elements.
-   *   The first element is Array of number in a single response.
-   *   The second element is the next request object if the response
-   *   indicates the next page exists, or null. The third element is
-   *   an object representing [PaginationResponse]{@link google.showcase.v1alpha2.PaginationResponse}.
-   *
-   *   The promise has a method named "cancel" which cancels the ongoing API call.
-   *
-   * @example
-   *
-   * const showcase = require('showcase.v1alpha2');
-   *
-   * const client = new showcase.v1alpha2.EchoClient({
-   *   // optional auth parameters.
-   * });
-   *
-   * // Iterate over all elements.
-   * const maxResponse = 0;
-   *
-   * client.pagination({maxResponse: maxResponse})
-   *   .then(responses => {
-   *     const resources = responses[0];
-   *     for (let i = 0; i < resources.length; i += 1) {
-   *       // doThingsWith(resources[i])
-   *     }
-   *   })
-   *   .catch(err => {
-   *     console.error(err);
-   *   });
-   *
-   * // Or obtain the paged response.
-   * const maxResponse = 0;
-   *
-   *
-   * const options = {autoPaginate: false};
-   * const callback = responses => {
-   *   // The actual resources in a response.
-   *   const resources = responses[0];
-   *   // The next request if the response shows that there are more responses.
-   *   const nextRequest = responses[1];
-   *   // The actual response object, if necessary.
-   *   // const rawResponse = responses[2];
-   *   for (let i = 0; i < resources.length; i += 1) {
-   *     // doThingsWith(resources[i]);
-   *   }
-   *   if (nextRequest) {
-   *     // Fetch the next page.
-   *     return client.pagination(nextRequest, options).then(callback);
-   *   }
-   * }
-   * client.pagination({maxResponse: maxResponse}, options)
-   *   .then(callback)
-   *   .catch(err => {
-   *     console.error(err);
-   *   });
-   */
-  pagination(request, options, callback) {
-    if (options instanceof Function && callback === undefined) {
-      callback = options;
-      options = {};
-    }
-    options = options || {};
-
-    return this._innerApiCalls.pagination(request, options, callback);
-  }
-
-  /**
-   * Equivalent to {@link pagination}, but returns a NodeJS Stream object.
-   *
-   * This fetches the paged responses for {@link pagination} continuously
-   * and invokes the callback registered for 'data' event for each element in the
-   * responses.
-   *
-   * The returned object has 'end' method when no more elements are required.
-   *
-   * autoPaginate option will be ignored.
-   *
-   * @see {@link https://nodejs.org/api/stream.html}
-   *
-   * @param {Object} request
-   *   The request object that will be sent.
-   * @param {number} request.maxResponse
-   *   The maximum number that will be returned in the response.
-   * @param {number} [request.pageSize]
-   *   The maximum number of resources contained in the underlying API
-   *   response. If page streaming is performed per-resource, this
-   *   parameter does not affect the return value. If page streaming is
-   *   performed per-page, this determines the maximum number of
-   *   resources in a page.
-   * @param {Object} [options]
-   *   Optional parameters. You can override the default settings for this call, e.g, timeout,
-   *   retries, paginations, etc. See [gax.CallOptions]{@link https://googleapis.github.io/gax-nodejs/global.html#CallOptions} for the details.
-   * @returns {Stream}
-   *   An object stream which emits a number on 'data' event.
-   *
-   * @example
-   *
-   * const showcase = require('showcase.v1alpha2');
-   *
-   * const client = new showcase.v1alpha2.EchoClient({
-   *   // optional auth parameters.
-   * });
-   *
-   * const maxResponse = 0;
-   * client.paginationStream({maxResponse: maxResponse})
-   *   .on('data', element => {
-   *     // doThingsWith(element)
-   *   }).on('error', err => {
-   *     console.log(err);
-   *   });
-   */
-  paginationStream(request, options) {
-    options = options || {};
-
-    return this._descriptors.page.pagination.createStream(
-      this._innerApiCalls.pagination,
-      request,
-      options
-    );
-  };
 }
 
 
