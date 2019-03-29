@@ -58,8 +58,8 @@ export interface PaginationResponse<
 }
 {% endif %}
 export class {{ service.name }}Client {
-  _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
-  _innerApiCalls: {[name: string]: Function};
+  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
+  private _innerApiCalls: {[name: string]: Function};
   auth: gax.GoogleAuth;
 
   constructor(opts: ClientOptions) {
@@ -193,8 +193,7 @@ export class {{ service.name }}Client {
       this._innerApiCalls[methodName] = gax.createApiCall(
           {{ service.name.toCamelCase() }}Stub.then(
               // @ts-ignore
-              stub => function() {
-                const args = Array.prototype.slice.call(arguments, 0);
+              stub => (...args) => {
                 stub[methodName].apply(stub, args);
               },
               (err: Error|null|undefined) => () => {
@@ -260,19 +259,19 @@ export class {{ service.name }}Client {
 
 {%- for method in service.simpleMethods %}
   {{ method.name.toCamelCase() }}(
-      request: protos{{ method.inputType }},
+      request: protos{{ method.inputInterface }},
       options?: gax.CallOptions):
-      Promise<protos{{ method.outputType }}>;
+      Promise<protos{{ method.outputInterface }}>;
   {{ method.name.toCamelCase() }}(
-      request: protos{{ method.inputType }},
+      request: protos{{ method.inputInterface }},
       options: gax.CallOptions,
-      callback: Callback<protos{{ method.outputType }}>): void;
+      callback: Callback<protos{{ method.outputInterface }}>): void;
   {{ method.name.toCamelCase() }}(
-      request: protos{{ method.inputType }},
+      request: protos{{ method.inputInterface }},
       optionsOrCallback?: gax.CallOptions|
-      Callback<protos{{ method.outputType }}>,
-      callback?: Callback<protos{{ method.outputType }}>):
-      Promise<protos{{ method.outputType }}>|void {
+      Callback<protos{{ method.outputInterface }}>,
+      callback?: Callback<protos{{ method.outputInterface }}>):
+      Promise<protos{{ method.outputInterface }}>|void {
     let options = optionsOrCallback;
     if (typeof options === 'function') {
       callback = options;
@@ -282,11 +281,11 @@ export class {{ service.name }}Client {
     if (callback) {
       return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
     }
-    return new Promise<protos{{ method.outputType }}>(
+    return new Promise<protos{{ method.outputInterface }}>(
         (resolve, reject) => {
           const promiseCallback =
               (err: Error|null|undefined,
-               response: protos{{ method.outputType }}) => {
+               response: protos{{ method.outputInterface }}) => {
                 if (err) {
                   reject(err);
                 }

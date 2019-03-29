@@ -9,6 +9,8 @@ interface MethodDescriptorProto extends
   longRunning?: plugin.google.longrunning.IOperationInfo;
   streaming: 'none'|'client'|'server'|undefined;
   pagingFieldName: string|undefined;
+  inputInterface: string;
+  outputInterface: string;
 }
 
 interface ServiceDescriptorProto extends
@@ -87,13 +89,19 @@ function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
   return repeatedFields[0].name;
 }
 
+function toInterface(type: string) {
+  return type.replace(/\.([^.]+)$/, '.I$1');
+}
+
 function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
   method = Object.assign(
                {
                  idempotence: idempotence(method),
                  longRunning: longrunning(method),
                  streaming: streaming(method),
-                 pagingFieldName: pagingFieldName(messages, method)
+                 pagingFieldName: pagingFieldName(messages, method),
+                 inputInterface: toInterface(method.inputType!),
+                 outputInterface: toInterface(method.outputType!)
                },
                method) as MethodDescriptorProto;
   return method;
