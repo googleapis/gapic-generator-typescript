@@ -7,7 +7,7 @@ interface MethodDescriptorProto extends
     plugin.google.protobuf.IMethodDescriptorProto {
   idempotence: 'idempotent'|'non_idempotent';
   longRunning?: plugin.google.longrunning.IOperationInfo;
-  streaming: 'none'|'client'|'server'|undefined;
+  streaming: 'CLIENT_STREAMING'|'SERVER_STREAMING'|'BIDI_STREAMING'|undefined;
   pagingFieldName: string|undefined;
 }
 
@@ -17,6 +17,9 @@ interface ServiceDescriptorProto extends
   simpleMethods: MethodDescriptorProto[];
   longRunning: MethodDescriptorProto[];
   streaming: MethodDescriptorProto[];
+  clientStreaming: MethodDescriptorProto[];
+  serverStreaming: MethodDescriptorProto[];
+  bidiStreaming: MethodDescriptorProto[];
   paging: MethodDescriptorProto[];
   hostname: string;
   port: number;
@@ -112,6 +115,12 @@ function augmentService(
       augmentedService.method.filter(method => method.longRunning);
   augmentedService.streaming =
       augmentedService.method.filter(method => method.streaming);
+  augmentedService.clientStreaming = augmentedService.method.filter(
+      method => method.streaming === 'CLIENT_STREAMING');
+  augmentedService.serverStreaming = augmentedService.method.filter(
+      method => method.streaming === 'SERVER_STREAMING');
+  augmentedService.bidiStreaming = augmentedService.method.filter(
+      method => method.streaming === 'BIDI_STREAMING');
   augmentedService.paging =
       augmentedService.method.filter(method => method.pagingFieldName);
 

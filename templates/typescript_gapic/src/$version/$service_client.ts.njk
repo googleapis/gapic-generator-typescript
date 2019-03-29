@@ -57,6 +57,22 @@ export interface PaginationResponse<
   rawResponse?: ResponseObject;
 }
 {% endif %}
+{% if (service.serverStreaming.length > 0) %}
+export interface ReadableStream<Type> extends NodeJS.ReadableStream {
+  on(event: 'data', listener: (response: Type) => void): ReadableStream<Type>;
+}
+{% endif %}
+{% if (service.clientStreaming.length > 0) %}
+export interface WritableStream<Type> extends NodeJS.ReadableStream {
+  write(request: Type): boolean;
+}
+{% endif %}
+{% if (service.bidiStreaming.length > 0) %}
+export interface Stream<RequestType, ResponseType> extends NodeJS.ReadableStream, NodeJS.WritableStream {
+  on(event: 'data', listener: (response: ResponseType) => void): Stream<RequestType, ResponseType>;
+  write(request: RequestType): boolean;
+}
+{% endif %}
 export class {{ service.name }}Client {
   _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   _innerApiCalls: {[name: string]: Function};
@@ -259,6 +275,7 @@ export class {{ service.name }}Client {
   // -------------------
 
 {%- for method in service.simpleMethods %}
+
   {{ method.name.toCamelCase() }}(
       request: protos{{ method.inputType }},
       options?: gax.CallOptions):
@@ -297,7 +314,44 @@ export class {{ service.name }}Client {
   } 
 {%- endfor%}
 
-  test() {
-    console.log(protos);
-  }
+{%- for method in service.clientStreaming %}
+
+  {{ method.name.toCamelCase() }}(
+      request: protos{{ method.inputType }},
+      options?: gax.CallOptions):
+      Promise<protos{{ method.outputType }}>;
+  {{ method.name.toCamelCase() }}(
+      request: protos{{ method.inputType }},
+      options: gax.CallOptions,
+      callback: Callback<protos{{ method.outputType }}>): void;
+  {{ method.name.toCamelCase() }}(
+      request: protos{{ method.inputType }},
+      optionsOrCallback?: gax.CallOptions|
+      Callback<protos{{ method.outputType }}>,
+      callback?: Callback<protos{{ method.outputType }}>):
+      Promise<protos{{ method.outputType }}>|void {
+    let options = optionsOrCallback;
+    if (typeof options === 'function') {
+      callback = options;
+      options = {};
+    }
+    options = options || {};
+    if (callback) {
+      return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+    }
+    return new Promise<protos{{ method.outputType }}>(
+        (resolve, reject) => {
+          const promiseCallback =
+              (err: Error|null|undefined,
+               response: protos{{ method.outputType }}) => {
+                if (err) {
+                  reject(err);
+                }
+                resolve(response);
+              };
+          this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, promiseCallback);
+        });
+  } 
+{%- endfor%}
+
 }
