@@ -40,8 +40,10 @@ interface Descriptors {
   longrunning: {[name: string]: gax.LongrunningDescriptor};
 }
 
-export interface Callback<ResponseObject> {
-  (err: Error|null|undefined, value?: ResponseObject|null): void;
+export interface Callback<
+    ResponseObject, NextRequestObject, RawResponseObject> {
+  (err: Error|null|undefined, value?: ResponseObject|null,
+   nextRequest?: NextRequestObject, rawResponse?: RawResponseObject): void;
 }
 
 export interface PaginationCallback<
@@ -177,8 +179,9 @@ export class EchoClient {
    *   be called with the current project Id.
    */
   getProjectId(): Promise<string>;
-  getProjectId(callback: Callback<string>): void;
-  getProjectId(callback?: Callback<string>): Promise<string>|void {
+  getProjectId(callback: Callback<string, undefined, undefined>): void;
+  getProjectId(callback?: Callback<string, undefined, undefined>):
+      Promise<string>|void {
     if (callback) {
       this.auth.getProjectId(callback);
       return;
@@ -192,38 +195,37 @@ export class EchoClient {
   echo(
       request: protos.google.showcase.v1alpha3.IEchoRequest,
       options?: gax.CallOptions):
-      Promise<protos.google.showcase.v1alpha3.IEchoResponse>;
+      Promise<[
+        protos.google.showcase.v1alpha3.IEchoResponse,
+        protos.google.showcase.v1alpha3.IEchoRequest|undefined, {}|undefined
+      ]>;
   echo(
       request: protos.google.showcase.v1alpha3.IEchoRequest,
       options: gax.CallOptions,
-      callback: Callback<protos.google.showcase.v1alpha3.IEchoResponse>): void;
+      callback: Callback<
+          protos.google.showcase.v1alpha3.IEchoResponse,
+          protos.google.showcase.v1alpha3.IEchoRequest|undefined,
+          {}|undefined>): void;
   echo(
       request: protos.google.showcase.v1alpha3.IEchoRequest,
-      optionsOrCallback?: gax.CallOptions|
-      Callback<protos.google.showcase.v1alpha3.IEchoResponse>,
-      callback?: Callback<protos.google.showcase.v1alpha3.IEchoResponse>):
-      Promise<protos.google.showcase.v1alpha3.IEchoResponse>|void {
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protos.google.showcase.v1alpha3.IEchoResponse,
+          protos.google.showcase.v1alpha3.IEchoRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protos.google.showcase.v1alpha3.IEchoResponse,
+          protos.google.showcase.v1alpha3.IEchoRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protos.google.showcase.v1alpha3.IEchoResponse,
+        protos.google.showcase.v1alpha3.IEchoRequest|undefined, {}|undefined
+      ]>|void {
     let options = optionsOrCallback;
-    if (typeof options === 'function') {
+    if (typeof options === 'function' && callback === undefined) {
       callback = options;
       options = {};
     }
     options = options || {};
-    if (callback) {
-      return this._innerApiCalls.echo(request, options, callback);
-    }
-    return new Promise<protos.google.showcase.v1alpha3.IEchoResponse>(
-        (resolve, reject) => {
-          const promiseCallback =
-              (err: Error|null|undefined,
-               response: protos.google.showcase.v1alpha3.IEchoResponse) => {
-                if (err) {
-                  reject(err);
-                }
-                resolve(response);
-              };
-          this._innerApiCalls.echo(request, options, promiseCallback);
-        });
+    return this._innerApiCalls.echo(request, options, callback);
   }
 
   test() {
