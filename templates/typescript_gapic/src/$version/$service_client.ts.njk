@@ -130,7 +130,7 @@ export class {{ service.name }}Client {
 {%- endfor %}
     };
 {%- endif %}
-    
+
 {%- if (service.longrunning.length > 0) %}
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
@@ -256,49 +256,105 @@ export class {{ service.name }}Client {
     return this.auth.getProjectId();
   }
 
+{% macro handleCallback(method) %}
+    if (options instanceof Function && callback === undefined){
+        callback = options;
+        options = {};
+    }
+{% endmacro %}
+{% macro maybeHandleRequest(method) %}
+{%- if method in service.simpleMethods or method.streaming == 'SERVER_STREAMING' or method.streaming == 'NON_STREAMING' %}
+{%- if (method.requiredRequestObjectParams.isEmpty and method.optionalRequestObjectParamsNoPageToken.isEmpty) %}
+    if(request === undefined){
+        request = {};
+    }
+{%- endif %}
+{%- endif %}
+{% endmacro %}
+{% macro callbackParams(method) %}
+{%- if method in service.simpleMethods or method.streaming == 'CLIENT_STREAMING' or method.streaming == 'NON_STREAMING' %}
+      callback
+{%- endif %}
+{% endmacro %}
+{% macro callbackRequiredParams(method) %}
+{%- if method in service.simpleMethods or method.streaming == 'CLIENT_STREAMING' or method.streaming == 'NON_STREAMING' %}
+      callback: Callback<
+          protos.google.showcase.v1beta1.IEchoResponse,
+          protos.google.showcase.v1beta1.IEchoRequest|undefined,
+          {}|undefined>
+{%- endif %}
+{% endmacro %}
+{% macro callbackOptionalParams(method) %}
+{%- if method in service.simpleMethods or method.streaming == 'CLIENT_STREAMING' or method.streaming == 'NON_STREAMING' %}
+      callback?: Callback<
+          protos.google.showcase.v1beta1.IEchoResponse,
+          protos.google.showcase.v1beta1.IEchoRequest|undefined,
+          {}|undefined>
+{%- endif %}
+{% endmacro %}
+
+{% macro requestObject(method) %}
+{%- if method in service.simpleMethods or method.streaming == 'SERVER_STREAMING' or method.streaming == 'NON_STREAMING' %}
+    request,
+{%- elif method.streaming == 'CLIENT_STREAMING' %}
+    null,
+{%- endif %}
+{% endmacro %}
+
+{% macro methodRequestParameters(method) %}
+{%- if method in service.simpleMethods or method.streaming == 'SERVER_STREAMING' or method.streaming == 'NON_STREAMING' %}
+      request: protos{{ method.inputInterface }},
+{%- endif %}
+{% endmacro %}
+{% macro innerApiCalls(method) %}
+{%- if method in service.simpleMethods or method.streaming == 'NON_STREAMING' %}
+    this._innerApiCalls.{{method.name.toCamelCase()}}(request, options, callback);
+{%- elif method.streaming == 'SERVER_STREAMING' %}
+    this._innerApiCalls.{{method.name.toCamelCase()}}(request, options);
+{%- elif method.streaming == 'CLIENT_STREAMING' %}
+    this._innerApiCalls.{{method.name.toCamelCase()}}(null, options, callback);
+{%- else %}
+    this._innerApiCalls.{{method.name.toCamelCase()}}(options);
+{%- endif %}
+{% endmacro %}
   // -------------------
   // -- Service calls --
   // -------------------
-
-{%- for method in service.simpleMethods %}
-  {{ method.name.toCamelCase() }}(
-      request: protos{{ method.inputInterface }},
+{%- for method in service.method %}
+{%- if method in service.simpleMethods or method.streaming %}
+  {{ method.name.toCamelCase() }}({{methodRequestParameters(method)}}
       options?: gax.CallOptions):
       Promise<[
         protos{{ method.outputInterface }},
         protos{{ method.inputInterface }}|undefined, {}|undefined
       ]>;
-  {{ method.name.toCamelCase() }}(
-      request: protos{{ method.inputInterface }},
+  {{ method.name.toCamelCase() }}({{ methodRequestParameters(method) }}
       options: gax.CallOptions,
-      callback: Callback<
-          protos{{ method.outputInterface }},
-          protos{{ method.inputInterface }}|undefined,
-          {}|undefined>): void;
-  {{ method.name.toCamelCase() }}(
-      request: protos{{ method.inputInterface }},
+      {{ callbackRequiredParams(method) }}
+      ): void;
+  {{ method.name.toCamelCase() }}({{ methodRequestParameters(method) }}
       optionsOrCallback?: gax.CallOptions|Callback<
           protos{{ method.outputInterface }},
           protos{{ method.inputInterface }}|undefined, {}|undefined>,
-      callback?: Callback<
-          protos{{ method.outputInterface }},
-          protos{{ method.inputInterface }}|undefined,
-          {}|undefined>):
+      {{ callbackOptionalParams(method) }}):
       Promise<[
         protos{{ method.outputInterface }},
         protos{{ method.inputInterface }}|undefined, {}|undefined
       ]>|void {
-{%- if (method.streaming == 'SERVER_STREAMING' or method.streaming == 'NON_STREAMING') %}
+    let options = optionsOrCallback;
+{%- if (method.streaming == 'SERVER_STREAMING') %}
+    request = request || {};
+{%- elif method.streaming == 'CLIENT_STREAMING' %}
+    {{ handleCallback(method) }}
+{%- elif method in service.simpleMethods or method.streaming == 'NON_STREAMING' %}
+    {{ handleCallback(method) }}
     request = request || {};
 {%- endif %}
-    let options = optionsOrCallback;
-    if (typeof options === 'function' && callback === undefined) {
-      callback = options;
-      options = {};
-    }
     options = options || {};
-    return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
-  } 
+    {{ maybeHandleRequest(method) }}
+    {{ innerApiCalls(method) }}
+  }
+{%- endif %}
 {%- endfor%}
 
   test() {
