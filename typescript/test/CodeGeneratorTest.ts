@@ -2,7 +2,7 @@ const execa = require('execa');
 const util = require('util');
 const path = require('path');
 const fs = require('fs');
-
+const assert = require('assert');
 const cwd = process.cwd();
 const SHOWCASE_CLIENT_LIB = path.join(cwd, 'showcase');
 const TMP_CLIENT_LIB = path.join(cwd, 'showcase', 'tmp');
@@ -15,12 +15,6 @@ const GOOGLE_GAX_PROTOS_DIR = '-I/' + path.join('usr', 'local', 'lib', 'node_mod
 const LOCAL_CLIENT_LIB_DIR = '-I/' + path.join('Users', 'xiaozhenliu', 'showcase');
 const PROTO_DIR = path.join('google', 'showcase', 'v1beta1', 'echo.proto');
 const CLIENT_LIBRARY_BASELINE = path.join(__dirname, '..', '..', 'typescript', 'test', 'testdata', 'echo_client_baseline');
-
-function compareFiles(file1: string, file2: string): boolean {
-    const clientBuf = fs.readFileSync(file1);
-    const baselineBuf = fs.readFileSync(file2);
-    return clientBuf.equals(baselineBuf);
-}
 
 describe('CodeGeneratorTest', () => {
   describe('Generate client library', () => {
@@ -36,7 +30,7 @@ describe('CodeGeneratorTest', () => {
            GENERATED_CLIENT_LIB_DIR, GOOGLE_GAX_PROTOS_DIR,
            LOCAL_CLIENT_LIB_DIR, PROTO_DIR
          ]);
-         console.log(compareFiles(GENERATED_CLIENT_FILE, CLIENT_LIBRARY_BASELINE));
+         assert(fs.readFileSync(GENERATED_CLIENT_FILE).equals(fs.readFileSync(CLIENT_LIBRARY_BASELINE)));
        });
   });
 });
