@@ -6,15 +6,19 @@ const assert = require('assert');
 const cwd = process.cwd();
 const SHOWCASE_CLIENT_LIB = path.join(cwd, 'showcase');
 const TMP_CLIENT_LIB = path.join(cwd, 'showcase', 'tmp');
-const GENERATED_CLIENT_LIB_DIR =
-    '--typescript_gapic_out=' + path.join(__dirname, '..', '..', 'showcase', 'tmp');
-const GENERATED_CLIENT_FILE = path.join(__dirname, '..', '..', 'showcase', 'tmp', 'src', 'v1beta1', 'echo_client.ts');
-const GOOGLE_GAX_PROTOS_DIR = '-I/' + path.join('usr', 'local', 'lib', 'node_modules', 'google-gax/protos');
-// TODO: Right now we download protos from release page and cp here. Github
-//  download will give the whole repo.
-const LOCAL_CLIENT_LIB_DIR = '-I/' + path.join('Users', 'xiaozhenliu', 'showcase');
+const GENERATED_CLIENT_LIB_DIR = '--typescript_gapic_out=' +
+    path.join(__dirname, '..', '..', 'showcase', 'tmp');
+const GENERATED_CLIENT_FILE = path.join(
+    __dirname, '..', '..', 'showcase', 'tmp', 'src', 'v1beta1',
+    'echo_client.ts');
+const GOOGLE_GAX_PROTOS_DIR = '-I/' +
+    path.join('usr', 'local', 'lib', 'node_modules', 'google-gax/protos');
+const LOCAL_CLIENT_LIB_DIR = '-I' + path.join(__dirname, 'protos');
+console.log(LOCAL_CLIENT_LIB_DIR);
 const PROTO_DIR = path.join('google', 'showcase', 'v1beta1', 'echo.proto');
-const CLIENT_LIBRARY_BASELINE = path.join(__dirname, '..', '..', 'typescript', 'test', 'testdata', 'echo_client_baseline');
+const CLIENT_LIBRARY_BASELINE = path.join(
+    __dirname, '..', '..', 'typescript', 'test', 'testdata',
+    'echo_client_baseline');
 
 describe('CodeGeneratorTest', () => {
   describe('Generate client library', () => {
@@ -30,7 +34,8 @@ describe('CodeGeneratorTest', () => {
            GENERATED_CLIENT_LIB_DIR, GOOGLE_GAX_PROTOS_DIR,
            LOCAL_CLIENT_LIB_DIR, PROTO_DIR
          ]);
-         assert(fs.readFileSync(GENERATED_CLIENT_FILE).equals(fs.readFileSync(CLIENT_LIBRARY_BASELINE)));
+         assert(fs.readFileSync(GENERATED_CLIENT_FILE)
+                    .equals(fs.readFileSync(CLIENT_LIBRARY_BASELINE)));
        });
   });
 });
