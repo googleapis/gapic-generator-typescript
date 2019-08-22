@@ -1,4 +1,4 @@
-const execa = require('execa');
+const {execSync} = require('child_process');
 const util = require('util');
 const path = require('path');
 const fs = require('fs');
@@ -31,12 +31,10 @@ describe('CodeGeneratorTest', () => {
          if (!fs.existsSync(TMP_CLIENT_LIB)) {
            fs.mkdirSync(TMP_CLIENT_LIB);
          }
-         await execa('protoc', [
-           GENERATED_CLIENT_LIB_DIR, GOOGLE_GAX_PROTOS_DIR,
-           LOCAL_CLIENT_LIB_DIR, PROTO_DIR
-         ]);
-         assert(fs.readFileSync(GENERATED_CLIENT_FILE)
-                    .equals(fs.readFileSync(CLIENT_LIBRARY_BASELINE)));
+         console.log('mkdir complete');
+         execSync('protoc ' + GENERATED_CLIENT_LIB_DIR + ' ' + GOOGLE_GAX_PROTOS_DIR + ' ' + LOCAL_CLIENT_LIB_DIR + ' ' + PROTO_DIR);
+         console.log('protoc completed');
+         assert.strictEqual(fs.readFileSync(GENERATED_CLIENT_FILE), fs.readFileSync(CLIENT_LIBRARY_BASELINE));
        });
   });
 });
