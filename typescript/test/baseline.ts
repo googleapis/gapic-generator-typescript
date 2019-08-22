@@ -27,13 +27,14 @@ const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 describe('CodeGeneratorTest', () => {
   describe('Generate client library', () => {
     it('Generated client library should have same output with baseline.',
-       async () => {
+       async function() {
+         this.timeout(10000);
          if (fs.existsSync(OUTPUT_DIR)) {
            await rmrf(OUTPUT_DIR);
          }
          fs.mkdirSync(OUTPUT_DIR);
 
-         ncpp(CLI, PLUGIN);
+         await ncpp(CLI, PLUGIN);
          process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
 
          try {
