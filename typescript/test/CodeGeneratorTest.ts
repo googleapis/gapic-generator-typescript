@@ -13,8 +13,9 @@ const GENERATED_CLIENT_FILE = path.join(
     'echo_client.ts');
 const GOOGLE_GAX_PROTOS_DIR = '-I/' +
     path.join('usr', 'local', 'lib', 'node_modules', 'google-gax/protos');
-const LOCAL_CLIENT_LIB_DIR = '-I' + path.join(__dirname, 'protos');
-console.log(LOCAL_CLIENT_LIB_DIR);
+const LOCAL_CLIENT_LIB_DIR =
+    '-I' + path.join(__dirname, '..', '..', 'typescript', 'test', 'protos');
+
 const PROTO_DIR = path.join('google', 'showcase', 'v1beta1', 'echo.proto');
 const CLIENT_LIBRARY_BASELINE = path.join(
     __dirname, '..', '..', 'typescript', 'test', 'testdata',
