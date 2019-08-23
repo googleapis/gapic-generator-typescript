@@ -15,14 +15,12 @@
 import * as assert from 'assert';
 import {execSync} from 'child_process';
 import * as fs from 'fs';
-import {ncp} from 'ncp';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import * as util from 'util';
 
 const cwd = process.cwd();
 const rmrf = util.promisify(rimraf);
-const ncpp = util.promisify(ncp);
 
 const OUTPUT_DIR = path.join(cwd, '.baseline-test-out');
 const GENERATED_CLIENT_FILE =
@@ -48,7 +46,10 @@ describe('CodeGeneratorTest', () => {
          }
          fs.mkdirSync(OUTPUT_DIR);
 
-         await ncpp(CLI, PLUGIN);
+         if (fs.existsSync(PLUGIN)) {
+           await rmrf(PLUGIN);
+         }
+         fs.copyFileSync(CLI, PLUGIN);
          process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
 
          try {
