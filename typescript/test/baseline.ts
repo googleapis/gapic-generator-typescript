@@ -17,10 +17,8 @@ import {execSync} from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
-import * as util from 'util';
 
 const cwd = process.cwd();
-const rmrf = util.promisify(rimraf);
 
 const OUTPUT_DIR = path.join(cwd, '.baseline-test-out');
 const GENERATED_CLIENT_FILE =
@@ -39,15 +37,15 @@ const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 describe('CodeGeneratorTest', () => {
   describe('Generate client library', () => {
     it('Generated client library should have same output with baseline.',
-       async function() {
+       function() {
          this.timeout(10000);
          if (fs.existsSync(OUTPUT_DIR)) {
-           await rmrf(OUTPUT_DIR);
+             rimraf.sync(OUTPUT_DIR);
          }
          fs.mkdirSync(OUTPUT_DIR);
 
          if (fs.existsSync(PLUGIN)) {
-           await rmrf(PLUGIN);
+             rimraf.sync(PLUGIN);
          }
          fs.copyFileSync(CLI, PLUGIN);
          process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
