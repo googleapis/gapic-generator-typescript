@@ -12,8 +12,8 @@ understanding these.
 
 To be honest, we probably open sourced way too much of this (basically by
 accident). There are a couple files in here you are most likely to be
-interested in: `http.proto`, `documentation.proto`, `auth.proto`, and
-`annotations.proto`.
+interested in: `http.proto`, `documentation.proto`, `auth.proto`, `annotations.proto`,
+`field_behavior.proto` and `resource.proto`.
 
 ### HTTP and REST
 
