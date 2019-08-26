@@ -15,6 +15,8 @@ export class Naming {
       throw new Error('Protos provided have different proto packages.');
     }
 
+    // Define the regular expression to match a version component
+    // (e.g. "v1", "v1beta4", etc.).
     const pattern =
         /^((?:[a-z0-9_.]+?)\.)?([a-z0-9_]+)(?:\.(v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
     const match = rootPackage.match(pattern);
