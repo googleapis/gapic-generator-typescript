@@ -40,12 +40,12 @@ describe('CodeGeneratorTest', () => {
        function() {
          this.timeout(10000);
          if (fs.existsSync(OUTPUT_DIR)) {
-             rimraf.sync(OUTPUT_DIR);
+           rimraf.sync(OUTPUT_DIR);
          }
          fs.mkdirSync(OUTPUT_DIR);
 
          if (fs.existsSync(PLUGIN)) {
-             rimraf.sync(PLUGIN);
+           rimraf.sync(PLUGIN);
          }
          fs.copyFileSync(CLI, PLUGIN);
          process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
