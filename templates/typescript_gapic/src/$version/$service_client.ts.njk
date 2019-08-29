@@ -282,8 +282,8 @@ export class {{ service.name }}Client {
     return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   } 
 {%- endfor %}
-{%- for method in service.streaming %}
-{%- if method.serverStreaming and method.clientStreaming%}
+{% for method in service.streaming %}
+{%- if method.serverStreaming and method.clientStreaming %}
   {{ method.name.toCamelCase() }}(
       options?: gax.CallOptions):
     gax.BiDiStreamingCall{
@@ -301,20 +301,31 @@ export class {{ service.name }}Client {
   }
 {%- elif method.clientStreaming %}
   {{ method.name.toCamelCase() }}(
-      options: gax.CallOptions|Callback<
-        protos{{ method.outputInterface }},
-        protos{{ method.inputInterface }}|undefined, {}|undefined>,
-      callback: gax.CallOptions|Callback<
+      options: gax.CallOptions,
+      callback: Callback<
         protos{{ method.outputInterface }},
         protos{{ method.inputInterface }}|undefined, {}|undefined>):
-    gax.ClientStreamingCall|void{
-    if (options instanceof Function && callback === undefined) {
-        callback = options;
-        options = {};
+    gax.ClientStreamingCall;
+  {{ method.name.toCamelCase() }}(
+      callback: Callback<
+        protos{{ method.outputInterface }},
+        protos{{ method.inputInterface }}|undefined, {}|undefined>):
+    gax.ClientStreamingCall;
+  {{ method.name.toCamelCase() }}(
+      optionsOrCallback: gax.CallOptions|Callback<
+        protos{{ method.outputInterface }},
+        protos{{ method.inputInterface }}|undefined, {}|undefined>,
+      callback?: Callback<
+        protos{{ method.outputInterface }},
+        protos{{ method.inputInterface }}|undefined, {}|undefined>):
+    gax.ClientStreamingCall {
+    if (optionsOrCallback instanceof Function && callback === undefined) {
+        callback = optionsOrCallback;
+        optionsOrCallback = {};
     }
-    options = options || {};
-    return this._innerApiCalls.{{ method.name.toCamelCase() }}(null, options, callback);
+    optionsOrCallback = optionsOrCallback || {};
+    return this._innerApiCalls.{{ method.name.toCamelCase() }}(null, optionsOrCallback, callback);
   }
 {%- endif %}
-{%- endfor %}
+{% endfor %}
 }
