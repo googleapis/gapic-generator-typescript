@@ -174,23 +174,24 @@ export class {{ service.name }}Client {
 {%- endfor -%}
     ];
 
-    for (const methodName of echoStubMethods) {
+    for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
+      const innerCallPromise = {{ service.name.toCamelCase() }}Stub.then(
+        stub => (...args: Array<{}>) => {
+          return stub[methodName].apply(stub, args);
+        },
+        (err: Error|null|undefined) => () => {
+          throw err;
+        });
+
       this._innerApiCalls[methodName] = gax.createApiCall(
-          {{ service.name.toCamelCase() }}Stub.then(
-              // @ts-ignore
-              stub => (...args) => {
-                stub[methodName].apply(stub, args);
-              },
-              (err: Error|null|undefined) => () => {
-                throw err;
-              }),
-          defaults[methodName],
-          this._descriptors.page[methodName] ||
-              this._descriptors.stream[methodName] ||
-              this._descriptors.longrunning[methodName]);
+        innerCallPromise,
+        defaults[methodName],
+        this._descriptors.page[methodName] ||
+            this._descriptors.stream[methodName] || 
+            this._descriptors.longrunning[methodName]
+      );
     }
   }
-
   /**
    * The DNS address for this API service.
    */
@@ -271,9 +272,7 @@ export class {{ service.name }}Client {
         protos{{ method.outputInterface }},
         protos{{ method.inputInterface }}|undefined, {}|undefined
       ]>|void {
-{%- if (method.streaming == 'SERVER_STREAMING' or method.streaming == 'NON_STREAMING') %}
     request = request || {};
-{%- endif %}
     let options = optionsOrCallback;
     if (typeof options === 'function' && callback === undefined) {
       callback = options;
@@ -283,4 +282,50 @@ export class {{ service.name }}Client {
     return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   } 
 {%- endfor %}
+{% for method in service.streaming %}
+{%- if method.serverStreaming and method.clientStreaming %}
+  {{ method.name.toCamelCase() }}(
+      options?: gax.CallOptions):
+    gax.BiDiStreamingCall{
+    options = options || {};
+    return this._innerApiCalls.{{ method.name.toCamelCase() }}(options);
+  }
+{%- elif method.serverStreaming %}
+  {{ method.name.toCamelCase() }}(
+      request?: protos{{ method.inputInterface }},
+      options?: gax.CallOptions):
+    gax.ServerStreamingCall{
+    request = request || {}; 
+    options = options || {};
+    return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options);
+  }
+{%- elif method.clientStreaming %}
+  {{ method.name.toCamelCase() }}(
+      options: gax.CallOptions,
+      callback: Callback<
+        protos{{ method.outputInterface }},
+        protos{{ method.inputInterface }}|undefined, {}|undefined>):
+    gax.ClientStreamingCall;
+  {{ method.name.toCamelCase() }}(
+      callback: Callback<
+        protos{{ method.outputInterface }},
+        protos{{ method.inputInterface }}|undefined, {}|undefined>):
+    gax.ClientStreamingCall;
+  {{ method.name.toCamelCase() }}(
+      optionsOrCallback: gax.CallOptions|Callback<
+        protos{{ method.outputInterface }},
+        protos{{ method.inputInterface }}|undefined, {}|undefined>,
+      callback?: Callback<
+        protos{{ method.outputInterface }},
+        protos{{ method.inputInterface }}|undefined, {}|undefined>):
+    gax.ClientStreamingCall {
+    if (optionsOrCallback instanceof Function && callback === undefined) {
+        callback = optionsOrCallback;
+        optionsOrCallback = {};
+    }
+    optionsOrCallback = optionsOrCallback || {};
+    return this._innerApiCalls.{{ method.name.toCamelCase() }}(null, optionsOrCallback, callback);
+  }
+{%- endif %}
+{% endfor %}
 }
