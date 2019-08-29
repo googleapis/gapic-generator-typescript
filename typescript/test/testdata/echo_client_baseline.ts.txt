@@ -135,22 +135,23 @@ export class EchoClient {
         ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'wait'];
 
     for (const methodName of echoStubMethods) {
+      const innerCallPromise = echoStub.then(
+        stub => (...args: Array<{}>) => {
+          return stub[methodName].apply(stub, args);
+        },
+        (err: Error|null|undefined) => () => {
+          throw err;
+        });
+
       this._innerApiCalls[methodName] = gax.createApiCall(
-          echoStub.then(
-              // @ts-ignore
-              stub => (...args) => {
-                stub[methodName].apply(stub, args);
-              },
-              (err: Error|null|undefined) => () => {
-                throw err;
-              }),
-          defaults[methodName],
-          this._descriptors.page[methodName] ||
-              this._descriptors.stream[methodName] ||
-              this._descriptors.longrunning[methodName]);
+        innerCallPromise,
+        defaults[methodName],
+        this._descriptors.page[methodName] ||
+            this._descriptors.stream[methodName] || 
+            this._descriptors.longrunning[methodName]
+      );
     }
   }
-
   /**
    * The DNS address for this API service.
    */
@@ -219,6 +220,7 @@ export class EchoClient {
         protos.google.showcase.v1beta1.IEchoResponse,
         protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined
       ]>|void {
+    request = request || {};
     let options = optionsOrCallback;
     if (typeof options === 'function' && callback === undefined) {
       callback = options;
@@ -227,4 +229,48 @@ export class EchoClient {
     options = options || {};
     return this._innerApiCalls.echo(request, options, callback);
   }
+
+  expand(
+      request?: protos.google.showcase.v1beta1.IExpandRequest,
+      options?: gax.CallOptions):
+    gax.ServerStreamingCall{
+    request = request || {}; 
+    options = options || {};
+    return this._innerApiCalls.expand(request, options);
+  }
+
+  collect(
+      options: gax.CallOptions,
+      callback: Callback<
+        protos.google.showcase.v1beta1.IEchoResponse,
+        protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>):
+    gax.ClientStreamingCall;
+  collect(
+      callback: Callback<
+        protos.google.showcase.v1beta1.IEchoResponse,
+        protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>):
+    gax.ClientStreamingCall;
+  collect(
+      optionsOrCallback: gax.CallOptions|Callback<
+        protos.google.showcase.v1beta1.IEchoResponse,
+        protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>,
+      callback?: Callback<
+        protos.google.showcase.v1beta1.IEchoResponse,
+        protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>):
+    gax.ClientStreamingCall {
+    if (optionsOrCallback instanceof Function && callback === undefined) {
+        callback = optionsOrCallback;
+        optionsOrCallback = {};
+    }
+    optionsOrCallback = optionsOrCallback || {};
+    return this._innerApiCalls.collect(null, optionsOrCallback, callback);
+  }
+
+  chat(
+      options?: gax.CallOptions):
+    gax.BiDiStreamingCall{
+    options = options || {};
+    return this._innerApiCalls.chat(options);
+  }
+
 }
