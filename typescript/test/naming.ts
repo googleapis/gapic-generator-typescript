@@ -15,7 +15,7 @@
 import * as assert from 'assert';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
-import {Naming} from '../src/schema/naming';
+import { Naming } from '../src/schema/naming';
 
 describe('schema/naming.ts', () => {
   it('parses name correctly', () => {
@@ -26,7 +26,7 @@ describe('schema/naming.ts', () => {
     const naming = new Naming([descriptor1, descriptor2]);
     assert.strictEqual(naming.name, 'Service');
     assert.strictEqual(naming.productName, 'Service');
-    assert.deepEqual(naming.namespace, ['google', 'namespace']);
+    assert.deepStrictEqual(naming.namespace, ['google', 'namespace']);
     assert.strictEqual(naming.version, 'v1beta1');
     assert.strictEqual(naming.protoPackage, 'google.namespace.service.v1beta1');
   });

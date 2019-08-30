@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import * as getStdin from 'get-stdin';
 import * as path from 'path';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
 
-import {API} from './schema/api';
-import {processTemplates} from './templater';
-import {commonPrefix} from './util';
+import { API } from './schema/api';
+import { processTemplates } from './templater';
+import { commonPrefix } from './util';
 
 const templateDirectory = 'templates/typescript_gapic';
 // If needed, we can make it possible to load templates from different locations
@@ -31,16 +30,15 @@ export class Generator {
   response: plugin.google.protobuf.compiler.CodeGeneratorResponse;
 
   constructor() {
-    this.request =
-        plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
-    this.response =
-        plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
+    this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
+    this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
   }
 
   async initializeFromStdin() {
     const inputBuffer = await getStdin.buffer();
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.decode(
-        inputBuffer);
+      inputBuffer
+    );
   }
 
   addProtosToResponse() {
@@ -50,8 +48,7 @@ export class Generator {
         protoFilenames.push(proto.name);
       }
     }
-    const protoList =
-        plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+    const protoList = plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
     protoList.name = 'proto.list';
     protoList.content = protoFilenames.join('\n') + '\n';
     this.response.file.push(protoList);
@@ -59,9 +56,11 @@ export class Generator {
 
   buildAPIObject(): API {
     const protoFilesToGenerate = this.request.protoFile.filter(
-        pf => pf.name && this.request.fileToGenerate.includes(pf.name));
-    const packageNamesToGenerate =
-        protoFilesToGenerate.map(pf => pf.package || '');
+      pf => pf.name && this.request.fileToGenerate.includes(pf.name)
+    );
+    const packageNamesToGenerate = protoFilesToGenerate.map(
+      pf => pf.package || ''
+    );
     const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
     if (packageName === '') {
       throw new Error('Cannot get package name to generate.');
@@ -78,8 +77,7 @@ export class Generator {
   async generate() {
     const fileToGenerate = this.request.fileToGenerate;
 
-    this.response =
-        plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
+    this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
 
     this.addProtosToResponse();
     const api = this.buildAPIObject();
@@ -88,9 +86,9 @@ export class Generator {
     // console.warn(JSON.stringify(api.services, null, ' '));
     // console.warn(JSON.stringify(api, null, ' '));
 
-    const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse
-                             .encode(this.response)
-                             .finish();
+    const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse.encode(
+      this.response
+    ).finish();
     process.stdout.write(outputBuffer);
   }
 }

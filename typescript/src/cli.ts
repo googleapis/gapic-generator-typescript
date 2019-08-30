@@ -14,13 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import * as commandLineArgs from 'command-line-args';
-import {Generator} from './generator';
+import { Generator } from './generator';
 
 async function main() {
-  const optionDefinitions: commandLineArgs.OptionDefinition[] =
-      [{name: 'descriptor', type: String}];
+  const optionDefinitions: commandLineArgs.OptionDefinition[] = [
+    { name: 'descriptor', type: String },
+  ];
   const options = commandLineArgs(optionDefinitions);
 
   if (options.descriptor) {
