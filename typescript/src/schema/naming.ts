@@ -1,5 +1,5 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import {commonPrefix} from '../util';
+import { commonPrefix } from '../util';
 
 export class Naming {
   name: string;
@@ -20,16 +20,16 @@ export class Naming {
 
     // Define the regular expression to match a version component
     // (e.g. "v1", "v1beta4", etc.).
-    const pattern =
-        /^((?:[a-z0-9_.]+?)\.)?([a-z0-9_]+)(?:\.(v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
+    const pattern = /^((?:[a-z0-9_.]+?)\.)?([a-z0-9_]+)(?:\.(v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
     const match = rootPackage.match(pattern);
     if (!match) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);
     }
     const [, namespaces, name, version] = match;
     if (!namespaces) {
-      throw new Error(`Cannot parse package name ${
-          rootPackage}: namespace is not defined.`);
+      throw new Error(
+        `Cannot parse package name ${rootPackage}: namespace is not defined.`
+      );
     }
     this.name = name.capitalize();
     this.productName = this.name;
@@ -39,7 +39,8 @@ export class Naming {
 
     if (!this.version && protoPackages.length > 1) {
       throw new Error(
-          'All protos must have the same proto package up to and including the version.');
+        'All protos must have the same proto package up to and including the version.'
+      );
     }
   }
 }

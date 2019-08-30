@@ -15,10 +15,8 @@
 import * as assert from 'assert';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
-import {Proto} from '../src/schema/proto';
+import { Proto } from '../src/schema/proto';
 
-describe(
-    'schema/proto.ts',
-    () => {
-        // TODO: test service augmentation
-    });
+describe('schema/proto.ts', () => {
+  // TODO: test service augmentation
+});
