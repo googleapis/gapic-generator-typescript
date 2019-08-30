@@ -10,10 +10,13 @@ export class Naming {
 
   constructor(fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]) {
     const protoPackages = fileDescriptors.map(fd => fd.package || '');
-    const rootPackage = commonPrefix(protoPackages).replace(/\.$/, '');
-    if (!rootPackage) {
+    const prefix = commonPrefix(protoPackages);
+    // common prefix must either end with `.`, or be equal to at least one of
+    // the packages' prefix
+    if (!prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix)) {
       throw new Error('Protos provided have different proto packages.');
     }
+    const rootPackage = prefix.replace(/\.$/, '');
 
     // Define the regular expression to match a version component
     // (e.g. "v1", "v1beta4", etc.).
@@ -38,33 +41,5 @@ export class Naming {
       throw new Error(
           'All protos must have the same proto package up to and including the version.');
     }
-
-    // iterate all files and look for metadata, make sure the metadata is the
-    // same across all files
-    const explicitPkgs = new Set<string>();
-    let metadataName: string|null|undefined;
-    let metadataNamespace: string[]|null|undefined;
-    let metadataVersion: string|null|undefined;
-    for (const file of fileDescriptors) {
-      if (file.options) {
-        const pkg = file.options['.google.api.clientPackage'];
-        if (pkg) {
-          explicitPkgs.add(JSON.stringify(pkg));
-          metadataName = pkg.title || pkg.productTitle;
-          metadataNamespace = pkg.namespace;
-          metadataVersion = pkg.version;
-        }
-      }
-    }
-    if (explicitPkgs.size > 1) {
-      throw new Error(
-          'If the google.api.client_package annotation is provided in more than one file, it must be consistent.');
-    }
-
-    this.productName = metadataName || this.productName || '';
-    if (metadataNamespace && metadataNamespace.length > 0) {
-      this.namespace = metadataNamespace;
-    }
-    this.version = metadataVersion || this.version;
   }
 }
