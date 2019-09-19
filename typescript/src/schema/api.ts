@@ -52,4 +52,14 @@ export class API {
       proto => this.protos[proto].fileToGenerate
     );
   }
+
+  get protoFilesToGenerateJSON() {
+    return JSON.stringify(
+      this.filesToGenerate.map(file => {
+        return `../../protos/${file}`;
+      }),
+      null,
+      '  '
+    );
+  }
 }
