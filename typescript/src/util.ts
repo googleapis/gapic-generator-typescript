@@ -25,8 +25,8 @@ String.prototype.capitalize = function(this: string): string {
 String.prototype.words = function(this: string): string[] {
   // split on spaces, non-alphanumeric, or capital letters
   return this.split(/(?=[A-Z])|[\s\W_]+/)
-      .filter(w => w.length > 0)
-      .map(w => w.toLowerCase());
+    .filter(w => w.length > 0)
+    .map(w => w.toLowerCase());
 };
 
 String.prototype.toCamelCase = function(this: string): string {
