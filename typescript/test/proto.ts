@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Copyright 2019 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,25 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as commandLineArgs from 'command-line-args';
-import { Generator } from './generator';
+import * as assert from 'assert';
 
-async function main() {
-  const optionDefinitions: commandLineArgs.OptionDefinition[] = [
-    { name: 'descriptor', type: String },
-  ];
-  const options = commandLineArgs(optionDefinitions);
+import * as plugin from '../../pbjs-genfiles/plugin';
+import { Proto } from '../src/schema/proto';
 
-  if (options.descriptor) {
-    console.error('Descriptor option is not yet supported.');
-    process.exit(1);
-  }
-
-  const generator = new Generator();
-  await generator.initializeFromStdin();
-  await generator.generate();
-}
-
-main().catch(err => {
-  console.error(err);
+describe('schema/proto.ts', () => {
+  // TODO: test service augmentation
 });
