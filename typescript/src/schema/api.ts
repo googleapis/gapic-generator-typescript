@@ -38,4 +38,11 @@ export class API {
     return Object.keys(this.protos)
         .filter(proto => this.protos[proto].fileToGenerate);
   }
+
+  get protoFilesToGenerate(){
+    return this.filesToGenerate.map(function(file){
+      return '\"../../protos/' + file + '\"' + ',\n';
+    })
+  }
+
 }
