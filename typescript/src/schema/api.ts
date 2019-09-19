@@ -53,11 +53,13 @@ export class API {
     );
   }
 
-  get protoFilesToGenerate() {
-    return this.filesToGenerate
-      .map(file => {
-        return '\"../../protos/${file}\"';
-      })
-      .join(',\n');
+  get protoFilesToGenerateJSON() {
+    return JSON.stringify(
+      this.filesToGenerate.map(file => {
+        return `../../protos/${file}`;
+      }),
+      null,
+      '  '
+    );
   }
 }
