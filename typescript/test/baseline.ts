@@ -54,21 +54,6 @@ const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
 describe('CodeGeneratorTest', () => {
   describe('Generate client library', () => {
-<<<<<<< HEAD
-    it('Generated client library should have same output with baseline.',
-       function() {
-         this.timeout(10000);
-         if (fs.existsSync(OUTPUT_DIR)) {
-           rimraf.sync(OUTPUT_DIR);
-         }
-         fs.mkdirSync(OUTPUT_DIR);
-
-         if (fs.existsSync(PLUGIN)) {
-           rimraf.sync(PLUGIN);
-         }
-         fs.copyFileSync(CLI, PLUGIN);
-         process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
-=======
     it('Generated client library should have same output with baseline.', function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
@@ -81,7 +66,6 @@ describe('CodeGeneratorTest', () => {
       }
       fs.copyFileSync(CLI, PLUGIN);
       process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
->>>>>>> eea902007b9827d0d9cde0383989fd48f1c5ed61
 
       try {
         execSync(`chmod +x ${PLUGIN}`);

@@ -17,15 +17,9 @@ import * as path from 'path';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
 
-<<<<<<< HEAD
-import {API} from './schema/api';
-import {processTemplates} from './templater';
-import {commonPrefix} from './util';
-=======
 import { API } from './schema/api';
 import { processTemplates } from './templater';
 import { commonPrefix } from './util';
->>>>>>> eea902007b9827d0d9cde0383989fd48f1c5ed61
 
 const templateDirectory = 'templates/typescript_gapic';
 // If needed, we can make it possible to load templates from different locations
