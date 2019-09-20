@@ -20,12 +20,12 @@ import * as rimraf from 'rimraf';
 
 const cwd = process.cwd();
 
-const OUTPUT_DIR = path.join(cwd, '.baseline-test-out');
-const GENERATED_CLIENT_FILE = path.join(
+const OUTPUT_DIR = path.join(cwd, '.multi-proto-test-out');
+const GENERATED_PROTO_FILE = path.join(
   OUTPUT_DIR,
   'src',
-  'v1beta1',
-  'echo_client.ts'
+  'v1',
+  'keymanagementservice_proto_list.json'
 );
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   cwd,
@@ -34,27 +34,28 @@ const GOOGLE_GAX_PROTOS_DIR = path.join(
   'protos'
 );
 const PROTOS_DIR = path.join(cwd, 'build', 'test', 'protos');
-const ECHO_PROTO_FILE = path.join(
+const KMS_PROTO_FILE = path.join(
   PROTOS_DIR,
   'google',
-  'showcase',
-  'v1beta1',
-  'echo.proto'
+  'kms',
+  'v1',
+  'service.proto'
 );
-const CLIENT_LIBRARY_BASELINE = path.join(
+
+const PROTOLIST_LIBRARY_BASELINE = path.join(
   cwd,
   'typescript',
   'test',
   'testdata',
-  'echo_client_baseline.ts.txt'
+  'keymanagementservice_proto_list.json'
 );
 const SRCDIR = path.join(cwd, 'build', 'src');
 const CLI = path.join(SRCDIR, 'cli.js');
 const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
-describe('CodeGeneratorTest', () => {
-  describe('Generate client library', () => {
-    it('Generated client library should have same output with baseline.', function() {
+describe('Proto List Generate Test', () => {
+  describe('Generate Client library', () => {
+    it('Generated proto list should have same output with baseline.', function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);
@@ -77,11 +78,11 @@ describe('CodeGeneratorTest', () => {
         `protoc --typescript_gapic_out=${OUTPUT_DIR} ` +
           `-I${GOOGLE_GAX_PROTOS_DIR} ` +
           `-I${PROTOS_DIR} ` +
-          ECHO_PROTO_FILE
+          KMS_PROTO_FILE
       );
       assert.strictEqual(
-        fs.readFileSync(GENERATED_CLIENT_FILE).toString(),
-        fs.readFileSync(CLIENT_LIBRARY_BASELINE).toString()
+        fs.readFileSync(GENERATED_PROTO_FILE).toString(),
+        fs.readFileSync(PROTOLIST_LIBRARY_BASELINE).toString()
       );
     });
   });
