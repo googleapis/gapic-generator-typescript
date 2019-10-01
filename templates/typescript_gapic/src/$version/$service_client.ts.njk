@@ -395,4 +395,45 @@ export class {{ service.name }}Client {
     return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   } 
 {%- endfor %}
+{%- for method in service.paging %}
+  {{ method.name.toCamelCase() }}(
+      request: protosTypes{{ method.inputInterface }},
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes{{ method.outputInterface }},
+        protosTypes{{ method.inputInterface }}|undefined, 
+        {}|undefined
+      ]>;
+  {{ method.name.toCamelCase() }}(
+      request: protosTypes{{ method.inputInterface }},
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes{{ method.outputInterface }},
+          protosTypes{{ method.inputInterface }}|undefined,
+          {}|undefined>): void;
+  {{ method.name.toCamelCase() }}(
+      request: protosTypes{{ method.inputInterface }},
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes{{ method.outputInterface }},
+          protosTypes{{ method.inputInterface }}|undefined, 
+          {}|undefined>,
+      callback?: Callback<
+          protosTypes{{ method.outputInterface }},
+          protosTypes{{ method.inputInterface }}|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes{{ method.outputInterface }},
+        protosTypes{{ method.inputInterface }}|undefined, 
+        {}|undefined
+      ]>|void {
+    request = request || {};
+    let options = optionsOrCallback;
+    if (typeof options === 'function' && callback === undefined) {
+      callback = options;
+      options = {};
+    }
+    options = options || {};
+    return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+  } 
+{%- endfor %}
 }
