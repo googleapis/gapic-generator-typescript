@@ -5,9 +5,9 @@ import * as util from 'util';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
 
-import {API} from './schema/api';
+import { API } from './schema/api';
 
-const commonParameters: {[name: string]: string} = {
+const commonParameters: { [name: string]: string } = {
   copyrightYear: new Date().getFullYear().toString(),
 };
 
@@ -16,7 +16,9 @@ const readDir = util.promisify(fs.readdir);
 const lstat = util.promisify(fs.lstat);
 
 async function recursiveFileList(
-    basePath: string, nameRegex: RegExp): Promise<string[]> {
+  basePath: string,
+  nameRegex: RegExp
+): Promise<string[]> {
   const dirQueue: string[] = [basePath];
   const result: string[] = [];
   while (dirQueue.length > 0) {
@@ -36,21 +38,26 @@ async function recursiveFileList(
 }
 
 function renderFile(
-    targetFilename: string, templateFilename: string, renderParameters: {}) {
+  targetFilename: string,
+  templateFilename: string,
+  renderParameters: {}
+) {
   const processed = nunjucks.render(templateFilename, renderParameters);
-  const output =
-      plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+  const output = plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
   output.name = targetFilename;
   output.content = processed;
   return output;
 }
 
 function processOneTemplate(
-    basePath: string, templateFilename: string, api: API) {
-  const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] =
-      [];
-  let outputFilename =
-      templateFilename.substr(basePath.length + 1).replace(/\.njk$/, '');
+  basePath: string,
+  templateFilename: string,
+  api: API
+) {
+  const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
+  let outputFilename = templateFilename
+    .substr(basePath.length + 1)
+    .replace(/\.njk$/, '');
 
   // Filename can have one or more variables in it that should be substituted
   // with their actual values. Currently supported: $service, $version Note:
@@ -60,13 +67,18 @@ function processOneTemplate(
   // {api, commonParameters}
   if (outputFilename.match(/\$service/)) {
     for (const service of api.services) {
-      result.push(renderFile(
+      result.push(
+        renderFile(
           outputFilename.replace(/\$service/, service.name!.toLowerCase()),
-          templateFilename, {api, commonParameters, service}));
+          templateFilename,
+          { api, commonParameters, service }
+        )
+      );
     }
   } else {
     result.push(
-        renderFile(outputFilename, templateFilename, {api, commonParameters}));
+      renderFile(outputFilename, templateFilename, { api, commonParameters })
+    );
   }
 
   return result;
@@ -75,8 +87,7 @@ function processOneTemplate(
 export async function processTemplates(basePath: string, api: API) {
   basePath = basePath.replace(/\/*$/, '');
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
-  const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] =
-      [];
+  const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
   for (const templateFilename of templateFiles) {
     const generatedFiles = processOneTemplate(basePath, templateFilename, api);
     result.push(...generatedFiles);
