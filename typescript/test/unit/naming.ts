@@ -14,8 +14,8 @@
 
 import * as assert from 'assert';
 
-import * as plugin from '../../pbjs-genfiles/plugin';
-import { Naming } from '../src/schema/naming';
+import * as plugin from '../../../pbjs-genfiles/plugin';
+import { Naming } from '../../src/schema/naming';
 
 describe('schema/naming.ts', () => {
   it('parses name correctly', () => {
