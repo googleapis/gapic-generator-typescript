@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import * as assert from 'assert';
-import { commonPrefix } from '../src/util';
+import { commonPrefix } from '../../src/util';
 
 describe('util.ts', () => {
   describe('CommonPrefix', () => {
