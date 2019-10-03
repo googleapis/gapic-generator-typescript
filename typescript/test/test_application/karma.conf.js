@@ -31,6 +31,7 @@
 
 // Karma configuration
 // Use `npm run browser-test` to run browser tests with Karma.
+// TODO: MIGHT NEED SOME CHANGES HERE FOR BROWSER USE CASE
 
 const isDocker = require('is-docker')();
 
