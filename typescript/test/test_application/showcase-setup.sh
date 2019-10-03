@@ -1,7 +1,7 @@
 mkdir showcase-server 
 cd showcase-server
 export GAPIC_SHOWCASE_VERSION=0.5.0
-export OS=linux
+export OS=`uname`
 export ARCH=amd64
 curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-${ARCH}.tar.gz > gapic-showcase-server.tar.gz
 if [ $? -eq 0 ]; then
@@ -11,7 +11,6 @@ else
 fi
 tar -xzf gapic-showcase-server.tar.gz
 cd ..
-showcase-server/gapic-showcase --help
 showcase-server/gapic-showcase run &
 showcase_pid=$!
 stop_showcase() {
