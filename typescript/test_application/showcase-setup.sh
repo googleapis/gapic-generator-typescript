@@ -1,9 +1,6 @@
 mkdir showcase-server 
 cd showcase-server
-export GAPIC_SHOWCASE_VERSION=0.5.0
-export OS=darwin
-export ARCH=amd64
-curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-${ARCH}.tar.gz > gapic-showcase-server.tar.gz
+curl -L https://github.com/googleapis/gapic-showcase/releases/download/v0.5.0/gapic-showcase-0.5.0-darwin-amd64.tar.gz > gapic-showcase-server.tar.gz
 if [ $? -eq 0 ]; then
     echo OK
 else

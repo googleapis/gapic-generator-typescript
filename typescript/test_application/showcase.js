@@ -16,10 +16,11 @@
 
 const assert = require('assert');
 const grpc = require('@grpc/grpc-js');
+const showcase = require('showcase');
 
 // Import the clients for each version supported by this package.
 const gapic = Object.freeze({
-  v1beta1: require('../../.baseline-test-out/build/src'),
+  v1beta1: showcase,
 });
 
 module.exports.v1beta1 = gapic.v1beta1;
