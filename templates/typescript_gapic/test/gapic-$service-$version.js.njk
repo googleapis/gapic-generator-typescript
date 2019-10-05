@@ -152,4 +152,59 @@ describe('{{ service.name }}Client', () => {
         });
     });
 {%- endfor %}
+{%- for method in service.longRunning %}
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', done => {
+            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            const request = {};
+            // Mock response
+            const expectedResponse = {};
+            // Mock gRPC layer
+            client._innerApiCalls.{{ method.name.toCamelCase() }} = mockLongRunningGrpcMethod(
+                request,
+                expectedResponse
+            );
+            client.{{ method.name.toCamelCase() }}(request).then(responses => {
+                const operation = responses[0];
+                return operation.promise();
+            }).then(responses => {
+                assert.deepStrictEqual(responses[0], expectedResponse);
+                done();
+            }).catch(err => {
+                done(err);
+            });
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} with error', done => {
+            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            const request = {};
+            // Mock response
+            const expectedResponse = {};
+            // Mock gRPC layer
+            client._innerApiCalls.{{ method.name.toCamelCase() }} = mockLongRunningGrpcMethod(
+                request,
+                null,
+                error
+            );
+            client.{{ method.name.toCamelCase() }}(request).then(responses => {
+                const operation = responses[0];
+                return operation.promise();
+            }).then(() => {
+                assert.fail();
+            }).catch(err => {
+                assert(err instanceof Error);
+                assert.strictEqual(err.code, FAKE_STATUS_CODE);
+                done();
+            });
+        });
+    });
+{%- endfor %}
 });
