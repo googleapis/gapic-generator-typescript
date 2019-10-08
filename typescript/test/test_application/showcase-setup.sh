@@ -19,4 +19,6 @@ stop_showcase() {
 	wait $showcase_pid || true
 }
 mocha index.js
+tsc index_ts.ts
+node index_ts.js
 trap stop_showcase EXIT
