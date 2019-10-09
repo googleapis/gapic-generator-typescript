@@ -18,9 +18,7 @@ stop_showcase() {
 	# Wait for the process to die, but don't report error from the kill.
 	wait $showcase_pid || true
 }
-tsc --version
-tsc ./src/index.ts
-node ./src/index.js
+node ./build/src/index.js
 if [ $? -eq 0 ]; then
     echo OK
 else
