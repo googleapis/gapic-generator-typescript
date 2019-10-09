@@ -207,4 +207,94 @@ describe('{{ service.name }}Client', () => {
         });
     });
 {%- endfor %}
+{%- for method in service.serverStreaming %}
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', done => {
+            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            const request = {};
+            // Mock response
+            const expectedResponse = {};
+            // Mock gRPC layer
+            client._innerApiCalls.{{ method.name.toCamelCase() }} = mockServerStreamingGrpcMethod(request, expectedResponse);
+            const stream = client.{{ method.name.toCamelCase() }}(request);
+            stream.on('data', response =>{
+                assert.deepStrictEqual(response, expectedResponse);
+                done();
+            });
+            stream.on('error', err => {
+                done(err);
+            });
+            stream.write();
+        });
+        it('invokes {{ method.name.toCamelCase() }} with error', done => {            
+            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            const request = {};
+            // Mock response
+            const expectedResponse = {};
+            // Mock gRPC layer
+            client._innerApiCalls.{{ method.name.toCamelCase() }} = mockServerStreamingGrpcMethod(request, null, error);
+            const stream = client.{{ method.name.toCamelCase() }}(request);
+            stream.on('data', () =>{
+                assert.fail();
+            });
+            stream.on('error', err => {
+                assert(err instanceof Error);
+                assert.strictEqual(err.code, FAKE_STATUS_CODE);
+                done();
+            });
+            stream.write();  
+        });
+    });
+{%- endfor %}
+{%- for method in service.bidiStreaming %}
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', done => {
+            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            const request = {};
+            // Mock response
+            const expectedResponse = {};
+            // Mock gRPC layer
+            client._innerApiCalls.{{ method.name.toCamelCase() }} = mockBidiStreamingGrpcMethod(request, expectedResponse);
+            const stream = client.{{ method.name.toCamelCase() }}().on('data', response =>{
+                assert.deepStrictEqual(response, expectedResponse);
+                done();
+            }).on('error', err => {
+                done(err);
+            });
+            stream.write(request);
+        });
+        it('invokes {{ method.name.toCamelCase() }} with error', done => {            
+            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            const request = {};
+            // Mock response
+            const expectedResponse = {};
+            // Mock gRPC layer
+            client._innerApiCalls.{{ method.name.toCamelCase() }} = mockBidiStreamingGrpcMethod(request, null, error);
+            const stream = client.{{ method.name.toCamelCase() }}().on('data', () =>{
+                assert.fail();
+            }).on('error', err => {
+                assert(err instanceof Error);
+                assert.strictEqual(err.code, FAKE_STATUS_CODE);               
+                done();
+            });
+            stream.write(request);
+        });
+{%- endfor %}
+    });
 });
