@@ -20,4 +20,9 @@ stop_showcase() {
 }
 tsc index.ts
 node index.js
+if [ $? -eq 0 ]; then
+    echo OK
+else
+    echo FAIL && exit
+fi
 trap stop_showcase EXIT
