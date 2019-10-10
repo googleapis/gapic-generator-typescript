@@ -119,6 +119,7 @@ async function testWait(client: showcase.v1beta1.EchoClient) {
   const [operation] = await client.wait(request);
   const [response] = await operation.promise();
   assert.deepStrictEqual(response.content, request.success.content);
+}
 async function testPagedExpand(client: showcase.v1beta1.EchoClient) {
   const words = ['nobody', 'ever', 'reads', 'test', 'input'];
   const request = {
