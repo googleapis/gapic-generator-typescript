@@ -103,15 +103,18 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
   return repeatedFields[0];
 }
 
-function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto){
+function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
   const repeatedFields = pagingField(messages, method);
-  if(repeatedFields && repeatedFields.name) return repeatedFields.name;
+  if (repeatedFields && repeatedFields.name) return repeatedFields.name;
   else return undefined;
 }
 
-function pagingResponseType(messages: MessagesMap, method: MethodDescriptorProto){
+function pagingResponseType(
+  messages: MessagesMap,
+  method: MethodDescriptorProto
+) {
   const repeatedFields = pagingField(messages, method);
-  if(repeatedFields && repeatedFields.typeName){
+  if (repeatedFields && repeatedFields.typeName) {
     const typeName = repeatedFields.typeName; //.google.showcase.v1beta1.EchoResponse
     return typeName.replace(/.([^.]*)$/, '.I$1');
   }
