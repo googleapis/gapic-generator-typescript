@@ -21,6 +21,7 @@ const clientOptions = {
   await testChat(client);
   await testCollect(client);
   await testWait(client);
+  await testPagedExpand(client);
   console.log('it works! ');
 }
 
@@ -118,4 +119,13 @@ async function testWait(client: showcase.v1beta1.EchoClient) {
   const [operation] = await client.wait(request);
   const [response] = await operation.promise();
   assert.deepStrictEqual(response.content, request.success.content);
+async function testPagedExpand(client: showcase.v1beta1.EchoClient) {
+  const words = ['nobody', 'ever', 'reads', 'test', 'input'];
+  const request = {
+    content: words.join(' '),
+    pageSize: 2,
+  };
+  const [response] = await client.pagedExpand(request);
+  const expectedResponse = response.map(r => r.content);
+  assert.deepStrictEqual(expectedResponse, words);
 }
