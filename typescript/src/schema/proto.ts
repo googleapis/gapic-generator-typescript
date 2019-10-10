@@ -137,7 +137,7 @@ function toInterface(type: string) {
 // eg: WaitMetadata -> .google.showcase.v1beta1.IWaitMetadata
 
 function toLRInterface(type: string, inputType: string) {
-  return inputType.replace(/.([^.]*)$/, '.I'+type);
+  return inputType.replace(/.([^.]*)$/, '.I' + type);
 }
 
 function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
