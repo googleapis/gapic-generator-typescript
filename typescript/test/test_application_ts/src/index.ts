@@ -113,10 +113,6 @@ async function testPagedExpand(client: showcase.v1beta1.EchoClient) {
     pageSize: 2,
   };
   const [response] = await client.pagedExpand(request);
-  const result = response as Array<JSON>;
-  const expectedResponse = [];
-  for(var i = 0; i < words.length; i++){
-    expectedResponse.push({content: words[i]});
-  }
-  assert.deepStrictEqual(expectedResponse, result);
+  const expectedResponse = response.map(r => r.content);
+  assert.deepStrictEqual(expectedResponse, words);
 }
