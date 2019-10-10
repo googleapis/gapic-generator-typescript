@@ -15,7 +15,6 @@ const clientOptions = {
   port: 7469,
 };
 
-  // @ts-ignore TODO: client options types are incompatible
   const client = new showcase.EchoClient(clientOptions);
   await testEcho(client);
   await testExpand(client);
