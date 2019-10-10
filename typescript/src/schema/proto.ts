@@ -13,6 +13,7 @@ interface MethodDescriptorProto
     | 'BIDI_STREAMING'
     | undefined;
   pagingFieldName: string | undefined;
+  pagingResponseType?: string;
   inputInterface: string;
   outputInterface: string;
 }
@@ -78,7 +79,7 @@ function streaming(method: MethodDescriptorProto) {
   return undefined;
 }
 
-function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
+function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
@@ -99,7 +100,25 @@ function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
   if (repeatedFields.length !== 1) {
     return undefined;
   }
-  return repeatedFields[0].name;
+  return repeatedFields[0];
+}
+
+function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
+  const repeatedFields = pagingField(messages, method);
+  if (repeatedFields && repeatedFields.name) return repeatedFields.name;
+  else return undefined;
+}
+
+function pagingResponseType(
+  messages: MessagesMap,
+  method: MethodDescriptorProto
+) {
+  const repeatedFields = pagingField(messages, method);
+  if (repeatedFields && repeatedFields.typeName) {
+    const typeName = repeatedFields.typeName; //.google.showcase.v1beta1.EchoResponse
+    return typeName.replace(/\.([^.]+)$/, '.I$1');
+  }
+  return undefined;
 }
 
 function toInterface(type: string) {
@@ -113,6 +132,7 @@ function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
       longRunning: longrunning(method),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(messages, method),
+      pagingResponseType: pagingResponseType(messages, method),
       inputInterface: toInterface(method.inputType!),
       outputInterface: toInterface(method.outputType!),
     },
