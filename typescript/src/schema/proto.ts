@@ -7,6 +7,8 @@ interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
   idempotence: 'idempotent' | 'non_idempotent';
   longRunning?: plugin.google.longrunning.IOperationInfo;
+  longRunningResponseType?: string;
+  longRunningMetadataType?: string;
   streaming:
     | 'CLIENT_STREAMING'
     | 'SERVER_STREAMING'
@@ -65,6 +67,30 @@ function longrunning(method: MethodDescriptorProto) {
   return undefined;
 }
 
+function longRunningResponseType(method: MethodDescriptorProto) {
+  if (method.options && method.options['.google.longrunning.operationInfo']) {
+    if (method.options['.google.longrunning.operationInfo'].responseType) {
+      return toLRInterface(
+        method.options['.google.longrunning.operationInfo'].responseType,
+        method.inputType!.toString()
+      );
+    }
+  }
+  return undefined;
+}
+
+function longRunningMetadataType(method: MethodDescriptorProto) {
+  if (method.options && method.options['.google.longrunning.operationInfo']) {
+    if (method.options['.google.longrunning.operationInfo'].metadataType) {
+      return toLRInterface(
+        method.options['.google.longrunning.operationInfo'].metadataType,
+        method.inputType!.toString()
+      );
+    }
+  }
+  return undefined;
+}
+
 function streaming(method: MethodDescriptorProto) {
   if (method.serverStreaming && method.clientStreaming) {
     return 'BIDI_STREAMING';
@@ -106,11 +132,17 @@ function toInterface(type: string) {
   return type.replace(/\.([^.]+)$/, '.I$1');
 }
 
+function toLRInterface(type: string, inputType: string) {
+  return inputType.substring(1, inputType.lastIndexOf('.') + 1) + 'I' + type;
+}
+
 function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
   method = Object.assign(
     {
       idempotence: idempotence(method),
       longRunning: longrunning(method),
+      longRunningResponseType: longRunningResponseType(method),
+      longRunningMetadataType: longRunningMetadataType(method),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(messages, method),
       inputInterface: toInterface(method.inputType!),
