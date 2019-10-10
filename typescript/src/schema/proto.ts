@@ -116,7 +116,7 @@ function pagingResponseType(
   const repeatedFields = pagingField(messages, method);
   if (repeatedFields && repeatedFields.typeName) {
     const typeName = repeatedFields.typeName; //.google.showcase.v1beta1.EchoResponse
-    return typeName.replace(/.([^.]*)$/, '.I$1');
+    return typeName.replace(/\.([^.]+)$/, '.I$1');
   }
   return undefined;
 }
