@@ -148,20 +148,17 @@ export class EchoClient {
 
     const operationsClient = gaxModule.lro({
       auth: this.auth,
-      // @ts-ignore
-      grpc: gaxGrpc.grpc,
+      grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
     }).operationsClient(opts);
     const waitResponse = protoFilesRoot.lookup(
-      'WaitResponse');
+      'WaitResponse') as gax.protobuf.Type;
     const waitMetadata = protoFilesRoot.lookup(
-      'WaitMetadata');
+      'WaitMetadata') as gax.protobuf.Type;
 
     this._descriptors.longrunning = {
       wait: new gaxModule.LongrunningDescriptor(
         operationsClient,
-        // @ts-ignore
         waitResponse.decode.bind(waitResponse),
-        // @ts-ignore
         waitMetadata.decode.bind(waitMetadata))
     };
 
@@ -178,22 +175,19 @@ export class EchoClient {
     // Put together the "service stub" for
     // google.showcase.v1alpha2.Echo.
     const echoStub = gaxGrpc.createStub(
-        // @ts-ignore We cannot check types that are loaded in runtime.
         opts.fallback ?
-          // @ts-ignore
+          // @ts-ignore Do not check types for loaded protos
           protos.lookupService('google.showcase.v1beta1.Echo') : 
-          // @ts-ignore
+          // @ts-ignore Do not check types for loaded protos
           protos.google.showcase.v1beta1.Echo,
-        opts);
+        opts) as Promise<{[method: string]: Function}>;
 
     const echoStubMethods =
         ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'wait'];
 
     for (const methodName of echoStubMethods) {
-      // @ts-ignore
       const innerCallPromise = echoStub.then(
-        // @ts-ignore
-        stub => (...args: Array<{}>) => {
+        (stub: {[method: string]: Function}) => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
         (err: Error|null|undefined) => () => {

@@ -144,15 +144,14 @@ export class {{ service.name }}Client {
 
     const operationsClient = gaxModule.lro({
       auth: this.auth,
-      // @ts-ignore
-      grpc: gaxGrpc.grpc,
+      grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
     }).operationsClient(opts);
 
 {%- for method in service.longRunning %}
     const {{ method.name.toCamelCase() }}Response = protoFilesRoot.lookup(
-      '{{ method.longRunning.responseType }}');
+      '{{ method.longRunning.responseType }}') as gax.protobuf.Type;
     const {{ method.name.toCamelCase() }}Metadata = protoFilesRoot.lookup(
-      '{{ method.longRunning.metadataType }}');
+      '{{ method.longRunning.metadataType }}') as gax.protobuf.Type;
 {%- endfor %}
 
     this._descriptors.longrunning = {
@@ -161,9 +160,7 @@ export class {{ service.name }}Client {
       {{- longRunningJoiner() }}
       {{ method.name.toCamelCase() }}: new gaxModule.LongrunningDescriptor(
         operationsClient,
-        // @ts-ignore
         {{ method.name.toCamelCase() }}Response.decode.bind({{ method.name.toCamelCase() }}Response),
-        // @ts-ignore
         {{ method.name.toCamelCase() }}Metadata.decode.bind({{ method.name.toCamelCase() }}Metadata))
 {%- endfor %}
     };
@@ -182,13 +179,12 @@ export class {{ service.name }}Client {
     // Put together the "service stub" for
     // google.showcase.v1alpha2.Echo.
     const {{ service.name.toCamelCase() }}Stub = gaxGrpc.createStub(
-        // @ts-ignore We cannot check types that are loaded in runtime.
         opts.fallback ?
-          // @ts-ignore
+          // @ts-ignore Do not check types for loaded protos
           protos.lookupService('{{api.naming.protoPackage}}.{{ service.name }}') : 
-          // @ts-ignore
+          // @ts-ignore Do not check types for loaded protos
           protos.{{api.naming.protoPackage}}.{{ service.name }},
-        opts);
+        opts) as Promise<{[method: string]: Function}>;
 
     const {{ service.name.toCamelCase() }}StubMethods =
         [
@@ -200,10 +196,8 @@ export class {{ service.name }}Client {
     ];
 
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
-      // @ts-ignore
       const innerCallPromise = {{ service.name.toCamelCase() }}Stub.then(
-        // @ts-ignore
-        stub => (...args: Array<{}>) => {
+        (stub: {[method: string]: Function}) => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
         (err: Error|null|undefined) => () => {
