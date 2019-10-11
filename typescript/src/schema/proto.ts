@@ -7,12 +7,15 @@ interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
   idempotence: 'idempotent' | 'non_idempotent';
   longRunning?: plugin.google.longrunning.IOperationInfo;
+  longRunningResponseType?: string;
+  longRunningMetadataType?: string;
   streaming:
     | 'CLIENT_STREAMING'
     | 'SERVER_STREAMING'
     | 'BIDI_STREAMING'
     | undefined;
   pagingFieldName: string | undefined;
+  pagingResponseType?: string;
   inputInterface: string;
   outputInterface: string;
 }
@@ -65,6 +68,30 @@ function longrunning(method: MethodDescriptorProto) {
   return undefined;
 }
 
+function longRunningResponseType(method: MethodDescriptorProto) {
+  if (method.options && method.options['.google.longrunning.operationInfo']) {
+    if (method.options['.google.longrunning.operationInfo'].responseType) {
+      return toLRInterface(
+        method.options['.google.longrunning.operationInfo'].responseType,
+        method.inputType!.toString()
+      );
+    }
+  }
+  return undefined;
+}
+
+function longRunningMetadataType(method: MethodDescriptorProto) {
+  if (method.options && method.options['.google.longrunning.operationInfo']) {
+    if (method.options['.google.longrunning.operationInfo'].metadataType) {
+      return toLRInterface(
+        method.options['.google.longrunning.operationInfo'].metadataType,
+        method.inputType!.toString()
+      );
+    }
+  }
+  return undefined;
+}
+
 function streaming(method: MethodDescriptorProto) {
   if (method.serverStreaming && method.clientStreaming) {
     return 'BIDI_STREAMING';
@@ -78,7 +105,7 @@ function streaming(method: MethodDescriptorProto) {
   return undefined;
 }
 
-function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
+function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
@@ -99,11 +126,37 @@ function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
   if (repeatedFields.length !== 1) {
     return undefined;
   }
-  return repeatedFields[0].name;
+  return repeatedFields[0];
+}
+
+function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
+  const repeatedFields = pagingField(messages, method);
+  if (repeatedFields && repeatedFields.name) return repeatedFields.name;
+  else return undefined;
+}
+
+function pagingResponseType(
+  messages: MessagesMap,
+  method: MethodDescriptorProto
+) {
+  const repeatedFields = pagingField(messages, method);
+  if (repeatedFields && repeatedFields.typeName) {
+    const typeName = repeatedFields.typeName; //.google.showcase.v1beta1.EchoResponse
+    return typeName.replace(/\.([^.]+)$/, '.I$1');
+  }
+  return undefined;
 }
 
 function toInterface(type: string) {
   return type.replace(/\.([^.]+)$/, '.I$1');
+}
+
+// Convert long running type to the interface
+// eg: WaitResponse -> .google.showcase.v1beta1.IWaitResponse
+// eg: WaitMetadata -> .google.showcase.v1beta1.IWaitMetadata
+
+function toLRInterface(type: string, inputType: string) {
+  return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
 
 function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
@@ -111,8 +164,11 @@ function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
     {
       idempotence: idempotence(method),
       longRunning: longrunning(method),
+      longRunningResponseType: longRunningResponseType(method),
+      longRunningMetadataType: longRunningMetadataType(method),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(messages, method),
+      pagingResponseType: pagingResponseType(messages, method),
       inputInterface: toInterface(method.inputType!),
       outputInterface: toInterface(method.outputType!),
     },
