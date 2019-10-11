@@ -29,6 +29,11 @@ export interface Callback<
   (err: Error|null|undefined, value?: ResponseObject|null,
    nextRequest?: NextRequestObject, rawResponse?: RawResponseObject): void;
 }
+
+export interface Operation<ResultType, MetadataType> extends gax.Operation {
+    promise(): Promise<[ResultType, MetadataType, protosTypes.google.longrunning.IOperation]>;
+}
+
 {% if (service.paging.length > 0) %}
 export interface PaginationCallback<
     RequestObject, ResponseObject, ResponseType> {
@@ -362,28 +367,28 @@ export class {{ service.name }}Client {
       request: protosTypes{{ method.inputInterface }},
       options?: gax.CallOptions):
       Promise<[
-        protosTypes{{ method.outputInterface }},
-        protosTypes{{ method.inputInterface }}|undefined, {}|undefined
+        Operation<protosTypes{{ method.longRunningResponseType }}, protosTypes{{ method.longRunningMetadataType }}>,
+        protosTypes{{ method.outputInterface }}|undefined, {}|undefined
       ]>;
   {{ method.name.toCamelCase() }}(
       request: protosTypes{{ method.inputInterface }},
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes{{ method.outputInterface }},
-          protosTypes{{ method.inputInterface }}|undefined,
+          Operation<protosTypes{{ method.longRunningResponseType }}, protosTypes{{ method.longRunningMetadataType }}>,
+          protosTypes{{ method.outputInterface }}|undefined,
           {}|undefined>): void;
   {{ method.name.toCamelCase() }}(
       request: protosTypes{{ method.inputInterface }},
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes{{ method.outputInterface }},
-          protosTypes{{ method.inputInterface }}|undefined, {}|undefined>,
+          Operation<protosTypes{{ method.longRunningResponseType }}, protosTypes{{ method.longRunningMetadataType }}>,
+          protosTypes{{ method.outputInterface }}|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes{{ method.outputInterface }},
-          protosTypes{{ method.inputInterface }}|undefined,
+          Operation<protosTypes{{ method.longRunningResponseType }}, protosTypes{{ method.longRunningMetadataType }}>,
+          protosTypes{{ method.outputInterface }}|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes{{ method.outputInterface }},
-        protosTypes{{ method.inputInterface }}|undefined, {}|undefined
+        Operation<protosTypes{{ method.longRunningResponseType }}, protosTypes{{ method.longRunningMetadataType }}>,
+        protosTypes{{ method.outputInterface }}|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options = optionsOrCallback;

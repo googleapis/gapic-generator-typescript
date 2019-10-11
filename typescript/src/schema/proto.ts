@@ -7,6 +7,8 @@ interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
   idempotence: 'idempotent' | 'non_idempotent';
   longRunning?: plugin.google.longrunning.IOperationInfo;
+  longRunningResponseType?: string;
+  longRunningMetadataType?: string;
   streaming:
     | 'CLIENT_STREAMING'
     | 'SERVER_STREAMING'
@@ -62,6 +64,30 @@ function idempotence(method: MethodDescriptorProto) {
 function longrunning(method: MethodDescriptorProto) {
   if (method.options && method.options['.google.longrunning.operationInfo']) {
     return method.options['.google.longrunning.operationInfo']!;
+  }
+  return undefined;
+}
+
+function longRunningResponseType(method: MethodDescriptorProto) {
+  if (method.options && method.options['.google.longrunning.operationInfo']) {
+    if (method.options['.google.longrunning.operationInfo'].responseType) {
+      return toLRInterface(
+        method.options['.google.longrunning.operationInfo'].responseType,
+        method.inputType!.toString()
+      );
+    }
+  }
+  return undefined;
+}
+
+function longRunningMetadataType(method: MethodDescriptorProto) {
+  if (method.options && method.options['.google.longrunning.operationInfo']) {
+    if (method.options['.google.longrunning.operationInfo'].metadataType) {
+      return toLRInterface(
+        method.options['.google.longrunning.operationInfo'].metadataType,
+        method.inputType!.toString()
+      );
+    }
   }
   return undefined;
 }
@@ -125,11 +151,21 @@ function toInterface(type: string) {
   return type.replace(/\.([^.]+)$/, '.I$1');
 }
 
+// Convert long running type to the interface
+// eg: WaitResponse -> .google.showcase.v1beta1.IWaitResponse
+// eg: WaitMetadata -> .google.showcase.v1beta1.IWaitMetadata
+
+function toLRInterface(type: string, inputType: string) {
+  return inputType.replace(/\.([^.]+)$/, '.I' + type);
+}
+
 function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
   method = Object.assign(
     {
       idempotence: idempotence(method),
       longRunning: longrunning(method),
+      longRunningResponseType: longRunningResponseType(method),
+      longRunningMetadataType: longRunningMetadataType(method),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(messages, method),
       pagingResponseType: pagingResponseType(messages, method),

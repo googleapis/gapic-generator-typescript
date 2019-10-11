@@ -20,6 +20,7 @@ const clientOptions = {
   await testExpand(client);
   await testChat(client);
   await testCollect(client);
+  await testWait(client);
   await testPagedExpand(client);
   console.log('it works! ');
 }
@@ -105,6 +106,20 @@ async function testCollect(client: showcase.v1beta1.EchoClient) {
   assert.deepStrictEqual(result, expectedresponse);
 }
 
+async function testWait(client: showcase.v1beta1.EchoClient) {
+  const request = {
+    ttl: {
+      seconds: 5,
+      nanos: 0,
+    },
+    success: {
+      content: 'done',
+    },
+  };
+  const [operation] = await client.wait(request);
+  const [response] = await operation.promise();
+  assert.deepStrictEqual(response.content, request.success.content);
+}
 async function testPagedExpand(client: showcase.v1beta1.EchoClient) {
   const words = ['nobody', 'ever', 'reads', 'test', 'input'];
   const request = {
