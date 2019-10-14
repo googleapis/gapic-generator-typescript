@@ -295,6 +295,30 @@ describe('{{ service.name }}Client', () => {
             });
             stream.write(request);
         });
-{%- endfor %}
     });
+{%- endfor %}
+{%- for method in service.paging %}
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', done => {
+            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            const request = {};
+            // Mock response
+            const expectedResponse = {};
+            // Mock Grpc layer
+            client._innerApiCalls.{{ method.name.toCamelCase() }} = (actualRequest, options, callback) => {
+                assert.deepStrictEqual(actualRequest, request);
+                callback(null, expectedResponse);
+            };
+            client.{{ method.name.toCamelCase() }}(request, (err, response) => {
+                assert.ifError(err);
+                assert.deepStrictEqual(response, expectedResponse);
+                done();
+            });
+        });
+    });
+{%- endfor %}
 });
