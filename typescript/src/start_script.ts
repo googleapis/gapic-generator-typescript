@@ -18,7 +18,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import * as readline from 'readline';
-const argv = require('yargs').argv
+const argv = require('yargs').argv;
 
 const cwd = process.cwd();
 
@@ -33,30 +33,29 @@ const CLI = path.join(SRCDIR, 'cli.js');
 const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
 // Take OUTPUT_DIR argument
-var DEFAULT_OUTPUT_DIR = path.join(cwd, '.client_library');
-if(argv.OUTPUT_DIR){
+let DEFAULT_OUTPUT_DIR = path.join(cwd, '.client_library');
+if (argv.OUTPUT_DIR) {
   DEFAULT_OUTPUT_DIR = argv.OUTPUT_DIR;
-}
-else{
-  console.warn('Output directory is not assigned, use default path instead: .client_library');
-  if(fs.existsSync(DEFAULT_OUTPUT_DIR)){ 
+} else {
+  console.warn(
+    'Output directory is not assigned, use default path instead: .client_library'
+  );
+  if (fs.existsSync(DEFAULT_OUTPUT_DIR)) {
     rimraf.sync(DEFAULT_OUTPUT_DIR);
   }
   fs.mkdirSync(DEFAULT_OUTPUT_DIR);
 }
 // Take PROTO_FILE argument
-var PROTOS_DIR = '';
-var PROTO_FILE = '';
-if(argv.PROTOS_DIR){
+let PROTOS_DIR = '';
+let PROTO_FILE = '';
+if (argv.PROTOS_DIR) {
   PROTOS_DIR = argv.PROTOS_DIR;
-  if(argv.PROTO_FILE){
+  if (argv.PROTO_FILE) {
     PROTO_FILE = argv.PROTO_FILE;
-  }
-  else{
+  } else {
     console.error('Proto file name is not assigned. ');
   }
-}
-else{
+} else {
   console.error('Proto file directory is not assigned.');
 }
 if (fs.existsSync(PLUGIN)) {
@@ -71,8 +70,7 @@ try {
 }
 execSync(
   `protoc --typescript_gapic_out=${DEFAULT_OUTPUT_DIR} ` +
-  `-I${GOOGLE_GAX_PROTOS_DIR} ` +
-  `-I${PROTOS_DIR} ` +
-  PROTO_FILE
+    `-I${GOOGLE_GAX_PROTOS_DIR} ` +
+    `-I${PROTOS_DIR} ` +
+    PROTO_FILE
 );
-
