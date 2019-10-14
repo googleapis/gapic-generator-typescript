@@ -8,12 +8,12 @@ main().catch(err => {
 });
 
 async function main() {
-const clientOptions = {
-  sslCreds : grpc.credentials.createInsecure(),
-  grpc,
-  servicePath: 'localhost',
-  port: 7469,
-};
+  const clientOptions = {
+    sslCreds: grpc.credentials.createInsecure(),
+    grpc,
+    servicePath: 'localhost',
+    port: 7469,
+  };
 
   const client = new showcase.EchoClient(clientOptions);
   await testEcho(client);
@@ -26,33 +26,34 @@ const clientOptions = {
 }
 
 // Set of functions to tests all showcase methods
-async function testEcho(client: showcase.v1beta1.EchoClient) { // TODO: cannot do showcase.EchoClient
-    const request = {
-      content: 'test',
-    };
-    const [response] = await client.echo(request);
-    assert.deepStrictEqual(request.content, response.content);
+async function testEcho(client: showcase.v1beta1.EchoClient) {
+  // TODO: cannot do showcase.EchoClient
+  const request = {
+    content: 'test',
+  };
+  const [response] = await client.echo(request);
+  assert.deepStrictEqual(request.content, response.content);
 }
 
 async function testExpand(client: showcase.v1beta1.EchoClient) {
-    const words = ['nobody', 'ever', 'reads', 'test', 'input'];
-    const request = {
-      content: words.join(' '),
-    };
-    const result = await new Promise((resolve: Function, reject: Function) => {
-      const stream = client.expand(request);
-      const result: string[] = [];
-      stream.on('data', response => {
-        result.push(response.content);
-      });
-      stream.on('end', () => {
-        resolve(result);
-      });
-      stream.on('error', (err) => {
-        reject(err)
-      });
+  const words = ['nobody', 'ever', 'reads', 'test', 'input'];
+  const request = {
+    content: words.join(' '),
+  };
+  const result = await new Promise((resolve: Function, reject: Function) => {
+    const stream = client.expand(request);
+    const result: string[] = [];
+    stream.on('data', response => {
+      result.push(response.content);
     });
-    assert.deepStrictEqual(words, result);
+    stream.on('end', () => {
+      resolve(result);
+    });
+    stream.on('error', err => {
+      reject(err);
+    });
+  });
+  assert.deepStrictEqual(words, result);
 }
 
 async function testChat(client: showcase.v1beta1.EchoClient) {
@@ -75,11 +76,11 @@ async function testChat(client: showcase.v1beta1.EchoClient) {
     stream.on('end', () => {
       resolve(result);
     });
-    stream.on('error', (err) => {
+    stream.on('error', err => {
       reject(err);
     });
     for (const word of words) {
-      stream.write({content: word});
+      stream.write({ content: word });
     }
     stream.end();
   });
@@ -95,14 +96,14 @@ async function testCollect(client: showcase.v1beta1.EchoClient) {
         return;
       }
       resolve(result);
-      });
+    });
     for (const word of words) {
-      const request = {content: word};
+      const request = { content: word };
       stream.write(request);
     }
     stream.end();
   });
-  const expectedresponse = {content: words.join(' ')};
+  const expectedresponse = { content: words.join(' ') };
   assert.deepStrictEqual(result, expectedresponse);
 }
 
@@ -116,10 +117,13 @@ async function testWait(client: showcase.v1beta1.EchoClient) {
       content: 'done',
     },
   };
-  const [operation] = await client.wait(request);
+  const [operation, rawResponse] = await client.wait(request);
+  assert(rawResponse!.name !== '');
+  assert(rawResponse!.done === false);
   const [response] = await operation.promise();
   assert.deepStrictEqual(response.content, request.success.content);
 }
+
 async function testPagedExpand(client: showcase.v1beta1.EchoClient) {
   const words = ['nobody', 'ever', 'reads', 'test', 'input'];
   const request = {
