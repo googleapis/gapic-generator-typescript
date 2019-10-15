@@ -16,9 +16,8 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import {argv} from 'yargs';
+import { argv } from 'yargs';
 
-// console.warn(__dirname)-> ~/gapic-generator-typescript/build/src
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   __dirname,
   '..',
