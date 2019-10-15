@@ -27,6 +27,18 @@ const GENERATED_CLIENT_FILE = path.join(
   'v1beta1',
   'echo_client.ts'
 );
+const GENERATED_CONFIG_FILE = path.join(
+  OUTPUT_DIR,
+  'src',
+  'v1beta1',
+  'echo_client_config.json'
+);
+const GENERATED_PROTO_LIST_FILE = path.join(
+  OUTPUT_DIR,
+  'src',
+  'v1beta1',
+  'echo_proto_list.json'
+);
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   cwd,
   'node_modules',
@@ -46,15 +58,38 @@ const CLIENT_LIBRARY_BASELINE = path.join(
   'typescript',
   'test',
   'testdata',
+  'showcase',
+  'src',
   'echo_client_baseline.ts.txt'
 );
+
+const CLIENT_CONFIG_BASELINE = path.join(
+  cwd,
+  'typescript',
+  'test',
+  'testdata',
+  'showcase',
+  'src',
+  'echo_client_config.json.txt'
+);
+
+const CLIENT_PROTO_LIST_BASELINE = path.join(
+  cwd,
+  'typescript',
+  'test',
+  'testdata',
+  'showcase',
+  'src',
+  'echo_proto_list.json.txt'
+);
+
 const SRCDIR = path.join(cwd, 'build', 'src');
 const CLI = path.join(SRCDIR, 'cli.js');
 const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
-describe('CodeGeneratorTest', () => {
+describe('CodeGeneratorBaselineTest', () => {
   describe('Generate client library', () => {
-    it('Generated client library should have same output with baseline.', function() {
+    it('Generated library should have same client with baseline.', function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);
@@ -82,6 +117,20 @@ describe('CodeGeneratorTest', () => {
       assert.strictEqual(
         fs.readFileSync(GENERATED_CLIENT_FILE).toString(),
         fs.readFileSync(CLIENT_LIBRARY_BASELINE).toString()
+      );
+    });
+
+    it('Generated client library should have same config with baseline.', () => {
+      assert.strictEqual(
+        fs.readFileSync(GENERATED_CONFIG_FILE).toString(),
+        fs.readFileSync(CLIENT_CONFIG_BASELINE).toString()
+      );
+    });
+
+    it('Generated client library should have same proto list with baseline.', () => {
+      assert.strictEqual(
+        fs.readFileSync(GENERATED_PROTO_LIST_FILE).toString(),
+        fs.readFileSync(CLIENT_PROTO_LIST_BASELINE).toString()
       );
     });
   });

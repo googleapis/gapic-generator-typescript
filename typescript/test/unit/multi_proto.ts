@@ -47,13 +47,14 @@ const PROTOLIST_LIBRARY_BASELINE = path.join(
   'typescript',
   'test',
   'testdata',
+  'keymanager',
   'keymanagementservice_proto_list.json'
 );
 const SRCDIR = path.join(cwd, 'build', 'src');
 const CLI = path.join(SRCDIR, 'cli.js');
 const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
-describe('Proto List Generate Test', () => {
+describe('MultiProtoListGenerateTest', () => {
   describe('Generate Client library', () => {
     it('Generated proto list should have same output with baseline.', function() {
       this.timeout(10000);
