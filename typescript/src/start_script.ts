@@ -16,32 +16,28 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as rimraf from 'rimraf';
-import * as readline from 'readline';
-const argv = require('yargs').argv;
+import {argv} from 'yargs';
 
-const cwd = process.cwd();
-
+// console.warn(__dirname)-> ~/gapic-generator-typescript/build/src
 const GOOGLE_GAX_PROTOS_DIR = path.join(
-  cwd,
+  __dirname,
+  '..',
+  '..',
   'node_modules',
   'google-gax',
   'protos'
 );
-const SRCDIR = path.join(cwd, 'build', 'src');
-const CLI = path.join(SRCDIR, 'cli.js');
-const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
 // Take OUTPUT_DIR argument
-let DEFAULT_OUTPUT_DIR = path.join(cwd, '.client_library');
+let DEFAULT_OUTPUT_DIR = path.join(__dirname, '..', '..', '.client_library');
 if (argv.OUTPUT_DIR) {
-  DEFAULT_OUTPUT_DIR = argv.OUTPUT_DIR;
+  DEFAULT_OUTPUT_DIR = argv.OUTPUT_DIR as string;
 } else {
   console.warn(
     'Output directory is not assigned, use default path instead: .client_library'
   );
   if (fs.existsSync(DEFAULT_OUTPUT_DIR)) {
-    rimraf.sync(DEFAULT_OUTPUT_DIR);
+    console.warn(' Default client library folder already exists! ');
   }
   fs.mkdirSync(DEFAULT_OUTPUT_DIR);
 }
@@ -49,24 +45,14 @@ if (argv.OUTPUT_DIR) {
 let PROTOS_DIR = '';
 let PROTO_FILE = '';
 if (argv.PROTOS_DIR) {
-  PROTOS_DIR = argv.PROTOS_DIR;
+  PROTOS_DIR = argv.PROTOS_DIR as string;
   if (argv.PROTO_FILE) {
-    PROTO_FILE = argv.PROTO_FILE;
+    PROTO_FILE = argv.PROTO_FILE as string;
   } else {
     console.error('Proto file name is not assigned. ');
   }
 } else {
   console.error('Proto file directory is not assigned.');
-}
-if (fs.existsSync(PLUGIN)) {
-  rimraf.sync(PLUGIN);
-}
-fs.copyFileSync(CLI, PLUGIN);
-process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
-try {
-  execSync(`chmod +x ${PLUGIN}`);
-} catch (err) {
-  console.warn(`Failed to chmod +x ${PLUGIN}: ${err}. Ignoring...`);
 }
 execSync(
   `protoc --typescript_gapic_out=${DEFAULT_OUTPUT_DIR} ` +
