@@ -26,16 +26,9 @@ const GOOGLE_GAX_PROTOS_DIR = path.join(
   'google-gax',
   'protos'
 );
-// Users install gapic-generator-typescript globally, executable is in /usr/local/bin/protoc-gen-typescript_gapic
-let SRCDIR = path.join(__dirname, '..', '..', 'usr', 'local', 'bin');
-let PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
-// Users install gapic-generator-typescript locally, exexutable is in .node_modules/.bin
-if (!fs.existsSync(PLUGIN)) {
-  SRCDIR = path.join(__dirname, '..', '..', '.node_modules', '.bin');
-  PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
-}
+
 // Add executable of plugin to PATH
-process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
+process.env['PATH'] = __dirname + path.delimiter + process.env['PATH'];
 
 // Take OUTPUT_DIR argument
 let DEFAULT_OUTPUT_DIR = path.join(__dirname, '..', '..', '.client_library');
