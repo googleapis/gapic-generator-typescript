@@ -14,7 +14,7 @@ class FakeError{
         this.code = n;
     }
 }
-const error = new fakeError(FAKE_STATUS_CODE);
+const error = new FakeError(FAKE_STATUS_CODE);
 
 function mockSimpleGrpcMethod(expectedRequest: any, response: any, error: any) {
     return function(actualRequest: any, options: any, callback: any) {
@@ -149,8 +149,8 @@ describe('{{ service.name }}Client', () => {
                 null,
                 error
             );
-            client.{{ method.name.toCamelCase() }}(request, (err: fakeError, response: any) => {
-                assert(err instanceof fakeError);
+            client.{{ method.name.toCamelCase() }}(request, (err: FakeError, response: any) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -206,8 +206,8 @@ describe('{{ service.name }}Client', () => {
                 return operation.promise();
             }).then(() => {
                 assert.fail();
-            }).catch((err: fakeError) => {
-                assert(err instanceof fakeError);
+            }).catch((err: FakeError) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 done();
             });
@@ -232,7 +232,7 @@ describe('{{ service.name }}Client', () => {
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
             });
-            stream.on('error', (err: fakeError) => {
+            stream.on('error', (err: FakeError) => {
                 done(err);
             });
             stream.write();
@@ -252,8 +252,8 @@ describe('{{ service.name }}Client', () => {
             stream.on('data', () =>{
                 assert.fail();
             });
-            stream.on('error', (err: fakeError) => {
-                assert(err instanceof fakeError);
+            stream.on('error', (err: FakeError) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 done();
             });
@@ -277,7 +277,7 @@ describe('{{ service.name }}Client', () => {
             const stream = client.{{ method.name.toCamelCase() }}().on('data', (response: any) =>{
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
-            }).on('error', (err: fakeError) => {
+            }).on('error', (err: FakeError) => {
                 done(err);
             });
             stream.write(request);
@@ -295,8 +295,8 @@ describe('{{ service.name }}Client', () => {
             client._innerApiCalls.{{ method.name.toCamelCase() }} = mockBidiStreamingGrpcMethod(request, null, error);
             const stream = client.{{ method.name.toCamelCase() }}().on('data', () =>{
                 assert.fail();
-            }).on('error', (err: fakeError) => {
-                assert(err instanceof fakeError);
+            }).on('error', (err: FakeError) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);               
                 done();
             });
@@ -320,7 +320,7 @@ describe('{{ service.name }}Client', () => {
                 assert.deepStrictEqual(actualRequest, request);
                 callback(null, expectedResponse);
             };
-            client.{{ method.name.toCamelCase() }}(request, (err: fakeError, response: any) => {
+            client.{{ method.name.toCamelCase() }}(request, (err: FakeError, response: any) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
