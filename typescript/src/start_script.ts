@@ -33,7 +33,7 @@ let outputDir: string;
 if (argv.output_dir) {
   outputDir = argv.output_dir as string;
 } else {
-  throw Error('output directory is not specified.');
+  throw Error('output directory is not spefcified.');
 }
 
 let protoDirs = [];
@@ -44,7 +44,7 @@ if (argv.I) {
     protoDirs.push(argv.I);
   }
 }
-protoDirs = protoDirs.map(dir => '-I${dir}');
+protoDirs = protoDirs.map(dir => `-I${dir}`);
 
 let protoFiles = [];
 if (Array.isArray(argv._)) {
@@ -52,16 +52,16 @@ if (Array.isArray(argv._)) {
 } else {
   protoFiles.push(argv._);
 }
-protoFiles = protoFiles.map(file => '${file}');
+protoFiles = protoFiles.map(file => `${file}`);
 
 try {
   execSync(
-    'protoc ' +
-      '-I${GOOGLE_GAX_PROTOS_DIR} ' +
-      '${protoDirs} ' +
-      '${protoFiles} ' +
-      '--typescript_gapic_out=${outputDir} '
+    `protoc ` +
+      `-I${GOOGLE_GAX_PROTOS_DIR} ` +
+      `${protoDirs} ` +
+      `${protoFiles} ` +
+      `--typescript_gapic_out=${outputDir} `
   );
 } catch (err) {
-  throw new Error('protoc command fails');
+  throw Error('protoc command fails');
 }
