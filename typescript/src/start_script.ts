@@ -30,36 +30,33 @@ const GOOGLE_GAX_PROTOS_DIR = path.join(
 // Add executable of plugin to PATH
 process.env['PATH'] = __dirname + path.delimiter + process.env['PATH'];
 
-let output_dir = '';
-if(argv.output_dir){
-  output_dir = argv.output_dir as string;
-}else{
-
+let OUTPUT_DIR = '';
+if (argv.output_dir) {
+  OUTPUT_DIR = argv.output_dir as string;
+} else {
 }
 
-let protoDirs = [];
+let PROTO_DIRS = [];
 if (argv.I) {
   if (Array.isArray(argv.I)) {
-    protoDirs.push(...argv.I);
-  }
-  else {
-    protoDirs.push(argv.I);
+    PROTO_DIRS.push(...argv.I);
+  } else {
+    PROTO_DIRS.push(argv.I);
   }
 }
-protoDirs = protoDirs.map(dir => `-I${dir}`);
+PROTO_DIRS = PROTO_DIRS.map(dir => `-I${dir}`);
 
-let protoFiles = [];
+const PROTO_FILES = [];
 if (Array.isArray(argv._)) {
-  protoFiles.push(...argv._);
-}
-else {
-  protoFiles.push(argv._);
+  PROTO_FILES.push(...argv._);
+} else {
+  PROTO_FILES.push(argv._);
 }
 
 execSync(
   `protoc ` +
     `-I${GOOGLE_GAX_PROTOS_DIR} ` +
-    `${protoDirs} ` +
-    `${protoFiles} ` + 
-    `--typescript_gapic_out=${output_dir} `
+    `${PROTO_DIRS} ` +
+    `${PROTO_FILES} ` +
+    `--typescript_gapic_out=${OUTPUT_DIR} `
 );
