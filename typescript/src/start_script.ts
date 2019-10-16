@@ -71,14 +71,14 @@ try {
 
 // create protos folder to copy proto file
 const COPY_PROTO_DIR = path.join(outputDir, 'protos');
-if(!fs.existsSync(COPY_PROTO_DIR)){
+if (!fs.existsSync(COPY_PROTO_DIR)) {
   fs.mkdirSync(COPY_PROTO_DIR);
 }
 // copy proto file to generated folder
 try {
-  protoDirs.forEach((dir) => {
+  protoDirs.forEach(dir => {
     fs.copySync(dir, COPY_PROTO_DIR);
-  })
+  });
 } catch (err) {
   throw Error('copy proto files fail');
 }
