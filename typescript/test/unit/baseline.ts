@@ -14,31 +14,15 @@
 
 import * as assert from 'assert';
 import { execSync } from 'child_process';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
+import { FORMERR } from 'dns';
 
 const cwd = process.cwd();
 
 const OUTPUT_DIR = path.join(cwd, '.baseline-test-out');
-const GENERATED_CLIENT_FILE = path.join(
-  OUTPUT_DIR,
-  'src',
-  'v1beta1',
-  'echo_client.ts'
-);
-const GENERATED_CONFIG_FILE = path.join(
-  OUTPUT_DIR,
-  'src',
-  'v1beta1',
-  'echo_client_config.json'
-);
-const GENERATED_PROTO_LIST_FILE = path.join(
-  OUTPUT_DIR,
-  'src',
-  'v1beta1',
-  'echo_proto_list.json'
-);
+const BASELINE_DIR = path.join(__dirname, '..', '..', 'testdata', 'showcase');
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   cwd,
   'node_modules',
@@ -53,36 +37,6 @@ const ECHO_PROTO_FILE = path.join(
   'v1beta1',
   'echo.proto'
 );
-const CLIENT_LIBRARY_BASELINE = path.join(
-  cwd,
-  'typescript',
-  'test',
-  'testdata',
-  'showcase',
-  'src',
-  'echo_client_baseline.ts.txt'
-);
-
-const CLIENT_CONFIG_BASELINE = path.join(
-  cwd,
-  'typescript',
-  'test',
-  'testdata',
-  'showcase',
-  'src',
-  'echo_client_config.json.txt'
-);
-
-const CLIENT_PROTO_LIST_BASELINE = path.join(
-  cwd,
-  'typescript',
-  'test',
-  'testdata',
-  'showcase',
-  'src',
-  'echo_proto_list.json.txt'
-);
-
 const SRCDIR = path.join(cwd, 'build', 'src');
 const CLI = path.join(SRCDIR, 'cli.js');
 const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
@@ -114,24 +68,30 @@ describe('CodeGeneratorBaselineTest', () => {
           `-I${PROTOS_DIR} ` +
           ECHO_PROTO_FILE
       );
-      assert.strictEqual(
-        fs.readFileSync(GENERATED_CLIENT_FILE).toString(),
-        fs.readFileSync(CLIENT_LIBRARY_BASELINE).toString()
-      );
-    });
-
-    it('Generated client library should have same config with baseline.', () => {
-      assert.strictEqual(
-        fs.readFileSync(GENERATED_CONFIG_FILE).toString(),
-        fs.readFileSync(CLIENT_CONFIG_BASELINE).toString()
-      );
-    });
-
-    it('Generated client library should have same proto list with baseline.', () => {
-      assert.strictEqual(
-        fs.readFileSync(GENERATED_PROTO_LIST_FILE).toString(),
-        fs.readFileSync(CLIENT_PROTO_LIST_BASELINE).toString()
-      );
+      const outputFiles = fs.readdirSync(OUTPUT_DIR);
+      const baselineFiles = fs.readdirSync(BASELINE_DIR);
+      outputFiles.forEach(item => {
+        if(fs.lstatSync(item).isDirectory()){
+          if(!baselineFiles.includes(item)){
+            process.exit(1);
+          }
+          const baselineItem = fs.readdirSync(item);
+          const outputItem = fs.readdirSync(item);
+          outputItem.forEach(file => {
+            if(!baselineItem.includes(file + '.baseline')){
+              process.exit(1);
+            }
+          })
+        }
+        else{
+          const baselineFile = item + '.baseline';
+          console.warn(baselineFile);
+          if(baselineFiles.includes(baselineFile)){
+            assert.strictEqual(baselineFiles[item + '.baseline'], item);
+          }
+          else{process.exit(1);}
+        }
+      })
     });
   });
 });
