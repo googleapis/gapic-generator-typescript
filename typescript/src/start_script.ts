@@ -14,7 +14,6 @@
 // limitations under the License.
 
 import { execSync } from 'child_process';
-import * as fs from 'fs';
 import * as path from 'path';
 import { argv } from 'yargs';
 
@@ -27,36 +26,42 @@ const GOOGLE_GAX_PROTOS_DIR = path.join(
   'protos'
 );
 
-// Add executable of plugin to PATH
+// Add folder of plugin to PATH
 process.env['PATH'] = __dirname + path.delimiter + process.env['PATH'];
 
-let OUTPUT_DIR = '';
+let outputDir: string;
 if (argv.output_dir) {
-  OUTPUT_DIR = argv.output_dir as string;
+  outputDir = argv.output_dir as string;
 } else {
+  throw Error('output directory is not specified.');
 }
 
-let PROTO_DIRS = [];
+let protoDirs = [];
 if (argv.I) {
   if (Array.isArray(argv.I)) {
-    PROTO_DIRS.push(...argv.I);
+    protoDirs.push(...argv.I);
   } else {
-    PROTO_DIRS.push(argv.I);
+    protoDirs.push(argv.I);
   }
 }
-PROTO_DIRS = PROTO_DIRS.map(dir => `-I${dir}`);
+protoDirs = protoDirs.map(dir => '-I${dir}');
 
-const PROTO_FILES = [];
+let protoFiles = [];
 if (Array.isArray(argv._)) {
-  PROTO_FILES.push(...argv._);
+  protoFiles.push(...argv._);
 } else {
-  PROTO_FILES.push(argv._);
+  protoFiles.push(argv._);
 }
+protoFiles = protoFiles.map(file => '${file}');
 
-execSync(
-  `protoc ` +
-    `-I${GOOGLE_GAX_PROTOS_DIR} ` +
-    `${PROTO_DIRS} ` +
-    `${PROTO_FILES} ` +
-    `--typescript_gapic_out=${OUTPUT_DIR} `
-);
+try {
+  execSync(
+    'protoc ' +
+      '-I${GOOGLE_GAX_PROTOS_DIR} ' +
+      '${protoDirs} ' +
+      '${protoFiles} ' +
+      '--typescript_gapic_out=${outputDir} '
+  );
+} catch (err) {
+  throw new Error('protoc command fails');
+}
