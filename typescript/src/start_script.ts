@@ -30,35 +30,36 @@ const GOOGLE_GAX_PROTOS_DIR = path.join(
 // Add executable of plugin to PATH
 process.env['PATH'] = __dirname + path.delimiter + process.env['PATH'];
 
-// Take OUTPUT_DIR argument
-let DEFAULT_OUTPUT_DIR = path.join(__dirname, '..', '..', '.client_library');
-if (argv.OUTPUT_DIR) {
-  DEFAULT_OUTPUT_DIR = argv.OUTPUT_DIR as string;
-} else {
-  console.warn(
-    'Output directory is not assigned, use default path instead: .client_library'
-  );
-  if (fs.existsSync(DEFAULT_OUTPUT_DIR)) {
-    console.warn(' Default client library folder already exists! ');
-  }
-  fs.mkdirSync(DEFAULT_OUTPUT_DIR);
+let output_dir = '';
+if(argv.output_dir){
+  output_dir = argv.output_dir as string;
+}else{
+
 }
-// Take PROTO_FILE argument
-let PROTOS_DIR = '';
-let PROTO_FILE = '';
-if (argv.PROTOS_DIR) {
-  PROTOS_DIR = argv.PROTOS_DIR as string;
-  if (argv.PROTO_FILE) {
-    PROTO_FILE = argv.PROTO_FILE as string;
-  } else {
-    console.error('Proto file name is not assigned. ');
+
+let protoDirs = [];
+if (argv.I) {
+  if (Array.isArray(argv.I)) {
+    protoDirs.push(...argv.I);
   }
-} else {
-  console.error('Proto file directory is not assigned.');
+  else {
+    protoDirs.push(argv.I);
+  }
 }
+protoDirs = protoDirs.map(dir => `-I${dir}`);
+
+let protoFiles = [];
+if (Array.isArray(argv._)) {
+  protoFiles.push(...argv._);
+}
+else {
+  protoFiles.push(argv._);
+}
+
 execSync(
-  `protoc --typescript_gapic_out=${DEFAULT_OUTPUT_DIR} ` +
+  `protoc ` +
     `-I${GOOGLE_GAX_PROTOS_DIR} ` +
-    `-I${PROTOS_DIR} ` +
-    PROTO_FILE
+    `${protoDirs} ` +
+    `${protoFiles} ` + 
+    `--typescript_gapic_out=${output_dir} `
 );

@@ -16,17 +16,9 @@ import * as assert from 'assert';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as rimraf from 'rimraf';
 
-const DEFAULT_OUTPUT_DIR = path.join(
-  __dirname,
-  '..',
-  '..',
-  '..',
-  '.client_library'
-);
-const OUTPUT_DIR = path.join(__dirname, '..', '..', '..', '.baseline-test-out');
-const PROTOS_DIR = 'build/test/protos/';
+const OUTPUT_DIR = path.join(__dirname, '..', '..', '..', '.client_library');
+const PROTOS_DIR = path.join(process.cwd(), 'build', 'test', 'protos');
 const PROTO_FILE = path.join(
   PROTOS_DIR,
   'google',
@@ -47,32 +39,14 @@ const CLIENT_LIBRARY_BASELINE = path.join(
 
 describe('StarterScriptTest', () => {
   describe('use start script for generating showcase library ', () => {
-    it('use default folder for generated client library.', function() {
-      this.timeout(10000);
-      execSync(`sudo npm install -g .`);
-      execSync(
-        `gapic-generator-typescript` +
-          ` --PROTOS_DIR=${PROTOS_DIR}` +
-          ` --PROTO_FILE=${PROTO_FILE}`
-      );
-      const GENERATED_CLIENT_FILE = path.join(
-        DEFAULT_OUTPUT_DIR,
-        'src',
-        'v1beta1',
-        'echo_client.ts'
-      );
-      assert.strictEqual(
-        fs.readFileSync(GENERATED_CLIENT_FILE).toString(),
-        fs.readFileSync(CLIENT_LIBRARY_BASELINE).toString()
-      );
-    });
     it('use custom folder for generated client library.', function() {
       this.timeout(10000);
+      fs.mkdirSync(OUTPUT_DIR);
       execSync(
         `gapic-generator-typescript` +
-          ` --PROTOS_DIR=${PROTOS_DIR}` +
-          ` --PROTO_FILE=${PROTO_FILE}` +
-          ` --OUTPUT_DIR=${OUTPUT_DIR}`
+          ` -I${PROTOS_DIR}` +
+          ` ${PROTO_FILE}` +
+          ` --output_dir=${OUTPUT_DIR}`
       );
       const GENERATED_CLIENT_FILE = path.join(
         OUTPUT_DIR,
