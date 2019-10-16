@@ -16,6 +16,8 @@
 import { execSync } from 'child_process';
 import * as path from 'path';
 import { argv } from 'yargs';
+import * as fs from 'fs-extra';
+import { Dirent } from 'fs-extra';
 
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   __dirname,
@@ -36,7 +38,7 @@ if (argv.output_dir) {
   throw Error('output directory is not spefcified.');
 }
 
-let protoDirs = [];
+const protoDirs = [];
 if (argv.I) {
   if (Array.isArray(argv.I)) {
     protoDirs.push(...argv.I);
@@ -44,7 +46,7 @@ if (argv.I) {
     protoDirs.push(argv.I);
   }
 }
-protoDirs = protoDirs.map(dir => `-I${dir}`);
+const protoDirsArg = protoDirs.map(dir => `-I${dir}`);
 
 let protoFiles = [];
 if (Array.isArray(argv._)) {
@@ -54,14 +56,29 @@ if (Array.isArray(argv._)) {
 }
 protoFiles = protoFiles.map(file => `${file}`);
 
+// run protoc command to generate client library
 try {
   execSync(
     `protoc ` +
       `-I${GOOGLE_GAX_PROTOS_DIR} ` +
-      `${protoDirs} ` +
+      `${protoDirsArg} ` +
       `${protoFiles} ` +
       `--typescript_gapic_out=${outputDir} `
   );
 } catch (err) {
   throw Error('protoc command fails');
+}
+
+// create protos folder to copy proto file
+const COPY_PROTO_DIR = path.join(outputDir, 'protos');
+if(!fs.existsSync(COPY_PROTO_DIR)){
+  fs.mkdirSync(COPY_PROTO_DIR);
+}
+// copy proto file to generated folder
+try {
+  protoDirs.forEach((dir) => {
+    fs.copySync(dir, COPY_PROTO_DIR);
+  })
+} catch (err) {
+  throw Error('copy proto files fail');
 }
