@@ -21,7 +21,13 @@ import { API } from './schema/api';
 import { processTemplates } from './templater';
 import { commonPrefix } from './util';
 
-const templateDirectory = 'templates/typescript_gapic';
+const templateDirectory = path.join(
+  __dirname,
+  '..',
+  '..',
+  'templates',
+  'typescript_gapic'
+);
 // If needed, we can make it possible to load templates from different locations
 // to generate code for other languages.
 
@@ -83,8 +89,6 @@ export class Generator {
     const api = this.buildAPIObject();
     await this.processTemplates(api);
     // TODO: error handling
-    // console.warn(JSON.stringify(api.services, null, ' '));
-    // console.warn(JSON.stringify(api, null, ' '));
 
     const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse.encode(
       this.response
