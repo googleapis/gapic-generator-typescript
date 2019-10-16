@@ -35,7 +35,7 @@ let outputDir: string;
 if (argv.output_dir) {
   outputDir = argv.output_dir as string;
 } else {
-  throw Error('output directory is not spefcified.');
+  process.exit(1);
 }
 
 const protoDirs = [];
@@ -66,7 +66,7 @@ try {
       `--typescript_gapic_out=${outputDir} `
   );
 } catch (err) {
-  throw Error('protoc command fails');
+  process.exit(1);
 }
 
 // create protos folder to copy proto file
@@ -80,5 +80,5 @@ try {
     fs.copySync(dir, COPY_PROTO_DIR);
   });
 } catch (err) {
-  throw Error('copy proto files fail');
+  process.exit(1);
 }
