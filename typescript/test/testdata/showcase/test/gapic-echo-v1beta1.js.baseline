@@ -25,16 +25,11 @@ const {PassThrough} = require('stream');
 
 
 const FAKE_STATUS_CODE = 1;
-class fakeError{
-    code: number;
-    constructor(n: number){
-        this.code = n;
-    }
-}
-const error = new fakeError(FAKE_STATUS_CODE);
+const error = new Error();
+error.code = FAKE_STATUS_CODE;
 
-function mockSimpleGrpcMethod(expectedRequest: any, response: any, error: any) {
-    return function(actualRequest: any, options: any, callback: any) {
+function mockSimpleGrpcMethod(expectedRequest, response, error) {
+    return function(actualRequest, options, callback) {
         assert.deepStrictEqual(actualRequest, expectedRequest);
         if (error) {
             callback(error);
@@ -45,12 +40,12 @@ function mockSimpleGrpcMethod(expectedRequest: any, response: any, error: any) {
         } 
     };
 }
-function mockServerStreamingGrpcMethod(expectedRequest: any, response: any, error: any) {
-    return (actualRequest: any) => {
+function mockServerStreamingGrpcMethod(expectedRequest, response, error) {
+    return actualRequest => {
         assert.deepStrictEqual(actualRequest, expectedRequest);
         const mockStream = new PassThrough({
           objectMode: true,
-          transform: (chunk: any, enc: any, callback: any) => {
+          transform: (chunk, enc, callback) => {
             if (error) {
               callback(error);
             }
@@ -62,11 +57,11 @@ function mockServerStreamingGrpcMethod(expectedRequest: any, response: any, erro
         return mockStream;
     };
 }
-function mockBidiStreamingGrpcMethod(expectedRequest: any, response: any, error: any) {
+function mockBidiStreamingGrpcMethod(expectedRequest, response, error) {
     return () => {
         const mockStream = new PassThrough({
           objectMode: true,
-          transform: (chunk: any, enc: any, callback: any) => {
+          transform: (chunk, enc, callback) => {
             assert.deepStrictEqual(chunk, expectedRequest);
             if (error) {
               callback(error);
@@ -79,8 +74,8 @@ function mockBidiStreamingGrpcMethod(expectedRequest: any, response: any, error:
         return mockStream;
     }
 }
-function mockLongRunningGrpcMethod(expectedRequest: any, response: any, error: any) {
-    return (request: any) => {
+function mockLongRunningGrpcMethod(expectedRequest, response, error) {
+    return request => {
         assert.deepStrictEqual(request, expectedRequest);
         const mockOperation = {
           promise: function() {
@@ -134,10 +129,9 @@ describe('EchoClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.echo = mockSimpleGrpcMethod(
                 request,
-                expectedResponse,
-                null
+                expectedResponse
             );
-            client.echo(request, (err: any, response: any) => {
+            client.echo(request, (err, response) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -159,8 +153,8 @@ describe('EchoClient', () => {
                 null,
                 error
             );
-            client.echo(request, (err: fakeError, response: any) => {
-                assert(err instanceof fakeError);
+            client.echo(request, (err, response) => {
+                assert(err instanceof Error);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -180,16 +174,15 @@ describe('EchoClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.wait = mockLongRunningGrpcMethod(
                 request,
-                expectedResponse,
-                null
+                expectedResponse
             );
-            client.wait(request).then((responses: any) => {
+            client.wait(request).then(responses => {
                 const operation = responses[0];
                 return operation.promise();
-            }).then((responses: any) => {
+            }).then(responses => {
                 assert.deepStrictEqual(responses[0], expectedResponse);
                 done();
-            }).catch((err: any) => {
+            }).catch(err => {
                 done(err);
             });
         });
@@ -209,13 +202,13 @@ describe('EchoClient', () => {
                 null,
                 error
             );
-            client.wait(request).then((responses: any) => {
+            client.wait(request).then(responses => {
                 const operation = responses[0];
                 return operation.promise();
             }).then(() => {
                 assert.fail();
-            }).catch((err: fakeError) => {
-                assert(err instanceof fakeError);
+            }).catch(err => {
+                assert(err instanceof Error);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 done();
             });
@@ -232,13 +225,13 @@ describe('EchoClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock gRPC layer
-            client._innerApiCalls.expand = mockServerStreamingGrpcMethod(request, expectedResponse, null);
+            client._innerApiCalls.expand = mockServerStreamingGrpcMethod(request, expectedResponse);
             const stream = client.expand(request);
-            stream.on('data', (response: any) =>{
+            stream.on('data', response =>{
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
             });
-            stream.on('error', (err: fakeError) => {
+            stream.on('error', err => {
                 done(err);
             });
             stream.write();
@@ -258,8 +251,8 @@ describe('EchoClient', () => {
             stream.on('data', () =>{
                 assert.fail();
             });
-            stream.on('error', (err: fakeError) => {
-                assert(err instanceof fakeError);
+            stream.on('error', err => {
+                assert(err instanceof Error);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 done();
             });
@@ -277,11 +270,11 @@ describe('EchoClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock gRPC layer
-            client._innerApiCalls.chat = mockBidiStreamingGrpcMethod(request, expectedResponse, null);
-            const stream = client.chat().on('data', (response: any) =>{
+            client._innerApiCalls.chat = mockBidiStreamingGrpcMethod(request, expectedResponse);
+            const stream = client.chat().on('data', response =>{
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
-            }).on('error', (err: fakeError) => {
+            }).on('error', err => {
                 done(err);
             });
             stream.write(request);
@@ -299,8 +292,8 @@ describe('EchoClient', () => {
             client._innerApiCalls.chat = mockBidiStreamingGrpcMethod(request, null, error);
             const stream = client.chat().on('data', () =>{
                 assert.fail();
-            }).on('error', (err: fakeError) => {
-                assert(err instanceof fakeError);
+            }).on('error', err => {
+                assert(err instanceof Error);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);               
                 done();
             });
@@ -318,11 +311,11 @@ describe('EchoClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock Grpc layer
-            client._innerApiCalls.pagedExpand = (actualRequest: any, options: any, callback: any) => {
+            client._innerApiCalls.pagedExpand = (actualRequest, options, callback) => {
                 assert.deepStrictEqual(actualRequest, request);
                 callback(null, expectedResponse);
             };
-            client.pagedExpand(request, (err: fakeError, response: any) => {
+            client.pagedExpand(request, (err, response) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();

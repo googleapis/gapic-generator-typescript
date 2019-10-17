@@ -22,7 +22,16 @@ import { FORMERR } from 'dns';
 const cwd = process.cwd();
 
 const OUTPUT_DIR = path.join(cwd, '.baseline-test-out');
-const BASELINE_DIR = path.join(__dirname, '..', '..', 'testdata', 'showcase');
+const BASELINE_DIR = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'typescript',
+  'test',
+  'testdata',
+  'showcase'
+);
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   cwd,
   'node_modules',
@@ -69,29 +78,52 @@ describe('CodeGeneratorBaselineTest', () => {
           ECHO_PROTO_FILE
       );
       const outputFiles = fs.readdirSync(OUTPUT_DIR);
-      const baselineFiles = fs.readdirSync(BASELINE_DIR);
       outputFiles.forEach(item => {
-        if(fs.lstatSync(item).isDirectory()){
-          if(!baselineFiles.includes(item)){
-            process.exit(1);
-          }
-          const baselineItem = fs.readdirSync(item);
-          const outputItem = fs.readdirSync(item);
-          outputItem.forEach(file => {
-            if(!baselineItem.includes(file + '.baseline')){
-              process.exit(1);
+        const itemFullPath = path.join(OUTPUT_DIR, item);
+        if (!fs.lstatSync(itemFullPath).isFile()) {
+          // the item is direactory
+          const files2level = fs.readdirSync(itemFullPath);
+          const baseline2level = path.join(BASELINE_DIR, item);
+          files2level.forEach(item2level => {
+            const item2levelFullPath = path.join(OUTPUT_DIR, item, item2level);
+            if (fs.lstatSync(item2levelFullPath).isFile()) {
+              checkIdenticalFile(item2level, itemFullPath, baseline2level);
+            } else {
+              const files3level = fs.readdirSync(item2levelFullPath);
+              const baseline3level = path.join(BASELINE_DIR, item, item2level);
+              files3level.forEach(item3level => {
+                checkIdenticalFile(
+                  item3level,
+                  item2levelFullPath,
+                  baseline3level
+                );
+              });
             }
-          })
+          });
+        } else {
+          checkIdenticalFile(item, OUTPUT_DIR, BASELINE_DIR);
         }
-        else{
-          const baselineFile = item + '.baseline';
-          console.warn(baselineFile);
-          if(baselineFiles.includes(baselineFile)){
-            assert.strictEqual(baselineFiles[item + '.baseline'], item);
-          }
-          else{process.exit(1);}
-        }
-      })
+      });
     });
   });
 });
+
+function checkIdenticalFile(
+  file: string,
+  OUTPUT_DIR: string,
+  BASELINE_DIR: string
+) {
+  const baselineFiles = fs.readdirSync(BASELINE_DIR);
+  const baselineFile = file + '.baseline';
+
+  if (baselineFiles.includes(baselineFile)) {
+    const outputFilePath = path.join(OUTPUT_DIR, file);
+    const baselineFilePath = path.join(BASELINE_DIR, baselineFile);
+    assert.deepStrictEqual(
+      fs.readFileSync(outputFilePath).toString(),
+      fs.readFileSync(baselineFilePath).toString()
+    );
+  } else {
+    process.exit(1);
+  }
+}
