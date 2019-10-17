@@ -87,7 +87,7 @@ try {
       protoDirs.forEach(dir => {
         const protoFile = path.join(dir, proto);
         if (fs.existsSync(protoFile)) {
-          fileSystem.copyFileSync(protoFile, path.join(protoList, proto));
+          fileSystem.copyFileSync(protoFile, path.join(copyProtoDir, proto));
         }
       });
     });
