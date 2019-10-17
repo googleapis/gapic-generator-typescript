@@ -49,56 +49,49 @@ if (argv.I) {
 }
 const protoDirsArg = protoDirs.map(dir => `-I${dir}`);
 
-let protoFiles = [];
+const protoFiles = [];
 if (Array.isArray(argv._)) {
   protoFiles.push(...argv._);
 } else {
   protoFiles.push(argv._);
 }
-protoFiles = protoFiles.map(file => `${file}`);
 
 // run protoc command to generate client library
+const protocCommand =
+  `protoc ` +
+  `-I${GOOGLE_GAX_PROTOS_DIR} ` +
+  `${protoDirsArg} ` +
+  `${protoFiles} ` +
+  `--typescript_gapic_out=${outputDir} `;
 try {
-  execSync(
-    `protoc ` +
-      `-I${GOOGLE_GAX_PROTOS_DIR} ` +
-      `${protoDirsArg} ` +
-      `${protoFiles} ` +
-      `--typescript_gapic_out=${outputDir} `
-  );
+  execSync(protocCommand, { stdio: 'inherit' });
 } catch (err) {
-  console.error('Protoc command fails.');
+  console.warn('Protoc command executing: ' + protocCommand);
+  console.error(err.toString());
   process.exit(1);
 }
 
 // create protos folder to copy proto file
-const COPY_PROTO_DIR = path.join(outputDir, 'protos');
-if (!fs.existsSync(COPY_PROTO_DIR)) {
-  fs.mkdirSync(COPY_PROTO_DIR);
+const copyProtoDir = path.join(outputDir, 'protos');
+if (!fs.existsSync(copyProtoDir)) {
+  fs.mkdirSync(copyProtoDir);
 }
 // copy proto file to generated folder
 try {
-  const PROTO_LIST = path.join(outputDir, 'proto.list');
-  const protos = fs
-    .readFileSync(PROTO_LIST)
+  const protoList = path.join(outputDir, 'proto.list');
+  fs.readFileSync(protoList)
     .toString()
-    .split('\n');
-  // skip common gax proto files
-  const requiredProtos: string[] = [];
-  protos.forEach(proto => {
-    if (!fs.existsSync(path.join(GOOGLE_GAX_PROTOS_DIR, proto))) {
-      requiredProtos.push(proto);
-    }
-  });
-  requiredProtos.forEach(proto => {
-    protoDirs.forEach(dir => {
-      const protoFile = path.join(dir, proto);
-      if (fs.existsSync(protoFile)) {
-        fileSystem.copyFileSync(protoFile, path.join(COPY_PROTO_DIR, proto));
-      }
+    .split('\n')
+    .filter(proto => !fs.existsSync(path.join(GOOGLE_GAX_PROTOS_DIR, proto)))
+    .forEach(proto => {
+      protoDirs.forEach(dir => {
+        const protoFile = path.join(dir, proto);
+        if (fs.existsSync(protoFile)) {
+          fileSystem.copyFileSync(protoFile, path.join(protoList, proto));
+        }
+      });
     });
-  });
 } catch (err) {
-  console.error('Copy proto files fail');
+  console.error(err.toString());
   process.exit(1);
 }
