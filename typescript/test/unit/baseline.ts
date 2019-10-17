@@ -86,7 +86,6 @@ describe('CodeGeneratorBaselineTest', () => {
         const baselinePath = path.join(BASELINE_DIR, file);
         protoItemStack.push(new Item(file, fileFullPath, baselinePath));
       });
-      console.warn(protoItemStack);
       while (protoItemStack.length !== 0) {
         const item = protoItemStack.pop();
         if (!item) continue;
