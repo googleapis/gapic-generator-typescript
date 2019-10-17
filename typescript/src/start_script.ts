@@ -31,7 +31,7 @@ const GOOGLE_GAX_PROTOS_DIR = path.join(
 // Add folder of plugin to PATH
 process.env['PATH'] = __dirname + path.delimiter + process.env['PATH'];
 
-const outputDir = '';
+let outputDir = '';
 if (argv.output_dir) {
   outputDir = argv.output_dir as string;
 } else {
