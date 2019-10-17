@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import * as path from 'path';
 import { argv } from 'yargs';
 import * as fs from 'fs-extra';
@@ -57,16 +57,15 @@ if (Array.isArray(argv._)) {
 }
 
 // run protoc command to generate client library
-const protocCommand =
-  `protoc ` +
-  `-I${GOOGLE_GAX_PROTOS_DIR} ` +
-  `${protoDirsArg} ` +
-  `${protoFiles} ` +
-  `--typescript_gapic_out=${outputDir} `;
+const protocCommand = [
+  `-I${GOOGLE_GAX_PROTOS_DIR}`,
+  `${protoDirsArg}`,
+  `${protoFiles}`,
+  `--typescript_gapic_out=${outputDir}`,
+];
 try {
-  execSync(protocCommand, { stdio: 'inherit' });
+  execFileSync(`protoc`, protocCommand, { stdio: 'inherit' });
 } catch (err) {
-  console.warn('Protoc command executing: ' + protocCommand);
   console.error(err.toString());
   process.exit(1);
 }
