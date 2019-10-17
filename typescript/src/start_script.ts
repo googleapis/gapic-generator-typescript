@@ -59,10 +59,10 @@ if (Array.isArray(argv._)) {
 // run protoc command to generate client library
 const protocCommand = [
   `-I${GOOGLE_GAX_PROTOS_DIR}`,
-  `${protoDirsArg}`,
-  `${protoFiles}`,
   `--typescript_gapic_out=${outputDir}`,
-];
+]
+protocCommand.push(...protoDirsArg);
+protocCommand.push(...protoFiles);
 try {
   execFileSync(`protoc`, protocCommand, { stdio: 'inherit' });
 } catch (err) {
