@@ -17,7 +17,6 @@ import { execSync } from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
-import { FORMERR } from 'dns';
 
 const cwd = process.cwd();
 const BASELINE_EXTENSION = '.baseline';
@@ -78,14 +77,13 @@ describe('CodeGeneratorBaselineTest', () => {
           `-I${PROTOS_DIR} ` +
           ECHO_PROTO_FILE
       );
-      const outputFiles = fs.readdirSync(OUTPUT_DIR);
+      // put all baseline files into fileStack
+      let fileStack: string[] = [];
+      const dirStack: string[] = [];
+      putAllBaselineFiles(BASELINE_DIR, fileStack, dirStack);
       // store every item (file or directory with full path in output dir and baseline dir) in stack, pop once a time
       const protoItemStack: Item[] = [];
-      outputFiles.forEach(file => {
-        const fileFullPath = path.join(OUTPUT_DIR, file);
-        const baselinePath = path.join(BASELINE_DIR, file);
-        protoItemStack.push(new Item(file, fileFullPath, baselinePath));
-      });
+      putItemToStack(protoItemStack, OUTPUT_DIR, BASELINE_DIR);
       while (protoItemStack.length !== 0) {
         const item = protoItemStack.pop();
         if (!item) continue;
@@ -95,32 +93,60 @@ describe('CodeGeneratorBaselineTest', () => {
             item.outputPath,
             item.baselinePath + BASELINE_EXTENSION
           );
-        } else {
-          // if item is a directory, loop the folder and put every item in stack again
-          const items2level = fs.readdirSync(item.outputPath);
-          items2level.forEach(item2level => {
-            const fileFullPath2level = path.join(item.outputPath, item2level);
-            const baselinePath2level = path.join(item.baselinePath, item2level);
-            protoItemStack.push(
-              new Item(item2level, fileFullPath2level, baselinePath2level)
-            );
+          fileStack = fileStack.filter(file => {
+            file === (item.baselinePath + BASELINE_EXTENSION)
           });
+        } else if(fs.lstatSync(item.outputPath).isDirectory()) {
+          // if item is a directory, loop the folder and put every item in stack again
+          putItemToStack(protoItemStack, item.outputPath, item.baselinePath);
         }
       }
+      assert.strictEqual(fileStack.length, 0);
     });
   });
 });
 
 function checkIdenticalFile(outputFullPath: string, baselineFullPath: string) {
-  if (fs.existsSync(baselineFullPath)) {
-    assert.deepStrictEqual(
-      fs.readFileSync(outputFullPath).toString(),
-      fs.readFileSync(baselineFullPath).toString()
-    );
-  } else {
-    process.exit(1);
+  assert(fs.existsSync(baselineFullPath))
+  assert.deepStrictEqual(
+    fs.readFileSync(outputFullPath).toString(),
+    fs.readFileSync(baselineFullPath).toString()
+  );
+}
+
+
+function putItemToStack(protoItemStack: Item[], outputDir: string, baselinDir: string){
+  const outputFiles = fs.readdirSync(outputDir);
+
+  outputFiles.forEach(file => {
+    const fileFullPath = path.join(outputDir, file);
+    const baselinePath = path.join(baselinDir, file);
+    protoItemStack.push(new Item(file, fileFullPath, baselinePath));
+  });
+}
+
+function putFiletoStack(dir: string, fileStack: string[], dirStack: string[]){
+  const items = fs.readdirSync(dir);
+  items.forEach(item => {
+    const baselinePath = path.join(dir, item);
+    if(fs.lstatSync(baselinePath).isFile()){
+      fileStack.push(baselinePath);
+    }
+    else if(fs.lstatSync(baselinePath).isDirectory()){
+      dirStack.push(baselinePath);
+    }
+  });
+}
+
+function putAllBaselineFiles(dir: string, fileStack: string[], dirStack: string[]){
+  putFiletoStack(dir, fileStack, dirStack);
+  while(dirStack.length !== 0){
+    const dir = dirStack.pop();
+    if(!dir) continue;
+    putFiletoStack(dir, fileStack, dirStack);
   }
 }
+
 class Item {
   fileName: string; // file name: package.json
   outputPath: string; // full path in output folder: __dirname/.../.baseline-test-out/package.json
