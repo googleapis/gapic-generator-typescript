@@ -17,7 +17,6 @@ import { execSync } from 'child_process';
 import * as path from 'path';
 import { argv } from 'yargs';
 import * as fs from 'fs-extra';
-import { Dirent } from 'fs-extra';
 
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   __dirname,
@@ -35,6 +34,7 @@ let outputDir = '';
 if (argv.output_dir) {
   outputDir = argv.output_dir as string;
 } else {
+  console.error('Output directory is required: --output_dir path');
   process.exit(1);
 }
 
@@ -66,6 +66,7 @@ try {
       `--typescript_gapic_out=${outputDir} `
   );
 } catch (err) {
+  console.error('Protoc command fails.');
   process.exit(1);
 }
 
@@ -76,6 +77,7 @@ if (!fs.existsSync(COPY_PROTO_DIR)) {
 }
 // copy proto file to generated folder
 try {
+  const PROTO_LIST = path.join();
   protoDirs.forEach(dir => {
     fs.copySync(dir, COPY_PROTO_DIR);
   });
