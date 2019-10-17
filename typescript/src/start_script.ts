@@ -17,6 +17,7 @@ import { execSync } from 'child_process';
 import * as path from 'path';
 import { argv } from 'yargs';
 import * as fs from 'fs-extra';
+const fileSystem = require('file-system');
 
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   __dirname,
@@ -77,16 +78,6 @@ if (!fs.existsSync(COPY_PROTO_DIR)) {
 }
 // copy proto file to generated folder
 try {
-  const gaxProtoList = [
-    'api',
-    'iam',
-    'longrunning',
-    'monitoring',
-    'protobuf',
-    'rpc',
-    'type',
-    'logging',
-  ];
   const PROTO_LIST = path.join(outputDir, 'proto.list');
   const protos = fs
     .readFileSync(PROTO_LIST)
@@ -95,10 +86,7 @@ try {
   // skip common gax proto files
   const requiredProtos: string[] = [];
   protos.forEach(proto => {
-    if (
-      proto.toString.length !== 0 &&
-      !gaxProtoList.includes(proto.split('/')[1])
-    ) {
+    if (!fs.existsSync(path.join(GOOGLE_GAX_PROTOS_DIR, proto))) {
       requiredProtos.push(proto);
     }
   });
@@ -106,7 +94,7 @@ try {
     protoDirs.forEach(dir => {
       const protoFile = path.join(dir, proto);
       if (fs.existsSync(protoFile)) {
-        fs.copyFileSync(protoFile, COPY_PROTO_DIR);
+        fileSystem.copyFileSync(protoFile, path.join(COPY_PROTO_DIR, proto));
       }
     });
   });
