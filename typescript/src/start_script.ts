@@ -60,7 +60,7 @@ if (Array.isArray(argv._)) {
 const protocCommand = [
   `-I${GOOGLE_GAX_PROTOS_DIR}`,
   `--typescript_gapic_out=${outputDir}`,
-]
+];
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 try {
@@ -70,13 +70,13 @@ try {
   process.exit(1);
 }
 
-// create protos folder to copy proto file
-const copyProtoDir = path.join(outputDir, 'protos');
-if (!fs.existsSync(copyProtoDir)) {
-  fs.mkdirSync(copyProtoDir);
-}
-// copy proto file to generated folder
 try {
+  // create protos folder to copy proto file
+  const copyProtoDir = path.join(outputDir, 'protos');
+  if (!fs.existsSync(copyProtoDir)) {
+    fs.mkdirSync(copyProtoDir);
+  }
+  // copy proto file to generated folder
   const protoList = path.join(outputDir, 'proto.list');
   fs.readFileSync(protoList)
     .toString()
