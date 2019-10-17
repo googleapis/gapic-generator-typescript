@@ -39,10 +39,10 @@ async function recursiveFileList(
 
 function renderFile(
   targetFilename: string,
-  templateFilename: string,
+  templateName: string,
   renderParameters: {}
 ) {
-  const processed = nunjucks.render(templateFilename, renderParameters);
+  const processed = nunjucks.render(templateName, renderParameters);
   const output = plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
   output.name = targetFilename;
   output.content = processed;
@@ -55,9 +55,8 @@ function processOneTemplate(
   api: API
 ) {
   const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
-  let outputFilename = templateFilename
-    .substr(basePath.length + 1)
-    .replace(/\.njk$/, '');
+  const relativeTemplateName = templateFilename.substr(basePath.length + 1);
+  let outputFilename = relativeTemplateName.replace(/\.njk$/, '');
 
   // Filename can have one or more variables in it that should be substituted
   // with their actual values. Currently supported: $service, $version Note:
@@ -70,14 +69,17 @@ function processOneTemplate(
       result.push(
         renderFile(
           outputFilename.replace(/\$service/, service.name!.toLowerCase()),
-          templateFilename,
+          relativeTemplateName,
           { api, commonParameters, service }
         )
       );
     }
   } else {
     result.push(
-      renderFile(outputFilename, templateFilename, { api, commonParameters })
+      renderFile(outputFilename, relativeTemplateName, {
+        api,
+        commonParameters,
+      })
     );
   }
 
@@ -85,6 +87,7 @@ function processOneTemplate(
 }
 
 export async function processTemplates(basePath: string, api: API) {
+  nunjucks.configure(basePath);
   basePath = basePath.replace(/\/*$/, '');
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];

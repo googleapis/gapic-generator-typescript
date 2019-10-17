@@ -131,8 +131,11 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
 
 function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
   const repeatedFields = pagingField(messages, method);
-  if (repeatedFields && repeatedFields.name) return repeatedFields.name;
-  else return undefined;
+  if (repeatedFields && repeatedFields.name) {
+    return repeatedFields.name;
+  } else {
+    return undefined;
+  }
 }
 
 function pagingResponseType(
