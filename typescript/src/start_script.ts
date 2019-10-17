@@ -38,12 +38,12 @@ if (argv.output_dir) {
   process.exit(1);
 }
 
-const protoDirs = [];
+const protoDirs: string[] = [];
 if (argv.I) {
   if (Array.isArray(argv.I)) {
     protoDirs.push(...argv.I);
   } else {
-    protoDirs.push(argv.I);
+    protoDirs.push(argv.I as string);
   }
 }
 const protoDirsArg = protoDirs.map(dir => `-I${dir}`);
@@ -77,10 +77,40 @@ if (!fs.existsSync(COPY_PROTO_DIR)) {
 }
 // copy proto file to generated folder
 try {
-  const PROTO_LIST = path.join();
-  protoDirs.forEach(dir => {
-    fs.copySync(dir, COPY_PROTO_DIR);
+  const gaxProtoList = [
+    'api',
+    'iam',
+    'longrunning',
+    'monitoring',
+    'protobuf',
+    'rpc',
+    'type',
+    'logging',
+  ];
+  const PROTO_LIST = path.join(outputDir, 'proto.list');
+  const protos = fs
+    .readFileSync(PROTO_LIST)
+    .toString()
+    .split('\n');
+  // skip common gax proto files
+  const requiredProtos: string[] = [];
+  protos.forEach(proto => {
+    if (
+      proto.toString.length !== 0 &&
+      !gaxProtoList.includes(proto.split('/')[1])
+    ) {
+      requiredProtos.push(proto);
+    }
+  });
+  requiredProtos.forEach(proto => {
+    protoDirs.forEach(dir => {
+      const protoFile = path.join(dir, proto);
+      if (fs.existsSync(protoFile)) {
+        fs.copyFileSync(protoFile, COPY_PROTO_DIR);
+      }
+    });
   });
 } catch (err) {
+  console.error('Copy proto files fail');
   process.exit(1);
 }
