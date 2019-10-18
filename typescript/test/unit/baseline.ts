@@ -20,7 +20,7 @@ import { compareToBaseline } from '../util';
 
 const cwd = process.cwd();
 
-const OUTPUT_DIR = path.join(cwd, '.baseline-test-out');
+const OUTPUT_DIR = path.join(cwd, '.test-out-showcase');
 const BASELINE_DIR = path.join(
   __dirname,
   '..',

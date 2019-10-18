@@ -21,7 +21,7 @@ import { compareToBaseline } from '../util';
 
 const cwd = process.cwd();
 
-const OUTPUT_DIR = path.join(cwd, '.multi-proto-test-out');
+const OUTPUT_DIR = path.join(cwd, '.test-out-keymanager');
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   cwd,
   'node_modules',

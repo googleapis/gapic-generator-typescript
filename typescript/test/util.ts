@@ -2,6 +2,10 @@ import * as assert from 'assert';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
+const NO_OUTPUT_FILE = 0;
+const IDENTICAL_FILE = 1;
+const FILE_WITH_DIFF_CONTENT = 2;
+
 const BASELINE_EXTENSION = '.baseline';
 export function compareToBaseline(outpurDir: string, baselineDir: string) {
   // put all baseline files into fileStack
@@ -12,16 +16,19 @@ export function compareToBaseline(outpurDir: string, baselineDir: string) {
   const protoItemStack: Item[] = [];
   putItemToStack(protoItemStack, outpurDir, baselineDir);
   while (protoItemStack.length !== 0) {
-    const item = protoItemStack[0];
-    protoItemStack.shift();
+    const item = protoItemStack[protoItemStack.length - 1];
+    protoItemStack.pop();
     // if item is a file, compare it with baseline
     if (fs.lstatSync(item.outputPath).isFile()) {
-      const identical = checkIdenticalFile(
+      const compareResult = checkIdenticalFile(
         item.outputPath,
         item.baselinePath + BASELINE_EXTENSION
       );
       // if two files are identical or it's generated properly, filter it from the stack.
-      if (identical !== 2) {
+      if (
+        compareResult === IDENTICAL_FILE ||
+        compareResult === NO_OUTPUT_FILE
+      ) {
         fileStack = fileStack.filter(
           file => file !== item.baselinePath + BASELINE_EXTENSION
         );
@@ -43,14 +50,19 @@ function checkIdenticalFile(
   outputFullPath: string,
   baselineFullPath: string
 ): number {
+  if (!outputFullPath.endsWith('.proto')) {
+    assert(fs.existsSync(baselineFullPath));
+  } else {
+    return NO_OUTPUT_FILE;
+  }
   if (!fs.existsSync(baselineFullPath)) {
-    console.error(baselineFullPath + 'is not generated. ');
-    return 0;
+    console.error(baselineFullPath + ' is not generated. ');
+    return NO_OUTPUT_FILE;
   }
   const readOutput = fs.readFileSync(outputFullPath).toString();
   const baselineOutput = fs.readFileSync(baselineFullPath).toString();
-  if (readOutput === baselineOutput) return 1;
-  else return 2;
+  if (readOutput === baselineOutput) return IDENTICAL_FILE;
+  else return FILE_WITH_DIFF_CONTENT;
 }
 
 function putItemToStack(
