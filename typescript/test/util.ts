@@ -45,7 +45,7 @@ export function equalToBaseline(
     fileStack.forEach(file => {
       console.warn(file + ' is not identical with the generated file. ');
     });
-    compareResult = false;;
+    compareResult = false;
   }
   return compareResult;
 }
