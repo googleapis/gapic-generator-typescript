@@ -17,16 +17,11 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
+import { equalToBaseline } from '../util';
 
 const cwd = process.cwd();
 
-const OUTPUT_DIR = path.join(cwd, '.multi-proto-test-out');
-const GENERATED_PROTO_FILE = path.join(
-  OUTPUT_DIR,
-  'src',
-  'v1',
-  'keymanagementservice_proto_list.json'
-);
+const OUTPUT_DIR = path.join(cwd, '.test-out-keymanager');
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   cwd,
   'node_modules',
@@ -42,18 +37,22 @@ const KMS_PROTO_FILE = path.join(
   'service.proto'
 );
 
-const PROTOLIST_LIBRARY_BASELINE = path.join(
-  cwd,
+const BASELINE_DIR = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
   'typescript',
   'test',
-  'testdata',
-  'keymanagementservice_proto_list.json'
+  'testdata'
 );
+
+const BASELINE_DIR_KM = path.join(BASELINE_DIR, 'keymanager');
 const SRCDIR = path.join(cwd, 'build', 'src');
 const CLI = path.join(SRCDIR, 'cli.js');
 const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
-describe('Proto List Generate Test', () => {
+describe('MultiProtoListGenerateTest', () => {
   describe('Generate Client library', () => {
     it('Generated proto list should have same output with baseline.', function() {
       this.timeout(10000);
@@ -80,10 +79,7 @@ describe('Proto List Generate Test', () => {
           `-I${PROTOS_DIR} ` +
           KMS_PROTO_FILE
       );
-      assert.strictEqual(
-        fs.readFileSync(GENERATED_PROTO_FILE).toString(),
-        fs.readFileSync(PROTOLIST_LIBRARY_BASELINE).toString()
-      );
+      assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR_KM));
     });
   });
 });
