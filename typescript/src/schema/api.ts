@@ -42,8 +42,8 @@ export class API {
             if (serviceOption['.google.api.defaultHost']) {
               const defaultHost = serviceOption['.google.api.defaultHost'];
               const arr = defaultHost.split(':');
-              this.hostName = arr && arr.length > 0 ? arr[0] : '';
-              this.port = arr && arr.length > 1 ? arr[1] : '443';
+              this.hostName = arr[0] || 'localhost';
+              this.port = arr.length > 1 ? arr[1] : '443';
             }
           }
         });
