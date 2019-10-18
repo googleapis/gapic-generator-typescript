@@ -17,7 +17,7 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
-import { compareToBaseline } from '../util';
+import { equalToBaseline } from '../util';
 
 const cwd = process.cwd();
 
@@ -79,7 +79,7 @@ describe('MultiProtoListGenerateTest', () => {
           `-I${PROTOS_DIR} ` +
           KMS_PROTO_FILE
       );
-      compareToBaseline(OUTPUT_DIR, BASELINE_DIR_KM);
+      assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR_KM));
     });
   });
 });

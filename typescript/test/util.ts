@@ -1,4 +1,3 @@
-import * as assert from 'assert';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
@@ -7,7 +6,10 @@ const IDENTICAL_FILE = 1;
 const FILE_WITH_DIFF_CONTENT = 2;
 
 const BASELINE_EXTENSION = '.baseline';
-export function compareToBaseline(outpurDir: string, baselineDir: string) {
+export function equalToBaseline(
+  outpurDir: string,
+  baselineDir: string
+): boolean {
   // put all baseline files into fileStack
   let fileStack: string[] = [];
   const dirStack: string[] = [];
@@ -40,23 +42,22 @@ export function compareToBaseline(outpurDir: string, baselineDir: string) {
   }
   if (fileStack.length !== 0) {
     fileStack.forEach(file => {
-      console.error(file + ' is not identical with the generated file. ');
+      console.warn(file + ' is not identical with the generated file. ');
     });
+    return false;
   }
-  assert.strictEqual(fileStack.length, 0);
+  return true;
 }
 
 function checkIdenticalFile(
   outputFullPath: string,
   baselineFullPath: string
 ): number {
-  if (!outputFullPath.endsWith('.proto')) {
-    assert(fs.existsSync(baselineFullPath));
-  } else {
-    return NO_OUTPUT_FILE;
+  if (outputFullPath.endsWith('.proto')) {
+    return IDENTICAL_FILE;
   }
   if (!fs.existsSync(baselineFullPath)) {
-    console.error(baselineFullPath + ' is not generated. ');
+    console.warn(baselineFullPath + ' is not generated. ');
     return NO_OUTPUT_FILE;
   }
   const readOutput = fs.readFileSync(outputFullPath).toString();

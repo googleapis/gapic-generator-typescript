@@ -18,7 +18,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import * as util from 'util';
-import { compareToBaseline } from '../util';
+import { equalToBaseline } from '../util';
 
 const rmrf = util.promisify(rimraf);
 
@@ -63,7 +63,7 @@ describe('StarterScriptTest', () => {
           ` ${PROTO_FILE}` +
           ` --output_dir=${OUTPUT_DIR}`
       );
-      compareToBaseline(OUTPUT_DIR, BASELINE_DIR_SHOWCASE);
+      assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR_SHOWCASE));
     });
   });
 });

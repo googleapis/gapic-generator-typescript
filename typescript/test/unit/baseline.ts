@@ -16,7 +16,8 @@ import { execSync } from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
-import { compareToBaseline } from '../util';
+import { equalToBaseline } from '../util';
+import * as assert from 'assert';
 
 const cwd = process.cwd();
 
@@ -76,7 +77,7 @@ describe('CodeGeneratorBaselineTest', () => {
           `-I${PROTOS_DIR} ` +
           ECHO_PROTO_FILE
       );
-      compareToBaseline(OUTPUT_DIR, BASELINE_DIR_SHOWCASE);
+      assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR_SHOWCASE));
     });
   });
 });
