@@ -10,6 +10,8 @@ export interface ProtosMap {
 export class API {
   naming: Naming;
   protos: ProtosMap;
+  serviceOption?: plugin.google.protobuf.IServiceOptions;
+  // oauth_scopes: plugin.google.protobuf.IServiceOptions.prototype[".google.api.oauthScopes"];
   // TODO: subpackages
 
   constructor(
@@ -30,6 +32,15 @@ export class API {
         },
         {} as ProtosMap
       );
+    fileDescriptors.forEach(fd => {
+      if (fd.service) {
+        fd.service.forEach(service => {
+          if (service.options) {
+            this.serviceOption = service.options;
+          }
+        });
+      }
+    });
   }
 
   get services() {
