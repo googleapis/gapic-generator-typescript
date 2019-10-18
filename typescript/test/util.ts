@@ -6,6 +6,7 @@ const IDENTICAL_FILE = 1;
 const FILE_WITH_DIFF_CONTENT = 2;
 
 const BASELINE_EXTENSION = '.baseline';
+let compareResult = true;
 export function equalToBaseline(
   outpurDir: string,
   baselineDir: string
@@ -44,9 +45,9 @@ export function equalToBaseline(
     fileStack.forEach(file => {
       console.warn(file + ' is not identical with the generated file. ');
     });
-    return false;
+    compareResult = false;;
   }
-  return true;
+  return compareResult;
 }
 
 function checkIdenticalFile(
@@ -58,12 +59,13 @@ function checkIdenticalFile(
   }
   if (!fs.existsSync(baselineFullPath)) {
     console.warn(baselineFullPath + ' is not generated. ');
+    compareResult = false;
     return NO_OUTPUT_FILE;
   }
   const readOutput = fs.readFileSync(outputFullPath).toString();
   const baselineOutput = fs.readFileSync(baselineFullPath).toString();
   if (readOutput === baselineOutput) return IDENTICAL_FILE;
-  else return FILE_WITH_DIFF_CONTENT;
+  return FILE_WITH_DIFF_CONTENT;
 }
 
 function putItemToStack(
