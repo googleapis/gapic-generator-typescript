@@ -7,22 +7,26 @@ export function comapreToBaseline(outpurDir: string, baselineDir: string) {
   // put all baseline files into fileStack
   let fileStack: string[] = [];
   const dirStack: string[] = [];
+  const notIdenticalFile: string[] = [];
   putAllBaselineFiles(baselineDir, fileStack, dirStack);
   // store every item (file or directory with full path in output dir and baseline dir) in stack, pop once a time
   const protoItemStack: Item[] = [];
   putItemToStack(protoItemStack, outpurDir, baselineDir);
   while (protoItemStack.length !== 0) {
-    const item = protoItemStack.pop();
-    if (!item) continue;
+    const item = protoItemStack[0];
+    protoItemStack.pop();
     // if item is a file, compare it with baseline
     if (fs.lstatSync(item.outputPath).isFile()) {
-      checkIdenticalFile(
+        const identical = checkIdenticalFile(
         item.outputPath,
         item.baselinePath + BASELINE_EXTENSION
       );
-      fileStack = fileStack.filter(
-        file => file === item.baselinePath + BASELINE_EXTENSION
-      );
+      // if two files are identilca or it's generated properly, filter it from the stack.
+      if(identical != 2){
+        fileStack = fileStack.filter(
+            file => file === item.baselinePath + BASELINE_EXTENSION
+        );
+      }
     } else if (fs.lstatSync(item.outputPath).isDirectory()) {
       // if item is a directory, loop the folder and put every item in stack again
       putItemToStack(protoItemStack, item.outputPath, item.baselinePath);
@@ -30,27 +34,21 @@ export function comapreToBaseline(outpurDir: string, baselineDir: string) {
   }
   if (fileStack.length !== 0) {
     fileStack.forEach(file => {
-      console.error(file + ' is not generated');
+      console.error(file + ' is not identical with the generated file. ');
     });
   }
   assert.strictEqual(fileStack.length, 0);
 }
 
-function checkIdenticalFile(outputFullPath: string, baselineFullPath: string) {
+function checkIdenticalFile(outputFullPath: string, baselineFullPath: string): number{
   if (!fs.existsSync(baselineFullPath)) {
-    console.error(baselineFullPath + ' is not existing.');
-    return;
+      console.error(baselineFullPath + 'is not generated. ');
+    return 0;
   }
-  try {
-    assert.deepStrictEqual(
-      fs.readFileSync(outputFullPath).toString(),
-      fs.readFileSync(baselineFullPath).toString()
-    );
-  } catch (err) {
-    console.error(
-      'Generated file is not identical with baseline : ' + outputFullPath
-    );
-  }
+  const readOutput = fs.readFileSync(outputFullPath).toString();
+  const baselineOutput = fs.readFileSync(baselineFullPath).toString();
+  if (readOutput === baselineOutput) return 1;
+  else return 2;
 }
 
 function putItemToStack(
@@ -87,8 +85,7 @@ function putAllBaselineFiles(
   putFiletoStack(dir, fileStack, dirStack);
   while (dirStack.length !== 0) {
     const dir = dirStack.pop();
-    if (!dir) continue;
-    putFiletoStack(dir, fileStack, dirStack);
+    putFiletoStack(dir!, fileStack, dirStack);
   }
 }
 
