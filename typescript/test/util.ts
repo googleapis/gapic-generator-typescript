@@ -20,7 +20,7 @@ export function compareToBaseline(outpurDir: string, baselineDir: string) {
         item.outputPath,
         item.baselinePath + BASELINE_EXTENSION
       );
-      // if two files are identilca or it's generated properly, filter it from the stack.
+      // if two files are identical or it's generated properly, filter it from the stack.
       if (identical !== 2) {
         fileStack = fileStack.filter(
           file => file !== item.baselinePath + BASELINE_EXTENSION
