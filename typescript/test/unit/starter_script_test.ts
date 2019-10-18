@@ -22,7 +22,12 @@ import { compareToBaseline } from '../util';
 
 const rmrf = util.promisify(rimraf);
 
-const START_SCRIPT = path.join(process.cwd(), 'build', 'src', 'start_script.js');
+const START_SCRIPT = path.join(
+  process.cwd(),
+  'build',
+  'src',
+  'start_script.js'
+);
 const OUTPUT_DIR = path.join(__dirname, '..', '..', '..', '.client_library');
 const PROTOS_DIR = path.join(process.cwd(), 'build', 'test', 'protos');
 const PROTO_FILE = path.join(
@@ -52,7 +57,7 @@ describe('StarterScriptTest', () => {
       }
       fs.mkdirSync(OUTPUT_DIR);
       execSync(
-          "node " +
+        'node ' +
           START_SCRIPT +
           ` -I${PROTOS_DIR}` +
           ` ${PROTO_FILE}` +
