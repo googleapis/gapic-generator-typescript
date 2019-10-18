@@ -7,14 +7,13 @@ export function compareToBaseline(outpurDir: string, baselineDir: string) {
   // put all baseline files into fileStack
   let fileStack: string[] = [];
   const dirStack: string[] = [];
-  const notIdenticalFile: string[] = [];
   putAllBaselineFiles(baselineDir, fileStack, dirStack);
   // store every item (file or directory with full path in output dir and baseline dir) in stack, pop once a time
   const protoItemStack: Item[] = [];
   putItemToStack(protoItemStack, outpurDir, baselineDir);
   while (protoItemStack.length !== 0) {
     const item = protoItemStack[0];
-    protoItemStack.pop();
+    protoItemStack.shift();
     // if item is a file, compare it with baseline
     if (fs.lstatSync(item.outputPath).isFile()) {
       const identical = checkIdenticalFile(
@@ -24,7 +23,7 @@ export function compareToBaseline(outpurDir: string, baselineDir: string) {
       // if two files are identilca or it's generated properly, filter it from the stack.
       if (identical !== 2) {
         fileStack = fileStack.filter(
-          file => file === item.baselinePath + BASELINE_EXTENSION
+          file => file !== item.baselinePath + BASELINE_EXTENSION
         );
       }
     } else if (fs.lstatSync(item.outputPath).isDirectory()) {
