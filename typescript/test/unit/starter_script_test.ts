@@ -16,7 +16,18 @@ import * as assert from 'assert';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as rimraf from 'rimraf';
+import * as util from 'util';
+import { equalToBaseline } from '../util';
 
+const rmrf = util.promisify(rimraf);
+
+const START_SCRIPT = path.join(
+  process.cwd(),
+  'build',
+  'src',
+  'start_script.js'
+);
 const OUTPUT_DIR = path.join(__dirname, '..', '..', '..', '.client_library');
 const PROTOS_DIR = path.join(process.cwd(), 'build', 'test', 'protos');
 const PROTO_FILE = path.join(
@@ -26,7 +37,7 @@ const PROTO_FILE = path.join(
   'v1beta1',
   'echo.proto'
 );
-const CLIENT_LIBRARY_BASELINE = path.join(
+const BASELINE_DIR_SHOWCASE = path.join(
   __dirname,
   '..',
   '..',
@@ -34,30 +45,25 @@ const CLIENT_LIBRARY_BASELINE = path.join(
   'typescript',
   'test',
   'testdata',
-  'echo_client_baseline.ts.txt'
+  'showcase'
 );
 
 describe('StarterScriptTest', () => {
   describe('use start script for generating showcase library ', () => {
-    it('use custom folder for generated client library.', function() {
+    it('use custom folder for generated client library.', async function() {
       this.timeout(10000);
+      if (fs.existsSync(OUTPUT_DIR)) {
+        await rmrf(OUTPUT_DIR);
+      }
       fs.mkdirSync(OUTPUT_DIR);
       execSync(
-        `gapic-generator-typescript` +
+        'node ' +
+          START_SCRIPT +
           ` -I${PROTOS_DIR}` +
           ` ${PROTO_FILE}` +
           ` --output_dir=${OUTPUT_DIR}`
       );
-      const GENERATED_CLIENT_FILE = path.join(
-        OUTPUT_DIR,
-        'src',
-        'v1beta1',
-        'echo_client.ts'
-      );
-      assert.strictEqual(
-        fs.readFileSync(GENERATED_CLIENT_FILE).toString(),
-        fs.readFileSync(CLIENT_LIBRARY_BASELINE).toString()
-      );
+      assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR_SHOWCASE));
     });
   });
 });
