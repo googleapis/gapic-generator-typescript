@@ -17,14 +17,14 @@ export function comapreToBaseline(outpurDir: string, baselineDir: string) {
     protoItemStack.pop();
     // if item is a file, compare it with baseline
     if (fs.lstatSync(item.outputPath).isFile()) {
-        const identical = checkIdenticalFile(
+      const identical = checkIdenticalFile(
         item.outputPath,
         item.baselinePath + BASELINE_EXTENSION
       );
       // if two files are identilca or it's generated properly, filter it from the stack.
-      if(identical != 2){
+      if (identical !== 2) {
         fileStack = fileStack.filter(
-            file => file === item.baselinePath + BASELINE_EXTENSION
+          file => file === item.baselinePath + BASELINE_EXTENSION
         );
       }
     } else if (fs.lstatSync(item.outputPath).isDirectory()) {
@@ -40,9 +40,12 @@ export function comapreToBaseline(outpurDir: string, baselineDir: string) {
   assert.strictEqual(fileStack.length, 0);
 }
 
-function checkIdenticalFile(outputFullPath: string, baselineFullPath: string): number{
+function checkIdenticalFile(
+  outputFullPath: string,
+  baselineFullPath: string
+): number {
   if (!fs.existsSync(baselineFullPath)) {
-      console.error(baselineFullPath + 'is not generated. ');
+    console.error(baselineFullPath + 'is not generated. ');
     return 0;
   }
   const readOutput = fs.readFileSync(outputFullPath).toString();
