@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 const BASELINE_EXTENSION = '.baseline';
-export function comapreToBaseline(outpurDir: string, baselineDir: string) {
+export function compareToBaseline(outpurDir: string, baselineDir: string) {
   // put all baseline files into fileStack
   let fileStack: string[] = [];
   const dirStack: string[] = [];
