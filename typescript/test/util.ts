@@ -6,11 +6,12 @@ const IDENTICAL_FILE = 1;
 const FILE_WITH_DIFF_CONTENT = 2;
 
 const BASELINE_EXTENSION = '.baseline';
-let compareResult = true;
+
 export function equalToBaseline(
   outpurDir: string,
   baselineDir: string
 ): boolean {
+  let result = true;
   // put all baseline files into fileStack
   let fileStack: string[] = [];
   const dirStack: string[] = [];
@@ -27,6 +28,9 @@ export function equalToBaseline(
         item.outputPath,
         item.baselinePath + BASELINE_EXTENSION
       );
+      if (compareResult === NO_OUTPUT_FILE) {
+        result = false;
+      }
       // if two files are identical or it's generated properly, filter it from the stack.
       if (
         compareResult === IDENTICAL_FILE ||
@@ -45,9 +49,9 @@ export function equalToBaseline(
     fileStack.forEach(file => {
       console.warn(file + ' is not identical with the generated file. ');
     });
-    compareResult = false;
+    result = false;
   }
-  return compareResult;
+  return result;
 }
 
 function checkIdenticalFile(
@@ -59,7 +63,6 @@ function checkIdenticalFile(
   }
   if (!fs.existsSync(baselineFullPath)) {
     console.warn(baselineFullPath + ' is not generated. ');
-    compareResult = false;
     return NO_OUTPUT_FILE;
   }
   const readOutput = fs.readFileSync(outputFullPath).toString();
