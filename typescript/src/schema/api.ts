@@ -2,6 +2,7 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 
 import { Naming } from './naming';
 import { Proto } from './proto';
+import { fstat } from 'fs-extra';
 
 export interface ProtosMap {
   [filename: string]: Proto;
@@ -10,6 +11,9 @@ export interface ProtosMap {
 export class API {
   naming: Naming;
   protos: ProtosMap;
+  hostName?: string;
+  port?: string;
+  // oauth_scopes: plugin.google.protobuf.IServiceOptions.prototype[".google.api.oauthScopes"];
   // TODO: subpackages
 
   constructor(
@@ -30,6 +34,21 @@ export class API {
         },
         {} as ProtosMap
       );
+    fileDescriptors.forEach(fd => {
+      if (fd.service) {
+        fd.service.forEach(service => {
+          if (service.options) {
+            const serviceOption = service.options;
+            if (serviceOption['.google.api.defaultHost']) {
+              const defaultHost = serviceOption['.google.api.defaultHost'];
+              const arr = defaultHost.split(':');
+              this.hostName = arr[0] || 'localhost';
+              this.port = arr.length > 1 ? arr[1] : '443';
+            }
+          }
+        });
+      }
+    });
   }
 
   get services() {
