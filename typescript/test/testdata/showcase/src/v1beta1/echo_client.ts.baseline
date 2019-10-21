@@ -66,6 +66,10 @@ export interface PaginationResponse<
 }
 
 export class EchoClient {
+  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
+  private _innerApiCalls: {[name: string]: Function};
+  auth: gax.GoogleAuth;
+
   /**
     * Construct an instance of EchoClient.
     *
@@ -93,13 +97,23 @@ export class EchoClient {
     * @@param {string} [options.apiEndpoint] - The domain name of the
     *     API remote host.
     */
-  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
-  private _innerApiCalls: {[name: string]: Function};
-  auth: gax.GoogleAuth;
 
-  constructor(opts: ClientOptions) {
+  constructor(opts?: ClientOptions) {
     // Ensure that options include the service address and port.
-    opts = opts || {};
+    const staticMembers = this.constructor as typeof EchoClient;
+    const servicePath = opts && opts.servicePath ?
+        opts.servicePath :
+        ((opts && opts.apiEndpoint) ? opts.apiEndpoint :
+                                      staticMembers.servicePath);
+    const port = opts && opts.port ? opts.port : staticMembers.port;
+
+    if (!opts) {
+      opts = {servicePath, port};
+    }
+    opts.servicePath = opts.servicePath || servicePath;
+    opts.port = opts.port || port;
+    opts.clientConfig = opts.clientConfig || {};
+
     const isBrowser = (typeof window !== 'undefined');
     if (isBrowser){
       opts.fallback = true;
@@ -108,18 +122,6 @@ export class EchoClient {
     // "browser" field in package.json.
     // But if we were explicitly requested to use fallback, let's do it now.
     const gaxModule = !isBrowser && opts.fallback ? gax.fallback : gax;
-    const servicePath =
-      opts.servicePath ||
-      opts.apiEndpoint ||
-      (this.constructor as typeof EchoClient).servicePath;
-
-    opts = Object.assign(
-        {
-          clientConfig: {},
-          port: (this.constructor as typeof EchoClient).port,
-          servicePath: servicePath,
-        },
-        opts);
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
