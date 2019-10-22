@@ -156,18 +156,6 @@ function pagingResponseType(
 function toInterface(type: string) {
   return type.replace(/\.([^.]+)$/, '.I$1');
 }
-function getMethodComments(
-  method: MethodDescriptorProto,
-  comments: Comments
-): string {
-  return comments[method.name!].trim();
-}
-function getServiceComment(
-  service: plugin.google.protobuf.IServiceDescriptorProto,
-  comments: Comments
-) {
-  return comments[service.name! + 'Service'].trim();
-}
 
 // Convert long running type to the interface
 // eg: WaitResponse -> .google.showcase.v1beta1.IWaitResponse
@@ -180,7 +168,7 @@ function toLRInterface(type: string, inputType: string) {
 function augmentMethod(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  commentsMap: Comments
+  commentsMap: CommentsMap
 ) {
   method = Object.assign(
     {
@@ -193,7 +181,7 @@ function augmentMethod(
       pagingResponseType: pagingResponseType(messages, method),
       inputInterface: toInterface(method.inputType!),
       outputInterface: toInterface(method.outputType!),
-      comments: getMethodComments(method, commentsMap),
+      comments: commentsMap.getMethodComments(method.name!),
     },
     method
   ) as MethodDescriptorProto;
@@ -203,10 +191,10 @@ function augmentMethod(
 function augmentService(
   messages: MessagesMap,
   service: plugin.google.protobuf.IServiceDescriptorProto,
-  commentsMap: Comments
+  commentsMap: CommentsMap
 ) {
   const augmentedService = service as ServiceDescriptorProto;
-  augmentedService.comments = getServiceComment(service, commentsMap);
+  augmentedService.comments = commentsMap.getServiceComment(service);
   augmentedService.method = augmentedService.method.map(method =>
     augmentMethod(messages, method, commentsMap)
   );
@@ -265,7 +253,7 @@ export class Proto {
   messages: MessagesMap = {};
   enums: EnumsMap = {};
   fileToGenerate: boolean;
-  commentsMap: Comments;
+  commentsMap: CommentsMap;
   // TODO: need to store metadata? address?
 
   constructor(
@@ -301,7 +289,7 @@ export class Proto {
     this.fileToGenerate = fd.package
       ? fd.package.startsWith(packageName)
       : false;
-    this.commentsMap = new CommentsMap(fd).getCommentsMap();
+    this.commentsMap = new CommentsMap(fd);
     this.services = fd.service
       .filter(service => service.name)
       .map(service => augmentService(this.messages, service, this.commentsMap))
