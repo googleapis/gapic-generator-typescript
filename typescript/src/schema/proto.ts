@@ -18,6 +18,7 @@ interface MethodDescriptorProto
   pagingResponseType?: string;
   inputInterface: string;
   outputInterface: string;
+  comments: string;
 }
 
 interface ServiceDescriptorProto
@@ -33,6 +34,7 @@ interface ServiceDescriptorProto
   hostname: string;
   port: number;
   oauthScopes: string[];
+  comments: string;
 }
 
 export interface ServicesMap {
@@ -43,6 +45,9 @@ export interface MessagesMap {
 }
 export interface EnumsMap {
   [name: string]: plugin.google.protobuf.IEnumDescriptorProto;
+}
+export interface CommentsMap {
+  [name: string]: string;
 }
 
 // The following functions are used to add some metadata such as idempotence
@@ -162,7 +167,18 @@ function toLRInterface(type: string, inputType: string) {
   return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
 
-function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
+function getComments(
+  method: MethodDescriptorProto,
+  comments: CommentsMap
+): string {
+  return comments[method.name!].trim();
+}
+
+function augmentMethod(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  comments: CommentsMap
+) {
   method = Object.assign(
     {
       idempotence: idempotence(method),
@@ -174,6 +190,7 @@ function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
       pagingResponseType: pagingResponseType(messages, method),
       inputInterface: toInterface(method.inputType!),
       outputInterface: toInterface(method.outputType!),
+      comments: getComments(method, comments),
     },
     method
   ) as MethodDescriptorProto;
@@ -182,11 +199,15 @@ function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
 
 function augmentService(
   messages: MessagesMap,
-  service: plugin.google.protobuf.IServiceDescriptorProto
+  service: plugin.google.protobuf.IServiceDescriptorProto,
+  comments: CommentsMap
 ) {
   const augmentedService = service as ServiceDescriptorProto;
+  augmentedService.comments = comments[
+    augmentedService.name! + 'Service'
+  ].trim();
   augmentedService.method = augmentedService.method.map(method =>
-    augmentMethod(messages, method)
+    augmentMethod(messages, method, comments)
   );
   augmentedService.simpleMethods = augmentedService.method.filter(
     method =>
@@ -237,12 +258,54 @@ function augmentService(
   return augmentedService;
 }
 
+function getCommentsMap(
+  fd: plugin.google.protobuf.IFileDescriptorProto
+): CommentsMap {
+  const comments: CommentsMap = {};
+  if (!fd || !fd.sourceCodeInfo || !fd.sourceCodeInfo.location) return comments;
+  const locations = fd.sourceCodeInfo.location;
+  locations.forEach(location => {
+    if (location.leadingComments !== null) {
+      // p is an array with format [f1, i1, f2, i2, ...]
+      // - f1 refers to the protobuf field tag
+      // - if field refer to by f1 is a slice, i1 refers to an element in that slice
+      // - f2 and i2 works recursively.
+      // So, [6, x] refers to the xth service defined in the file,
+      // since the field tag of Service is 6.
+      // [6, x, 2, y] refers to the yth method in that service,
+      // since the field tag of Method is 2.
+      const p = location.path!;
+      if (p.length === 2 && p[0] === 6) {
+        if (fd.service && fd.service[p[1]] && fd.service[p[1]].name) {
+          comments[fd.service[p[1]].name! + 'Service'] =
+            location.leadingComments || '';
+        }
+      } else if (p.length === 4 && p[2] === 2) {
+        if (
+          fd.service &&
+          fd.service[p[1]] &&
+          fd.service[p[1]].method &&
+          fd.service[p[1]].method![p[3]] &&
+          fd.service[p[1]].method![p[3]].name
+        ) {
+          const name = fd.service[p[1]].method![p[3]].name!;
+          if (!comments[name]) {
+            comments[name] = location.leadingComments || '';
+          }
+        }
+      }
+    }
+  });
+  return comments;
+}
+
 export class Proto {
   filePB2: plugin.google.protobuf.IFileDescriptorProto;
   services: ServicesMap = {};
   messages: MessagesMap = {};
   enums: EnumsMap = {};
   fileToGenerate: boolean;
+  comments: CommentsMap = {};
   // TODO: need to store metadata? address?
 
   constructor(
@@ -278,10 +341,10 @@ export class Proto {
     this.fileToGenerate = fd.package
       ? fd.package.startsWith(packageName)
       : false;
-
+    this.comments = getCommentsMap(fd);
     this.services = fd.service
       .filter(service => service.name)
-      .map(service => augmentService(this.messages, service))
+      .map(service => augmentService(this.messages, service, this.comments))
       .reduce(
         (map, service) => {
           map[service.name!] = service;
