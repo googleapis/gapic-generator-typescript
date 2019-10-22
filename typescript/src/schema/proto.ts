@@ -2,6 +2,7 @@ import { ENGINE_METHOD_DIGESTS } from 'constants';
 import { NEG_ONE } from 'long';
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
+import { CommentsMap, Comments } from './comments';
 
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
@@ -45,9 +46,6 @@ export interface MessagesMap {
 }
 export interface EnumsMap {
   [name: string]: plugin.google.protobuf.IEnumDescriptorProto;
-}
-export interface CommentsMap {
-  [name: string]: string;
 }
 
 // The following functions are used to add some metadata such as idempotence
@@ -158,6 +156,18 @@ function pagingResponseType(
 function toInterface(type: string) {
   return type.replace(/\.([^.]+)$/, '.I$1');
 }
+function getMethodComments(
+  method: MethodDescriptorProto,
+  comments: Comments
+): string {
+  return comments[method.name!].trim();
+}
+function getServiceComment(
+  service: plugin.google.protobuf.IServiceDescriptorProto,
+  comments: Comments
+) {
+  return comments[service.name! + 'Service'].trim();
+}
 
 // Convert long running type to the interface
 // eg: WaitResponse -> .google.showcase.v1beta1.IWaitResponse
@@ -167,17 +177,10 @@ function toLRInterface(type: string, inputType: string) {
   return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
 
-function getComments(
-  method: MethodDescriptorProto,
-  comments: CommentsMap
-): string {
-  return comments[method.name!].trim();
-}
-
 function augmentMethod(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  comments: CommentsMap
+  commentsMap: Comments
 ) {
   method = Object.assign(
     {
@@ -190,7 +193,7 @@ function augmentMethod(
       pagingResponseType: pagingResponseType(messages, method),
       inputInterface: toInterface(method.inputType!),
       outputInterface: toInterface(method.outputType!),
-      comments: getComments(method, comments),
+      comments: getMethodComments(method, commentsMap),
     },
     method
   ) as MethodDescriptorProto;
@@ -200,14 +203,12 @@ function augmentMethod(
 function augmentService(
   messages: MessagesMap,
   service: plugin.google.protobuf.IServiceDescriptorProto,
-  comments: CommentsMap
+  commentsMap: Comments
 ) {
   const augmentedService = service as ServiceDescriptorProto;
-  augmentedService.comments = comments[
-    augmentedService.name! + 'Service'
-  ].trim();
+  augmentedService.comments = getServiceComment(service, commentsMap);
   augmentedService.method = augmentedService.method.map(method =>
-    augmentMethod(messages, method, comments)
+    augmentMethod(messages, method, commentsMap)
   );
   augmentedService.simpleMethods = augmentedService.method.filter(
     method =>
@@ -258,54 +259,13 @@ function augmentService(
   return augmentedService;
 }
 
-function getCommentsMap(
-  fd: plugin.google.protobuf.IFileDescriptorProto
-): CommentsMap {
-  const comments: CommentsMap = {};
-  if (!fd || !fd.sourceCodeInfo || !fd.sourceCodeInfo.location) return comments;
-  const locations = fd.sourceCodeInfo.location;
-  locations.forEach(location => {
-    if (location.leadingComments !== null) {
-      // p is an array with format [f1, i1, f2, i2, ...]
-      // - f1 refers to the protobuf field tag
-      // - if field refer to by f1 is a slice, i1 refers to an element in that slice
-      // - f2 and i2 works recursively.
-      // So, [6, x] refers to the xth service defined in the file,
-      // since the field tag of Service is 6.
-      // [6, x, 2, y] refers to the yth method in that service,
-      // since the field tag of Method is 2.
-      const p = location.path!;
-      if (p.length === 2 && p[0] === 6) {
-        if (fd.service && fd.service[p[1]] && fd.service[p[1]].name) {
-          comments[fd.service[p[1]].name! + 'Service'] =
-            location.leadingComments || '';
-        }
-      } else if (p.length === 4 && p[2] === 2) {
-        if (
-          fd.service &&
-          fd.service[p[1]] &&
-          fd.service[p[1]].method &&
-          fd.service[p[1]].method![p[3]] &&
-          fd.service[p[1]].method![p[3]].name
-        ) {
-          const name = fd.service[p[1]].method![p[3]].name!;
-          if (!comments[name]) {
-            comments[name] = location.leadingComments || '';
-          }
-        }
-      }
-    }
-  });
-  return comments;
-}
-
 export class Proto {
   filePB2: plugin.google.protobuf.IFileDescriptorProto;
   services: ServicesMap = {};
   messages: MessagesMap = {};
   enums: EnumsMap = {};
   fileToGenerate: boolean;
-  comments: CommentsMap = {};
+  commentsMap: Comments;
   // TODO: need to store metadata? address?
 
   constructor(
@@ -341,10 +301,10 @@ export class Proto {
     this.fileToGenerate = fd.package
       ? fd.package.startsWith(packageName)
       : false;
-    this.comments = getCommentsMap(fd);
+    this.commentsMap = new CommentsMap(fd).getCommentsMap();
     this.services = fd.service
       .filter(service => service.name)
-      .map(service => augmentService(this.messages, service, this.comments))
+      .map(service => augmentService(this.messages, service, this.commentsMap))
       .reduce(
         (map, service) => {
           map[service.name!] = service;
