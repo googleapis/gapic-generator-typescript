@@ -15,9 +15,11 @@ class FakeError{
     }
 }
 const error = new FakeError(FAKE_STATUS_CODE);
-
-function mockSimpleGrpcMethod(expectedRequest: {}, response: {}, error: {}) {
-    return function(actualRequest: {}, options: {}, callback: {}) {
+export interface Callback<> {
+  (err: FakeError|null, response?: {} | null): {};
+}
+function mockSimpleGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
+    return function(actualRequest: {}, options: {}, callback: Callback) {
         assert.deepStrictEqual(actualRequest, expectedRequest);
         if (error) {
             callback(error);
@@ -29,12 +31,12 @@ function mockSimpleGrpcMethod(expectedRequest: {}, response: {}, error: {}) {
     };
 }
 {%- if (service.serverStreaming.length > 0) %}
-function mockServerStreamingGrpcMethod(expectedRequest: {}, response: {}, error: {}) {
+function mockServerStreamingGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
     return (actualRequest: {}) => {
         assert.deepStrictEqual(actualRequest, expectedRequest);
         const mockStream = new PassThrough({
           objectMode: true,
-          transform: (chunk: {}, enc: {}, callback: {}) => {
+          transform: (chunk: {}, enc: {}, callback: Callback) => {
             if (error) {
               callback(error);
             }
@@ -48,11 +50,11 @@ function mockServerStreamingGrpcMethod(expectedRequest: {}, response: {}, error:
 }
 {%- endif %}
 {%- if (service.bidiStreaming.length > 0) %}
-function mockBidiStreamingGrpcMethod(expectedRequest: {}, response: {}, error: {}) {
+function mockBidiStreamingGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
     return () => {
         const mockStream = new PassThrough({
           objectMode: true,
-          transform: (chunk: {}, enc: {}, callback: {}) => {
+          transform: (chunk: {}, enc: {}, callback: Callback) => {
             assert.deepStrictEqual(chunk, expectedRequest);
             if (error) {
               callback(error);
@@ -67,7 +69,7 @@ function mockBidiStreamingGrpcMethod(expectedRequest: {}, response: {}, error: {
 }
 {%- endif %}
 {%- if (service.longRunning.length > 0) %}
-function mockLongRunningGrpcMethod(expectedRequest: {}, response: {}, error: {}) {
+function mockLongRunningGrpcMethod(expectedRequest: {}, response: {} | null, error: {} | null) {
     return (request: {}) => {
         assert.deepStrictEqual(request, expectedRequest);
         const mockOperation = {
@@ -172,14 +174,17 @@ describe('{{ service.name }}Client', () => {
             // Mock gRPC layer
             client._innerApiCalls.{{ method.name.toCamelCase() }} = mockLongRunningGrpcMethod(
                 request,
-                expectedResponse,
-                null
+                expectedResponse
             );
             client.{{ method.name.toCamelCase() }}(request).then((responses: {}) => {
-                const operation = responses[0];
-                return operation.promise();
+                if(responses && responses[0]){
+                    const operation = responses[0];
+                    return operation.promise();
+                }
             }).then((responses: {}) => {
-                assert.deepStrictEqual(responses[0], expectedResponse);
+                if(responses && responses[0]){
+                    assert.deepStrictEqual(responses[0], expectedResponse);
+                }
                 done();
             }).catch((err: {}) => {
                 done(err);
@@ -316,7 +321,7 @@ describe('{{ service.name }}Client', () => {
             // Mock response
             const expectedResponse = {};
             // Mock Grpc layer
-            client._innerApiCalls.{{ method.name.toCamelCase() }} = (actualRequest: {}, options: {}, callback: {}) => {
+            client._innerApiCalls.{{ method.name.toCamelCase() }} = (actualRequest: {}, options: {}, callback: Callback) => {
                 assert.deepStrictEqual(actualRequest, request);
                 callback(null, expectedResponse);
             };
