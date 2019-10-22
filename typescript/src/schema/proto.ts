@@ -1,8 +1,5 @@
-import { ENGINE_METHOD_DIGESTS } from 'constants';
-import { NEG_ONE } from 'long';
-
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { CommentsMap, Comments } from './comments';
+import { CommentsMap } from './comments';
 
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
