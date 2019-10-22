@@ -1,7 +1,5 @@
-import { ENGINE_METHOD_DIGESTS } from 'constants';
-import { NEG_ONE } from 'long';
-
 import * as plugin from '../../../pbjs-genfiles/plugin';
+import { CommentsMap } from './comments';
 
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
@@ -18,6 +16,7 @@ interface MethodDescriptorProto
   pagingResponseType?: string;
   inputInterface: string;
   outputInterface: string;
+  comments: string;
 }
 
 interface ServiceDescriptorProto
@@ -33,6 +32,7 @@ interface ServiceDescriptorProto
   hostname: string;
   port: number;
   oauthScopes: string[];
+  comments: string;
 }
 
 export interface ServicesMap {
@@ -162,7 +162,11 @@ function toLRInterface(type: string, inputType: string) {
   return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
 
-function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
+function augmentMethod(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  commentsMap: CommentsMap
+) {
   method = Object.assign(
     {
       idempotence: idempotence(method),
@@ -174,6 +178,7 @@ function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
       pagingResponseType: pagingResponseType(messages, method),
       inputInterface: toInterface(method.inputType!),
       outputInterface: toInterface(method.outputType!),
+      comments: commentsMap.getMethodComments(method.name!),
     },
     method
   ) as MethodDescriptorProto;
@@ -182,11 +187,13 @@ function augmentMethod(messages: MessagesMap, method: MethodDescriptorProto) {
 
 function augmentService(
   messages: MessagesMap,
-  service: plugin.google.protobuf.IServiceDescriptorProto
+  service: plugin.google.protobuf.IServiceDescriptorProto,
+  commentsMap: CommentsMap
 ) {
   const augmentedService = service as ServiceDescriptorProto;
+  augmentedService.comments = commentsMap.getServiceComment(service.name!);
   augmentedService.method = augmentedService.method.map(method =>
-    augmentMethod(messages, method)
+    augmentMethod(messages, method, commentsMap)
   );
   augmentedService.simpleMethods = augmentedService.method.filter(
     method =>
@@ -243,6 +250,7 @@ export class Proto {
   messages: MessagesMap = {};
   enums: EnumsMap = {};
   fileToGenerate: boolean;
+  commentsMap: CommentsMap;
   // TODO: need to store metadata? address?
 
   constructor(
@@ -278,10 +286,10 @@ export class Proto {
     this.fileToGenerate = fd.package
       ? fd.package.startsWith(packageName)
       : false;
-
+    this.commentsMap = new CommentsMap(fd);
     this.services = fd.service
       .filter(service => service.name)
-      .map(service => augmentService(this.messages, service))
+      .map(service => augmentService(this.messages, service, this.commentsMap))
       .reduce(
         (map, service) => {
           map[service.name!] = service;
