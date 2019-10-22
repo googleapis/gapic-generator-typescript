@@ -48,8 +48,8 @@ export class CommentsMap {
   getCommentsMap() {
     return this.comments;
   }
-  getServiceComment(service: plugin.google.protobuf.IServiceDescriptorProto) {
-    return this.comments[service.name! + 'Service'].trim();
+  getServiceComment(serviceName: string) {
+    return this.comments[serviceName + 'Service'].trim();
   }
   getMethodComments(methodName: string): string {
     return this.comments[methodName].trim();

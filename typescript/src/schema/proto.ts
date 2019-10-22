@@ -191,7 +191,7 @@ function augmentService(
   commentsMap: CommentsMap
 ) {
   const augmentedService = service as ServiceDescriptorProto;
-  augmentedService.comments = commentsMap.getServiceComment(service);
+  augmentedService.comments = commentsMap.getServiceComment(service.name!);
   augmentedService.method = augmentedService.method.map(method =>
     augmentMethod(messages, method, commentsMap)
   );
