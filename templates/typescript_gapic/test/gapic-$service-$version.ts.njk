@@ -18,6 +18,12 @@ const error = new FakeError(FAKE_STATUS_CODE);
 export interface Callback<> {
   (err: FakeError|null, response?: {} | null): {};
 }
+
+export class Operation{
+    constructor(){};
+    promise() {() => {}};
+}
+
 function mockSimpleGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
     return function(actualRequest: {}, options: {}, callback: Callback) {
         assert.deepStrictEqual(actualRequest, expectedRequest);
@@ -69,7 +75,7 @@ function mockBidiStreamingGrpcMethod(expectedRequest: {}, response: {} | null, e
 }
 {%- endif %}
 {%- if (service.longRunning.length > 0) %}
-function mockLongRunningGrpcMethod(expectedRequest: {}, response: {} | null, error: {} | null) {
+function mockLongRunningGrpcMethod(expectedRequest: {}, response: {} | null, error?: {} | null) {
     return (request: {}) => {
         assert.deepStrictEqual(request, expectedRequest);
         const mockOperation = {
@@ -176,15 +182,11 @@ describe('{{ service.name }}Client', () => {
                 request,
                 expectedResponse
             );
-            client.{{ method.name.toCamelCase() }}(request).then((responses: {}) => {
-                if(responses && responses[0]){
-                    const operation = responses[0];
-                    return operation.promise();
-                }
-            }).then((responses: {}) => {
-                if(responses && responses[0]){
-                    assert.deepStrictEqual(responses[0], expectedResponse);
-                }
+            client.{{ method.name.toCamelCase() }}(request).then((responses: [Operation]) => {
+                const operation = responses[0];
+                return operation? operation.promise() : {};
+            }).then((responses: [Operation]) => {
+                assert.deepStrictEqual(responses[0], expectedResponse);
                 done();
             }).catch((err: {}) => {
                 done(err);
@@ -206,9 +208,9 @@ describe('{{ service.name }}Client', () => {
                 null,
                 error
             );
-            client.{{ method.name.toCamelCase() }}(request).then((responses: {}) => {
+            client.{{ method.name.toCamelCase() }}(request).then((responses: [Operation]) => {
                 const operation = responses[0];
-                return operation.promise();
+                return operation? operation.promise() : {};
             }).then(() => {
                 assert.fail();
             }).catch((err: FakeError) => {
