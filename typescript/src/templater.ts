@@ -6,6 +6,7 @@ import * as util from 'util';
 import * as plugin from '../../pbjs-genfiles/plugin';
 
 import { API } from './schema/api';
+import { commonPrefix } from './util';
 
 const commonParameters: { [name: string]: string } = {
   copyrightYear: new Date().getFullYear().toString(),
@@ -68,7 +69,7 @@ function processOneTemplate(
     for (const service of api.services) {
       result.push(
         renderFile(
-          outputFilename.replace(/\$service/, service.name!.toLowerCase()),
+          outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
           relativeTemplateName,
           { api, commonParameters, service }
         )
