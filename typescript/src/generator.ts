@@ -47,7 +47,13 @@ export class Generator {
     );
   }
 
-  addProtosToResponse() {
+  setGrpcServiceConfig(
+    serviceConfig: plugin.grpc.service_config.IServiceConfig
+  ) {
+    console.warn(serviceConfig);
+  }
+
+  private addProtosToResponse() {
     const protoFilenames: string[] = [];
     for (const proto of this.request.protoFile) {
       if (proto.name) {
@@ -60,7 +66,7 @@ export class Generator {
     this.response.file.push(protoList);
   }
 
-  buildAPIObject(): API {
+  private buildAPIObject(): API {
     const protoFilesToGenerate = this.request.protoFile.filter(
       pf => pf.name && this.request.fileToGenerate.includes(pf.name)
     );
