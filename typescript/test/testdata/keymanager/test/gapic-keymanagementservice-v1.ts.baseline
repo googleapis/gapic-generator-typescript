@@ -23,11 +23,24 @@ const KeyManagementServiceModule = require('../src');
 
 
 const FAKE_STATUS_CODE = 1;
-const error = new Error();
-error.code = FAKE_STATUS_CODE;
+class FakeError{
+    code: number;
+    constructor(n: number){
+        this.code = n;
+    }
+}
+const error = new FakeError(FAKE_STATUS_CODE);
+export interface Callback {
+  (err: FakeError|null, response?: {} | null): {};
+}
 
-function mockSimpleGrpcMethod(expectedRequest, response, error) {
-    return function(actualRequest, options, callback) {
+export class Operation{
+    constructor(){};
+    promise() {() => {}};
+}
+
+function mockSimpleGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
+    return function(actualRequest: {}, options: {}, callback: Callback) {
         assert.deepStrictEqual(actualRequest, expectedRequest);
         if (error) {
             callback(error);
@@ -75,9 +88,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.getKeyRing = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.getKeyRing(request, (err, response) => {
+            client.getKeyRing(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -99,8 +113,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.getKeyRing(request, (err, response) => {
-                assert(err instanceof Error);
+            client.getKeyRing(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -120,9 +134,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.getCryptoKey = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.getCryptoKey(request, (err, response) => {
+            client.getCryptoKey(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -144,8 +159,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.getCryptoKey(request, (err, response) => {
-                assert(err instanceof Error);
+            client.getCryptoKey(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -165,9 +180,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.getCryptoKeyVersion = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.getCryptoKeyVersion(request, (err, response) => {
+            client.getCryptoKeyVersion(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -189,8 +205,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.getCryptoKeyVersion(request, (err, response) => {
-                assert(err instanceof Error);
+            client.getCryptoKeyVersion(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -210,9 +226,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.getPublicKey = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.getPublicKey(request, (err, response) => {
+            client.getPublicKey(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -234,8 +251,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.getPublicKey(request, (err, response) => {
-                assert(err instanceof Error);
+            client.getPublicKey(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -255,9 +272,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.getImportJob = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.getImportJob(request, (err, response) => {
+            client.getImportJob(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -279,8 +297,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.getImportJob(request, (err, response) => {
-                assert(err instanceof Error);
+            client.getImportJob(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -300,9 +318,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.createKeyRing = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.createKeyRing(request, (err, response) => {
+            client.createKeyRing(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -324,8 +343,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.createKeyRing(request, (err, response) => {
-                assert(err instanceof Error);
+            client.createKeyRing(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -345,9 +364,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.createCryptoKey = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.createCryptoKey(request, (err, response) => {
+            client.createCryptoKey(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -369,8 +389,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.createCryptoKey(request, (err, response) => {
-                assert(err instanceof Error);
+            client.createCryptoKey(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -390,9 +410,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.createCryptoKeyVersion = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.createCryptoKeyVersion(request, (err, response) => {
+            client.createCryptoKeyVersion(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -414,8 +435,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.createCryptoKeyVersion(request, (err, response) => {
-                assert(err instanceof Error);
+            client.createCryptoKeyVersion(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -435,9 +456,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.importCryptoKeyVersion = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.importCryptoKeyVersion(request, (err, response) => {
+            client.importCryptoKeyVersion(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -459,8 +481,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.importCryptoKeyVersion(request, (err, response) => {
-                assert(err instanceof Error);
+            client.importCryptoKeyVersion(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -480,9 +502,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.createImportJob = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.createImportJob(request, (err, response) => {
+            client.createImportJob(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -504,8 +527,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.createImportJob(request, (err, response) => {
-                assert(err instanceof Error);
+            client.createImportJob(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -525,9 +548,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.updateCryptoKey = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.updateCryptoKey(request, (err, response) => {
+            client.updateCryptoKey(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -549,8 +573,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.updateCryptoKey(request, (err, response) => {
-                assert(err instanceof Error);
+            client.updateCryptoKey(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -570,9 +594,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.updateCryptoKeyVersion = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.updateCryptoKeyVersion(request, (err, response) => {
+            client.updateCryptoKeyVersion(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -594,8 +619,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.updateCryptoKeyVersion(request, (err, response) => {
-                assert(err instanceof Error);
+            client.updateCryptoKeyVersion(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -615,9 +640,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.encrypt = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.encrypt(request, (err, response) => {
+            client.encrypt(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -639,8 +665,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.encrypt(request, (err, response) => {
-                assert(err instanceof Error);
+            client.encrypt(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -660,9 +686,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.decrypt = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.decrypt(request, (err, response) => {
+            client.decrypt(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -684,8 +711,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.decrypt(request, (err, response) => {
-                assert(err instanceof Error);
+            client.decrypt(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -705,9 +732,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.asymmetricSign = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.asymmetricSign(request, (err, response) => {
+            client.asymmetricSign(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -729,8 +757,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.asymmetricSign(request, (err, response) => {
-                assert(err instanceof Error);
+            client.asymmetricSign(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -750,9 +778,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.asymmetricDecrypt = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.asymmetricDecrypt(request, (err, response) => {
+            client.asymmetricDecrypt(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -774,8 +803,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.asymmetricDecrypt(request, (err, response) => {
-                assert(err instanceof Error);
+            client.asymmetricDecrypt(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -795,9 +824,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.updateCryptoKeyPrimaryVersion = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.updateCryptoKeyPrimaryVersion(request, (err, response) => {
+            client.updateCryptoKeyPrimaryVersion(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -819,8 +849,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.updateCryptoKeyPrimaryVersion(request, (err, response) => {
-                assert(err instanceof Error);
+            client.updateCryptoKeyPrimaryVersion(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -840,9 +870,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.destroyCryptoKeyVersion = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.destroyCryptoKeyVersion(request, (err, response) => {
+            client.destroyCryptoKeyVersion(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -864,8 +895,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.destroyCryptoKeyVersion(request, (err, response) => {
-                assert(err instanceof Error);
+            client.destroyCryptoKeyVersion(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -885,9 +916,10 @@ describe('KeyManagementServiceClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.restoreCryptoKeyVersion = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.restoreCryptoKeyVersion(request, (err, response) => {
+            client.restoreCryptoKeyVersion(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -909,8 +941,8 @@ describe('KeyManagementServiceClient', () => {
                 null,
                 error
             );
-            client.restoreCryptoKeyVersion(request, (err, response) => {
-                assert(err instanceof Error);
+            client.restoreCryptoKeyVersion(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -928,11 +960,11 @@ describe('KeyManagementServiceClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock Grpc layer
-            client._innerApiCalls.listKeyRings = (actualRequest, options, callback) => {
+            client._innerApiCalls.listKeyRings = (actualRequest: {}, options: {}, callback: Callback) => {
                 assert.deepStrictEqual(actualRequest, request);
                 callback(null, expectedResponse);
             };
-            client.listKeyRings(request, (err, response) => {
+            client.listKeyRings(request, (err: FakeError, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -950,11 +982,11 @@ describe('KeyManagementServiceClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock Grpc layer
-            client._innerApiCalls.listCryptoKeys = (actualRequest, options, callback) => {
+            client._innerApiCalls.listCryptoKeys = (actualRequest: {}, options: {}, callback: Callback) => {
                 assert.deepStrictEqual(actualRequest, request);
                 callback(null, expectedResponse);
             };
-            client.listCryptoKeys(request, (err, response) => {
+            client.listCryptoKeys(request, (err: FakeError, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -972,11 +1004,11 @@ describe('KeyManagementServiceClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock Grpc layer
-            client._innerApiCalls.listCryptoKeyVersions = (actualRequest, options, callback) => {
+            client._innerApiCalls.listCryptoKeyVersions = (actualRequest: {}, options: {}, callback: Callback) => {
                 assert.deepStrictEqual(actualRequest, request);
                 callback(null, expectedResponse);
             };
-            client.listCryptoKeyVersions(request, (err, response) => {
+            client.listCryptoKeyVersions(request, (err: FakeError, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -994,11 +1026,11 @@ describe('KeyManagementServiceClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock Grpc layer
-            client._innerApiCalls.listImportJobs = (actualRequest, options, callback) => {
+            client._innerApiCalls.listImportJobs = (actualRequest: {}, options: {}, callback: Callback) => {
                 assert.deepStrictEqual(actualRequest, request);
                 callback(null, expectedResponse);
             };
-            client.listImportJobs(request, (err, response) => {
+            client.listImportJobs(request, (err: FakeError, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();

@@ -25,11 +25,24 @@ const {PassThrough} = require('stream');
 
 
 const FAKE_STATUS_CODE = 1;
-const error = new Error();
-error.code = FAKE_STATUS_CODE;
+class FakeError{
+    code: number;
+    constructor(n: number){
+        this.code = n;
+    }
+}
+const error = new FakeError(FAKE_STATUS_CODE);
+export interface Callback {
+  (err: FakeError|null, response?: {} | null): {};
+}
 
-function mockSimpleGrpcMethod(expectedRequest, response, error) {
-    return function(actualRequest, options, callback) {
+export class Operation{
+    constructor(){};
+    promise() {() => {}};
+}
+
+function mockSimpleGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
+    return function(actualRequest: {}, options: {}, callback: Callback) {
         assert.deepStrictEqual(actualRequest, expectedRequest);
         if (error) {
             callback(error);
@@ -40,12 +53,12 @@ function mockSimpleGrpcMethod(expectedRequest, response, error) {
         } 
     };
 }
-function mockServerStreamingGrpcMethod(expectedRequest, response, error) {
-    return actualRequest => {
+function mockServerStreamingGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
+    return (actualRequest: {}) => {
         assert.deepStrictEqual(actualRequest, expectedRequest);
         const mockStream = new PassThrough({
           objectMode: true,
-          transform: (chunk, enc, callback) => {
+          transform: (chunk: {}, enc: {}, callback: Callback) => {
             if (error) {
               callback(error);
             }
@@ -57,11 +70,11 @@ function mockServerStreamingGrpcMethod(expectedRequest, response, error) {
         return mockStream;
     };
 }
-function mockBidiStreamingGrpcMethod(expectedRequest, response, error) {
+function mockBidiStreamingGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
     return () => {
         const mockStream = new PassThrough({
           objectMode: true,
-          transform: (chunk, enc, callback) => {
+          transform: (chunk: {}, enc: {}, callback: Callback) => {
             assert.deepStrictEqual(chunk, expectedRequest);
             if (error) {
               callback(error);
@@ -74,8 +87,8 @@ function mockBidiStreamingGrpcMethod(expectedRequest, response, error) {
         return mockStream;
     }
 }
-function mockLongRunningGrpcMethod(expectedRequest, response, error) {
-    return request => {
+function mockLongRunningGrpcMethod(expectedRequest: {}, response: {} | null, error?: {} | null) {
+    return (request: {}) => {
         assert.deepStrictEqual(request, expectedRequest);
         const mockOperation = {
           promise: function() {
@@ -129,9 +142,10 @@ describe('EchoClient', () => {
             // Mock gRPC layer
             client._innerApiCalls.echo = mockSimpleGrpcMethod(
                 request,
-                expectedResponse
+                expectedResponse,
+                null
             );
-            client.echo(request, (err, response) => {
+            client.echo(request, (err: {}, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
@@ -153,8 +167,8 @@ describe('EchoClient', () => {
                 null,
                 error
             );
-            client.echo(request, (err, response) => {
-                assert(err instanceof Error);
+            client.echo(request, (err: FakeError, response: {}) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 assert(typeof response === 'undefined');
                 done();
@@ -176,13 +190,13 @@ describe('EchoClient', () => {
                 request,
                 expectedResponse
             );
-            client.wait(request).then(responses => {
+            client.wait(request).then((responses: [Operation]) => {
                 const operation = responses[0];
-                return operation.promise();
-            }).then(responses => {
+                return operation? operation.promise() : {};
+            }).then((responses: [Operation]) => {
                 assert.deepStrictEqual(responses[0], expectedResponse);
                 done();
-            }).catch(err => {
+            }).catch((err: {}) => {
                 done(err);
             });
         });
@@ -202,13 +216,13 @@ describe('EchoClient', () => {
                 null,
                 error
             );
-            client.wait(request).then(responses => {
+            client.wait(request).then((responses: [Operation]) => {
                 const operation = responses[0];
-                return operation.promise();
+                return operation? operation.promise() : {};
             }).then(() => {
                 assert.fail();
-            }).catch(err => {
-                assert(err instanceof Error);
+            }).catch((err: FakeError) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 done();
             });
@@ -225,13 +239,13 @@ describe('EchoClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock gRPC layer
-            client._innerApiCalls.expand = mockServerStreamingGrpcMethod(request, expectedResponse);
+            client._innerApiCalls.expand = mockServerStreamingGrpcMethod(request, expectedResponse, null);
             const stream = client.expand(request);
-            stream.on('data', response =>{
+            stream.on('data', (response: {}) =>{
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
             });
-            stream.on('error', err => {
+            stream.on('error', (err: FakeError) => {
                 done(err);
             });
             stream.write();
@@ -251,8 +265,8 @@ describe('EchoClient', () => {
             stream.on('data', () =>{
                 assert.fail();
             });
-            stream.on('error', err => {
-                assert(err instanceof Error);
+            stream.on('error', (err: FakeError) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);
                 done();
             });
@@ -270,11 +284,11 @@ describe('EchoClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock gRPC layer
-            client._innerApiCalls.chat = mockBidiStreamingGrpcMethod(request, expectedResponse);
-            const stream = client.chat().on('data', response =>{
+            client._innerApiCalls.chat = mockBidiStreamingGrpcMethod(request, expectedResponse, null);
+            const stream = client.chat().on('data', (response: {}) =>{
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
-            }).on('error', err => {
+            }).on('error', (err: FakeError) => {
                 done(err);
             });
             stream.write(request);
@@ -292,8 +306,8 @@ describe('EchoClient', () => {
             client._innerApiCalls.chat = mockBidiStreamingGrpcMethod(request, null, error);
             const stream = client.chat().on('data', () =>{
                 assert.fail();
-            }).on('error', err => {
-                assert(err instanceof Error);
+            }).on('error', (err: FakeError) => {
+                assert(err instanceof FakeError);
                 assert.strictEqual(err.code, FAKE_STATUS_CODE);               
                 done();
             });
@@ -311,11 +325,11 @@ describe('EchoClient', () => {
             // Mock response
             const expectedResponse = {};
             // Mock Grpc layer
-            client._innerApiCalls.pagedExpand = (actualRequest, options, callback) => {
+            client._innerApiCalls.pagedExpand = (actualRequest: {}, options: {}, callback: Callback) => {
                 assert.deepStrictEqual(actualRequest, request);
                 callback(null, expectedResponse);
             };
-            client.pagedExpand(request, (err, response) => {
+            client.pagedExpand(request, (err: FakeError, response: {}) => {
                 assert.ifError(err);
                 assert.deepStrictEqual(response, expectedResponse);
                 done();
