@@ -11,10 +11,16 @@ const defaultIdempotentCodes = [
   plugin.google.rpc.Code.UNAVAILABLE,
 ];
 const defaultParametersName = 'default';
-const defaultParameters: {} = {
+const defaultParameters = {
   initial_retry_delay_millis: 100,
   retry_delay_multiplier: 1.3,
   max_retry_delay_millis: 60000,
+  // note: the following four parameters are unused but currently required by google-gax.
+  // setting them to some big safe default values.
+  initial_rpc_timeout_millis: 20000,
+  rpc_timeout_multiplier: 1.0,
+  max_rpc_timeout_millis: 20000,
+  total_timeout_millis: 600000,
 };
 
 interface MethodDescriptorProto
@@ -267,7 +273,6 @@ function toInterface(type: string) {
 // Convert long running type to the interface
 // eg: WaitResponse -> .google.showcase.v1beta1.IWaitResponse
 // eg: WaitMetadata -> .google.showcase.v1beta1.IWaitMetadata
-
 function toLRInterface(type: string, inputType: string) {
   return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
@@ -349,6 +354,16 @@ function augmentMethod(
         method.methodConfig.retryPolicy.maxBackoff
       );
     }
+    // note: the following four parameters are unused but currently required by google-gax.
+    // setting them to some big safe default values.
+    retryParams.initial_rpc_timeout_millis =
+      defaultParameters.initial_rpc_timeout_millis;
+    retryParams.rpc_timeout_multiplier =
+      defaultParameters.rpc_timeout_multiplier;
+    retryParams.max_rpc_timeout_millis =
+      defaultParameters.max_rpc_timeout_millis;
+    retryParams.total_timeout_millis = defaultParameters.total_timeout_millis;
+
     method.retryParamsName = service.retryableCodeMap.getParamsName(
       retryParams
     );
