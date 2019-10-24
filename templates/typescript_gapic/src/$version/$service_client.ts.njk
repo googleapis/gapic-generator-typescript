@@ -55,6 +55,9 @@ export class {{ service.name }}Client {
   */
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
+  {%- if (service.pathTemplate.length > 0) %}
+  private _pathTemplates: {};
+  {%- endif %}
   auth: gax.GoogleAuth;
 
   /**
@@ -139,6 +142,16 @@ export class {{ service.name }}Client {
         require("../../protos/protos.json") :
         nodejsProtoPath
     );
+{%- if (service.pathTemplate.length > 0) %}
+    this._pathTemplates = {
+{%- for template in service.pathTemplate %}
+      {{ template.type }}PathTemplate: new gaxModule.PathTemplate(
+        '{{ template.pattern }}'
+      ),
+{%- endfor %}
+    };
+{%- endif %}
+
 {%- if (service.paging.length > 0) %}
 
     // Some of the methods on this service return "paged" results,
