@@ -15,31 +15,18 @@
 // limitations under the License.
 
 import * as yargs from 'yargs';
-import * as fs from 'fs';
-import * as util from 'util';
 import { Generator } from './generator';
-
-const readFile = util.promisify(fs.readFile);
 
 async function main() {
   const argv = yargs.argv;
-  console.warn(argv);
-  console.warn(process.argv);
 
   if (argv.descriptor) {
     console.error('Descriptor option is not yet supported.');
     process.exit(1);
   }
 
-  const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
-
   const generator = new Generator();
   await generator.initializeFromStdin();
-  if (grpcServiceConfig) {
-    const contents = await readFile(grpcServiceConfig);
-    const json = JSON.parse(contents.toString());
-    generator.setGrpcServiceConfig(json);
-  }
   await generator.generate();
 }
 

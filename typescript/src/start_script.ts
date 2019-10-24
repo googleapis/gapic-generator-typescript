@@ -46,8 +46,6 @@ const argv = yargs
 const outputDir = argv.outputDir as string;
 const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 
-console.warn(argv);
-
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
@@ -76,8 +74,6 @@ if (grpcServiceConfig) {
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 try {
-  console.log(process.env['PATH']);
-  console.log('protoc', protocCommand.join(' '));
   execFileSync(`protoc`, protocCommand, { stdio: 'inherit' });
 } catch (err) {
   console.error(err.toString());
