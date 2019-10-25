@@ -44,7 +44,7 @@ interface MethodDescriptorProto
   timeoutMillis?: number;
 }
 
-class RetryableCodeMap {
+export class RetryableCodeMap {
   codeEnumMapping: { [index: string]: string };
   uniqueCodesNamesMap: { [uniqueName: string]: string };
   prettyCodesNamesMap: { [prettyName: string]: string[] };
