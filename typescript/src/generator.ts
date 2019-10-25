@@ -14,12 +14,16 @@
 
 import * as getStdin from 'get-stdin';
 import * as path from 'path';
+import * as fs from 'fs';
+import * as util from 'util';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
 
 import { API } from './schema/api';
 import { processTemplates } from './templater';
-import { commonPrefix } from './util';
+import { commonPrefix, duration } from './util';
+
+const readFile = util.promisify(fs.readFile);
 
 const templateDirectory = path.join(
   __dirname,
@@ -34,10 +38,49 @@ const templateDirectory = path.join(
 export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
   response: plugin.google.protobuf.compiler.CodeGeneratorResponse;
+  grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
 
   constructor() {
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
     this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
+    this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.create();
+  }
+
+  // Fixes gRPC service config to replace string google.protobuf.Duration
+  // to a proper Duration message, since protobufjs does not support
+  // string Durations such as "30s".
+  private static updateDuration(obj: { [key: string]: {} }) {
+    const fieldNames = [
+      'timeout',
+      'initialBackoff',
+      'maxBackoff',
+      'hedgingDelay',
+    ];
+    for (const key of Object.keys(obj)) {
+      if (fieldNames.includes(key) && typeof obj[key] === 'string') {
+        obj[key] = duration((obj[key] as unknown) as string);
+      } else if (typeof obj[key] === 'object') {
+        this.updateDuration(obj[key]);
+      }
+    }
+  }
+
+  private async readGrpcServiceConfig(parameter: string) {
+    const match = parameter.match(/^["']?grpc-service-config=([^"]+)["']?$/);
+    if (!match) {
+      throw new Error(`Parameter ${parameter} was not recognized.`);
+    }
+    const filename = match[1];
+    if (!fs.existsSync(filename)) {
+      throw new Error(`File ${filename} cannot be opened.`);
+    }
+
+    const content = await readFile(filename);
+    const json = JSON.parse(content.toString());
+    Generator.updateDuration(json);
+    this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.fromObject(
+      json
+    );
   }
 
   async initializeFromStdin() {
@@ -45,9 +88,12 @@ export class Generator {
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.decode(
       inputBuffer
     );
+    if (this.request.parameter) {
+      await this.readGrpcServiceConfig(this.request.parameter);
+    }
   }
 
-  addProtosToResponse() {
+  private addProtosToResponse() {
     const protoFilenames: string[] = [];
     for (const proto of this.request.protoFile) {
       if (proto.name) {
@@ -60,7 +106,7 @@ export class Generator {
     this.response.file.push(protoList);
   }
 
-  buildAPIObject(): API {
+  private buildAPIObject(): API {
     const protoFilesToGenerate = this.request.protoFile.filter(
       pf => pf.name && this.request.fileToGenerate.includes(pf.name)
     );
@@ -71,7 +117,11 @@ export class Generator {
     if (packageName === '') {
       throw new Error('Cannot get package name to generate.');
     }
-    const api = new API(this.request.protoFile, packageName);
+    const api = new API(
+      this.request.protoFile,
+      packageName,
+      this.grpcServiceConfig
+    );
     return api;
   }
 
@@ -88,7 +138,6 @@ export class Generator {
     this.addProtosToResponse();
     const api = this.buildAPIObject();
     await this.processTemplates(api);
-    // TODO: error handling
 
     const outputBuffer = plugin.google.protobuf.compiler.CodeGeneratorResponse.encode(
       this.response

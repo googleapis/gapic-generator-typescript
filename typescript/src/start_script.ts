@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 // Copyright 2019 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +16,7 @@
 
 import { execFileSync } from 'child_process';
 import * as path from 'path';
-import { argv } from 'yargs';
+import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
 const fileSystem = require('file-system');
 
@@ -28,24 +29,26 @@ const GOOGLE_GAX_PROTOS_DIR = path.join(
   'protos'
 );
 
-// Add folder of plugin to PATH
-process.env['PATH'] = __dirname + path.delimiter + process.env['PATH'];
-
-let outputDir = '';
-if (argv.output_dir) {
-  outputDir = argv.output_dir as string;
-} else {
-  console.error('Output directory is required: --output_dir path');
-  process.exit(1);
-}
+const argv = yargs
+  .array('I')
+  .nargs('I', 1)
+  .alias('proto_path', 'I')
+  .alias('proto-path', 'I')
+  .demandOption('output_dir')
+  .describe('I', 'Include directory to pass to protoc')
+  .alias('output-dir', 'output_dir')
+  .describe('output_dir', 'Path to a directory for the generated code')
+  .alias('grpc-service-config', 'grpc_service_config')
+  .describe('grpc-service-config', 'Path to gRPC service config JSON')
+  .usage(`Usage: $0 -I /path/to/googleapis \\
+  --output_dir /path/to/output_directory \\
+  google/example/api/v1/api.proto`).argv;
+const outputDir = argv.outputDir as string;
+const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 
 const protoDirs: string[] = [];
 if (argv.I) {
-  if (Array.isArray(argv.I)) {
-    protoDirs.push(...argv.I);
-  } else {
-    protoDirs.push(argv.I as string);
-  }
+  protoDirs.push(...(argv.I as string[]));
 }
 const protoDirsArg = protoDirs.map(dir => `-I${dir}`);
 
@@ -57,10 +60,17 @@ if (Array.isArray(argv._)) {
 }
 
 // run protoc command to generate client library
+const cliPath = path.join(__dirname, 'cli.js');
 const protocCommand = [
   `-I${GOOGLE_GAX_PROTOS_DIR}`,
+  `--plugin=protoc-gen-typescript_gapic=${cliPath}`,
   `--typescript_gapic_out=${outputDir}`,
 ];
+if (grpcServiceConfig) {
+  protocCommand.push(
+    `--typescript_gapic_opt="grpc-service-config=${grpcServiceConfig}"`
+  );
+}
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 try {

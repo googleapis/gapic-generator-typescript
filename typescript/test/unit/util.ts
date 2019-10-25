@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import * as assert from 'assert';
-import { commonPrefix } from '../../src/util';
+import { commonPrefix, duration, seconds, milliseconds } from '../../src/util';
+import * as plugin from '../../../pbjs-genfiles/plugin';
 
 describe('util.ts', () => {
   describe('CommonPrefix', () => {
@@ -28,6 +29,86 @@ describe('util.ts', () => {
       assert.strictEqual(commonPrefix(['', '']), '');
       assert.strictEqual(commonPrefix(['']), '');
       assert.strictEqual(commonPrefix([]), '');
+    });
+  });
+
+  describe('Duration', () => {
+    it('should support fractional seconds', () => {
+      const input = '0.1s';
+      const dur = duration(input);
+      assert.strictEqual(Number(dur.seconds), 0);
+      assert.strictEqual(Number(dur.nanos), 0.1 * 1e9);
+    });
+
+    it('should support fractional minutes', () => {
+      const input = '0.5m';
+      const dur = duration(input);
+      assert.strictEqual(Number(dur.seconds), 30);
+      assert.strictEqual(Number(dur.nanos), 0);
+    });
+
+    it('should build correct Duration object for seconds', () => {
+      const input = '5s';
+      const dur = duration(input);
+      assert.strictEqual(Number(dur.seconds), 5);
+      assert.strictEqual(Number(dur.nanos), 0);
+    });
+
+    it('should build correct Duration object for minutes', () => {
+      const input = '10m';
+      const dur = duration(input);
+      assert.strictEqual(Number(dur.seconds), 10 * 60);
+      assert.strictEqual(Number(dur.nanos), 0);
+    });
+
+    it('should build correct Duration object for hours', () => {
+      const input = '2h';
+      const dur = duration(input);
+      assert.strictEqual(Number(dur.seconds), 2 * 60 * 60);
+      assert.strictEqual(Number(dur.nanos), 0);
+    });
+
+    it('should build correct Duration object for days', () => {
+      const input = '3d';
+      const dur = duration(input);
+      assert.strictEqual(Number(dur.seconds), 3 * 60 * 60 * 24);
+      assert.strictEqual(Number(dur.nanos), 0);
+    });
+
+    it('should convert Duration to whole seconds', () => {
+      const duration = plugin.google.protobuf.Duration.fromObject({
+        seconds: 10,
+        nanos: 0,
+      });
+      const result = seconds(duration);
+      assert.strictEqual(result, 10);
+    });
+
+    it('should convert Duration to fractional seconds', () => {
+      const duration = plugin.google.protobuf.Duration.fromObject({
+        seconds: 5,
+        nanos: 500000000,
+      });
+      const result = seconds(duration);
+      assert.strictEqual(result, 5.5);
+    });
+
+    it('should convert Duration to whole milliseconds', () => {
+      const duration = plugin.google.protobuf.Duration.fromObject({
+        seconds: 10,
+        nanos: 0,
+      });
+      const result = milliseconds(duration);
+      assert.strictEqual(result, 10000);
+    });
+
+    it('should convert Duration to fractional milliseconds', () => {
+      const duration = plugin.google.protobuf.Duration.fromObject({
+        seconds: 5,
+        nanos: 500000000,
+      });
+      const result = milliseconds(duration);
+      assert.strictEqual(result, 5500);
     });
   });
 
