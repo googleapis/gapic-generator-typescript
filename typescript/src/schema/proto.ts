@@ -443,31 +443,33 @@ function augmentService(
     ].split(',');
   }
   augmentedService.pathTemplate = [];
-  for (const property of Object.keys(messages)){
-      const m = messages[property];
-      if (m && m.options) {
-        const option = m.options;
-        if (option && option['.google.api.resource']) {
-          const opt = option['.google.api.resource'];
-          const onePathTemplate = option['.google.api.resource'] as ResourceDescriptor;
-          if (opt.type) {
-            const arr = opt.type.match(/\/([^.]+)$/);
-            if (arr) {
-              opt.type = arr[arr.length - 1];
-            }
+  for (const property of Object.keys(messages)) {
+    const m = messages[property];
+    if (m && m.options) {
+      const option = m.options;
+      if (option && option['.google.api.resource']) {
+        const opt = option['.google.api.resource'];
+        const onePathTemplate = option[
+          '.google.api.resource'
+        ] as ResourceDescriptor;
+        if (opt.type) {
+          const arr = opt.type.match(/\/([^.]+)$/);
+          if (arr) {
+            opt.type = arr[arr.length - 1];
           }
-          const pattern = opt.pattern;
-          //TODO: SUPPORT MULTIPLE PATTERNS
-          if (pattern && pattern[0]) {
-            const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
-            for (let i = 0; i < params.length; i++) {
-              params[i] = params[i].replace('{', '').replace('}', '');
-            }
-            onePathTemplate.params = params;
-          }
-          augmentedService.pathTemplate.push(onePathTemplate);
         }
+        const pattern = opt.pattern;
+        //TODO: SUPPORT MULTIPLE PATTERNS
+        if (pattern && pattern[0]) {
+          const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
+          for (let i = 0; i < params.length; i++) {
+            params[i] = params[i].replace('{', '').replace('}', '');
+          }
+          onePathTemplate.params = params;
+        }
+        augmentedService.pathTemplate.push(onePathTemplate);
       }
+    }
   }
   return augmentedService;
 }
