@@ -258,7 +258,7 @@ function augmentService(
           if(opt.type){
             const arr = opt.type.match(/\/([^.]+)$/);
             if(arr){
-              opt.type = arr[arr.length - 1].toLowerCase();
+              opt.type = arr[arr.length - 1];
             }
           }
           const pattern = opt.pattern;

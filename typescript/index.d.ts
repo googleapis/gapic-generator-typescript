@@ -19,4 +19,9 @@ interface String {
   toPascalCase(): string;
   toKebabCase(): string;
   toSnakeCase(): string;
+  capitalizeFirst(): string;
+}
+
+interface Array<T>{
+  addStringType(): string[];
 }

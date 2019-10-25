@@ -56,7 +56,7 @@ export class {{ service.name }}Client {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   {%- if (service.pathTemplate.length > 0) %}
-  private _pathTemplates: {};
+  private _pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
   auth: gax.GoogleAuth;
 
@@ -145,7 +145,7 @@ export class {{ service.name }}Client {
 {%- if (service.pathTemplate.length > 0) %}
     this._pathTemplates = {
 {%- for template in service.pathTemplate %}
-      {{ template.type }}PathTemplate: new gaxModule.PathTemplate(
+      {{ template.type.toLowerCase() }}PathTemplate: new gaxModule.PathTemplate(
         '{{ template.pattern }}'
       ),
 {%- endfor %}
@@ -493,4 +493,23 @@ export class {{ service.name }}Client {
     return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   } 
 {%- endfor %}
+{%- if (service.pathTemplate.length > 0) %}
+  // --------------------
+  // -- Path templates --
+  // --------------------
+{%- for template in service.pathTemplate %}
+  {{ template.type.toLowerCase() }}Path({{ template.params.addStringType() }}){
+    return this._pathTemplates.{{ template.type.toLowerCase() }}PathTemplate.render({
+{%- for param in template.params %}
+      {{ param }}: {{ param }},
+{%- endfor %}
+    });
+  }
+{%- for param in template.params %}
+  match{{ param.capitalizeFirst() }}From{{ template.type }}Name({{ template.type.toLowerCase() }}Name: string){
+    return this._pathTemplates.{{ template.type.toLowerCase() }}PathTemplate.match({{ template.type.toLowerCase() }}Name).{{ param }};
+  }
+{%- endfor %}  
+{%- endfor %}
+{%- endif %}
 }
