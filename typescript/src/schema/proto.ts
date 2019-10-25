@@ -443,14 +443,13 @@ function augmentService(
     ].split(',');
   }
   augmentedService.pathTemplate = [];
-  for (const property in messages) {
-    if (messages.hasOwnProperty(property)) {
+  for (const property of Object.keys(messages)){
       const m = messages[property];
       if (m && m.options) {
         const option = m.options;
         if (option && option['.google.api.resource']) {
           const opt = option['.google.api.resource'];
-          const onePathTemplate = opt as ResourceDescriptor;
+          const onePathTemplate = option['.google.api.resource'] as ResourceDescriptor;
           if (opt.type) {
             const arr = opt.type.match(/\/([^.]+)$/);
             if (arr) {
@@ -469,7 +468,6 @@ function augmentService(
           augmentedService.pathTemplate.push(onePathTemplate);
         }
       }
-    }
   }
   return augmentedService;
 }

@@ -63,12 +63,6 @@ String.prototype.capitalize = function(this: string): string {
   }
   return this[0].toUpperCase() + this.slice(1);
 };
-String.prototype.capitalizeFirst = function(this: string): string {
-  if (this.length === 0) {
-    return this;
-  }
-  return this.charAt(0).toUpperCase() + this.substring(1);
-};
 
 String.prototype.words = function(this: string): string[] {
   // split on spaces, non-alphanumeric, or capital letters
