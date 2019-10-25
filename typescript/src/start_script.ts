@@ -20,14 +20,8 @@ import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
 const fileSystem = require('file-system');
 
-const GOOGLE_GAX_PROTOS_DIR = path.join(
-  __dirname,
-  '..',
-  '..',
-  'node_modules',
-  'google-gax',
-  'protos'
-);
+const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
+const GOOGLE_GAX_PROTOS_DIR = path.join(googleGaxPath, '..', '..', 'protos');
 
 const argv = yargs
   .array('I')
