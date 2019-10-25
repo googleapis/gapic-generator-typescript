@@ -18,7 +18,8 @@ export class API {
 
   constructor(
     fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[],
-    packageName: string
+    packageName: string,
+    grpcServiceConfig: plugin.grpc.service_config.ServiceConfig
   ) {
     this.naming = new Naming(
       fileDescriptors.filter(
@@ -29,7 +30,7 @@ export class API {
       .filter(fd => fd.name)
       .reduce(
         (map, fd) => {
-          map[fd.name!] = new Proto(fd, packageName);
+          map[fd.name!] = new Proto(fd, packageName, grpcServiceConfig);
           return map;
         },
         {} as ProtosMap
