@@ -33,7 +33,11 @@ interface ServiceDescriptorProto
   port: number;
   oauthScopes: string[];
   comments: string;
-  pathTemplate: plugin.google.api.ResourceDescriptor[];
+  pathTemplate: ResourceDescriptor[];
+}
+
+export interface ResourceDescriptor extends plugin.google.api.IResourceDescriptor{
+  params: string[];
 }
 
 export interface ServicesMap {
@@ -250,13 +254,23 @@ function augmentService(
         const option = m.options;
         if(option && option[".google.api.resource"]){
           const opt = option[".google.api.resource"];
+          const onePathTemplate = opt as ResourceDescriptor;
           if(opt.type){
             const arr = opt.type.match(/\/([^.]+)$/);
             if(arr){
               opt.type = arr[arr.length - 1].toLowerCase();
             }
           }
-          augmentedService.pathTemplate.push(opt as plugin.google.api.ResourceDescriptor);
+          const pattern = opt.pattern;
+          //TODO: SUPPORT MULTIPLE PATTERNS
+          if(pattern && pattern[0]) {
+            const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
+            for(var i = 0; i < params.length; i++){
+              params[i] = params[i].replace('{', '').replace('}', '');
+            }
+            onePathTemplate.params = params;
+          }
+          augmentedService.pathTemplate.push(onePathTemplate);
         }
       }
     }
