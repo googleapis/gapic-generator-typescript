@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('assert');
-const {{ service.name }}Module = require('../src');
+const {{ service.name.toLowerCase() }}Module = require('../src');
 {% if (service.streaming.length > 0) %}
 const {PassThrough} = require('stream');
 {% endif %}
@@ -21,11 +21,11 @@ export interface Callback {
 
 export class Operation{
     constructor(){};
-    promise() {() => {}};
+    promise() {};
 }
 
 function mockSimpleGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
-    return function(actualRequest: {}, options: {}, callback: Callback) {
+    return (actualRequest: {}, options: {}, callback: Callback) => {
         assert.deepStrictEqual(actualRequest, expectedRequest);
         if (error) {
             callback(error);
@@ -96,24 +96,24 @@ function mockLongRunningGrpcMethod(expectedRequest: {}, response: {} | null, err
 {%- endif %}
 describe('{{ service.name }}Client', () => {
     it('has servicePath', () => {
-        const servicePath = {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client.servicePath;
+        const servicePath = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.servicePath;
         assert(servicePath);
     });
     it('has apiEndpoint', () => {
-        const apiEndpoint = {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client.apiEndpoint;
+        const apiEndpoint = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.apiEndpoint;
         assert(apiEndpoint);
     });
     it('has port', () => {
-        const port = {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client.port;
+        const port = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.port;
         assert(port);
         assert(typeof port === 'number');
     });
     it('should create a client with no option', () => {
-        const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client();
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client();
         assert(client);
     });    
     it('should create a client with gRPC option', () => {
-        const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
             fallback: true,
         });
         assert(client);
@@ -121,7 +121,7 @@ describe('{{ service.name }}Client', () => {
 {%- for method in service.simpleMethods %}
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', done => {
-            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus', 
             });
@@ -143,7 +143,7 @@ describe('{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', done => {
-            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus', 
             });
@@ -169,7 +169,7 @@ describe('{{ service.name }}Client', () => {
 {%- for method in service.longRunning %}
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', done => {
-            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus', 
             });
@@ -194,7 +194,7 @@ describe('{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', done => {
-            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus', 
             });
@@ -224,7 +224,7 @@ describe('{{ service.name }}Client', () => {
 {%- for method in service.serverStreaming %}
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', done => {
-            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus', 
             });
@@ -245,7 +245,7 @@ describe('{{ service.name }}Client', () => {
             stream.write();
         });
         it('invokes {{ method.name.toCamelCase() }} with error', done => {            
-            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus', 
             });
@@ -271,7 +271,7 @@ describe('{{ service.name }}Client', () => {
 {%- for method in service.bidiStreaming %}
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', done => {
-            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus', 
             });
@@ -290,7 +290,7 @@ describe('{{ service.name }}Client', () => {
             stream.write(request);
         });
         it('invokes {{ method.name.toCamelCase() }} with error', done => {            
-            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus', 
             });
@@ -314,7 +314,7 @@ describe('{{ service.name }}Client', () => {
 {%- for method in service.paging %}
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', done => {
-            const client = new {{ service.name }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus', 
             });
