@@ -43,7 +43,19 @@ function renderFile(
   templateName: string,
   renderParameters: {}
 ) {
-  const processed = nunjucks.render(templateName, renderParameters);
+  let processed = nunjucks.render(templateName, renderParameters);
+  // Pretty-print generated JSON files
+  if (targetFilename.match(/\.json$/i)) {
+    try {
+      const json = JSON.parse(processed);
+      const pretty = JSON.stringify(json, null, '  ') + '\n';
+      processed = pretty;
+    } catch (err) {
+      console.warn(
+        `The generated JSON file ${targetFilename} does not look like a valid JSON: ${err.toString()}`
+      );
+    }
+  }
   const output = plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
   output.name = targetFilename;
   output.content = processed;

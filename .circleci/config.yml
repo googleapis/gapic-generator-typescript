@@ -8,19 +8,23 @@ jobs:
       - run:
           name: Install protoc
           command: |
-            sudo apt-get update
-            sudo apt-get install protobuf-compiler
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
       - run:
           name: Run npm install
           command: |
             npm install
       - run:
-          name: Run baseline tests
+          name: Run generator unit tests
           command: |
-            sudo npm link
+            npm link
             npm test
+          environment:
+            NPM_CONFIG_PREFIX: /tmp/.npm-global
       - run:
-          name: Run showcase test for js users
+          name: Run showcase test for JavaScript users
           command: |
             cp -r typescript/test/protos ./.test-out-showcase
             cd .test-out-showcase
@@ -32,7 +36,7 @@ jobs:
             npm install
             npm test
       - run:
-          name: Run showcase test for ts users
+          name: Run showcase test for TypeScript users
           command: |
             cd /home/circleci/project/.test-out-showcase
             cp -r ../typescript/test/test_application_ts ~/
@@ -40,10 +44,25 @@ jobs:
             cd ~/test_application_ts
             npm install
             npm test
-      - run: 
-          name: Run unit tests
+      - run:
+          name: Run unit tests of the generated Showcase library
           command: |
-            cd .test-out-showcase/
+            cd .test-out-showcase
+            npm install
+            npm test
+      - run:
+          name: Run unit tests of the generated KMS library
+          command: |
+            cp -r typescript/test/protos ./.test-out-keymanager
+            cd .test-out-keymanager
+            npm install
+            npm test
+      - run:
+          name: Run unit tests of the generated Text-to-Speech library
+          command: |
+            cp -r typescript/test/protos ./.test-out-texttospeech
+            cd .test-out-texttospeech
+            npm install
             npm test
       - run:
           name: Run linting
