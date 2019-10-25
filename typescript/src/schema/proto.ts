@@ -164,7 +164,8 @@ interface ServiceDescriptorProto
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
 }
 
-export interface ResourceDescriptor extends plugin.google.api.IResourceDescriptor{
+export interface ResourceDescriptor
+  extends plugin.google.api.IResourceDescriptor {
   params: string[];
 }
 
@@ -442,25 +443,25 @@ function augmentService(
     ].split(',');
   }
   augmentedService.pathTemplate = [];
-  for(var property in messages){
-    if(messages.hasOwnProperty(property)){
+  for (const property in messages) {
+    if (messages.hasOwnProperty(property)) {
       const m = messages[property];
-      if(m && m.options){
+      if (m && m.options) {
         const option = m.options;
-        if(option && option[".google.api.resource"]){
-          const opt = option[".google.api.resource"];
+        if (option && option['.google.api.resource']) {
+          const opt = option['.google.api.resource'];
           const onePathTemplate = opt as ResourceDescriptor;
-          if(opt.type){
+          if (opt.type) {
             const arr = opt.type.match(/\/([^.]+)$/);
-            if(arr){
+            if (arr) {
               opt.type = arr[arr.length - 1];
             }
           }
           const pattern = opt.pattern;
           //TODO: SUPPORT MULTIPLE PATTERNS
-          if(pattern && pattern[0]) {
+          if (pattern && pattern[0]) {
             const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
-            for(var i = 0; i < params.length; i++){
+            for (let i = 0; i < params.length; i++) {
               params[i] = params[i].replace('{', '').replace('}', '');
             }
             onePathTemplate.params = params;
