@@ -20,7 +20,3 @@ interface String {
   toKebabCase(): string;
   toSnakeCase(): string;
 }
-
-interface Array<T>{
-  addStringType(): string[];
-}

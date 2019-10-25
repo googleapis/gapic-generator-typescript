@@ -105,10 +105,3 @@ String.prototype.toSnakeCase = function(this: string): string {
   }
   return words.join('_');
 };
-
-Array.prototype.addStringType = function(this: string[]): string[] {
-  if (this.length === 0) {
-    return this;
-  }
-  return this.map(p => p + ': string');
-};
