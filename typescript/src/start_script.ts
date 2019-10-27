@@ -35,8 +35,10 @@ const argv = yargs
   .alias('grpc-service-config', 'grpc_service_config')
   .describe('grpc-service-config', 'Path to gRPC service config JSON')
   .alias('common-proto-path', 'common_protos_path')
-  .describe('common_proto_path', 'Path to API common protos to use (if unset, will use protos shipped with google-gax)')
-  .usage(`Usage: $0 -I /path/to/googleapis \\
+  .describe(
+    'common_proto_path',
+    'Path to API common protos to use (if unset, will use protos shipped with google-gax)'
+  ).usage(`Usage: $0 -I /path/to/googleapis \\
   --output_dir /path/to/output_directory \\
   google/example/api/v1/api.proto`).argv;
 const outputDir = argv.outputDir as string;
