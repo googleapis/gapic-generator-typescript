@@ -122,7 +122,14 @@ function getResourceMap(
                 oneResource.name = arr[0];
               }
             } else {
-              console.warn('Resource does not have type.');
+              console.warn(
+                'In file ' +
+                  fd.name +
+                  ' message ' +
+                  property +
+                  ' refers to a resource which does not have a type: ' +
+                  opt
+              );
               continue;
             }
             const pattern = opt.pattern;
@@ -135,10 +142,23 @@ function getResourceMap(
             }
             if (oneResource.name && oneResource.params) {
               resourceMap[opt.type!] = oneResource;
+            } else if (oneResource.name) {
+              console.warn(
+                'In file ' +
+                  fd.name +
+                  ' message ' +
+                  property +
+                  ' refers to a resource which does not have a proper pattern : ' +
+                  opt
+              );
             } else {
               console.warn(
-                'Resource does not have proper name or pattern, its type is ' +
-                  opt.type
+                'In file ' +
+                  fd.name +
+                  ' message ' +
+                  property +
+                  ' refers to a resource which does not have a proper name : ' +
+                  opt
               );
             }
           }

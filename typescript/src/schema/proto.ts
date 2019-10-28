@@ -461,7 +461,12 @@ function augmentService(
             const type = resourceReference.type;
             if (!type || !resourceMap[type.toString()]) {
               console.warn(
-                'Resource does not have a type or resource is not in the map'
+                'In service proto ' +
+                  service.name +
+                  ' message ' +
+                  property +
+                  ' refers to an unkown resource: ' +
+                  resourceReference
               );
               continue;
             }
