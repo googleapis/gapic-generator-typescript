@@ -1,7 +1,7 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
 import { Naming } from './naming';
-import { Proto, MessagesMap, ResourceDescriptor, ResourceMap} from './proto';
+import { Proto, MessagesMap, ResourceDescriptor, ResourceMap } from './proto';
 import { fstat } from 'fs-extra';
 
 export interface ProtosMap {
@@ -33,7 +33,12 @@ export class API {
       .filter(fd => fd.name)
       .reduce(
         (map, fd) => {
-          map[fd.name!] = new Proto(fd, packageName, grpcServiceConfig, resourceMap);
+          map[fd.name!] = new Proto(
+            fd,
+            packageName,
+            grpcServiceConfig,
+            resourceMap
+          );
           return map;
         },
         {} as ProtosMap
@@ -87,11 +92,13 @@ export class API {
   }
 }
 
-function getResourceMap(fd: plugin.google.protobuf.IFileDescriptorProto[]): ResourceMap{
+function getResourceMap(
+  fd: plugin.google.protobuf.IFileDescriptorProto[]
+): ResourceMap {
   const resourceMap: ResourceMap = {};
-  for(const fileDescriptor of fd){
-    const messages = fileDescriptor.messageType!
-      .filter(message => message.name)
+  for (const fileDescriptor of fd) {
+    const messages = fileDescriptor
+      .messageType!.filter(message => message.name)
       .reduce(
         (map, message) => {
           map['.' + fileDescriptor.package! + '.' + message.name!] = message;

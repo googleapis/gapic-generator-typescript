@@ -170,8 +170,8 @@ export interface ResourceDescriptor
   params: string[];
 }
 
-export interface ResourceMap{
-  [name: string] : ResourceDescriptor;
+export interface ResourceMap {
+  [name: string]: ResourceDescriptor;
 }
 
 export interface ServicesMap {
@@ -449,22 +449,24 @@ function augmentService(
     ].split(',');
   }
   augmentedService.pathTemplates = [];
-  for(const property of Object.keys(messages)){
+  for (const property of Object.keys(messages)) {
     const m = messages[property];
-    if(m && m.field){
+    if (m && m.field) {
       const fields = m.field;
-      for(const fieldDescriptor of fields){
-        if(fieldDescriptor && fieldDescriptor.options){
+      for (const fieldDescriptor of fields) {
+        if (fieldDescriptor && fieldDescriptor.options) {
           const option = fieldDescriptor.options;
-          if(option && option[".google.api.resourceReference"]){
-            const resourceReference = option[".google.api.resourceReference"];
+          if (option && option['.google.api.resourceReference']) {
+            const resourceReference = option['.google.api.resourceReference'];
             const type = resourceReference.type;
-            if(!type || ! resourceMap[type.toString()]){
-              console.warn('resource does not have a type or resource is not in the map');
+            if (!type || !resourceMap[type.toString()]) {
+              console.warn(
+                'resource does not have a type or resource is not in the map'
+              );
               continue;
             }
             const resource = resourceMap[resourceReference.type!.toString()];
-            if(augmentedService.pathTemplates.includes(resource)) continue;
+            if (augmentedService.pathTemplates.includes(resource)) continue;
             augmentedService.pathTemplates.push(resource);
           }
         }
