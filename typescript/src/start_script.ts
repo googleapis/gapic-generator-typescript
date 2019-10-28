@@ -34,7 +34,11 @@ const argv = yargs
   .describe('output_dir', 'Path to a directory for the generated code')
   .alias('grpc-service-config', 'grpc_service_config')
   .describe('grpc-service-config', 'Path to gRPC service config JSON')
-  .usage(`Usage: $0 -I /path/to/googleapis \\
+  .alias('common-proto-path', 'common_protos_path')
+  .describe(
+    'common_proto_path',
+    'Path to API common protos to use (if unset, will use protos shipped with google-gax)'
+  ).usage(`Usage: $0 -I /path/to/googleapis \\
   --output_dir /path/to/output_directory \\
   google/example/api/v1/api.proto`).argv;
 const outputDir = argv.outputDir as string;
@@ -53,10 +57,12 @@ if (Array.isArray(argv._)) {
   protoFiles.push(argv._);
 }
 
+const commonProtoPath = argv.commonProtoPath || GOOGLE_GAX_PROTOS_DIR;
+
 // run protoc command to generate client library
 const cliPath = path.join(__dirname, 'cli.js');
 const protocCommand = [
-  `-I${GOOGLE_GAX_PROTOS_DIR}`,
+  `-I${commonProtoPath}`,
   `--plugin=protoc-gen-typescript_gapic=${cliPath}`,
   `--typescript_gapic_out=${outputDir}`,
 ];
