@@ -56,7 +56,7 @@ export class {{ service.name }}Client {
   */
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
-  {%- if (service.pathTemplate.length > 0) %}
+  {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
   auth: gax.GoogleAuth;
@@ -145,9 +145,9 @@ export class {{ service.name }}Client {
         require("../../protos/protos.json") :
         nodejsProtoPath
     );
-{%- if (service.pathTemplate.length > 0) %}
+{%- if (service.pathTemplates.length > 0) %}
     this._pathTemplates = {
-{%- for template in service.pathTemplate %}
+{%- for template in service.pathTemplates %}
       {{ template.type.toCamelCase() }}PathTemplate: new gaxModule.PathTemplate(
         '{{ template.pattern }}'
       ),
@@ -496,11 +496,11 @@ export class {{ service.name }}Client {
     return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   } 
 {%- endfor %}
-{%- if (service.pathTemplate.length > 0) %}
+{%- if (service.pathTemplates.length > 0) %}
   // --------------------
   // -- Path templates --
   // --------------------
-{%- for template in service.pathTemplate %}
+{%- for template in service.pathTemplates %}
   {{ template.type.toLowerCase() }}Path(
 {%- set paramJoiner = joiner() %}
 {%- for param in template.params %}

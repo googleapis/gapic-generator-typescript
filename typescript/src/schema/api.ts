@@ -1,7 +1,7 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
 import { Naming } from './naming';
-import { Proto } from './proto';
+import { Proto, MessagesMap, ResourceDescriptor, ResourceMap} from './proto';
 import { fstat } from 'fs-extra';
 
 export interface ProtosMap {
@@ -26,11 +26,14 @@ export class API {
         fd => fd.package && fd.package.startsWith(packageName)
       )
     );
+    // construct resource map
+    const resourceMap = getResourceMap(fileDescriptors);
+    // parse resource map to Proto constructor
     this.protos = fileDescriptors
       .filter(fd => fd.name)
       .reduce(
         (map, fd) => {
-          map[fd.name!] = new Proto(fd, packageName, grpcServiceConfig);
+          map[fd.name!] = new Proto(fd, packageName, grpcServiceConfig, resourceMap);
           return map;
         },
         {} as ProtosMap
@@ -82,4 +85,47 @@ export class API {
       '  '
     );
   }
+}
+
+function getResourceMap(fd: plugin.google.protobuf.IFileDescriptorProto[]): ResourceMap{
+  const resourceMap: ResourceMap = {};
+  for(const fileDescriptor of fd){
+    const messages = fileDescriptor.messageType!
+      .filter(message => message.name)
+      .reduce(
+        (map, message) => {
+          map['.' + fileDescriptor.package! + '.' + message.name!] = message;
+          return map;
+        },
+        {} as MessagesMap
+      );
+    for (const property of Object.keys(messages)) {
+      const m = messages[property];
+      if (m && m.options) {
+        const option = m.options;
+        if (option && option['.google.api.resource']) {
+          const opt = option['.google.api.resource'];
+          const oneResource = option[
+            '.google.api.resource'
+          ] as ResourceDescriptor;
+          if (opt.type) {
+            const arr = opt.type.match(/\/([^.]+)$/);
+            if (arr) {
+              oneResource.name = arr[arr.length - 1];
+            }
+          }
+          const pattern = opt.pattern;
+          if (pattern && pattern[0]) {
+            const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
+            for (let i = 0; i < params.length; i++) {
+              params[i] = params[i].replace('{', '').replace('}', '');
+            }
+            oneResource.params = params;
+          }
+          resourceMap[opt.type!] = oneResource;
+        }
+      }
+    }
+  }
+  return resourceMap;
 }
