@@ -9,7 +9,11 @@ export class Naming {
   protoPackage: string;
 
   constructor(fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]) {
-    const protoPackages = fileDescriptors.map(fd => fd.package || '');
+    const protoPackages = fileDescriptors
+      .filter(fd => fd.service && fd.service.length > 0)
+      // LRO is an exception: it's a service but we don't generate any code for it
+      .filter(fd => fd.package !== 'google.longrunning')
+      .map(fd => fd.package || '');
     const prefix = commonPrefix(protoPackages);
     // common prefix must either end with `.`, or be equal to at least one of
     // the packages' prefix
