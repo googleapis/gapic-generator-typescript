@@ -461,7 +461,7 @@ function augmentService(
             const type = resourceReference.type;
             if (!type || !resourceMap[type.toString()]) {
               console.warn(
-                'resource does not have a type or resource is not in the map'
+                'Resource does not have a type or resource is not in the map'
               );
               continue;
             }

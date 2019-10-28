@@ -118,9 +118,12 @@ function getResourceMap(
             ] as ResourceDescriptor;
             if (opt.type) {
               const arr = opt.type.match(/\/([^.]+)$/);
-              if (arr && arr[1]) {
-                oneResource.name = arr[1];
+              if (arr && arr[0]) {
+                oneResource.name = arr[0];
               }
+            } else {
+              console.warn('Resource does not have type.');
+              continue;
             }
             const pattern = opt.pattern;
             if (pattern && pattern[0]) {
@@ -130,7 +133,14 @@ function getResourceMap(
               }
               oneResource.params = params;
             }
-            resourceMap[opt.type!] = oneResource;
+            if (oneResource.name && oneResource.params) {
+              resourceMap[opt.type!] = oneResource;
+            } else {
+              console.warn(
+                'Resource does not have proper name or pattern, its type is ' +
+                  opt.type
+              );
+            }
           }
         }
       }
