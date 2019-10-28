@@ -97,9 +97,9 @@ function getResourceMap(
 ): ResourceMap {
   const resourceMap: ResourceMap = {};
   for (const fd of fileDescriptors) {
-    if(fd && fd.messageType){
-      const messages = fd
-        .messageType.filter(message => message.name)
+    if (fd && fd.messageType) {
+      const messages = fd.messageType
+        .filter(message => message.name)
         .reduce(
           (map, message) => {
             map['.' + fd.package! + '.' + message.name!] = message;
@@ -118,8 +118,8 @@ function getResourceMap(
             ] as ResourceDescriptor;
             if (opt.type) {
               const arr = opt.type.match(/\/([^.]+)$/);
-              if (arr) {
-                oneResource.name = arr[arr.length - 1];
+              if (arr && arr[1]) {
+                oneResource.name = arr[1];
               }
             }
             const pattern = opt.pattern;
