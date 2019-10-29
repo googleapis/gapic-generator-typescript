@@ -19,4 +19,5 @@ interface String {
   toPascalCase(): string;
   toKebabCase(): string;
   toSnakeCase(): string;
+  CamelCaseBeforeDot(): string;
 }

@@ -42,7 +42,7 @@ interface MethodDescriptorProto
   retryableCodesName: string;
   retryParamsName: string;
   timeoutMillis?: number;
-  headerRequestParams: boolean;
+  headerRequestParams: string;
 }
 
 export class RetryableCodeMap {
@@ -289,7 +289,7 @@ function toLRInterface(type: string, inputType: string) {
   return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
 
-function getHeaderParms(rule: plugin.google.api.IHttpRule): boolean {
+function getHeaderParms(rule: plugin.google.api.IHttpRule): string {
   const message = rule.post
     ? rule.post
     : rule.delete
@@ -299,10 +299,11 @@ function getHeaderParms(rule: plugin.google.api.IHttpRule): boolean {
     : rule.put
     ? rule.put
     : rule.patch;
-  if (message && message.match('{.*=.*}')) {
-    return true;
+  if (message){ 
+    const res = message.match('(?<={)(.*)(?==)');
+    return res && res[0]? res[0] : '';
   }
-  return false;
+  return '';
 }
 
 function getMethodConfig(
@@ -354,7 +355,6 @@ function augmentMethod(
       ),
       retryableCodesName: defaultNonIdempotentRetryCodesName,
       retryParamsName: defaultParametersName,
-      headerRequestParams: false,
     },
     method
   ) as MethodDescriptorProto;

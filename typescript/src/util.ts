@@ -105,3 +105,16 @@ String.prototype.toSnakeCase = function(this: string): string {
   }
   return words.join('_');
 };
+
+String.prototype.CamelCaseBeforeDot = function(this: string): string{
+  const words = this.split('.');
+  const res:string[] = [];
+  for(var i = 0; i < words.length - 1; i++){
+    res.push(words[i].toCamelCase());
+  }
+  if(res.length > 0){
+    res.push(words[words.length - 1]);
+    return res.join('!.');
+  }
+  else return this.toCamelCase();
+}
