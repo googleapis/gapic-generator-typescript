@@ -55,7 +55,7 @@ export class {{ service.name }}Client {
   */
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
-  {%- if (service.pathTemplate.length > 0) %}
+  {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
   auth: gax.GoogleAuth;
@@ -144,10 +144,10 @@ export class {{ service.name }}Client {
         require("../../protos/protos.json") :
         nodejsProtoPath
     );
-{%- if (service.pathTemplate.length > 0) %}
+{%- if (service.pathTemplates.length > 0) %}
     this._pathTemplates = {
-{%- for template in service.pathTemplate %}
-      {{ template.type.toCamelCase() }}PathTemplate: new gaxModule.PathTemplate(
+{%- for template in service.pathTemplates %}
+      {{ template.name.toCamelCase() }}PathTemplate: new gaxModule.PathTemplate(
         '{{ template.pattern }}'
       ),
 {%- endfor %}
@@ -495,26 +495,26 @@ export class {{ service.name }}Client {
     return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   } 
 {%- endfor %}
-{%- if (service.pathTemplate.length > 0) %}
+{%- if (service.pathTemplates.length > 0) %}
   // --------------------
   // -- Path templates --
   // --------------------
-{%- for template in service.pathTemplate %}
-  {{ template.type.toLowerCase() }}Path(
+{%- for template in service.pathTemplates %}
+  {{ template.name.toLowerCase() }}Path(
 {%- set paramJoiner = joiner() %}
 {%- for param in template.params %}
 {{-paramJoiner()-}}{{ param }}:string
 {%- endfor -%}
   ){
-    return this._pathTemplates.{{ template.type.toLowerCase() }}PathTemplate.render({
+    return this._pathTemplates.{{ template.name.toLowerCase() }}PathTemplate.render({
 {%- for param in template.params %}
       {{ param }}: {{ param }},
 {%- endfor %}
     });
   }
 {%- for param in template.params %}
-  match{{ param.capitalize() }}From{{ template.type }}Name({{ template.type.toLowerCase() }}Name: string){
-    return this._pathTemplates.{{ template.type.toLowerCase() }}PathTemplate.match({{ template.type.toLowerCase() }}Name).{{ param }};
+  match{{ param.capitalize() }}From{{ template.name }}Name({{ template.name.toLowerCase() }}Name: string){
+    return this._pathTemplates.{{ template.name.toLowerCase() }}PathTemplate.match({{ template.name.toLowerCase() }}Name).{{ param }};
   }
 {%- endfor %}  
 {%- endfor %}

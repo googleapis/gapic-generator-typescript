@@ -158,7 +158,7 @@ interface ServiceDescriptorProto
   port: number;
   oauthScopes: string[];
   comments: string;
-  pathTemplate: ResourceDescriptor[];
+  pathTemplates: ResourceDescriptor[];
   commentsMap: CommentsMap;
   retryableCodeMap: RetryableCodeMap;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
@@ -166,7 +166,12 @@ interface ServiceDescriptorProto
 
 export interface ResourceDescriptor
   extends plugin.google.api.IResourceDescriptor {
+  name: string;
   params: string[];
+}
+
+export interface ResourceMap {
+  [name: string]: ResourceDescriptor;
 }
 
 export interface ServicesMap {
@@ -385,7 +390,8 @@ function augmentService(
   packageName: string,
   service: plugin.google.protobuf.IServiceDescriptorProto,
   commentsMap: CommentsMap,
-  grpcServiceConfig: plugin.grpc.service_config.ServiceConfig
+  grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
+  resourceMap: ResourceMap
 ) {
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.packageName = packageName;
@@ -442,32 +448,33 @@ function augmentService(
       '.google.api.oauthScopes'
     ].split(',');
   }
-  augmentedService.pathTemplate = [];
+  augmentedService.pathTemplates = [];
   for (const property of Object.keys(messages)) {
     const m = messages[property];
-    if (m && m.options) {
-      const option = m.options;
-      if (option && option['.google.api.resource']) {
-        const opt = option['.google.api.resource'];
-        const onePathTemplate = option[
-          '.google.api.resource'
-        ] as ResourceDescriptor;
-        if (opt.type) {
-          const arr = opt.type.match(/\/([^.]+)$/);
-          if (arr) {
-            opt.type = arr[arr.length - 1];
+    if (m && m.field) {
+      const fields = m.field;
+      for (const fieldDescriptor of fields) {
+        if (fieldDescriptor && fieldDescriptor.options) {
+          const option = fieldDescriptor.options;
+          if (option && option['.google.api.resourceReference']) {
+            const resourceReference = option['.google.api.resourceReference'];
+            const type = resourceReference.type;
+            if (!type || !resourceMap[type.toString()]) {
+              console.warn(
+                'In service proto ' +
+                  service.name +
+                  ' message ' +
+                  property +
+                  ' refers to an unkown resource: ' +
+                  resourceReference
+              );
+              continue;
+            }
+            const resource = resourceMap[resourceReference.type!.toString()];
+            if (augmentedService.pathTemplates.includes(resource)) continue;
+            augmentedService.pathTemplates.push(resource);
           }
         }
-        const pattern = opt.pattern;
-        //TODO: SUPPORT MULTIPLE PATTERNS
-        if (pattern && pattern[0]) {
-          const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
-          for (let i = 0; i < params.length; i++) {
-            params[i] = params[i].replace('{', '').replace('}', '');
-          }
-          onePathTemplate.params = params;
-        }
-        augmentedService.pathTemplate.push(onePathTemplate);
       }
     }
   }
@@ -485,7 +492,8 @@ export class Proto {
   constructor(
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
-    grpcServiceConfig: plugin.grpc.service_config.ServiceConfig
+    grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
+    resourceMap: ResourceMap
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
@@ -525,7 +533,8 @@ export class Proto {
           packageName,
           service,
           commentsMap,
-          grpcServiceConfig
+          grpcServiceConfig,
+          resourceMap
         )
       )
       .reduce(
