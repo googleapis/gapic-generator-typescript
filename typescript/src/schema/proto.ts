@@ -42,6 +42,7 @@ interface MethodDescriptorProto
   retryableCodesName: string;
   retryParamsName: string;
   timeoutMillis?: number;
+  headerRequestParams: boolean;
 }
 
 export class RetryableCodeMap {
@@ -288,6 +289,22 @@ function toLRInterface(type: string, inputType: string) {
   return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
 
+function getHeaderParms(rule: plugin.google.api.IHttpRule): boolean {
+  const message = rule.post
+    ? rule.post
+    : rule.delete
+    ? rule.delete
+    : rule.get
+    ? rule.get
+    : rule.put
+    ? rule.put
+    : rule.patch;
+  if (message && message.match('{.*=.*}')) {
+    return true;
+  }
+  return false;
+}
+
 function getMethodConfig(
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
   serviceName: string,
@@ -337,6 +354,7 @@ function augmentMethod(
       ),
       retryableCodesName: defaultNonIdempotentRetryCodesName,
       retryParamsName: defaultParametersName,
+      headerRequestParams: false,
     },
     method
   ) as MethodDescriptorProto;
@@ -381,6 +399,13 @@ function augmentMethod(
   }
   if (method.methodConfig.timeout) {
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
+  }
+  if (method.options && method.options['.google.api.http']) {
+    const httpRule = method.options['.google.api.http'];
+    if(getHeaderParms(httpRule)){
+      console.warn(method.name);
+    }
+    method.headerRequestParams = getHeaderParms(httpRule);
   }
   return method;
 }
