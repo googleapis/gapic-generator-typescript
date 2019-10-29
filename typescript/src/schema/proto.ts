@@ -402,9 +402,6 @@ function augmentMethod(
   }
   if (method.options && method.options['.google.api.http']) {
     const httpRule = method.options['.google.api.http'];
-    if(getHeaderParms(httpRule)){
-      console.warn(method.name);
-    }
     method.headerRequestParams = getHeaderParms(httpRule);
   }
   return method;
