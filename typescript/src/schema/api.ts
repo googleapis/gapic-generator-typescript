@@ -118,8 +118,8 @@ function getResourceMap(
             ] as ResourceDescriptor;
             if (opt.type) {
               const arr = opt.type.match(/\/([^.]+)$/);
-              if (arr && arr[0]) {
-                oneResource.name = arr[0];
+              if (arr && arr[1]) {
+                oneResource.name = arr[1];
               }
             } else {
               console.warn(
