@@ -1,8 +1,12 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { Naming } from './naming';
 import { Proto } from './proto';
-import { fstat } from 'fs-extra';
+
+const googleGaxLocation = path.dirname(require.resolve('google-gax'));
+const gaxProtosLocation = path.join(googleGaxLocation, '..', '..', 'protos');
 
 export interface ProtosMap {
   [filename: string]: Proto;
@@ -28,6 +32,7 @@ export class API {
     );
     this.protos = fileDescriptors
       .filter(fd => fd.name)
+      .filter(fd => !fs.existsSync(path.join(gaxProtosLocation, fd.name!)))
       .reduce(
         (map, fd) => {
           map[fd.name!] = new Proto(fd, packageName, grpcServiceConfig);
