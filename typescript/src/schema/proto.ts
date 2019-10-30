@@ -42,7 +42,7 @@ interface MethodDescriptorProto
   retryableCodesName: string;
   retryParamsName: string;
   timeoutMillis?: number;
-  headerRequestParams: string;
+  headerRequestParams: string[];
 }
 
 export class RetryableCodeMap {
@@ -289,7 +289,7 @@ function toLRInterface(type: string, inputType: string) {
   return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
 
-function getHeaderParms(rule: plugin.google.api.IHttpRule): string {
+function getHeaderParms(rule: plugin.google.api.IHttpRule): string[] {
   const message = rule.post
     ? rule.post
     : rule.delete
@@ -299,11 +299,11 @@ function getHeaderParms(rule: plugin.google.api.IHttpRule): string {
     : rule.put
     ? rule.put
     : rule.patch;
-  if (message){ 
+  if (message) {
     const res = message.match('(?<={)(.*)(?==)');
-    return res && res[0]? res[0] : '';
+    return res && res[0] ? res[0].split('.') : [];
   }
-  return '';
+  return [];
 }
 
 function getMethodConfig(

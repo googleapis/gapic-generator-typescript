@@ -19,5 +19,8 @@ interface String {
   toPascalCase(): string;
   toKebabCase(): string;
   toSnakeCase(): string;
-  CamelCaseBeforeDot(): string;
+}
+
+interface Array<T> {
+  camelCaseBeforeDot(): string;
 }

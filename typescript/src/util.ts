@@ -106,15 +106,10 @@ String.prototype.toSnakeCase = function(this: string): string {
   return words.join('_');
 };
 
-String.prototype.CamelCaseBeforeDot = function(this: string): string{
-  const words = this.split('.');
-  const res:string[] = [];
-  for(var i = 0; i < words.length - 1; i++){
-    res.push(words[i].toCamelCase());
+Array.prototype.camelCaseBeforeDot = function(this: string[]): string {
+  if (this.length <= 1) {
+    return this.toString().toCamelCase();
   }
-  if(res.length > 0){
-    res.push(words[words.length - 1]);
-    return res.join('!.');
-  }
-  else return this.toCamelCase();
-}
+  const res = this.slice(0, -1).map(w => w.toCamelCase());
+  return res.join('!.') + '!.' + this[this.length - 1];
+};

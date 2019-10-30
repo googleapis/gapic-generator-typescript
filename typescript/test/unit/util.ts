@@ -196,44 +196,6 @@ describe('util.ts', () => {
       );
     });
 
-    it('should convert to camelCase before dot', () => {
-      assert.deepStrictEqual(''.CamelCaseBeforeDot(), '');
-      assert.deepStrictEqual('test'.CamelCaseBeforeDot(), 'test');
-      assert.deepStrictEqual(
-        'camelCaseString'.CamelCaseBeforeDot(),
-        'camelCaseString'
-      );
-      assert.deepStrictEqual(
-        'PascalCaseString'.CamelCaseBeforeDot(),
-        'pascalCaseString'
-      );
-      assert.deepStrictEqual(
-        'snake_case_string'.CamelCaseBeforeDot(),
-        'snakeCaseString'
-      );
-      assert.deepStrictEqual(
-        'kebab-case-string'.CamelCaseBeforeDot(),
-        'kebabCaseString'
-      );
-      assert.deepStrictEqual(
-        'random/separators-string'.CamelCaseBeforeDot(),
-        'randomSeparatorsString'
-      );
-      assert.deepStrictEqual(
-        'mixedType-string.SomewhatWeird'.CamelCaseBeforeDot(),
-        'mixedTypeString!.SomewhatWeird'
-      );
-      assert.deepStrictEqual(
-        'productName.v1p1beta1'.CamelCaseBeforeDot(),
-        'productName!.v1p1beta1'
-      );
-      assert.deepStrictEqual(
-        'product_key.lower_name.v1p1beta1'.CamelCaseBeforeDot(),
-        'productKey!.lowerName!.v1p1beta1'
-      );
-    });
-
-
     it('should convert to PascalCase', () => {
       assert.deepStrictEqual(''.toPascalCase(), '');
       assert.deepStrictEqual('test'.toPascalCase(), 'Test');
@@ -331,6 +293,47 @@ describe('util.ts', () => {
         'productName.v1p1beta1'.toSnakeCase(),
         'product_name_v1p1beta1'
       );
+    });
+  });
+
+  describe('array manipulation', () => {
+    it('convert to camel case except last element', () => {
+      it('should convert to camelCase before dot', () => {
+        assert.deepStrictEqual([''].camelCaseBeforeDot(), '');
+        assert.deepStrictEqual(['test'].camelCaseBeforeDot(), 'test');
+        assert.deepStrictEqual(
+          ['camelCaseString'].camelCaseBeforeDot(),
+          'camelCaseString'
+        );
+        assert.deepStrictEqual(
+          ['PascalCaseString'].camelCaseBeforeDot(),
+          'pascalCaseString'
+        );
+        assert.deepStrictEqual(
+          ['snake_case_string'].camelCaseBeforeDot(),
+          'snakeCaseString'
+        );
+        assert.deepStrictEqual(
+          ['kebab-case-string'].camelCaseBeforeDot(),
+          'kebabCaseString'
+        );
+        assert.deepStrictEqual(
+          ['random/separators-string'].camelCaseBeforeDot(),
+          'randomSeparatorsString'
+        );
+        assert.deepStrictEqual(
+          ['mixedType-string', 'SomewhatWeird'].camelCaseBeforeDot(),
+          'mixedTypeString!.SomewhatWeird'
+        );
+        assert.deepStrictEqual(
+          ['productName', 'v1p1beta1'].camelCaseBeforeDot(),
+          'productName!.v1p1beta1'
+        );
+        assert.deepStrictEqual(
+          ['product_key', 'lower_name', 'v1p1beta1'].camelCaseBeforeDot(),
+          'productKey!.lowerName!.v1p1beta1'
+        );
+      });
     });
   });
 });
