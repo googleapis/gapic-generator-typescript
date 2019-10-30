@@ -397,8 +397,7 @@ function augmentMethod(
   if (method.options && method.options['.google.api.http']) {
     const httpRule = method.options['.google.api.http'];
     method.headerRequestParams = getHeaderParams(httpRule);
-  }
-  else method.headerRequestParams = [];
+  } else method.headerRequestParams = [];
   return method;
 }
 
