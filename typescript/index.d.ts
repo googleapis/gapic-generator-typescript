@@ -22,5 +22,5 @@ interface String {
 }
 
 interface Array<T> {
-  camelCaseBeforeDot(): string;
+  camelCaseBeforeDot(this: string[], joiner: string): string;
 }

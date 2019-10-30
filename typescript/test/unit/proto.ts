@@ -15,26 +15,26 @@
 import * as assert from 'assert';
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { getHeaderParms } from '../../src/schema/proto';
+import { getHeaderParams } from '../../src/schema/proto';
 
 describe('schema/proto.ts', () => {
-  it('get header parameters from http rule', () => {
-    it('no parameter ', () => {
+  it('should get header parameters from http rule', () => {
+    it('works with no parameter ', () => {
       const httpRule: plugin.google.api.IHttpRule = {};
       httpRule.post = '{=abc/*/d/*/ef/}';
-      assert.strictEqual([], getHeaderParms(httpRule));
+      assert.strictEqual([], getHeaderParams(httpRule));
     });
-    it('only one parameter ', () => {
+    it('works only one parameter ', () => {
       const httpRule: plugin.google.api.IHttpRule = {};
       httpRule.post = '{param1=abc/*/d/*/ef/}';
-      assert.strictEqual(['param1'], getHeaderParms(httpRule));
+      assert.strictEqual(['param1'], getHeaderParams(httpRule));
     });
-    it('multiple parameter ', () => {
+    it('works with multiple parameter ', () => {
       const httpRule: plugin.google.api.IHttpRule = {};
       httpRule.post = '{param1.param2.param3=abc/*/d/*/ef/}';
       assert.strictEqual(
         ['param1', 'param2', 'param3'],
-        getHeaderParms(httpRule)
+        getHeaderParams(httpRule)
       );
     });
   });

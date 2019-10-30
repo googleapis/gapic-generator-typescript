@@ -2,6 +2,7 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 import { CommentsMap } from './comments';
 import * as objectHash from 'object-hash';
 import { milliseconds } from '../util';
+import { METHODS } from 'http';
 
 const defaultNonIdempotentRetryCodesName = 'non_idempotent';
 const defaultNonIdempotentCodes: plugin.google.rpc.Code[] = [];
@@ -289,12 +290,12 @@ function toLRInterface(type: string, inputType: string) {
   return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
 
-export function getHeaderParms(rule: plugin.google.api.IHttpRule): string[] {
+export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {
   const message =
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
   if (message) {
-    const res = message.match(/{(.*?)(?==)/);
-    return res && res[0] ? res[0].split('.') : [];
+    const res = message.match(/{(.*?)=/);
+    return res && res[1] ? res[1].split('.') : [];
   }
   return [];
 }
@@ -395,8 +396,9 @@ function augmentMethod(
   }
   if (method.options && method.options['.google.api.http']) {
     const httpRule = method.options['.google.api.http'];
-    method.headerRequestParams = getHeaderParms(httpRule);
+    method.headerRequestParams = getHeaderParams(httpRule);
   }
+  else method.headerRequestParams = [];
   return method;
 }
 
