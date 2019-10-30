@@ -2,7 +2,6 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 import { CommentsMap } from './comments';
 import * as objectHash from 'object-hash';
 import { milliseconds } from '../util';
-import { METHODS } from 'http';
 
 const defaultNonIdempotentRetryCodesName = 'non_idempotent';
 const defaultNonIdempotentCodes: plugin.google.rpc.Code[] = [];
