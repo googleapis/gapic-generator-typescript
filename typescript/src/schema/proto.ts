@@ -1,7 +1,8 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { CommentsMap } from './comments';
+import { CommentsMap, Comment } from './comments';
 import * as objectHash from 'object-hash';
 import { milliseconds } from '../util';
+import { FileSystemLoader } from 'nunjucks';
 
 const defaultNonIdempotentRetryCodesName = 'non_idempotent';
 const defaultNonIdempotentCodes: plugin.google.rpc.Code[] = [];
@@ -37,13 +38,14 @@ interface MethodDescriptorProto
   pagingResponseType?: string;
   inputInterface: string;
   outputInterface: string;
-  comments: string;
+  comments: string[];
+  // paramComments include comments for all input field
+  paramComment?: Comment[];
   methodConfig: plugin.grpc.service_config.MethodConfig;
   retryableCodesName: string;
   retryParamsName: string;
   timeoutMillis?: number;
 }
-
 export class RetryableCodeMap {
   codeEnumMapping: { [index: string]: string };
   uniqueCodesNamesMap: { [uniqueName: string]: string };
@@ -157,7 +159,7 @@ interface ServiceDescriptorProto
   hostname: string;
   port: number;
   oauthScopes: string[];
-  comments: string;
+  comments: string[];
   pathTemplates: ResourceDescriptor[];
   commentsMap: CommentsMap;
   retryableCodeMap: RetryableCodeMap;
@@ -281,6 +283,13 @@ function toInterface(type: string) {
   return type.replace(/\.([^.]+)$/, '.I$1');
 }
 
+// convert from input interface to message name
+// eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
+function toMessageName(messageType: string): string{
+  const arr = messageType.split('.');
+  return arr[arr.length - 1];
+}
+
 // Convert long running type to the interface
 // eg: WaitResponse -> .google.showcase.v1beta1.IWaitResponse
 // eg: WaitMetadata -> .google.showcase.v1beta1.IWaitMetadata
@@ -329,7 +338,7 @@ function augmentMethod(
       pagingResponseType: pagingResponseType(messages, method),
       inputInterface: toInterface(method.inputType!),
       outputInterface: toInterface(method.outputType!),
-      comments: service.commentsMap.getMethodComments(method.name!),
+      comments: service.commentsMap.getMethodComments(service.name!, method.name!),
       methodConfig: getMethodConfig(
         service.grpcServiceConfig,
         `${service.packageName}.${service.name!}`,
@@ -340,6 +349,16 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+  if(method.inputType && messages[method.inputType].field){
+    const paramComment: Comment[] = [];
+    const inputType = messages[method.inputType!];
+    const messageName = toMessageName(method.inputType);
+    for(const field of inputType.field!){
+      const comment = service.commentsMap.getParamComments(messageName, field.name!);
+      paramComment.push(comment);
+    }
+    method.paramComment = paramComment;
+  }
   if (
     method.methodConfig.retryPolicy &&
     method.methodConfig.retryPolicy.retryableStatusCodes
@@ -520,7 +539,6 @@ export class Proto {
         },
         {} as EnumsMap
       );
-
     this.fileToGenerate = fd.package
       ? fd.package.startsWith(packageName)
       : false;
