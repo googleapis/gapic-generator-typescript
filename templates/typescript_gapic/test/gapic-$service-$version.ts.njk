@@ -1,23 +1,27 @@
 {% import "../_license.njk" as license -%}
+{% import "../_util.njk" as util -%}
 {{license.license()}}
-'use strict';
-
-const assert = require('assert');
+import * as protosTypes from '../protos/protos';
+import * as assert from 'assert';
 const {{ service.name.toLowerCase() }}Module = require('../src');
 {% if (service.streaming.length > 0) %}
-const {PassThrough} = require('stream');
+import {PassThrough} from 'stream';
 {% endif %}
 
 const FAKE_STATUS_CODE = 1;
 class FakeError{
+    name: string;
+    message: string;
     code: number;
     constructor(n: number){
+        this.name = 'fakeName';
+        this.message = 'fake message';
         this.code = n;
     }
 }
 const error = new FakeError(FAKE_STATUS_CODE);
 export interface Callback {
-  (err: FakeError|null, response?: {} | null): {};
+  (err: FakeError|null, response?: {} | null): void;
 }
 
 export class Operation{
@@ -127,7 +131,7 @@ describe('{{ service.name }}Client', () => {
                 projectId: 'bogus', 
             });
             // Mock request
-            const request = {};
+            {{ util.initRequestWithHeaderParam(method) }}
             // Mock response
             const expectedResponse = {};
             // Mock gRPC layer
@@ -149,7 +153,7 @@ describe('{{ service.name }}Client', () => {
                 projectId: 'bogus', 
             });
             // Mock request
-            const request = {};
+            {{ util.initRequestWithHeaderParam(method) }}
             // Mock response
             const expectedResponse = {};
             // Mock gRPC layer
@@ -175,7 +179,7 @@ describe('{{ service.name }}Client', () => {
                 projectId: 'bogus', 
             });
             // Mock request
-            const request = {};
+            {{ util.initRequestWithHeaderParam(method) }}
             // Mock response
             const expectedResponse = {};
             // Mock gRPC layer
@@ -200,7 +204,7 @@ describe('{{ service.name }}Client', () => {
                 projectId: 'bogus', 
             });
             // Mock request
-            const request = {};
+            {{ util.initRequestWithHeaderParam(method) }}
             // Mock response
             const expectedResponse = {};
             // Mock gRPC layer
@@ -320,7 +324,7 @@ describe('{{ service.name }}Client', () => {
                 projectId: 'bogus', 
             });
             // Mock request
-            const request = {};
+            {{ util.initRequestWithHeaderParam(method) }}
             // Mock response
             const expectedResponse = {};
             // Mock Grpc layer

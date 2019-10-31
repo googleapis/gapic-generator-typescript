@@ -105,3 +105,14 @@ String.prototype.toSnakeCase = function(this: string): string {
   }
   return words.join('_');
 };
+
+Array.prototype.camelCaseBeforeDot = function(
+  this: string[],
+  joiner: string
+): string {
+  if (this.length <= 1) {
+    return this.toString().toCamelCase();
+  }
+  const res = this.slice(0, -1).map(w => w.toCamelCase());
+  return res.join(joiner) + joiner + this[this.length - 1];
+};

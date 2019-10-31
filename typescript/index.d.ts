@@ -20,3 +20,7 @@ interface String {
   toKebabCase(): string;
   toSnakeCase(): string;
 }
+
+interface Array<T> {
+  camelCaseBeforeDot(this: string[], joiner: string): string;
+}

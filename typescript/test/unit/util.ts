@@ -295,4 +295,45 @@ describe('util.ts', () => {
       );
     });
   });
+
+  describe('array manipulation', () => {
+    it('should convert to camel case except last element', () => {
+      it('should convert to camelCase before dot', () => {
+        assert.deepStrictEqual([''].camelCaseBeforeDot('!.'), '');
+        assert.deepStrictEqual(['test'].camelCaseBeforeDot('!.'), 'test');
+        assert.deepStrictEqual(
+          ['camelCaseString'].camelCaseBeforeDot('!.'),
+          'camelCaseString'
+        );
+        assert.deepStrictEqual(
+          ['PascalCaseString'].camelCaseBeforeDot('!.'),
+          'pascalCaseString'
+        );
+        assert.deepStrictEqual(
+          ['snake_case_string'].camelCaseBeforeDot('!.'),
+          'snakeCaseString'
+        );
+        assert.deepStrictEqual(
+          ['kebab-case-string'].camelCaseBeforeDot('!.'),
+          'kebabCaseString'
+        );
+        assert.deepStrictEqual(
+          ['random/separators-string'].camelCaseBeforeDot('!.'),
+          'randomSeparatorsString'
+        );
+        assert.deepStrictEqual(
+          ['mixedType-string', 'SomewhatWeird'].camelCaseBeforeDot('!.'),
+          'mixedTypeString!.SomewhatWeird'
+        );
+        assert.deepStrictEqual(
+          ['productName', 'v1p1beta1'].camelCaseBeforeDot('!.'),
+          'productName!.v1p1beta1'
+        );
+        assert.deepStrictEqual(
+          ['product_key', 'lower_name', 'v1p1beta1'].camelCaseBeforeDot('!.'),
+          'productKey!.lowerName!.v1p1beta1'
+        );
+      });
+    });
+  });
 });

@@ -13,4 +13,8 @@ gapic-generator-typescript \
   --output-dir /out \
   $* \
   `find /in -name '*.proto'`
+
+# The proto.list is only needed for generation, removing it
+rm -f /out/proto.list
+
 exit 0
