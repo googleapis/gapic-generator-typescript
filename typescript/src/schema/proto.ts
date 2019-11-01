@@ -286,7 +286,7 @@ function toInterface(type: string) {
 
 // convert from input interface to message name
 // eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
-function toMessageName(messageType: string): string{
+function toMessageName(messageType: string): string {
   const arr = messageType.split('.');
   return arr[arr.length - 1];
 }
@@ -349,7 +349,10 @@ function augmentMethod(
       pagingResponseType: pagingResponseType(messages, method),
       inputInterface: toInterface(method.inputType!),
       outputInterface: toInterface(method.outputType!),
-      comments: service.commentsMap.getMethodComments(service.name!, method.name!),
+      comments: service.commentsMap.getMethodComments(
+        service.name!,
+        method.name!
+      ),
       methodConfig: getMethodConfig(
         service.grpcServiceConfig,
         `${service.packageName}.${service.name!}`,
@@ -360,12 +363,15 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
-  if(method.inputType && messages[method.inputType].field){
+  if (method.inputType && messages[method.inputType].field) {
     const paramComment: Comment[] = [];
     const inputType = messages[method.inputType!];
     const messageName = toMessageName(method.inputType);
-    for(const field of inputType.field!){
-      const comment = service.commentsMap.getParamComments(messageName, field.name!);
+    for (const field of inputType.field!) {
+      const comment = service.commentsMap.getParamComments(
+        messageName,
+        field.name!
+      );
       paramComment.push(comment);
     }
     method.paramComment = paramComment;

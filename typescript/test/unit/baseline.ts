@@ -52,7 +52,7 @@ const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
 describe('CodeGeneratorBaselineTest', () => {
   describe('Generate client library', () => {
-    it.only('Generated library should have same client with baseline.', function() {
+    it('Generated library should have same client with baseline.', function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);
