@@ -13,7 +13,12 @@
 {%- macro printCommentsForParams(method) -%}
 {%- set commentsMap = method.paramComment -%}
 {%- for oneComment in commentsMap %}
- * @param { {{- oneComment.paramType.match('_([^_]+)$')[1].toLowerCase() -}} } request.{{ oneComment.paramName }}
+{%- set type = oneComment.paramType %}
+{%- if type.startsWith('.') %}
+ * @param { {{- type.substring(1) -}} } request.{{ oneComment.paramName }}
+{%- else %}
+ * @param { {{- convertParamType(oneComment.paramType) -}} } request.{{ oneComment.paramName }}
+{%- endif %}
 {%- set lines = oneComment.comments -%}
 {%- for line in lines %} 
  * {{ line.replaceAll('*/', '* /') }} 
@@ -26,4 +31,22 @@
 {%- for line in lines %}
  * {{ line }}
 {%- endfor %}
+{%- endmacro -%}
+
+{%- macro printRequest() %}
+ * @param {Object} request
+ *  The request object that will be sent.
+{%- endmacro -%}
+
+{%- macro convertParamType(paramType) -%}
+{%- if paramType.includes('TYPE_BYTES') %}
+{%- set type = paramType.replace('TYPE_BYTES', 'Buffer') %}
+{%- elif paramType.includes('TYPE_BOOL') %}
+{%- set type = paramType.replace('TYPE_BOOL', 'boolean') %}
+{%- elif paramType.includes('TYPE_STRING') %}
+{%- set type = paramType.replace('TYPE_STRING', 'string') %}
+{%- else %}
+{%- set type = 'number' %}
+{%- endif %}
+          {{- type -}}
 {%- endmacro -%}

@@ -90,14 +90,21 @@ export class CommentsMap {
               const field = fd.messageType[p[1]].field![p[3]];
               // console.warn(field);
               if (field) {
-                const paramType = field.type
-                  ? plugin.google.protobuf.FieldDescriptorProto.Type[
-                      field.type!
-                    ]
-                  : 'Object';
+                //Type Enum: TYPE_STRING, TYPE_BOOL, etc.
+                let paramType =
+                  plugin.google.protobuf.FieldDescriptorProto.Type[field.type!];
+                // If field.label is 'REPEATED' then the paramType is an array.
+                if (field.label === 3) {
+                  paramType += '[]';
+                }
                 const paramName = field.name || '';
-                // const key = serviceName + ':' + methodName + ':' + paramName;
-                // console.warn(key);
+                if (
+                  paramType === 'TYPE_MESSAGE' ||
+                  paramType === 'TYPE_ENUM' ||
+                  paramType === 'TYPE_GROUP'
+                ) {
+                  paramType = field.typeName!;
+                }
                 const comments = (location.leadingComments || '').split('\n');
                 const fieldComment: Comment = {
                   paramName,
