@@ -294,6 +294,19 @@ describe('util.ts', () => {
         'product_name_v1p1beta1'
       );
     });
+
+    it('should replace all search item with replacement', () => {
+      assert.deepStrictEqual(''.replaceAll('', 'success'), '');
+      assert.deepStrictEqual('Read me'.replaceAll('me', 'this'), 'Read this');
+      assert.deepStrictEqual(
+        'This is a Test'.replaceAll('T', 't'),
+        'this is a test'
+      );
+      assert.deepStrictEqual(
+        'location*/address*/room/*'.replaceAll('*/', '* /'),
+        'location* /address* /room/*'
+      );
+    });
   });
 
   describe('array manipulation', () => {
