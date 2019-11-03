@@ -25,7 +25,7 @@ network service.
 Download the proto files locally (the following examples work in Linux or macOS):
 
 ```sh
-$ curl -L https://github.com/googleapis/gapic-showcase/releases/download/v0.6.0/gapic-showcase-0.6.0-protos.tar.gz | tar xz
+$ curl -L https://github.com/googleapis/gapic-showcase/releases/download/v0.6.1/gapic-showcase-0.6.1-protos.tar.gz | tar xz
 ```
 
 ### Run the generator to generate TypeScript libraries
@@ -52,12 +52,12 @@ $ npm test     # run unit tests
 ### Start the server that serves an API
 
 Download the pre-compiled binary for your operating system from the
-[Releases](https://github.com/googleapis/gapic-showcase/releases/tag/v0.6.0) page
+[Releases](https://github.com/googleapis/gapic-showcase/releases/tag/v0.6.1) page
 and start the binary, or just use Docker:
 
 ```sh
 # in another window
-$ docker run -p 7469:7469/tcp -p 7469:7469/udp -p 1337:1337/tcp --rm gcr.io/gapic-images/gapic-showcase:0.6.0
+$ docker run -p 7469:7469/tcp -p 7469:7469/udp -p 1337:1337/tcp --rm gcr.io/gapic-images/gapic-showcase:0.6.1
 ```
 
 ### Write your JavaScript or TypeScript code that uses the server!
