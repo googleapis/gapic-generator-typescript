@@ -36,7 +36,7 @@ export class CommentsMap {
           if (p.length === 2 && p[0] === 6) {
             if (fd.service && fd.service[p[1]] && fd.service[p[1]].name) {
               const serviceName = fd.service[p[1]].name!;
-              const comments = (location.leadingComments || '').split('\n');
+              const comments = (location.leadingComments || '').split('\n').slice(0, -1);
               const serviceComment: Comment = {
                 paramName: '',
                 paramType: '',
@@ -105,7 +105,7 @@ export class CommentsMap {
                 ) {
                   paramType = field.typeName!;
                 }
-                const comments = (location.leadingComments || '').split('\n');
+                const comments = (location.leadingComments || '').split('\n').slice(0, -1);
                 const fieldComment: Comment = {
                   paramName,
                   paramType,

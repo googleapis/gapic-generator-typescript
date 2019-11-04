@@ -12,30 +12,37 @@
 
 {%- macro printCommentsForParams(method) -%}
 {%- set commentsMap = method.paramComment -%}
-{%- for oneComment in commentsMap %}
-{%- set type = oneComment.paramType %}
+{%- for oneComment in commentsMap -%}
+{%- set type = oneComment.paramType -%}
 {%- if type.startsWith('.') %}
  * @param { {{- type.substring(1) -}} } request.{{ oneComment.paramName }}
 {%- else %}
  * @param { {{- convertParamType(oneComment.paramType) -}} } request.{{ oneComment.paramName }}
-{%- endif %}
+{%- endif -%}
 {%- set lines = oneComment.comments -%}
 {%- for line in lines %} 
- * {{ line.replaceAll('*/', '* /') }} 
-{%- endfor %}
-{%- endfor %}
+ *  {{ line.replaceAll('*/', '* /') | safe}} 
+{%- endfor -%}
+{%- endfor -%}
 {%- endmacro -%}
 
 {%- macro printCommentsForMethod(method) -%}
 {%- set lines = method.comments -%}
-{%- for line in lines %}
- * {{ line }}
+{% for line in lines %}
+ *{{ line | safe}}
+{%- endfor %}
+{%- endmacro -%}
+
+{%- macro printCommentsForService(service) -%}
+{%- set lines = service.comments -%}
+{% for line in lines %}
+   * {{ line | safe}}
 {%- endfor %}
 {%- endmacro -%}
 
 {%- macro printRequest() %}
  * @param {Object} request
- *  The request object that will be sent.
+ *   The request object that will be sent.
 {%- endmacro -%}
 
 {%- macro printReturn() %}
