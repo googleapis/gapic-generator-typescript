@@ -230,6 +230,13 @@ function longRunningMetadataType(method: MethodDescriptorProto) {
   return undefined;
 }
 
+// convert from input interface to message name
+// eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
+function toMessageName(messageType: string): string {
+  const arr = messageType.split('.');
+  return arr[arr.length - 1];
+}
+
 function streaming(method: MethodDescriptorProto) {
   if (method.serverStreaming && method.clientStreaming) {
     return 'BIDI_STREAMING';
