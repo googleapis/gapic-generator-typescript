@@ -278,10 +278,6 @@ function pagingResponseType(
   return undefined;
 }
 
-function toInterface(type: string) {
-  return type.replace(/\.([^.]+)$/, '.I$1');
-}
-
 // Convert long running type to the interface
 // eg: WaitResponse -> .google.showcase.v1beta1.IWaitResponse
 // eg: WaitMetadata -> .google.showcase.v1beta1.IWaitMetadata
@@ -338,8 +334,8 @@ function augmentMethod(
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(messages, method),
       pagingResponseType: pagingResponseType(messages, method),
-      inputInterface: toInterface(method.inputType!),
-      outputInterface: toInterface(method.outputType!),
+      inputInterface: method.inputType!,
+      outputInterface: method.outputType!,
       comments: service.commentsMap.getMethodComments(method.name!),
       methodConfig: getMethodConfig(
         service.grpcServiceConfig,
