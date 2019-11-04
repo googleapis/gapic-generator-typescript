@@ -366,10 +366,10 @@ function augmentMethod(
   if (method.inputType && messages[method.inputType].field) {
     const paramComment: Comment[] = [];
     const inputType = messages[method.inputType!];
-    const messageName = toMessageName(method.inputType);
+    const inputmessageName = toMessageName(method.inputType);
     for (const field of inputType.field!) {
       const comment = service.commentsMap.getParamComments(
-        messageName,
+        inputmessageName,
         field.name!
       );
       paramComment.push(comment);
