@@ -199,10 +199,7 @@ function longrunning(method: MethodDescriptorProto) {
 function longRunningResponseType(method: MethodDescriptorProto) {
   if (method.options && method.options['.google.longrunning.operationInfo']) {
     if (method.options['.google.longrunning.operationInfo'].responseType) {
-      return toLRInterface(
-        method.options['.google.longrunning.operationInfo'].responseType,
-        method.inputType!.toString()
-      );
+      return method.options['.google.longrunning.operationInfo'].responseType;
     }
   }
   return undefined;
@@ -211,10 +208,7 @@ function longRunningResponseType(method: MethodDescriptorProto) {
 function longRunningMetadataType(method: MethodDescriptorProto) {
   if (method.options && method.options['.google.longrunning.operationInfo']) {
     if (method.options['.google.longrunning.operationInfo'].metadataType) {
-      return toLRInterface(
-        method.options['.google.longrunning.operationInfo'].metadataType,
-        method.inputType!.toString()
-      );
+      return method.options['.google.longrunning.operationInfo'].metadataType;
     }
   }
   return undefined;
@@ -276,13 +270,6 @@ function pagingResponseType(
     return typeName.replace(/\.([^.]+)$/, '.I$1');
   }
   return undefined;
-}
-
-// Convert long running type to the interface
-// eg: WaitResponse -> .google.showcase.v1beta1.IWaitResponse
-// eg: WaitMetadata -> .google.showcase.v1beta1.IWaitMetadata
-function toLRInterface(type: string, inputType: string) {
-  return inputType.replace(/\.([^.]+)$/, '.I' + type);
 }
 
 export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {

@@ -1,5 +1,5 @@
 {%- macro initRequestWithHeaderParam(method) -%}
-            const request: protosTypes{{ method.inputInterface }} = {};
+            const request: protosTypes{{ toInterface(method.inputInterface) }} = {};
 {%- if method.headerRequestParams.length > 1 %}
 {%- set chain = "request" -%}
 {%- for field in method.headerRequestParams.slice(0, -1) %}
@@ -10,7 +10,12 @@
 {%- endif %}
 {%- endmacro -%}
 
-{%- macro toInterface(inputType) -%}
-{%- set inputType = inputType | replace('\.([^.]+)$', '.I$1') -%}
-    {{ inputType }}
+{%- macro toInterface(type) -%}
+{%- set index = type.lastIndexOf('.') -%}
+{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
+{%- endmacro -%}
+
+{%- macro toLRInterface(type, inputType) -%}
+{%- set index = inputType.lastIndexOf('.') -%}
+{{ inputType.substring(0, index + 1) + 'I' + type }}
 {%- endmacro -%}
