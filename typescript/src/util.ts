@@ -120,6 +120,14 @@ String.prototype.toSnakeCase = function(this: string): string {
   return words.join('_');
 };
 
+String.prototype.replaceAll = function(
+  this: string,
+  search: string,
+  replacement: string
+) {
+  return this.split(search).join(replacement);
+};
+
 Array.prototype.camelCaseBeforeDot = function(
   this: string[],
   joiner: string

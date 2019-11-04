@@ -26,3 +26,104 @@ limitations under the License.
             {{ chain }}.{{ method.headerRequestParams.slice(-1)[0] }} = '';
 {%- endif %}
 {%- endmacro -%}
+
+{%- macro printCommentsForParams(method) -%}
+{%- set commentsMap = method.paramComment -%}
+{%- for oneComment in commentsMap -%}
+{%- set type = oneComment.paramType -%}
+{%- if type.startsWith('.') %}
+ * @param { {{- type.substring(1) -}} } request.{{ oneComment.paramName }}
+{%- else %}
+ * @param { {{- convertParamType(oneComment.paramType) -}} } request.{{ oneComment.paramName }}
+{%- endif -%}
+{%- set lines = oneComment.comments -%}
+{%- for line in lines %} 
+ *  {{ line.replaceAll('*/', '* /') | safe}} 
+{%- endfor -%}
+{%- endfor -%}
+{%- endmacro -%}
+
+{%- macro printCommentsForMethod(method) -%}
+{%- set lines = method.comments -%}
+{% for line in lines %}
+ *{{ line | safe}}
+{%- endfor %}
+{%- endmacro -%}
+
+{%- macro printCommentsForService(service) -%}
+{%- set lines = service.comments -%}
+{% for line in lines %}
+   * {{ line | safe}}
+{%- endfor %}
+{%- endmacro -%}
+
+{%- macro printRequest() %}
+ * @param {Object} request
+ *   The request object that will be sent.
+{%- endmacro -%}
+
+{%- macro printReturn(method, service) -%}
+{%- if method.longRunning %}
+{{- printReturnSimpleMethod(method) }}
+{%- elif method.serverStreaming and method.clientStreaming %}
+{{- printReturnBidiStreamingMethod(method) }}
+{%- elif method in service.paging %}
+{{- printReturnPagingServerMethod(method) }}
+{%- elif method.serverStreaming %}
+{{- printReturnPagingServerMethod(method) }}
+{%- elif method.clientStreaming %}
+{{- printReturnClientStreamingMethod(method) }}
+{%- else %}
+{{- printReturnSimpleMethod(method) }}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro printReturnSimpleMethod(method) %}
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+{%- endmacro -%}
+
+{%- macro printReturnPagingServerMethod(method) %}
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}}.
+ *   
+ *   When autoPaginate: false is specified through options, the array has three elements.
+ *   The first element is Array of [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}} in a single response.
+ *   The second element is the next request object if the response
+ *   indicates the next page exists, or null. The third element is
+ *   an object representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}}.
+ *
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+{%- endmacro -%}
+
+
+{%- macro printReturnClientStreamingMethod(method) %}
+ * @returns {Stream} - A writable stream which accepts objects representing 
+ * [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}}.
+{%- endmacro -%}
+
+{%- macro printReturnBidiStreamingMethod(method) %}
+ * @returns {Stream} 
+ *   An object stream which is both readable and writable. It accepts objects
+ *   representing [[{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}} for write() method, and
+ *   will emit objects representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}} on 'data' event asynchronously.
+{%- endmacro -%}
+
+{%- macro toMessageName(messageType) -%}
+{%- set arr = messageType.split('.') %}
+{{- arr[arr.length - 1] -}}
+{%- endmacro -%}
+
+{%- macro convertParamType(paramType) -%}
+{%- if paramType.includes('TYPE_BYTES') %}
+{%- set type = paramType.replace('TYPE_BYTES', 'Buffer') %}
+{%- elif paramType.includes('TYPE_BOOL') %}
+{%- set type = paramType.replace('TYPE_BOOL', 'boolean') %}
+{%- elif paramType.includes('TYPE_STRING') %}
+{%- set type = paramType.replace('TYPE_STRING', 'string') %}
+{%- else %}
+{%- set type = 'number' %}
+{%- endif %}
+          {{- type -}}
+{%- endmacro -%}

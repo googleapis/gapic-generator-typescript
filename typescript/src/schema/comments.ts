@@ -13,8 +13,20 @@
 // limitations under the License.
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
+
+// For one comment in service and method level, paramName & paramName will be ''.
+// Only field has name and type of parameters.
+export interface Comment {
+  paramName: string;
+  paramType: string;
+  comments: string[];
+}
+
+// For service, one item will be <serviceName, comment>
+// For method, one item will be <serviceName:methodName, comment>
+// For field, one item will be <messageInputType:fieldname, comment>
 export interface Comments {
-  [name: string]: string;
+  [name: string]: Comment;
 }
 
 export class CommentsMap {
@@ -37,10 +49,18 @@ export class CommentsMap {
           const p = location.path!;
           if (p.length === 2 && p[0] === 6) {
             if (fd.service && fd.service[p[1]] && fd.service[p[1]].name) {
-              commentsMap[fd.service[p[1]].name! + 'Service'] =
-                location.leadingComments || '';
+              const serviceName = fd.service[p[1]].name!;
+              const comments = (location.leadingComments || '')
+                .split('\n')
+                .slice(0, -1);
+              const serviceComment: Comment = {
+                paramName: '',
+                paramType: '',
+                comments,
+              };
+              commentsMap[serviceName] = serviceComment;
             }
-          } else if (p.length === 4 && p[2] === 2) {
+          } else if (p.length === 4 && p[2] === 2 && p[0] === 6) {
             if (
               fd.service &&
               fd.service[p[1]] &&
@@ -48,9 +68,69 @@ export class CommentsMap {
               fd.service[p[1]].method![p[3]] &&
               fd.service[p[1]].method![p[3]].name
             ) {
-              const name = fd.service[p[1]].method![p[3]].name!;
-              if (!commentsMap[name]) {
-                commentsMap[name] = location.leadingComments || '';
+              const serviceName = fd.service[p[1]].name!;
+              // add method comment into the map
+              const methodName = fd.service[p[1]].method![p[3]].name!;
+              if (!commentsMap[methodName]) {
+                const comments = (location.leadingComments || '').split('\n');
+                const key = serviceName + ':' + methodName;
+                const methodComment: Comment = {
+                  paramName: '',
+                  paramType: '',
+                  comments,
+                };
+                commentsMap[key] = methodComment;
+              }
+            }
+          } else if (p.length === 4 && p[0] === 4 && p[2] === 2) {
+            // This contains a field's information
+            // example, this path:
+            //   [ 4, 3, 2, 7, 1 ]
+            // refers to:
+            //   file.message_type(3)  // 4, 3
+            //       .field(7)         // 2, 7
+            //       .name()           // 1
+            // This is because FileDescriptorProto.message_type has field number 4:
+            //   repeated DescriptorProto message_type = 4;
+            // and DescriptorProto.field has field number 2:
+            //   repeated FieldDescriptorProto field = 2;
+            // and FieldDescriptorProto.name has field number 1:
+            //   optional string name = 1;
+            if (
+              fd.messageType &&
+              fd.messageType[p[1]] &&
+              fd.messageType[p[1]].field &&
+              fd.messageType[p[1]].field![p[3]]
+            ) {
+              const messageType = fd.messageType[p[1]].name;
+              const field = fd.messageType[p[1]].field![p[3]];
+              // console.warn(field);
+              if (field) {
+                //Type Enum: TYPE_STRING, TYPE_BOOL, etc.
+                let paramType =
+                  plugin.google.protobuf.FieldDescriptorProto.Type[field.type!];
+                // If field.label is 'REPEATED' then the paramType is an array.
+                if (field.label === 3) {
+                  paramType += '[]';
+                }
+                const paramName = field.name || '';
+                if (
+                  paramType === 'TYPE_MESSAGE' ||
+                  paramType === 'TYPE_ENUM' ||
+                  paramType === 'TYPE_GROUP'
+                ) {
+                  paramType = field.typeName!;
+                }
+                const comments = (location.leadingComments || '')
+                  .split('\n')
+                  .slice(0, -1);
+                const fieldComment: Comment = {
+                  paramName,
+                  paramType,
+                  comments,
+                };
+                const key = messageType + ':' + field.name;
+                commentsMap[key] = fieldComment;
               }
             }
           }
@@ -63,9 +143,18 @@ export class CommentsMap {
     return this.comments;
   }
   getServiceComment(serviceName: string) {
-    return this.comments[serviceName + 'Service'].trim();
+    return this.comments[serviceName]
+      ? this.comments[serviceName].comments
+      : [];
   }
-  getMethodComments(methodName: string): string {
-    return this.comments[methodName].trim();
+  getMethodComments(serviceName: string, methodName: string) {
+    const key = serviceName + ':' + methodName;
+    return this.comments[key] ? this.comments[key].comments : [];
+  }
+  getParamComments(messageName: string, fieldName: string): Comment {
+    const key = messageName + ':' + fieldName;
+    return this.comments[key]
+      ? this.comments[key]
+      : { paramName: '', paramType: '', comments: [] };
   }
 }

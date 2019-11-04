@@ -65,12 +65,12 @@ export interface PaginationResponse<
 }
 
 export class EchoClient {
-  /*
-  This service is used showcase the four main types of rpcs - unary, server
- side streaming, client side streaming, and bidirectional streaming. This
- service also exposes methods that explicitly implement server delay, and
- paginated calls.
-  */
+  /**
+   *  This service is used showcase the four main types of rpcs - unary, server
+   *  side streaming, client side streaming, and bidirectional streaming. This
+   *  service also exposes methods that explicitly implement server delay, and
+   *  paginated calls.
+   */
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   auth: gax.GoogleAuth;
@@ -286,9 +286,17 @@ export class EchoClient {
   // -------------------
   // -- Service calls --
   // -------------------
-  /*
-  This method simply echos the request. This method is showcases unary rpcs. 
-  */
+/**
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.content 
+ *   The content to be echoed by the server.
+ * @param {google.rpc.Status} request.error 
+ *   The error to be thrown by the server.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [EchoResponse]{@link google.showcase.v1beta1.EchoResponse}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   echo(
       request: protosTypes.google.showcase.v1beta1.IEchoRequest,
       options?: gax.CallOptions):
@@ -329,10 +337,27 @@ export class EchoClient {
     return this._innerApiCalls.echo(request, options, callback);
   }
 
-  /*
-  This method split the given content into words and will pass each word back
- through the stream. This method showcases server-side streaming rpcs. 
-  */
+/**
+ * This method split the given content into words and will pass each word back
+ * through the stream. This method showcases server-side streaming rpcs.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.content 
+ *   The content that will be split into words and returned on the stream.
+ * @param {google.rpc.Status} request.error 
+ *   The error that is thrown after all words are sent on the stream.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [EchoResponse]{@link google.showcase.v1beta1.EchoResponse}.
+ *   
+ *   When autoPaginate: false is specified through options, the array has three elements.
+ *   The first element is Array of [EchoResponse]{@link google.showcase.v1beta1.EchoResponse} in a single response.
+ *   The second element is the next request object if the response
+ *   indicates the next page exists, or null. The third element is
+ *   an object representing [EchoResponse]{@link google.showcase.v1beta1.EchoResponse}.
+ *
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   expand(
       request?: protosTypes.google.showcase.v1beta1.IExpandRequest,
       options?: gax.CallOptions):
@@ -342,11 +367,20 @@ export class EchoClient {
     return this._innerApiCalls.expand(request, options);
   }
 
-  /*
-  This method will collect the words given to it. When the stream is closed
- by the client, this method will return the a concatenation of the strings
- passed to it. This method showcases client-side streaming rpcs. 
-  */
+/**
+ * This method will collect the words given to it. When the stream is closed
+ * by the client, this method will return the a concatenation of the strings
+ * passed to it. This method showcases client-side streaming rpcs.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.content 
+ *   The content to be echoed by the server.
+ * @param {google.rpc.Status} request.error 
+ *   The error to be thrown by the server.
+ * @returns {Stream} - A writable stream which accepts objects representing 
+ * [EchoResponse]{@link google.showcase.v1beta1.EchoResponse}.
+ */
   collect(
       options: gax.CallOptions,
       callback: Callback<
@@ -374,11 +408,22 @@ export class EchoClient {
     return this._innerApiCalls.collect(null, optionsOrCallback, callback);
   }
 
-  /*
-  This method, upon receiving a request on the stream, the same content will
- be passed  back on the stream. This method showcases bidirectional
- streaming rpcs. 
-  */
+/**
+ * This method, upon receiving a request on the stream, the same content will
+ * be passed  back on the stream. This method showcases bidirectional
+ * streaming rpcs.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.content 
+ *   The content to be echoed by the server.
+ * @param {google.rpc.Status} request.error 
+ *   The error to be thrown by the server.
+ * @returns {Stream} 
+ *   An object stream which is both readable and writable. It accepts objects
+ *   representing [[EchoResponse]{@link google.showcase.v1beta1.EchoResponse} for write() method, and
+ *   will emit objects representing [EchoResponse]{@link google.showcase.v1beta1.EchoResponse} on 'data' event asynchronously.
+ */
   chat(
       options?: gax.CallOptions):
     gax.CancellableStream{
@@ -386,10 +431,25 @@ export class EchoClient {
     return this._innerApiCalls.chat(options);
   }
 
-  /*
-  This method will wait the requested amount of and then return.
- This method showcases how a client handles a request timing out. 
-  */
+/**
+ * This method will wait the requested amount of and then return.
+ * This method showcases how a client handles a request timing out.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {google.protobuf.Timestamp} request.end_time 
+ *   The time that this operation will complete.
+ * @param {google.protobuf.Duration} request.ttl 
+ *   The duration of this operation.
+ * @param {google.rpc.Status} request.error 
+ *   The error that will be returned by the server. If this code is specified 
+ *   to be the OK rpc code, an empty response will be returned.
+ * @param {google.showcase.v1beta1.WaitResponse} request.success 
+ *   The response to be returned on operation completion.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [Operation]{@link google.longrunning.Operation}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   wait(
       request: protosTypes.google.showcase.v1beta1.IWaitRequest,
       options?: gax.CallOptions):
@@ -429,10 +489,29 @@ export class EchoClient {
     options = options || {};
     return this._innerApiCalls.wait(request, options, callback);
   }
-  /*
-  This is similar to the Expand method but instead of returning a stream of
- expanded words, this method returns a paged list of expanded words. 
-  */
+/**
+ * This is similar to the Expand method but instead of returning a stream of
+ * expanded words, this method returns a paged list of expanded words.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.content 
+ *   The string to expand.
+ * @param {number} request.page_size 
+ *   The amount of words to returned in each page.
+ * @param {string} request.page_token 
+ *   The position of the page to be returned.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [PagedExpandResponse]{@link google.showcase.v1beta1.PagedExpandResponse}.
+ *   
+ *   When autoPaginate: false is specified through options, the array has three elements.
+ *   The first element is Array of [PagedExpandResponse]{@link google.showcase.v1beta1.PagedExpandResponse} in a single response.
+ *   The second element is the next request object if the response
+ *   indicates the next page exists, or null. The third element is
+ *   an object representing [PagedExpandResponse]{@link google.showcase.v1beta1.PagedExpandResponse}.
+ *
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   pagedExpand(
       request: protosTypes.google.showcase.v1beta1.IPagedExpandRequest,
       options?: gax.CallOptions):

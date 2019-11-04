@@ -65,9 +65,9 @@ export interface PaginationResponse<
 }
 
 export class TranslationServiceClient {
-  /*
-  Provides natural language translation operations.
-  */
+  /**
+   *  Provides natural language translation operations.
+   */
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
@@ -303,9 +303,77 @@ export class TranslationServiceClient {
   // -------------------
   // -- Service calls --
   // -------------------
-  /*
-  Translates input text and returns translated text. 
-  */
+/**
+ * Translates input text and returns translated text.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string[]} request.contents 
+ *   Required. The content of the input in string format. 
+ *   We recommend the total content be less than 30k codepoints. 
+ *   Use BatchTranslateText for larger text.
+ * @param {string} request.mime_type 
+ *   Optional. The format of the source text, for example, "text/html", 
+ *    "text/plain". If left blank, the MIME type defaults to "text/html".
+ * @param {string} request.source_language_code 
+ *   Optional. The BCP-47 language code of the input text if 
+ *   known, for example, "en-US" or "sr-Latn". Supported language codes are 
+ *   listed in Language Support. If the source language isn't specified, the API 
+ *   attempts to identify the source language automatically and returns the 
+ *   source language within the response.
+ * @param {string} request.target_language_code 
+ *   Required. The BCP-47 language code to use for translation of the input 
+ *   text, set to one of the language codes listed in Language Support.
+ * @param {string} request.parent 
+ *   Required. Project or location to make a call. Must refer to a caller's 
+ *   project. 
+ *   
+ *   Format: `projects/{project-id}` or 
+ *   `projects/{project-id}/locations/{location-id}`. 
+ *   
+ *   For global calls, use `projects/{project-id}/locations/global` or 
+ *   `projects/{project-id}`. 
+ *   
+ *   Non-global location is required for requests using AutoML models or 
+ *   custom glossaries. 
+ *   
+ *   Models and glossaries must be within the same region (have same 
+ *   location-id), otherwise an INVALID_ARGUMENT (400) error is returned.
+ * @param {string} request.model 
+ *   Optional. The `model` type requested for this translation. 
+ *   
+ *   The format depends on model type: 
+ *   
+ *   - AutoML Translation models: 
+ *     `projects/{project-id}/locations/{location-id}/models/{model-id}` 
+ *   
+ *   - General (built-in) models: 
+ *     `projects/{project-id}/locations/{location-id}/models/general/nmt`, 
+ *     `projects/{project-id}/locations/{location-id}/models/general/base` 
+ *   
+ *   
+ *   For global (non-regionalized) requests, use `location-id` `global`. 
+ *   For example, 
+ *   `projects/{project-id}/locations/global/models/general/nmt`. 
+ *   
+ *   If missing, the system decides which google base model to use.
+ * @param {google.cloud.translation.v3beta1.TranslateTextGlossaryConfig} request.glossary_config 
+ *   Optional. Glossary to be applied. The glossary must be 
+ *   within the same region (have the same location-id) as the model, otherwise 
+ *   an INVALID_ARGUMENT (400) error is returned.
+ * @param {number} request.labels 
+ *   Optional. The labels with user-defined metadata for the request. 
+ *   
+ *   Label keys and values can be no longer than 63 characters 
+ *   (Unicode codepoints), can only contain lowercase letters, numeric 
+ *   characters, underscores and dashes. International characters are allowed. 
+ *   Label values are optional. Label keys must start with a letter. 
+ *   
+ *   See https://cloud.google.com/translate/docs/labels for more information.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [TranslateTextResponse]{@link google.cloud.translation.v3beta1.TranslateTextResponse}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   translateText(
       request: protosTypes.google.cloud.translation.v3beta1.ITranslateTextRequest,
       options?: gax.CallOptions):
@@ -352,9 +420,51 @@ export class TranslationServiceClient {
     });
     return this._innerApiCalls.translateText(request, options, callback);
   }
-  /*
-  Detects the language of text within a request. 
-  */
+/**
+ * Detects the language of text within a request.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent 
+ *   Required. Project or location to make a call. Must refer to a caller's 
+ *   project. 
+ *   
+ *   Format: `projects/{project-id}/locations/{location-id}` or 
+ *   `projects/{project-id}`. 
+ *   
+ *   For global calls, use `projects/{project-id}/locations/global` or 
+ *   `projects/{project-id}`. 
+ *   
+ *   Only models within the same region (has same location-id) can be used. 
+ *   Otherwise an INVALID_ARGUMENT (400) error is returned.
+ * @param {string} request.model 
+ *   Optional. The language detection model to be used. 
+ *   
+ *   Format: 
+ *   `projects/{project-id}/locations/{location-id}/models/language-detection/{model-id}` 
+ *   
+ *   Only one language detection model is currently supported: 
+ *   `projects/{project-id}/locations/{location-id}/models/language-detection/default`. 
+ *   
+ *   If not specified, the default model is used.
+ * @param {string} request.content 
+ *   The content of the input stored as a string.
+ * @param {string} request.mime_type 
+ *   Optional. The format of the source text, for example, "text/html", 
+ *   "text/plain". If left blank, the MIME type defaults to "text/html".
+ * @param {number} request.labels 
+ *   Optional. The labels with user-defined metadata for the request. 
+ *   
+ *   Label keys and values can be no longer than 63 characters 
+ *   (Unicode codepoints), can only contain lowercase letters, numeric 
+ *   characters, underscores and dashes. International characters are allowed. 
+ *   Label values are optional. Label keys must start with a letter. 
+ *   
+ *   See https://cloud.google.com/translate/docs/labels for more information.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [DetectLanguageResponse]{@link google.cloud.translation.v3beta1.DetectLanguageResponse}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   detectLanguage(
       request: protosTypes.google.cloud.translation.v3beta1.IDetectLanguageRequest,
       options?: gax.CallOptions):
@@ -401,9 +511,48 @@ export class TranslationServiceClient {
     });
     return this._innerApiCalls.detectLanguage(request, options, callback);
   }
-  /*
-  Returns a list of supported languages for translation. 
-  */
+/**
+ * Returns a list of supported languages for translation.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent 
+ *   Required. Project or location to make a call. Must refer to a caller's 
+ *   project. 
+ *   
+ *   Format: `projects/{project-id}` or 
+ *   `projects/{project-id}/locations/{location-id}`. 
+ *   
+ *   For global calls, use `projects/{project-id}/locations/global` or 
+ *   `projects/{project-id}`. 
+ *   
+ *   Non-global location is required for AutoML models. 
+ *   
+ *   Only models within the same region (have same location-id) can be used, 
+ *   otherwise an INVALID_ARGUMENT (400) error is returned.
+ * @param {string} request.display_language_code 
+ *   Optional. The language to use to return localized, human readable names 
+ *   of supported languages. If missing, then display names are not returned 
+ *   in a response.
+ * @param {string} request.model 
+ *   Optional. Get supported languages of this model. 
+ *   
+ *   The format depends on model type: 
+ *   
+ *   - AutoML Translation models: 
+ *     `projects/{project-id}/locations/{location-id}/models/{model-id}` 
+ *   
+ *   - General (built-in) models: 
+ *     `projects/{project-id}/locations/{location-id}/models/general/nmt`, 
+ *     `projects/{project-id}/locations/{location-id}/models/general/base` 
+ *   
+ *   
+ *   Returns languages supported by the specified model. 
+ *   If missing, we get supported languages of Google general base (PBMT) model.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [SupportedLanguages]{@link google.cloud.translation.v3beta1.SupportedLanguages}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   getSupportedLanguages(
       request: protosTypes.google.cloud.translation.v3beta1.IGetSupportedLanguagesRequest,
       options?: gax.CallOptions):
@@ -450,10 +599,18 @@ export class TranslationServiceClient {
     });
     return this._innerApiCalls.getSupportedLanguages(request, options, callback);
   }
-  /*
-  Gets a glossary. Returns NOT_FOUND, if the glossary doesn&#39;t
- exist. 
-  */
+/**
+ * Gets a glossary. Returns NOT_FOUND, if the glossary doesn't
+ * exist.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name 
+ *   Required. The name of the glossary to retrieve.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [Glossary]{@link google.cloud.translation.v3beta1.Glossary}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   getGlossary(
       request: protosTypes.google.cloud.translation.v3beta1.IGetGlossaryRequest,
       options?: gax.CallOptions):
@@ -501,15 +658,73 @@ export class TranslationServiceClient {
     return this._innerApiCalls.getGlossary(request, options, callback);
   }
 
-  /*
-  Translates a large volume of text in asynchronous batch mode.
- This function provides real-time output as the inputs are being processed.
- If caller cancels a request, the partial results (for an input file, it&#39;s
- all or nothing) may still be available on the specified output location.
-
- This call returns immediately and you can
- use google.longrunning.Operation.name to poll the status of the call. 
-  */
+/**
+ * Translates a large volume of text in asynchronous batch mode.
+ * This function provides real-time output as the inputs are being processed.
+ * If caller cancels a request, the partial results (for an input file, it's
+ * all or nothing) may still be available on the specified output location.
+ *
+ * This call returns immediately and you can
+ * use google.longrunning.Operation.name to poll the status of the call.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent 
+ *   Required. Location to make a call. Must refer to a caller's project. 
+ *   
+ *   Format: `projects/{project-id}/locations/{location-id}`. 
+ *   
+ *   The `global` location is not supported for batch translation. 
+ *   
+ *   Only AutoML Translation models or glossaries within the same region (have 
+ *   the same location-id) can be used, otherwise an INVALID_ARGUMENT (400) 
+ *   error is returned.
+ * @param {string} request.source_language_code 
+ *   Required. Source language code.
+ * @param {string[]} request.target_language_codes 
+ *   Required. Specify up to 10 language codes here.
+ * @param {number} request.models 
+ *   Optional. The models to use for translation. Map's key is target language 
+ *   code. Map's value is model name. Value can be a built-in general model, 
+ *   or an AutoML Translation model. 
+ *   
+ *   The value format depends on model type: 
+ *   
+ *   - AutoML Translation models: 
+ *     `projects/{project-id}/locations/{location-id}/models/{model-id}` 
+ *   
+ *   - General (built-in) models: 
+ *     `projects/{project-id}/locations/{location-id}/models/general/nmt`, 
+ *     `projects/{project-id}/locations/{location-id}/models/general/base` 
+ *   
+ *   
+ *   If the map is empty or a specific model is 
+ *   not requested for a language pair, then default google model (nmt) is used.
+ * @param {number} request.input_configs 
+ *   Required. Input configurations. 
+ *   The total number of files matched should be <= 1000. 
+ *   The total content size should be <= 100M Unicode codepoints. 
+ *   The files must use UTF-8 encoding.
+ * @param {google.cloud.translation.v3beta1.OutputConfig} request.output_config 
+ *   Required. Output configuration. 
+ *   If 2 input configs match to the same file (that is, same input path), 
+ *   we don't generate output for duplicate inputs.
+ * @param {number} request.glossaries 
+ *   Optional. Glossaries to be applied for translation. 
+ *   It's keyed by target language code.
+ * @param {number} request.labels 
+ *   Optional. The labels with user-defined metadata for the request. 
+ *   
+ *   Label keys and values can be no longer than 63 characters 
+ *   (Unicode codepoints), can only contain lowercase letters, numeric 
+ *   characters, underscores and dashes. International characters are allowed. 
+ *   Label values are optional. Label keys must start with a letter. 
+ *   
+ *   See https://cloud.google.com/translate/docs/labels for more information.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [Operation]{@link google.longrunning.Operation}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   batchTranslateText(
       request: protosTypes.google.cloud.translation.v3beta1.IBatchTranslateTextRequest,
       options?: gax.CallOptions):
@@ -556,10 +771,20 @@ export class TranslationServiceClient {
     });
     return this._innerApiCalls.batchTranslateText(request, options, callback);
   }
-  /*
-  Creates a glossary and returns the long-running operation. Returns
- NOT_FOUND, if the project doesn&#39;t exist. 
-  */
+/**
+ * Creates a glossary and returns the long-running operation. Returns
+ * NOT_FOUND, if the project doesn't exist.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent 
+ *   Required. The project name.
+ * @param {google.cloud.translation.v3beta1.Glossary} request.glossary 
+ *   Required. The glossary to create.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [Operation]{@link google.longrunning.Operation}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   createGlossary(
       request: protosTypes.google.cloud.translation.v3beta1.ICreateGlossaryRequest,
       options?: gax.CallOptions):
@@ -606,11 +831,19 @@ export class TranslationServiceClient {
     });
     return this._innerApiCalls.createGlossary(request, options, callback);
   }
-  /*
-  Deletes a glossary, or cancels glossary construction
- if the glossary isn&#39;t created yet.
- Returns NOT_FOUND, if the glossary doesn&#39;t exist. 
-  */
+/**
+ * Deletes a glossary, or cancels glossary construction
+ * if the glossary isn't created yet.
+ * Returns NOT_FOUND, if the glossary doesn't exist.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name 
+ *   Required. The name of the glossary to delete.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [Operation]{@link google.longrunning.Operation}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   deleteGlossary(
       request: protosTypes.google.cloud.translation.v3beta1.IDeleteGlossaryRequest,
       options?: gax.CallOptions):
@@ -657,10 +890,37 @@ export class TranslationServiceClient {
     });
     return this._innerApiCalls.deleteGlossary(request, options, callback);
   }
-  /*
-  Lists glossaries in a project. Returns NOT_FOUND, if the project doesn&#39;t
- exist. 
-  */
+/**
+ * Lists glossaries in a project. Returns NOT_FOUND, if the project doesn't
+ * exist.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent 
+ *   Required. The name of the project from which to list all of the glossaries.
+ * @param {number} request.page_size 
+ *   Optional. Requested page size. The server may return fewer glossaries than 
+ *   requested. If unspecified, the server picks an appropriate default.
+ * @param {string} request.page_token 
+ *   Optional. A token identifying a page of results the server should return. 
+ *   Typically, this is the value of [ListGlossariesResponse.next_page_token] 
+ *   returned from the previous call to `ListGlossaries` method. 
+ *   The first page is returned if `page_token`is empty or missing.
+ * @param {string} request.filter 
+ *   Optional. Filter specifying constraints of a list operation. 
+ *   Filtering is not supported yet, and the parameter currently has no effect. 
+ *   If missing, no filtering is performed.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [ListGlossariesResponse]{@link google.cloud.translation.v3beta1.ListGlossariesResponse}.
+ *   
+ *   When autoPaginate: false is specified through options, the array has three elements.
+ *   The first element is Array of [ListGlossariesResponse]{@link google.cloud.translation.v3beta1.ListGlossariesResponse} in a single response.
+ *   The second element is the next request object if the response
+ *   indicates the next page exists, or null. The third element is
+ *   an object representing [ListGlossariesResponse]{@link google.cloud.translation.v3beta1.ListGlossariesResponse}.
+ *
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
   listGlossaries(
       request: protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest,
       options?: gax.CallOptions):
