@@ -505,8 +505,8 @@ function augmentService(
                   service.name +
                   ' message ' +
                   property +
-                  ' refers to an unkown resource: ' +
-                  resourceReference
+                  ' refers to an unknown resource: ' +
+                  JSON.stringify(resourceReference)
               );
               continue;
             }
