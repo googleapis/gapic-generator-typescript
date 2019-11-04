@@ -1,7 +1,22 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { CommentsMap } from './comments';
+import { CommentsMap, Comment } from './comments';
 import * as objectHash from 'object-hash';
 import { milliseconds } from '../util';
+import { FileSystemLoader } from 'nunjucks';
 
 const defaultNonIdempotentRetryCodesName = 'non_idempotent';
 const defaultNonIdempotentCodes: plugin.google.rpc.Code[] = [];
@@ -37,14 +52,15 @@ interface MethodDescriptorProto
   pagingResponseType?: string;
   inputInterface: string;
   outputInterface: string;
-  comments: string;
+  comments: string[];
+  // paramComments include comments for all input field
+  paramComment?: Comment[];
   methodConfig: plugin.grpc.service_config.MethodConfig;
   retryableCodesName: string;
   retryParamsName: string;
   timeoutMillis?: number;
   headerRequestParams: string[];
 }
-
 export class RetryableCodeMap {
   codeEnumMapping: { [index: string]: string };
   uniqueCodesNamesMap: { [uniqueName: string]: string };
@@ -158,7 +174,7 @@ interface ServiceDescriptorProto
   hostname: string;
   port: number;
   oauthScopes: string[];
-  comments: string;
+  comments: string[];
   pathTemplates: ResourceDescriptor[];
   commentsMap: CommentsMap;
   retryableCodeMap: RetryableCodeMap;
@@ -323,7 +339,10 @@ function augmentMethod(
       pagingResponseType: pagingResponseType(messages, method),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
-      comments: service.commentsMap.getMethodComments(method.name!),
+      comments: service.commentsMap.getMethodComments(
+        service.name!,
+        method.name!
+      ),
       methodConfig: getMethodConfig(
         service.grpcServiceConfig,
         `${service.packageName}.${service.name!}`,
@@ -334,6 +353,19 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+  if (method.inputType && messages[method.inputType].field) {
+    const paramComment: Comment[] = [];
+    const inputType = messages[method.inputType!];
+    const inputmessageName = toMessageName(method.inputType);
+    for (const field of inputType.field!) {
+      const comment = service.commentsMap.getParamComments(
+        inputmessageName,
+        field.name!
+      );
+      paramComment.push(comment);
+    }
+    method.paramComment = paramComment;
+  }
   if (
     method.methodConfig.retryPolicy &&
     method.methodConfig.retryPolicy.retryableStatusCodes
@@ -518,7 +550,6 @@ export class Proto {
         },
         {} as EnumsMap
       );
-
     this.fileToGenerate = fd.package
       ? fd.package.startsWith(packageName)
       : false;

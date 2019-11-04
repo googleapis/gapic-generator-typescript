@@ -19,6 +19,7 @@ interface String {
   toPascalCase(): string;
   toKebabCase(): string;
   toSnakeCase(): string;
+  replaceAll(this: string, search: string, replacement: string): string;
 }
 
 interface Array<T> {
