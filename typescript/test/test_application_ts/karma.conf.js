@@ -45,10 +45,9 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha'],
-
+    frameworks: ['webpack']
     // list of files / patterns to load in the browser
-    files: ['./index.js'],
+    files: ['./build/src/index.js'],
 
     // list of files / patterns to exclude
     exclude: [],
@@ -56,7 +55,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      './*.js': ['webpack'],
+      './build/src/*.js': ['webpack'],
     },
 
     webpack: webpackConfig,
