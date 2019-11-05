@@ -17,6 +17,14 @@ import * as showcase from 'showcase';
 
 import * as grpc from '@grpc/grpc-js'; // to create credentials for local Showcase server
 
+interface ClientOptions{
+  [name: string] : Object,
+  servicePath: string,
+  port: number
+}
+interface Options{
+  [name: string] : Object
+}
 // Fake auth client for fallback
 const authStub = {
   getRequestHeaders() {
@@ -42,31 +50,25 @@ describe('Showcase tests', () => {
   }
 });
 
-async function testShowcase(opts) {
+async function testShowcase(opts: Options) {
   opts = opts || {};
-  let clientOptions = {
-    sslCreds: {},
-    grpc,
-    servicePath: 'localhost',
-    port: 7469,
-    protocol: '',
-    auth: {},
-    hasStreaming: false,
-    fallback: false,
-  };
+  const clientOptions: ClientOptions = {servicePath: 'localhost', port: 7469};
+  let hasStreaming = true;
+  clientOptions.servicePath = 'localhost';
+  clientOptions.port = 7469;
   if (opts.browser) {
     clientOptions.protocol = 'http';
     clientOptions.servicePath = 'localhost';
     clientOptions.port = 1337;
     clientOptions.auth = authStub;
-    clientOptions.hasStreaming = false;
+    hasStreaming = false;
   } else if (opts.fallback) {
     clientOptions.protocol = 'http';
     clientOptions.servicePath = 'localhost';
     clientOptions.port = 1337;
     clientOptions.auth = authStub;
     clientOptions.fallback = true;
-    clientOptions.hasStreaming = false;
+    hasStreaming = false;
   } else if (opts.grpcJs) {
     const grpc = require('@grpc/grpc-js');
     clientOptions.sslCreds = grpc.credentials.createInsecure();
@@ -79,13 +81,19 @@ async function testShowcase(opts) {
     throw new Error('Wrong options passed!');
   }
   const client = new showcase.v1beta1.EchoClient(clientOptions);
-  await testEcho(client);
-  await testExpand(client);
-  await testChat(client);
-  await testCollect(client);
-  await testWait(client);
-  await testPagedExpand(client);
-  console.log('it works! ');
+  runTest(client, {hasStreaming});
+}
+
+function runTest(client: showcase.v1beta1.EchoClient, opts: Options) {
+  opts = opts || {};
+  testEcho(client);
+  if (opts.hasStreaming) {
+    testExpand(client);
+    testCollect(client);
+    testChat(client);
+  }
+  testPagedExpand(client);
+  testWait(client);
 }
 
 // Set of functions to tests all showcase methods
