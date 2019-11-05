@@ -17,19 +17,68 @@ import * as showcase from 'showcase';
 
 import * as grpc from '@grpc/grpc-js'; // to create credentials for local Showcase server
 
-main().catch(err => {
-  console.error('Error:', err);
+// Fake auth client for fallback
+const authStub = {
+  getRequestHeaders() {
+    return {Authorization: 'Bearer SOME_TOKEN'};
+  },
+};
+// Finally, using mocha!
+describe('Showcase tests', () => {
+  if (typeof window !== 'undefined') {
+    describe('browser library works', () => {
+      testShowcase({browser: true});
+    });
+  } else {
+    describe('grpc-fallback works', () => {
+      testShowcase({fallback: true});
+    });
+    describe('@grpc/grpc-js works', () => {
+      testShowcase({grpcJs: true});
+    });
+    describe('grpc works', () => {
+      testShowcase({grpc: true});
+    });
+  }
 });
 
-async function main() {
-  const clientOptions = {
-    sslCreds: grpc.credentials.createInsecure(),
+async function testShowcase(opts) {
+  opts = opts || {};
+  let clientOptions = {
+    sslCreds: {},
     grpc,
     servicePath: 'localhost',
     port: 7469,
+    protocol: '',
+    auth: {},
+    hasStreaming: false,
+    fallback: false,
   };
-
-  const client = new showcase.EchoClient(clientOptions);
+  if (opts.browser) {
+    clientOptions.protocol = 'http';
+    clientOptions.servicePath = 'localhost';
+    clientOptions.port = 1337;
+    clientOptions.auth = authStub;
+    clientOptions.hasStreaming = false;
+  } else if (opts.fallback) {
+    clientOptions.protocol = 'http';
+    clientOptions.servicePath = 'localhost';
+    clientOptions.port = 1337;
+    clientOptions.auth = authStub;
+    clientOptions.fallback = true;
+    clientOptions.hasStreaming = false;
+  } else if (opts.grpcJs) {
+    const grpc = require('@grpc/grpc-js');
+    clientOptions.sslCreds = grpc.credentials.createInsecure();
+    clientOptions.grpc = grpc;
+  } else if (opts.grpc) {
+    const grpc = require('grpc');
+    clientOptions.sslCreds = grpc.credentials.createInsecure();
+    clientOptions.grpc = grpc;
+  } else {
+    throw new Error('Wrong options passed!');
+  }
+  const client = new showcase.v1beta1.EchoClient(clientOptions);
   await testEcho(client);
   await testExpand(client);
   await testChat(client);
