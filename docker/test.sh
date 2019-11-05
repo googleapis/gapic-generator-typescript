@@ -11,10 +11,10 @@ mkdir $DIR_NAME
 # Use Docker Image for generating showcase client library
 docker run --rm \
   --mount type=bind,source=`pwd`/typescript/test/protos/google/showcase/v1beta1,destination=/in/typescript/test/protos/google/showcase/v1beta1,readonly \
-  --mount type=bind,source=`pwd`/.showcase-typescript,destination=/out \
+  --mount type=bind,source=`pwd`/$DIR_NAME,destination=/out \
   gapic-generator-typescript:latest
 # Test generated client library
-cd .showcase-typescript
+cd $DIR_NAME
 npm install  # install dependencies
 npm run fix  # format the code
 npm test     # run unit tests
