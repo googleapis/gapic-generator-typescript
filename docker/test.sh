@@ -12,7 +12,7 @@ mkdir $DIR_NAME
 docker run --rm \
   --mount type=bind,source=`pwd`/typescript/test/protos/google/showcase/v1beta1,destination=/in/typescript/test/protos/google/showcase/v1beta1,readonly \
   --mount type=bind,source=`pwd`/.showcase-typescript,destination=/out \
-  gcr.io/gapic-images/gapic-generator-typescript:latest
+  gapic-generator-typescript:latest
 # Test generated client library
 cd .showcase-typescript
 npm install  # install dependencies
