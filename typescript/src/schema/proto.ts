@@ -215,10 +215,7 @@ function longrunning(method: MethodDescriptorProto) {
 function longRunningResponseType(method: MethodDescriptorProto) {
   if (method.options && method.options['.google.longrunning.operationInfo']) {
     if (method.options['.google.longrunning.operationInfo'].responseType) {
-      return toLRInterface(
-        method.options['.google.longrunning.operationInfo'].responseType,
-        method.inputType!.toString()
-      );
+      return method.options['.google.longrunning.operationInfo'].responseType;
     }
   }
   return undefined;
@@ -227,13 +224,17 @@ function longRunningResponseType(method: MethodDescriptorProto) {
 function longRunningMetadataType(method: MethodDescriptorProto) {
   if (method.options && method.options['.google.longrunning.operationInfo']) {
     if (method.options['.google.longrunning.operationInfo'].metadataType) {
-      return toLRInterface(
-        method.options['.google.longrunning.operationInfo'].metadataType,
-        method.inputType!.toString()
-      );
+      return method.options['.google.longrunning.operationInfo'].metadataType;
     }
   }
   return undefined;
+}
+
+// convert from input interface to message name
+// eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
+function toMessageName(messageType: string): string {
+  const arr = messageType.split('.');
+  return arr[arr.length - 1];
 }
 
 function streaming(method: MethodDescriptorProto) {
@@ -294,24 +295,6 @@ function pagingResponseType(
   return undefined;
 }
 
-function toInterface(type: string) {
-  return type.replace(/\.([^.]+)$/, '.I$1');
-}
-
-// convert from input interface to message name
-// eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
-function toMessageName(messageType: string): string {
-  const arr = messageType.split('.');
-  return arr[arr.length - 1];
-}
-
-// Convert long running type to the interface
-// eg: WaitResponse -> .google.showcase.v1beta1.IWaitResponse
-// eg: WaitMetadata -> .google.showcase.v1beta1.IWaitMetadata
-function toLRInterface(type: string, inputType: string) {
-  return inputType.replace(/\.([^.]+)$/, '.I' + type);
-}
-
 export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {
   const message =
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
@@ -361,8 +344,8 @@ function augmentMethod(
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(messages, method),
       pagingResponseType: pagingResponseType(messages, method),
-      inputInterface: toInterface(method.inputType!),
-      outputInterface: toInterface(method.outputType!),
+      inputInterface: method.inputType!,
+      outputInterface: method.outputType!,
       comments: service.commentsMap.getMethodComments(
         service.name!,
         method.name!

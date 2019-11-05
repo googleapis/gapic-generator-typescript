@@ -16,7 +16,7 @@ limitations under the License.
 
 -#}
 {%- macro initRequestWithHeaderParam(method) -%}
-            const request: protosTypes{{ method.inputInterface }} = {};
+            const request: protosTypes{{ toInterface(method.inputInterface) }} = {};
 {%- if method.headerRequestParams.length > 1 %}
 {%- set chain = "request" -%}
 {%- for field in method.headerRequestParams.slice(0, -1) %}
@@ -25,6 +25,16 @@ limitations under the License.
 {%- endfor %}
             {{ chain }}.{{ method.headerRequestParams.slice(-1)[0] }} = '';
 {%- endif %}
+{%- endmacro -%}
+
+{%- macro toInterface(type) -%}
+{%- set index = type.lastIndexOf('.') -%}
+{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
+{%- endmacro -%}
+
+{%- macro toLRInterface(type, inputType) -%}
+{%- set index = inputType.lastIndexOf('.') -%}
+{{ inputType.substring(0, index + 1) + 'I' + type }}
 {%- endmacro -%}
 
 {%- macro printCommentsForParams(method) -%}
