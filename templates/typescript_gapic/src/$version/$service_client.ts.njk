@@ -144,12 +144,19 @@ export class {{ service.name }}Client {
 
     // Determine the client header string.
     const clientHeader = [
-      `gl-node/${process.version}`,
       `grpc/${gaxGrpc.grpcVersion}`,
       `gax/${gaxModule.version}`,
       `gapic/${version}`,
       `gl-web/${gaxModule.version}`
     ];
+    if (typeof process !== 'undefined' && 'versions' in process) {
+      clientHeader.push(`gl-node/${process.versions.node}`);
+    } else {
+      clientHeader.push(`gl-web/${gaxModule.version}`);
+    }
+    if (!opts.fallback) {
+      clientHeader.push(`grpc/${gaxGrpc.grpcVersion}`);
+    }
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
     }
@@ -164,6 +171,10 @@ export class {{ service.name }}Client {
         nodejsProtoPath
     );
 {%- if (service.pathTemplates.length > 0) %}
+
+    // This API contains "path templates"; forward-slash-separated
+    // identifiers to uniquely identify resources within the API.
+    // Create useful helper objects for these.
     this._pathTemplates = {
 {%- for template in service.pathTemplates %}
       {{ template.name.toCamelCase() }}PathTemplate: new gaxModule.PathTemplate(
@@ -200,8 +211,8 @@ export class {{ service.name }}Client {
 {%- endfor %}
     };
 {%- endif %}
-    
 {%- if (service.longRunning.length > 0) %}
+
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
@@ -216,9 +227,9 @@ export class {{ service.name }}Client {
 
 {%- for method in service.longRunning %}
     const {{ method.name.toCamelCase() }}Response = protoFilesRoot.lookup(
-      '{{ method.longRunning.responseType }}') as gax.protobuf.Type;
+      '{{ method.longRunningResponseType }}') as gax.protobuf.Type;
     const {{ method.name.toCamelCase() }}Metadata = protoFilesRoot.lookup(
-      '{{ method.longRunning.metadataType }}') as gax.protobuf.Type;
+      '{{ method.longRunningMetadataType }}') as gax.protobuf.Type;
 {%- endfor %}
 
     this._descriptors.longrunning = {
@@ -457,27 +468,27 @@ export class {{ service.name }}Client {
       request: protosTypes{{ util.toInterface(method.inputInterface) }},
       options?: gax.CallOptions):
       Promise<[
-        Operation<protosTypes{{ util.toLRInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toLRInterface(method.longRunningMetadataType, method.inputType) }}>,
+        Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType) }}>,
         protosTypes{{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
       ]>;
   {{ method.name.toCamelCase() }}(
       request: protosTypes{{ util.toInterface(method.inputInterface) }},
       options: gax.CallOptions,
       callback: Callback<
-          Operation<protosTypes{{ util.toLRInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toLRInterface(method.longRunningMetadataType, method.inputType)  }}>,
+          Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
           protosTypes{{ util.toInterface(method.outputInterface) }}|undefined,
           {}|undefined>): void;
   {{ method.name.toCamelCase() }}(
       request: protosTypes{{ util.toInterface(method.inputInterface) }},
       optionsOrCallback?: gax.CallOptions|Callback<
-          Operation<protosTypes{{ util.toLRInterface(method.longRunningResponseType, method.inputType)}}, protosTypes{{ util.toLRInterface(method.longRunningMetadataType, method.inputType)  }}>,
+          Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType)}}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
           protosTypes{{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined>,
       callback?: Callback<
-          Operation<protosTypes{{ util.toLRInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toLRInterface(method.longRunningMetadataType, method.inputType)  }}>,
+          Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
           protosTypes{{ util.toInterface(method.outputInterface) }}|undefined,
           {}|undefined>):
       Promise<[
-        Operation<protosTypes{{ util.toLRInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toLRInterface(method.longRunningMetadataType, method.inputType)  }}>,
+        Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
         protosTypes{{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
       ]>|void {
     request = request || {};
@@ -513,7 +524,7 @@ export class {{ service.name }}Client {
       request: protosTypes{{ util.toInterface(method.inputInterface) }},
       options?: gax.CallOptions):
       Promise<[
-        protosTypes{{ method.pagingResponseType }}[],
+        protosTypes{{ util.toInterface(method.pagingResponseType) }}[],
         protosTypes{{ util.toInterface(method.inputInterface) }}|null, 
         protosTypes{{ util.toInterface(method.outputInterface) }}
       ]>;
@@ -521,21 +532,21 @@ export class {{ service.name }}Client {
       request: protosTypes{{ util.toInterface(method.inputInterface) }},
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes{{ method.pagingResponseType }}[],
+          protosTypes{{ util.toInterface(method.pagingResponseType) }}[],
           protosTypes{{ util.toInterface(method.inputInterface) }}|null,
           protosTypes{{ util.toInterface(method.outputInterface) }}>): void;
   {{ method.name.toCamelCase() }}(
       request: protosTypes{{ util.toInterface(method.inputInterface) }},
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes{{ method.pagingResponseType }}[],
+          protosTypes{{ util.toInterface(method.pagingResponseType) }}[],
           protosTypes{{ util.toInterface(method.inputInterface) }}|null, 
           protosTypes{{ util.toInterface(method.outputInterface) }}>,
       callback?: Callback<
-          protosTypes{{ method.pagingResponseType }}[],
+          protosTypes{{ util.toInterface(method.pagingResponseType) }}[],
           protosTypes{{ util.toInterface(method.inputInterface) }}|null,
           protosTypes{{ util.toInterface(method.outputInterface) }}>):
       Promise<[
-        protosTypes{{ method.pagingResponseType }}[],
+        protosTypes{{ util.toInterface(method.pagingResponseType) }}[],
         protosTypes{{ util.toInterface(method.inputInterface) }}|null, 
         protosTypes{{ util.toInterface(method.outputInterface) }}
       ]>|void {

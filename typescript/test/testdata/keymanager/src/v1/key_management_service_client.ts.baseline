@@ -144,12 +144,19 @@ export class KeyManagementServiceClient {
 
     // Determine the client header string.
     const clientHeader = [
-      `gl-node/${process.version}`,
       `grpc/${gaxGrpc.grpcVersion}`,
       `gax/${gaxModule.version}`,
       `gapic/${version}`,
       `gl-web/${gaxModule.version}`
     ];
+    if (typeof process !== 'undefined' && 'versions' in process) {
+      clientHeader.push(`gl-node/${process.versions.node}`);
+    } else {
+      clientHeader.push(`gl-web/${gaxModule.version}`);
+    }
+    if (!opts.fallback) {
+      clientHeader.push(`grpc/${gaxGrpc.grpcVersion}`);
+    }
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
     }

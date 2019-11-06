@@ -108,7 +108,12 @@ export class Generator {
 
   private buildAPIObject(): API {
     const protoFilesToGenerate = this.request.protoFile.filter(
-      pf => pf.name && this.request.fileToGenerate.includes(pf.name)
+      pf =>
+        pf.name &&
+        this.request.fileToGenerate.includes(pf.name) &&
+        // ignoring some common package names
+        pf.package !== 'google.longrunning' &&
+        pf.package !== 'google.cloud'
     );
     const packageNamesToGenerate = protoFilesToGenerate.map(
       pf => pf.package || ''

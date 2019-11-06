@@ -61,6 +61,7 @@ interface MethodDescriptorProto
   timeoutMillis?: number;
   headerRequestParams: string[];
 }
+
 export class RetryableCodeMap {
   codeEnumMapping: { [index: string]: string };
   uniqueCodesNamesMap: { [uniqueName: string]: string };
@@ -212,20 +213,43 @@ function longrunning(method: MethodDescriptorProto) {
   return undefined;
 }
 
-function longRunningResponseType(method: MethodDescriptorProto) {
-  if (method.options && method.options['.google.longrunning.operationInfo']) {
-    if (method.options['.google.longrunning.operationInfo'].responseType) {
-      return method.options['.google.longrunning.operationInfo'].responseType;
-    }
+function toFullyQualifiedName(packageName: string, messageName: string) {
+  if (messageName.includes('.')) {
+    return messageName;
+  }
+  return `.${packageName}.${messageName}`;
+}
+
+function longRunningResponseType(
+  packageName: string,
+  method: MethodDescriptorProto
+) {
+  if (
+    method.options &&
+    method.options['.google.longrunning.operationInfo'] &&
+    method.options['.google.longrunning.operationInfo'].responseType
+  ) {
+    return toFullyQualifiedName(
+      packageName,
+      method.options['.google.longrunning.operationInfo'].responseType
+    );
   }
   return undefined;
 }
 
-function longRunningMetadataType(method: MethodDescriptorProto) {
-  if (method.options && method.options['.google.longrunning.operationInfo']) {
-    if (method.options['.google.longrunning.operationInfo'].metadataType) {
-      return method.options['.google.longrunning.operationInfo'].metadataType;
-    }
+function longRunningMetadataType(
+  packageName: string,
+  method: MethodDescriptorProto
+) {
+  if (
+    method.options &&
+    method.options['.google.longrunning.operationInfo'] &&
+    method.options['.google.longrunning.operationInfo'].metadataType
+  ) {
+    return toFullyQualifiedName(
+      packageName,
+      method.options['.google.longrunning.operationInfo'].metadataType
+    );
   }
   return undefined;
 }
@@ -289,8 +313,7 @@ function pagingResponseType(
 ) {
   const repeatedFields = pagingField(messages, method);
   if (repeatedFields && repeatedFields.typeName) {
-    const typeName = repeatedFields.typeName; //.google.showcase.v1beta1.EchoResponse
-    return typeName.replace(/\.([^.]+)$/, '.I$1');
+    return repeatedFields.typeName; //.google.showcase.v1beta1.EchoResponse
   }
   return undefined;
 }
@@ -339,8 +362,14 @@ function augmentMethod(
   method = Object.assign(
     {
       longRunning: longrunning(method),
-      longRunningResponseType: longRunningResponseType(method),
-      longRunningMetadataType: longRunningMetadataType(method),
+      longRunningResponseType: longRunningResponseType(
+        service.packageName,
+        method
+      ),
+      longRunningMetadataType: longRunningMetadataType(
+        service.packageName,
+        method
+      ),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(messages, method),
       pagingResponseType: pagingResponseType(messages, method),

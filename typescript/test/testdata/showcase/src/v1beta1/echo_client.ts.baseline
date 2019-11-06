@@ -140,12 +140,19 @@ export class EchoClient {
 
     // Determine the client header string.
     const clientHeader = [
-      `gl-node/${process.version}`,
       `grpc/${gaxGrpc.grpcVersion}`,
       `gax/${gaxModule.version}`,
       `gapic/${version}`,
       `gl-web/${gaxModule.version}`
     ];
+    if (typeof process !== 'undefined' && 'versions' in process) {
+      clientHeader.push(`gl-node/${process.versions.node}`);
+    } else {
+      clientHeader.push(`gl-web/${gaxModule.version}`);
+    }
+    if (!opts.fallback) {
+      clientHeader.push(`grpc/${gaxGrpc.grpcVersion}`);
+    }
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
     }
@@ -175,6 +182,7 @@ export class EchoClient {
       collect: new gaxModule.StreamDescriptor(gax.StreamType.CLIENT_STREAMING),
       chat: new gaxModule.StreamDescriptor(gax.StreamType.BIDI_STREAMING)
     };
+
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
@@ -187,9 +195,9 @@ export class EchoClient {
       grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
     }).operationsClient(opts);
     const waitResponse = protoFilesRoot.lookup(
-      'WaitResponse') as gax.protobuf.Type;
+      '.google.showcase.v1beta1.WaitResponse') as gax.protobuf.Type;
     const waitMetadata = protoFilesRoot.lookup(
-      'WaitMetadata') as gax.protobuf.Type;
+      '.google.showcase.v1beta1.WaitMetadata') as gax.protobuf.Type;
 
     this._descriptors.longrunning = {
       wait: new gaxModule.LongrunningDescriptor(
