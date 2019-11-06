@@ -158,7 +158,8 @@ function testCollect(client: showcase.v1beta1.EchoClient) {
       }
       stream.end();
     });
-    assert.deepStrictEqual(result, words.join(' '));
+    const expectedResult = {content: words.join(' ')};
+    assert.deepStrictEqual(result, expectedResult);
   });
 }
 
