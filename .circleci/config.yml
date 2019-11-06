@@ -35,6 +35,15 @@ jobs:
             cd ~/test_application_js
             npm install
             npm test
+            showcase-server/gapic-showcase run &
+            showcase_pid=$!
+            stop_showcase() {
+              kill $showcase_pid
+              # Wait for the process to die, but don't report error from the kill.
+              wait $showcase_pid || true
+            }
+            npm run browser-test
+            trap stop_showcase EXIT
       - run:
           name: Run showcase test for TypeScript users
           command: |
@@ -44,6 +53,15 @@ jobs:
             cd ~/test_application_ts
             npm install
             npm test
+            showcase-server/gapic-showcase run &
+            showcase_pid=$!
+            stop_showcase() {
+              kill $showcase_pid
+              # Wait for the process to die, but don't report error from the kill.
+              wait $showcase_pid || true
+            }
+            npm run browser-test
+            trap stop_showcase EXIT
       - run:
           name: Run unit tests and gts fix of the generated Showcase library
           command: |

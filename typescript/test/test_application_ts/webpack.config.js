@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    entry: './index.js',
+    entry: './build/src/index.js',
     output: {
       library: "showcaseTest",
       filename: "./main.js"
