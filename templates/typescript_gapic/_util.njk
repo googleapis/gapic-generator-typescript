@@ -33,6 +33,7 @@ limitations under the License.
 {%- endmacro -%}
 
 {%- macro printCommentsForParams(method) -%}
+{% if not method.clientStreaming %}
 {%- set commentsMap = method.paramComment -%}
 {%- for oneComment in commentsMap -%}
 {%- set type = oneComment.paramType -%}
@@ -46,6 +47,7 @@ limitations under the License.
  *  {{ line.replaceAll('*/', '* /') | safe}} 
 {%- endfor -%}
 {%- endfor -%}
+{%- endif %}
 {%- endmacro -%}
 
 {%- macro printCommentsForMethod(method) -%}
@@ -62,9 +64,11 @@ limitations under the License.
 {%- endfor %}
 {%- endmacro -%}
 
-{%- macro printRequest() %}
+{%- macro printRequest(method) %}
+{%- if not method.clientStreaming %}
  * @param {Object} request
  *   The request object that will be sent.
+{%- endif %}
 {%- endmacro -%}
 
 {%- macro printOptions(type) %}
@@ -110,13 +114,13 @@ limitations under the License.
 
 {%- macro printReturnClientStreamingMethod(method) %}
  * @returns {Stream} - A writable stream which accepts objects representing 
- * [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}}.
+ * [{{- toMessageName(method.inputType) -}}]{@link {{ method.inputType.substring(1) }}}.
 {%- endmacro -%}
 
 {%- macro printReturnBidiStreamingMethod(method) %}
  * @returns {Stream} 
  *   An object stream which is both readable and writable. It accepts objects
- *   representing [[{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}} for write() method, and
+ *   representing [{{- toMessageName(method.inputType) -}}]{@link {{ method.inputType.substring(1) }}} for write() method, and
  *   will emit objects representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}} on 'data' event asynchronously.
 {%- endmacro -%}
 
