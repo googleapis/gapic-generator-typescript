@@ -64,10 +64,11 @@ export interface PaginationResponse<
   rawResponse?: ResponseObject;
 }
 
+
+/**
+ *  Provides natural language translation operations.
+ */
 export class TranslationServiceClient {
-  /**
-   *  Provides natural language translation operations.
-   */
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
@@ -93,10 +94,8 @@ export class TranslationServiceClient {
    *     Developer's Console, e.g. 'grape-spaceship-123'. We will also check
    *     the environment variable GCLOUD_PROJECT for your project ID. If your
    *     app is running in an environment which supports
-   *     {@@link
-   * https://developers.google.com/identity/protocols/application-default-credentials
-   * Application Default Credentials}, your project ID will be detected
-   * automatically.
+   *     {@link https://developers.google.com/identity/protocols/application-default-credentials Application Default Credentials},
+   *     your project ID will be detected automatically.
    * @param {function} [options.promise] - Custom promise module to use instead
    *     of native Promises.
    * @param {string} [options.apiEndpoint] - The domain name of the
@@ -138,10 +137,8 @@ export class TranslationServiceClient {
 
     // Determine the client header string.
     const clientHeader = [
-      `grpc/${gaxGrpc.grpcVersion}`,
       `gax/${gaxModule.version}`,
       `gapic/${version}`,
-      `gl-web/${gaxModule.version}`
     ];
     if (typeof process !== 'undefined' && 'versions' in process) {
       clientHeader.push(`gl-node/${process.versions.node}`);
@@ -235,7 +232,7 @@ export class TranslationServiceClient {
     this._innerApiCalls = {};
 
     // Put together the "service stub" for
-    // google.showcase.v1alpha2.Echo.
+    // google.cloud.translation.v3beta1.TranslationService.
     const translationServiceStub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('google.cloud.translation.v3beta1.TranslationService') :
@@ -243,6 +240,8 @@ export class TranslationServiceClient {
           (protos as any).google.cloud.translation.v3beta1.TranslationService,
         opts) as Promise<{[method: string]: Function}>;
 
+    // Iterate over each of the methods that the service provides
+    // and create an API call method for each.
     const translationServiceStubMethods =
         ['translateText', 'detectLanguage', 'getSupportedLanguages', 'batchTranslateText', 'createGlossary', 'listGlossaries', 'getGlossary', 'deleteGlossary'];
 
@@ -255,7 +254,7 @@ export class TranslationServiceClient {
           throw err;
         });
 
-      this._innerApiCalls[methodName] = gax.createApiCall(
+      this._innerApiCalls[methodName] = gaxModule.createApiCall(
         innerCallPromise,
         defaults[methodName],
         this._descriptors.page[methodName] ||
@@ -264,12 +263,14 @@ export class TranslationServiceClient {
       );
     }
   }
+
   /**
    * The DNS address for this API service.
    */
   static get servicePath() {
     return 'translate.googleapis.com';
   }
+
   /**
    * The DNS address for this API service - same as servicePath(),
    * exists for compatibility reasons.
@@ -296,13 +297,13 @@ export class TranslationServiceClient {
     ];
   }
 
+  getProjectId(): Promise<string>;
+  getProjectId(callback: Callback<string, undefined, undefined>): void;
   /**
    * Return the project ID used by this class.
    * @param {function(Error, string)} callback - the callback to
    *   be called with the current project Id.
    */
-  getProjectId(): Promise<string>;
-  getProjectId(callback: Callback<string, undefined, undefined>): void;
   getProjectId(callback?: Callback<string, undefined, undefined>):
       Promise<string>|void {
     if (callback) {
