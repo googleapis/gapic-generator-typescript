@@ -356,5 +356,29 @@ describe('{{ service.name }}Client', () => {
             });
         });
     });
+    describe('{{ method.name.toCamelCase() }}Stream', () => {
+        it('invokes {{ method.name.toCamelCase() }}Stream without error', done => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            {{ util.initRequestWithHeaderParam(method) }}
+            // Mock response
+            const expectedResponse = {};
+            // Mock Grpc layer
+            client._innerApiCalls.{{ method.name.toCamelCase() }} = (actualRequest: {}, options: {}, callback: Callback) => {
+                assert.deepStrictEqual(actualRequest, request);
+                callback(null, expectedResponse);
+            };
+            const stream = client.{{ method.name.toCamelCase() }}Stream(request, {}).on('data', (response: {}) =>{
+                assert.deepStrictEqual(response, expectedResponse);
+                done();
+            }).on('error', (err: FakeError) => {
+                done(err);
+            });
+            stream.write(request);
+        });
+    });
 {%- endfor %}
 });

@@ -339,4 +339,28 @@ describe('EchoClient', () => {
             });
         });
     });
+    describe('pagedExpandStream', () => {
+        it('invokes pagedExpandStream without error', done => {
+            const client = new echoModule.v1beta1.EchoClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            const request: protosTypes.google.showcase.v1beta1.IPagedExpandRequest = {};
+            // Mock response
+            const expectedResponse = {};
+            // Mock Grpc layer
+            client._innerApiCalls.pagedExpand = (actualRequest: {}, options: {}, callback: Callback) => {
+                assert.deepStrictEqual(actualRequest, request);
+                callback(null, expectedResponse);
+            };
+            const stream = client.pagedExpandStream(request, {}).on('data', (response: {}) =>{
+                assert.deepStrictEqual(response, expectedResponse);
+                done();
+            }).on('error', (err: FakeError) => {
+                done(err);
+            });
+            stream.write(request);
+        });
+    });
 });
