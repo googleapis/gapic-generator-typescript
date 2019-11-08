@@ -461,4 +461,28 @@ describe('TranslationServiceClient', () => {
             });
         });
     });
+    describe('listGlossariesStream', () => {
+        it('invokes listGlossariesStream without error', done => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus', 
+            });
+            // Mock request
+            const request: protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest = {};
+            // Mock response
+            const expectedResponse = {};
+            // Mock Grpc layer
+            client._innerApiCalls.listGlossaries = (actualRequest: {}, options: {}, callback: Callback) => {
+                assert.deepStrictEqual(actualRequest, request);
+                callback(null, expectedResponse);
+            };
+            const stream = client.listGlossariesStream(request, {}).on('data', (response: {}) =>{
+                assert.deepStrictEqual(response, expectedResponse);
+                done();
+            }).on('error', (err: FakeError) => {
+                done(err);
+            });
+            stream.write(request);
+        });
+    });
 });

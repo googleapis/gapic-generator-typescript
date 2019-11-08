@@ -21,7 +21,9 @@ limitations under the License.
 
 import * as gax from 'google-gax';
 import * as path from 'path';
-
+{% if (service.paging.length > 0) %}
+import { Transform } from 'stream';
+{%- endif %}
 import * as protosTypes from '../../protos/protos';
 import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json';
 
@@ -566,6 +568,19 @@ export class {{ service.name }}Client {
 {%- endif %}
     return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   } 
+
+  {{ method.name.toCamelCase() }}Stream(
+      request?: protosTypes{{ util.toInterface(method.inputInterface) }},
+      options?: gax.CallOptions | {}):
+    Transform{
+    request = request || {}; 
+    const callSettings = new gax.CallSettings(options);
+    return this._descriptors.page.{{ method.name.toCamelCase() }}.createStream(
+      this._innerApiCalls.{{ method.name.toCamelCase() }} as gax.GaxCall,
+      request,
+      callSettings
+    );
+  }
 {%- endfor %}
 {%- if (service.pathTemplates.length > 0) %}
   // --------------------
