@@ -74,9 +74,9 @@ limitations under the License.
 {%- for oneComment in commentsMap -%}
 {%- set type = oneComment.paramType -%}
 {%- if type.startsWith('.') %}
- * @param { {{- type.substring(1) -}} } request.{{ oneComment.paramName }}
+ * @param { {{- type.substring(1) -}} } {{ printRequestField(oneComment) }}
 {%- else %}
- * @param { {{- convertParamType(oneComment.paramType) -}} } request.{{ oneComment.paramName }}
+ * @param { {{- convertParamType(oneComment.paramType) -}} } {{ printRequestField(oneComment) }}
 {%- endif -%}
 {%- set lines = oneComment.comments -%}
 {%- for line in lines %} 
@@ -142,6 +142,15 @@ limitations under the License.
 {%- macro printReturnPageStream(method) %}
  * @returns {Stream}
  *   An object stream which emits an object representing [{{- toMessageName(method.pagingResponseType) -}}]{@link {{ method.pagingResponseType.substring(1) }}} on 'data' event.
+{%- endmacro -%}
+
+
+{%- macro printRequestField(oneComment) %}
+{%- if oneComment.fieldBehavior and oneComment.fieldBehavior === 1 -%}
+[request.{{ oneComment.paramName.toCamelCase() }}]
+{%- else -%}
+request.{{ oneComment.paramName.toCamelCase() }}
+{%- endif -%}
 {%- endmacro -%}
 
 {%- macro toMessageName(messageType) -%}

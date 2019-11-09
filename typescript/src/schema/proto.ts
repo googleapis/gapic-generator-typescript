@@ -569,23 +569,17 @@ export class Proto {
 
     this.messages = fd.messageType
       .filter(message => message.name)
-      .reduce(
-        (map, message) => {
-          map['.' + fd.package! + '.' + message.name!] = message;
-          return map;
-        },
-        {} as MessagesMap
-      );
+      .reduce((map, message) => {
+        map['.' + fd.package! + '.' + message.name!] = message;
+        return map;
+      }, {} as MessagesMap);
 
     this.enums = fd.enumType
       .filter(enum_ => enum_.name)
-      .reduce(
-        (map, enum_) => {
-          map[enum_.name!] = enum_;
-          return map;
-        },
-        {} as EnumsMap
-      );
+      .reduce((map, enum_) => {
+        map[enum_.name!] = enum_;
+        return map;
+      }, {} as EnumsMap);
     this.fileToGenerate = fd.package
       ? fd.package.startsWith(packageName)
       : false;
@@ -602,12 +596,9 @@ export class Proto {
           resourceMap
         )
       )
-      .reduce(
-        (map, service) => {
-          map[service.name!] = service;
-          return map;
-        },
-        {} as ServicesMap
-      );
+      .reduce((map, service) => {
+        map[service.name!] = service;
+        return map;
+      }, {} as ServicesMap);
   }
 }
