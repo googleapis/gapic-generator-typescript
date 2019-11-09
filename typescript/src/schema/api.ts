@@ -50,18 +50,15 @@ export class API {
     this.protos = fileDescriptors
       .filter(fd => fd.name)
       .filter(fd => !fs.existsSync(path.join(gaxProtosLocation, fd.name!)))
-      .reduce(
-        (map, fd) => {
-          map[fd.name!] = new Proto(
-            fd,
-            packageName,
-            grpcServiceConfig,
-            resourceMap
-          );
-          return map;
-        },
-        {} as ProtosMap
-      );
+      .reduce((map, fd) => {
+        map[fd.name!] = new Proto(
+          fd,
+          packageName,
+          grpcServiceConfig,
+          resourceMap
+        );
+        return map;
+      }, {} as ProtosMap);
     fileDescriptors.forEach(fd => {
       if (fd.service) {
         fd.service.forEach(service => {
@@ -83,15 +80,12 @@ export class API {
     return Object.keys(this.protos)
       .map(filename => this.protos[filename])
       .filter(proto => proto.fileToGenerate)
-      .reduce(
-        (retval, proto) => {
-          retval.push(
-            ...Object.keys(proto.services).map(name => proto.services[name])
-          );
-          return retval;
-        },
-        [] as plugin.google.protobuf.IServiceDescriptorProto[]
-      );
+      .reduce((retval, proto) => {
+        retval.push(
+          ...Object.keys(proto.services).map(name => proto.services[name])
+        );
+        return retval;
+      }, [] as plugin.google.protobuf.IServiceDescriptorProto[]);
   }
 
   get filesToGenerate() {
@@ -119,13 +113,10 @@ function getResourceMap(
     if (fd && fd.messageType) {
       const messages = fd.messageType
         .filter(message => message.name)
-        .reduce(
-          (map, message) => {
-            map['.' + fd.package! + '.' + message.name!] = message;
-            return map;
-          },
-          {} as MessagesMap
-        );
+        .reduce((map, message) => {
+          map['.' + fd.package! + '.' + message.name!] = message;
+          return map;
+        }, {} as MessagesMap);
       for (const property of Object.keys(messages)) {
         const m = messages[property];
         if (m && m.options) {

@@ -20,8 +20,8 @@ export interface Comment {
   paramName: string;
   paramType: string;
   comments: string[];
-  // LABEL_OPTIONAL = 1, LABEL_REQUIRED = 2, LABEL_REPEATED = 3
-  label?: plugin.google.protobuf.FieldDescriptorProto.Label;
+  // LABEL_OPTIONAL = 1, LABEL_REQUIRED = 2
+  fieldBehavior?: plugin.google.api.FieldBehavior;
 }
 
 // For service, one item will be <serviceName, comment>
@@ -123,16 +123,19 @@ export class CommentsMap {
                 ) {
                   paramType = field.typeName!;
                 }
-                const label = field.label ? field.label : undefined;
                 const comments = (location.leadingComments || '')
                   .split('\n')
                   .slice(0, -1);
+                const options = field.options;
                 const fieldComment: Comment = {
                   paramName,
                   paramType,
                   comments,
-                  label,
                 };
+                if (options && options['.google.api.fieldBehavior']) {
+                  const fieldBehavior = options['.google.api.fieldBehavior'][0];
+                  fieldComment.fieldBehavior = fieldBehavior;
+                }
                 const key = messageType + ':' + field.name;
                 commentsMap[key] = fieldComment;
               }
