@@ -18,8 +18,18 @@ limitations under the License.
 {% import "../_license.njk" as license -%}
 {{license.license()}}
 import * as {{ api.naming.version }} from './{{ api.naming.version }}';
-export {{ '{' + api.naming.version + '}' }};
-{% for service in api.services -%}
+{%- for service in api.services %}
 const {{ service.name.toPascalCase() }}Client = {{ api.naming.version }}.{{ service.name.toPascalCase() }}Client;
-export {{ '{' + service.name.toPascalCase() + 'Client' + '}' }};
 {%- endfor %}
+export { {{- api.naming.version }}
+{%- for service in api.services -%}
+, {{ service.name.toPascalCase() + 'Client' }}
+{%- endfor -%}
+};
+// For compatibility with JavaScript libraries we need to provide this default export:
+// tslint:disable-next-line no-default-export
+export default { {{- api.naming.version }}
+{%- for service in api.services -%}
+, {{ service.name.toPascalCase() + 'Client' }}
+{%- endfor -%}
+};
