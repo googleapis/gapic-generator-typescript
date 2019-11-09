@@ -20,6 +20,8 @@ export interface Comment {
   paramName: string;
   paramType: string;
   comments: string[];
+  // LABEL_OPTIONAL = 1, LABEL_REQUIRED = 2
+  fieldBehavior?: plugin.google.api.FieldBehavior;
 }
 
 // For service, one item will be <serviceName, comment>
@@ -124,11 +126,16 @@ export class CommentsMap {
                 const comments = (location.leadingComments || '')
                   .split('\n')
                   .slice(0, -1);
+                const options = field.options;
                 const fieldComment: Comment = {
                   paramName,
                   paramType,
                   comments,
                 };
+                if (options && options['.google.api.fieldBehavior']) {
+                  const fieldBehavior = options['.google.api.fieldBehavior'][0];
+                  fieldComment.fieldBehavior = fieldBehavior;
+                }
                 const key = messageType + ':' + field.name;
                 commentsMap[key] = fieldComment;
               }
