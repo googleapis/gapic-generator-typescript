@@ -15,22 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 -#}
-{%- macro initRequestWithHeaderParam(method) -%}
-            const request: protosTypes{{ toInterface(method.inputInterface) }} = {};
-{%- if method.headerRequestParams.length > 1 %}
-{%- set chain = "request" -%}
-{%- for field in method.headerRequestParams.slice(0, -1) %}
-            {{ chain }}.{{ field.toCamelCase() }} = {};
-{%- set chain = chain + "." + field.toCamelCase() -%}
-{%- endfor %}
-            {{ chain }}.{{ method.headerRequestParams.slice(-1)[0] }} = '';
-{%- endif %}
-{%- endmacro -%}
-
-{%- macro toInterface(type) -%}
-{%- set index = type.lastIndexOf('.') -%}
-{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
-{%- endmacro -%}
 
 {%- macro printComments(method, service) -%}
   {{- printCommentsForMethod(method) }}
@@ -39,6 +23,50 @@ limitations under the License.
   {{- printOptions() -}}
   {{- printReturn(method, service) }}
 {%- endmacro %}
+
+{%- macro printCommentsPageStream(method) -%}
+  {{- printPageStreamHeader(method) -}}
+  {{- printRequest(method) -}}
+  {{- printCommentsForParams(method) -}}
+  {{- printOptions() -}}
+  {{- printReturnPageStream(method) }}
+{%- endmacro -%}
+
+{%- macro printCommentsForService(service) -%}
+{%- set lines = service.comments -%}
+{% for line in lines %}
+ * {{ line | safe}}
+{%- endfor %}
+{%- endmacro -%}
+
+{%- macro printCommentsForMethod(method) -%}
+{%- set lines = method.comments -%}
+{% for line in lines %}
+ *{{ line | safe}}
+{%- endfor %}
+{%- endmacro -%}
+
+{%- macro printPageStreamHeader(method) %}
+ * Equivalent to {@link {{ method.name.toCamelCase() }}}, but returns a NodeJS Stream object.
+ *
+ * This fetches the paged responses for {@link {{ method.name.toCamelCase() }}} continuously
+ * and invokes the callback registered for 'data' event for each element in the
+ * responses.
+ *
+ * The returned object has 'end' method when no more elements are required.
+ *
+ * autoPaginate option will be ignored.
+ *
+ * @see {@link https://nodejs.org/api/stream.html}
+ *
+{%- endmacro -%}
+
+{%- macro printRequest(method) %}
+{%- if not method.clientStreaming %}
+ * @param {Object} request
+ *   The request object that will be sent.
+{%- endif %}
+{%- endmacro -%}
 
 {%- macro printCommentsForParams(method) -%}
 {% if not method.clientStreaming %}
@@ -55,27 +83,6 @@ limitations under the License.
  *  {{ line.replaceAll('*/', '* /') | safe}} 
 {%- endfor -%}
 {%- endfor -%}
-{%- endif %}
-{%- endmacro -%}
-
-{%- macro printCommentsForMethod(method) -%}
-{%- set lines = method.comments -%}
-{% for line in lines %}
- *{{ line | safe}}
-{%- endfor %}
-{%- endmacro -%}
-
-{%- macro printCommentsForService(service) -%}
-{%- set lines = service.comments -%}
-{% for line in lines %}
- * {{ line | safe}}
-{%- endfor %}
-{%- endmacro -%}
-
-{%- macro printRequest(method) %}
-{%- if not method.clientStreaming %}
- * @param {Object} request
- *   The request object that will be sent.
 {%- endif %}
 {%- endmacro -%}
 
@@ -132,9 +139,31 @@ limitations under the License.
  *   will emit objects representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}} on 'data' event asynchronously.
 {%- endmacro -%}
 
+{%- macro printReturnPageStream(method) %}
+ * @returns {Stream}
+ *   An object stream which emits an object representing [{{- toMessageName(method.pagingResponseType) -}}]{@link {{ method.pagingResponseType.substring(1) }}} on 'data' event.
+{%- endmacro -%}
+
 {%- macro toMessageName(messageType) -%}
 {%- set arr = messageType.split('.') %}
 {{- arr[arr.length - 1] -}}
+{%- endmacro -%}
+
+{%- macro initRequestWithHeaderParam(method) -%}
+            const request: protosTypes{{ toInterface(method.inputInterface) }} = {};
+{%- if method.headerRequestParams.length > 1 %}
+{%- set chain = "request" -%}
+{%- for field in method.headerRequestParams.slice(0, -1) %}
+            {{ chain }}.{{ field.toCamelCase() }} = {};
+{%- set chain = chain + "." + field.toCamelCase() -%}
+{%- endfor %}
+            {{ chain }}.{{ method.headerRequestParams.slice(-1)[0] }} = '';
+{%- endif %}
+{%- endmacro -%}
+
+{%- macro toInterface(type) -%}
+{%- set index = type.lastIndexOf('.') -%}
+{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
 {%- endmacro -%}
 
 {%- macro convertParamType(paramType) -%}
