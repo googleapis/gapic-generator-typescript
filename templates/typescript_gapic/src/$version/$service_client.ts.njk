@@ -20,6 +20,11 @@ limitations under the License.
 {% import "../../_util.njk" as util -%}
 
 import * as gax from 'google-gax';
+{% if service.longRunning.length > 0 -%}
+import {Callback, LROperation, Descriptors, ClientOptions} from 'google-gax';
+{%- else -%}
+import {Callback, Descriptors, ClientOptions} from 'google-gax';
+{%- endif %}
 import * as path from 'path';
 {% if (service.paging.length > 0) %}
 import { Transform } from 'stream';
@@ -28,33 +33,6 @@ import * as protosTypes from '../../protos/protos';
 import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json';
 
 const version = require('../../../package.json').version;
-
-export interface ClientOptions extends gax.GrpcClientOptions,
-                                       gax.GoogleAuthOptions,
-                                       gax.ClientStubOptions {
-  libName?: string;
-  libVersion?: string;
-  clientConfig?: gax.ClientConfig;
-  fallback?: boolean;
-  apiEndpoint?: string;
-}
-
-interface Descriptors {
-  page: {[name: string]: gax.PageDescriptor};
-  stream: {[name: string]: gax.StreamDescriptor};
-  longrunning: {[name: string]: gax.LongrunningDescriptor};
-}
-
-export interface Callback<
-    ResponseObject, NextRequestObject, RawResponseObject> {
-  (err: Error|null|undefined, value?: ResponseObject|null,
-   nextRequest?: NextRequestObject, rawResponse?: RawResponseObject): void;
-}
-{% if (service.longRunning.length > 0) %}
-export interface Operation<ResultType, MetadataType> extends gax.Operation {
-    promise(): Promise<[ResultType, MetadataType, protosTypes.google.longrunning.IOperation]>;
-}
-{%- endif %}
 
 {% if (service.paging.length > 0) %}
 export interface PaginationCallback<
@@ -465,14 +443,14 @@ export class {{ service.name }}Client {
       request: protosTypes{{ util.toInterface(method.inputInterface) }},
       options?: gax.CallOptions):
       Promise<[
-        Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType) }}>,
+        LROperation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType) }}>,
         protosTypes{{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
       ]>;
   {{ method.name.toCamelCase() }}(
       request: protosTypes{{ util.toInterface(method.inputInterface) }},
       options: gax.CallOptions,
       callback: Callback<
-          Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
+          LROperation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
           protosTypes{{ util.toInterface(method.outputInterface) }}|undefined,
           {}|undefined>): void;
 /**
@@ -481,14 +459,14 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}(
       request: protosTypes{{ util.toInterface(method.inputInterface) }},
       optionsOrCallback?: gax.CallOptions|Callback<
-          Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType)}}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
+          LROperation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType)}}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
           protosTypes{{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined>,
       callback?: Callback<
-          Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
+          LROperation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
           protosTypes{{ util.toInterface(method.outputInterface) }}|undefined,
           {}|undefined>):
       Promise<[
-        Operation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
+        LROperation<protosTypes{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, protosTypes{{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
         protosTypes{{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
       ]>|void {
     request = request || {};
