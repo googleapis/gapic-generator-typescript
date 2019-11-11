@@ -624,10 +624,13 @@ export class {{ service.name }}Client {
    *
    * The client will no longer be usable and all future behavior is undefined.
    */
-  close(): void {
+  close(): Promise<void> {
     if (!this._terminated) {
-      this._terminated = true;
-      this._{{ service.name.toCamelCase() }}Stub.then(stub => stub.close());
+      return this._{{ service.name.toCamelCase() }}Stub.then(stub => {
+        this._terminated = true;
+        stub.close();
+      });
     }
+    return Promise.resolve();
   }
 }

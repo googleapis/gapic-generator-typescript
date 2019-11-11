@@ -617,10 +617,13 @@ export class EchoClient {
    *
    * The client will no longer be usable and all future behavior is undefined.
    */
-  close(): void {
+  close(): Promise<void> {
     if (!this._terminated) {
-      this._terminated = true;
-      this._echoStub.then(stub => stub.close());
+      return this._echoStub.then(stub => {
+        this._terminated = true;
+        stub.close();
+      });
     }
+    return Promise.resolve();
   }
 }

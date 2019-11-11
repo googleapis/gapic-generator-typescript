@@ -89,7 +89,7 @@ function checkIdenticalFile(
   if (readOutputLines.length !== baselineOutputLines.length) {
     console.warn(
       `Line count for ${outputFullPath} was ${readOutputLines.length}, ` +
-      `but expected ${baselineOutputLines.length}.`
+        `but expected ${baselineOutputLines.length}.`
     );
   } else {
     for (let i = 0; i < readOutputLines.length; ++i) {
