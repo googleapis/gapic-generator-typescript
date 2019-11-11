@@ -76,9 +76,11 @@ export interface PaginationResponse<
  */
 export class {{ service.name }}Client {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
+  private _{{ service.name.toCamelCase() }}Stub: ClientStub;
   private _innerApiCalls: {[name: string]: Function};
   {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
+  private _terminated: false;
   {%- endif %}
   auth: gax.GoogleAuth;
 
@@ -255,7 +257,7 @@ export class {{ service.name }}Client {
 
     // Put together the "service stub" for
     // {{api.naming.protoPackage}}.{{ service.name }}.
-    const {{ service.name.toCamelCase() }}Stub = gaxGrpc.createStub(
+    this._{{ service.name.toCamelCase() }}Stub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('{{api.naming.protoPackage}}.{{ service.name }}') :
           // tslint:disable-next-line no-any
@@ -274,7 +276,7 @@ export class {{ service.name }}Client {
     ];
 
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
-      const innerCallPromise = {{ service.name.toCamelCase() }}Stub.then(
+      const innerCallPromise = this._{{ service.name.toCamelCase() }}Stub.then(
         (stub: {[method: string]: Function}) => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
@@ -282,13 +284,20 @@ export class {{ service.name }}Client {
           throw err;
         });
 
-      this._innerApiCalls[methodName] = gaxModule.createApiCall(
+      const apiCall = gaxModule.createApiCall(
         innerCallPromise,
         defaults[methodName],
         this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] || 
+            this._descriptors.stream[methodName] ||
             this._descriptors.longrunning[methodName]
       );
+
+      this._innerApiCalls[methodName] = (arguments, callOptions, callback) => {
+         if (!this._terminated) {
+            return Promise.reject('The client has already been closed.');
+         }
+         return apiCall(arguments, callOptions, callback);
+      };
     }
   }
 
@@ -609,4 +618,16 @@ export class {{ service.name }}Client {
 {%- endfor %}  
 {%- endfor %}
 {%- endif %}
+
+  /**
+   * Terminate the GRPC channel and close the client.
+   *
+   * The client will no longer be usable and all future behavior is undefined.
+   */
+  close(): void {
+    if (!this._terminated) {
+      this._terminated = true;
+      this._{{ service.name.toCamelCase() }}Stub.then(stub => stub.close());
+    }
+  }
 }

@@ -71,8 +71,10 @@ export interface PaginationResponse<
  */
 export class TranslationServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
+  private _translationServiceStub: ClientStub;
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
+  private _terminated: false;
   auth: gax.GoogleAuth;
 
   /**
@@ -234,7 +236,7 @@ export class TranslationServiceClient {
 
     // Put together the "service stub" for
     // google.cloud.translation.v3beta1.TranslationService.
-    const translationServiceStub = gaxGrpc.createStub(
+    this._translationServiceStub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('google.cloud.translation.v3beta1.TranslationService') :
           // tslint:disable-next-line no-any
@@ -247,7 +249,7 @@ export class TranslationServiceClient {
         ['translateText', 'detectLanguage', 'getSupportedLanguages', 'batchTranslateText', 'createGlossary', 'listGlossaries', 'getGlossary', 'deleteGlossary'];
 
     for (const methodName of translationServiceStubMethods) {
-      const innerCallPromise = translationServiceStub.then(
+      const innerCallPromise = this._translationServiceStub.then(
         (stub: {[method: string]: Function}) => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
@@ -255,13 +257,20 @@ export class TranslationServiceClient {
           throw err;
         });
 
-      this._innerApiCalls[methodName] = gaxModule.createApiCall(
+      const apiCall = gaxModule.createApiCall(
         innerCallPromise,
         defaults[methodName],
         this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] || 
+            this._descriptors.stream[methodName] ||
             this._descriptors.longrunning[methodName]
       );
+
+      this._innerApiCalls[methodName] = (arguments, callOptions, callback) => {
+         if (!this._terminated) {
+            return Promise.reject('The client has already been closed.');
+         }
+         return apiCall(arguments, callOptions, callback);
+      };
     }
   }
 
@@ -1077,5 +1086,17 @@ export class TranslationServiceClient {
   }
   matchGlossaryFromGlossaryName(glossaryName: string){
     return this._pathTemplates.glossaryPathTemplate.match(glossaryName).glossary;
+  }
+
+  /**
+   * Terminate the GRPC channel and close the client.
+   *
+   * The client will no longer be usable and all future behavior is undefined.
+   */
+  close(): void {
+    if (!this._terminated) {
+      this._terminated = true;
+      this._translationServiceStub.then(stub => stub.close());
+    }
   }
 }
