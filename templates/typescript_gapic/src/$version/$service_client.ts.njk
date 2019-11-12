@@ -21,9 +21,9 @@ limitations under the License.
 
 import * as gax from 'google-gax';
 {% if service.longRunning.length > 0 -%}
-import {Callback, LROperation, Descriptors, ClientOptions} from 'google-gax';
+import {APICallback, Callback, CallOptions, LROperation, Descriptors, ClientOptions} from 'google-gax';
 {%- else -%}
-import {Callback, Descriptors, ClientOptions} from 'google-gax';
+import {APICallback, Callback, CallOptions, Descriptors, ClientOptions} from 'google-gax';
 {%- endif %}
 import * as path from 'path';
 {% if (service.paging.length > 0) %}
@@ -54,12 +54,12 @@ export interface PaginationResponse<
  */
 export class {{ service.name }}Client {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
-  private _{{ service.name.toCamelCase() }}Stub: ClientStub;
+  private _{{ service.name.toCamelCase() }}Stub: Promise<{[name: string]: Function}>;
   private _innerApiCalls: {[name: string]: Function};
   {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
-  private _terminated: false;
   {%- endif %}
+  private _terminated = false;
   auth: gax.GoogleAuth;
 
   /**
@@ -255,7 +255,7 @@ export class {{ service.name }}Client {
 
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
       const innerCallPromise = this._{{ service.name.toCamelCase() }}Stub.then(
-        (stub: {[method: string]: Function}) => (...args: Array<{}>) => {
+        stub => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
         (err: Error|null|undefined) => () => {
@@ -270,11 +270,15 @@ export class {{ service.name }}Client {
             this._descriptors.longrunning[methodName]
       );
 
-      this._innerApiCalls[methodName] = (arguments, callOptions, callback) => {
+      this._innerApiCalls[methodName] = (
+        argument: {},
+        callOptions?: CallOptions,
+        callback?: APICallback
+      ) => {
          if (!this._terminated) {
             return Promise.reject('The client has already been closed.');
          }
-         return apiCall(arguments, callOptions, callback);
+         return apiCall(argument, callOptions, callback);
       };
     }
   }
