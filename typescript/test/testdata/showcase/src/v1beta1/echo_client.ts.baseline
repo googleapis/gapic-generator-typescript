@@ -17,7 +17,7 @@
 // ** All changes to this file may be overwritten. **
 
 import * as gax from 'google-gax';
-import {Callback, LROperation, Descriptors, ClientOptions} from 'google-gax';
+import {APICallback, Callback, CallOptions, LROperation, Descriptors, ClientOptions} from 'google-gax';
 import * as path from 'path';
 
 import { Transform } from 'stream';
@@ -51,7 +51,9 @@ export interface PaginationResponse<
  */
 export class EchoClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
+  private _echoStub: Promise<{[name: string]: Function}>;
   private _innerApiCalls: {[name: string]: Function};
+  private _terminated = false;
   auth: gax.GoogleAuth;
 
   /**
@@ -193,7 +195,7 @@ export class EchoClient {
 
     // Put together the "service stub" for
     // google.showcase.v1beta1.Echo.
-    const echoStub = gaxGrpc.createStub(
+    this._echoStub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('google.showcase.v1beta1.Echo') :
           // tslint:disable-next-line no-any
@@ -206,21 +208,32 @@ export class EchoClient {
         ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'wait'];
 
     for (const methodName of echoStubMethods) {
-      const innerCallPromise = echoStub.then(
-        (stub: {[method: string]: Function}) => (...args: Array<{}>) => {
+      const innerCallPromise = this._echoStub.then(
+        stub => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
         (err: Error|null|undefined) => () => {
           throw err;
         });
 
-      this._innerApiCalls[methodName] = gaxModule.createApiCall(
+      const apiCall = gaxModule.createApiCall(
         innerCallPromise,
         defaults[methodName],
         this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] || 
+            this._descriptors.stream[methodName] ||
             this._descriptors.longrunning[methodName]
       );
+
+      this._innerApiCalls[methodName] = (
+        argument: {},
+        callOptions?: CallOptions,
+        callback?: APICallback
+      ) => {
+         if (this._terminated) {
+            return Promise.reject('The client has already been closed.');
+         }
+         return apiCall(argument, callOptions, callback);
+      };
     }
   }
 
@@ -579,5 +592,20 @@ export class EchoClient {
       request,
       callSettings
     );
+  }
+
+  /**
+   * Terminate the GRPC channel and close the client.
+   *
+   * The client will no longer be usable and all future behavior is undefined.
+   */
+  close(): Promise<void> {
+    if (!this._terminated) {
+      return this._echoStub.then(stub => {
+        this._terminated = true;
+        stub.close();
+      });
+    }
+    return Promise.resolve();
   }
 }
