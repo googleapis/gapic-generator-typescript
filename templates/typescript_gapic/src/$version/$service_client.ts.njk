@@ -21,9 +21,9 @@ limitations under the License.
 
 import * as gax from 'google-gax';
 {% if service.longRunning.length > 0 -%}
-import {Callback, LROperation, Descriptors, ClientOptions} from 'google-gax';
+import {APICallback, Callback, CallOptions, LROperation, Descriptors, ClientOptions} from 'google-gax';
 {%- else -%}
-import {Callback, Descriptors, ClientOptions} from 'google-gax';
+import {APICallback, Callback, CallOptions, Descriptors, ClientOptions} from 'google-gax';
 {%- endif %}
 import * as path from 'path';
 {% if (service.paging.length > 0) %}
@@ -56,10 +56,12 @@ export interface PaginationResponse<
  */
 export class {{ service.name }}Client {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
+  private _{{ service.name.toCamelCase() }}Stub: Promise<{[name: string]: Function}>;
   private _innerApiCalls: {[name: string]: Function};
   {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
+  private _terminated = false;
   auth: gax.GoogleAuth;
 
   /**
@@ -235,7 +237,7 @@ export class {{ service.name }}Client {
 
     // Put together the "service stub" for
     // {{api.naming.protoPackage}}.{{ service.name }}.
-    const {{ service.name.toCamelCase() }}Stub = gaxGrpc.createStub(
+    this._{{ service.name.toCamelCase() }}Stub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('{{api.naming.protoPackage}}.{{ service.name }}') :
           // tslint:disable-next-line no-any
@@ -254,21 +256,32 @@ export class {{ service.name }}Client {
     ];
 
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
-      const innerCallPromise = {{ service.name.toCamelCase() }}Stub.then(
-        (stub: {[method: string]: Function}) => (...args: Array<{}>) => {
+      const innerCallPromise = this._{{ service.name.toCamelCase() }}Stub.then(
+        stub => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
         (err: Error|null|undefined) => () => {
           throw err;
         });
 
-      this._innerApiCalls[methodName] = gaxModule.createApiCall(
+      const apiCall = gaxModule.createApiCall(
         innerCallPromise,
         defaults[methodName],
         this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] || 
+            this._descriptors.stream[methodName] ||
             this._descriptors.longrunning[methodName]
       );
+
+      this._innerApiCalls[methodName] = (
+        argument: {},
+        callOptions?: CallOptions,
+        callback?: APICallback
+      ) => {
+         if (this._terminated) {
+            return Promise.reject('The client has already been closed.');
+         }
+         return apiCall(argument, callOptions, callback);
+      };
     }
   }
 
@@ -589,4 +602,19 @@ export class {{ service.name }}Client {
 {%- endfor %}  
 {%- endfor %}
 {%- endif %}
+
+  /**
+   * Terminate the GRPC channel and close the client.
+   *
+   * The client will no longer be usable and all future behavior is undefined.
+   */
+  close(): Promise<void> {
+    if (!this._terminated) {
+      return this._{{ service.name.toCamelCase() }}Stub.then(stub => {
+        this._terminated = true;
+        stub.close();
+      });
+    }
+    return Promise.resolve();
+  }
 }
