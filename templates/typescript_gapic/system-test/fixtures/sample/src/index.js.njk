@@ -15,15 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 -#}
-{
-  "extends": "./node_modules/gts/tsconfig-google.json",
-  "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "build",
-    "types": ["node"],
-    "skipLibCheck": false
-  },
-  "include": [
-    "src/*.ts"
-  ]
+{% import "../../../../_license.njk" as license -%}
+{{license.license()}}
+{%- for service in api.services %}
+const {{ api.naming.productName.toKebabCase()}} = require('{{ api.naming.productName.toKebabCase() }}');
+{%- endfor %}
+
+function main() {
+{%- for service in api.services %}
+  const {{ service.name.toCamelCase() -}}Client = new {{ api.naming.productName.toKebabCase() }}.{{ service.name.toPascalCase() + 'Client' }}();
+  console.log("{{- service.name.toCamelCase() -}}Client was created!");
+{%- endfor %}
 }
+
+main();
