@@ -31,7 +31,6 @@ describe('TestApplication', () => {
     it('Application test using generated showcase library.', function() {
       this.timeout(120000);
       // copy protos to generated client library and copy test application to local.
-      console.warn(process.cwd());
       fs.copySync(PROTOS, path.join(SHOWCASE_LIB, 'protos'));
       fs.copySync(JS_TEST_APPLICATION, LOCAL_JS_APPLICTION);
       process.chdir(SHOWCASE_LIB);
@@ -40,7 +39,6 @@ describe('TestApplication', () => {
       } catch (err) {
         console.warn(`Failed to install packages.`);
       }
-      console.warn('npm install pass');
       try {
         execSync(`npm pack`);
       } catch (err) {
@@ -48,6 +46,7 @@ describe('TestApplication', () => {
       }
       process.chdir(LOCAL_JS_APPLICTION);
       fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_JS_APPLICTION, PACKED_LIB));
+      console.warn(process.cwd());
       try {
         execSync(`npm install`);
       } catch (err) {
@@ -74,6 +73,7 @@ describe('TestApplication', () => {
       fs.copySync(TS_TEST_APPLICATION, LOCAL_TS_APPLICTION);
       process.chdir(LOCAL_TS_APPLICTION);
       fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_TS_APPLICTION, PACKED_LIB));
+      console.warn(process.cwd());
       try {
         execSync(`npm install`);
       } catch (err) {
