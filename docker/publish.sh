@@ -19,11 +19,10 @@
 SCRIPTDIR=`dirname "$0"`
 cd "$SCRIPTDIR"
 cd ..   # now in the package.json directory
-npm pack
 
-VERSION=`cat package.json | grep version | awk -F'"' '{ print $4; }'`
-
-cp "google-cloud-gapic-generator-$VERSION.tgz" "docker/package.tgz"
-cd docker
-
-docker build -t gapic-generator-typescript .
+git checkout master
+git pull
+sh docker/build.sh
+sh docker/test.sh
+docker tag gapic-generator-typescript gcr.io/gapic-images/gapic-generator-typescript
+docker push gcr.io/gapic-images/gapic-generator-typescript
