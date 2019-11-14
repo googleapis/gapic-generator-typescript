@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  test:
+  testGenerator:
     docker:
       - image: circleci/node:10-browsers
     steps:
@@ -23,48 +23,54 @@ jobs:
             npm test
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
+      - run: 
+          name: Run linting
+          command: |
+            npm run lint
+  showcaseTestApplication:
+    docker:
+      - image: circleci/node:10-browsers
+    steps: 
+      - checkout
       - run:
-          name: Run showcase test for JavaScript users
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install/test
+          command: |
+            npm install
+            npm test
+      - run:
+          name: Run showcase test for JavaScript and Typescript users
+          command: |
+            npm run test-application
+          environment:
+            NPM_CONFIG_PREFIX: /tmp/.npm-global
+  showcaseLibTest:
+    docker:
+      - image: circleci/node:10-browsers
+    steps: 
+      - checkout
+      - run:
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install
+          command: |
+            npm install
+            npm test
+      - run:
+          name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Showcase library
           command: |
             cp -r typescript/test/protos ./.test-out-showcase
-            cd .test-out-showcase
-            npm install
-            npm pack
-            cp -r ../typescript/test/test_application_js ~/
-            cp showcase-0.1.0.tgz ~/test_application_js
-            cd ~/test_application_js
-            npm install
-            npm test
-            showcase-server/gapic-showcase run &
-            showcase_pid=$!
-            stop_showcase() {
-              kill $showcase_pid
-              # Wait for the process to die, but don't report error from the kill.
-              wait $showcase_pid || true
-            }
-            npm run browser-test
-            trap stop_showcase EXIT
-      - run:
-          name: Run showcase test for TypeScript users
-          command: |
-            cd /home/circleci/project/.test-out-showcase
-            cp -r ../typescript/test/test_application_ts ~/
-            cp showcase-0.1.0.tgz ~/test_application_ts
-            cd ~/test_application_ts
-            npm install
-            npm test
-            showcase-server/gapic-showcase run &
-            showcase_pid=$!
-            stop_showcase() {
-              kill $showcase_pid
-              # Wait for the process to die, but don't report error from the kill.
-              wait $showcase_pid || true
-            }
-            npm run browser-test
-            trap stop_showcase EXIT
-      - run:
-          name: Run unit tests, system tests, jsdoc generation, gts fix and generate webpack of the generated Showcase library
-          command: |
             cd .test-out-showcase
             npm install
             npm test
@@ -73,9 +79,25 @@ jobs:
             npm run system-test
             npm run docs
             npm run docs-test
-            npx webpack
+  kmsLibTest:
+    docker:
+      - image: circleci/node:10-browsers
+    steps: 
+      - checkout
       - run:
-          name: Run unit tests, system tests, jsdoc generation, gts fix and generate webpack of the generated KMS library
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install
+          command: |
+            npm install
+            npm test
+      - run:
+          name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated KMS library
           command: |
             cp -r typescript/test/protos ./.test-out-keymanager
             cd .test-out-keymanager
@@ -86,9 +108,25 @@ jobs:
             npm run system-test
             npm run docs
             npm run docs-test
-            npx webpack
+  translateLibTest:
+    docker:
+      - image: circleci/node:10-browsers
+    steps: 
+      - checkout
       - run:
-          name: Run unit tests, system tests, jsdoc generation, gts fix and generate webpack of the generated Translate library
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install
+          command: |
+            npm install
+            npm test
+      - run:
+          name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Translate library
           command: |
             cp -r typescript/test/protos ./.test-out-translate
             cd .test-out-translate
@@ -99,9 +137,25 @@ jobs:
             npm run system-test
             npm run docs
             npm run docs-test
-            npx webpack
+  ttsLibTest:
+    docker:
+      - image: circleci/node:10-browsers
+    steps: 
+      - checkout
       - run:
-          name: Run unit tests, system tests, jsdoc generation, gts fix and generate webpack of the generated Text-to-Speech library
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install
+          command: |
+            npm install
+            npm test
+      - run:
+          name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Text-to-Speech library
           command: |
             cp -r typescript/test/protos ./.test-out-texttospeech
             cd .test-out-texttospeech
@@ -112,13 +166,13 @@ jobs:
             npm run system-test
             npm run docs
             npm run docs-test
-            npx webpack
-      - run:
-          name: Run linting
-          command: |
-            npm run lint
 workflows:
   version: 2
   tests:
     jobs:
-      - test
+      - testGenerator
+      - showcaseTestApplication
+      - showcaseLibTest
+      - kmsLibTest
+      - translateLibTest
+      - ttsLibTest
