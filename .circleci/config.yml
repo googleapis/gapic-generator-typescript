@@ -24,44 +24,9 @@ jobs:
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
       - run:
-          name: Run showcase test for JavaScript users
+          name: Run showcase test for JavaScript and Typescript users
           command: |
-            cp -r typescript/test/protos ./.test-out-showcase
-            cd .test-out-showcase
-            npm install
-            npm pack
-            cp -r ../typescript/test/test_application_js ~/
-            cp showcase-0.1.0.tgz ~/test_application_js
-            cd ~/test_application_js
-            npm install
-            npm test
-            showcase-server/gapic-showcase run &
-            showcase_pid=$!
-            stop_showcase() {
-              kill $showcase_pid
-              # Wait for the process to die, but don't report error from the kill.
-              wait $showcase_pid || true
-            }
-            npm run browser-test
-            trap stop_showcase EXIT
-      - run:
-          name: Run showcase test for TypeScript users
-          command: |
-            cd /home/circleci/project/.test-out-showcase
-            cp -r ../typescript/test/test_application_ts ~/
-            cp showcase-0.1.0.tgz ~/test_application_ts
-            cd ~/test_application_ts
-            npm install
-            npm test
-            showcase-server/gapic-showcase run &
-            showcase_pid=$!
-            stop_showcase() {
-              kill $showcase_pid
-              # Wait for the process to die, but don't report error from the kill.
-              wait $showcase_pid || true
-            }
-            npm run browser-test
-            trap stop_showcase EXIT
+            npm run test-application
       - run:
           name: Run unit tests, system tests, jsdoc generation, gts fix and generate webpack of the generated Showcase library
           command: |
