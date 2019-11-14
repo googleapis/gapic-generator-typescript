@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  install:
+  testGenerator:
     docker:
       - image: circleci/node:10-browsers
     steps:
@@ -16,11 +16,6 @@ jobs:
           name: Run npm install
           command: |
             npm install
-  testGenerator:
-    docker:
-      - image: circleci/node:10-browsers
-    steps:
-      - checkout
       - run:
           name: Run generator unit tests
           command: |
@@ -38,7 +33,19 @@ jobs:
     steps: 
       - checkout
       - run:
-          name: Run showcase test for JavaScript users
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install/test
+          command: |
+            npm install
+            npm test
+      - run:
+          name: Run showcase test for JavaScript and Typescript users
           command: |
             npm run test-application
           environment:
@@ -48,6 +55,18 @@ jobs:
       - image: circleci/node:10-browsers
     steps: 
       - checkout
+      - run:
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install
+          command: |
+            npm install
+            npm test
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Showcase library
           command: |
@@ -65,6 +84,18 @@ jobs:
       - image: circleci/node:10-browsers
     steps: 
       - checkout
+      - run:
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install
+          command: |
+            npm install
+            npm test
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated KMS library
           command: |
@@ -84,6 +115,18 @@ jobs:
     steps: 
       - checkout
       - run:
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install
+          command: |
+            npm install
+            npm test
+      - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Translate library
           command: |
             cp -r typescript/test/protos ./.test-out-translate
@@ -101,6 +144,18 @@ jobs:
     steps: 
       - checkout
       - run:
+          name: Install protoc
+          command: |
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
+            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
+            protoc --version
+          working_directory: /tmp
+      - run:
+          name: Run npm install
+          command: |
+            npm install
+            npm test
+      - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Text-to-Speech library
           command: |
             cp -r typescript/test/protos ./.test-out-texttospeech
@@ -116,22 +171,9 @@ workflows:
   version: 2
   tests:
     jobs:
-      - install
-      - testGenerator:
-          requires:
-            - install
-      - showcaseTestApplication:
-          requires:
-            - testGenerator
-      - showcaseLibTest:
-          requires:
-            - testGenerator
-      - kmsLibTest:
-          requires:
-            - testGenerator
-      - translateLibTest:
-          requires:
-            - testGenerator
-      - ttsLibTest:
-          requires:
-            - testGenerator
+      - testGenerator
+      - showcaseTestApplication
+      - showcaseLibTest
+      - kmsLibTest
+      - translateLibTest
+      - ttsLibTest
