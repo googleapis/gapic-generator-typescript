@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  install:
+  testGenerator:
     docker:
       - image: circleci/node:10-browsers
     steps:
@@ -16,18 +16,14 @@ jobs:
           name: Run npm install
           command: |
             npm install
-  testGenerator:
-    docker:
-      - image: circleci/node:10-browsers
-    steps: 
       - run:
           name: Run generator unit tests
           command: |
             npm link
             npm test
           environment:
-            NPM_CONFIG_PREFIX: /tmp/.npm-global
-      - run:
+          NPM_CONFIG_PREFIX: /tmp/.npm-global
+      - run: 
           name: Run linting
           command: |
             npm run lint
@@ -106,10 +102,7 @@ workflows:
   version: 2
   tests:
     jobs:
-      - install
-      - testGenerator:
-          requires:
-            - install
+      - testGenerator
       - showcaseTestApplication:
           requires:
             - testGenerator
