@@ -3,6 +3,7 @@ jobs:
   testGenerator:
     docker:
       - image: circleci/node:10-browsers
+    working_directory: /tmp/workspace/gapic-generator-typescript
     steps:
       - checkout
       - run:
@@ -15,6 +16,7 @@ jobs:
       - run:
           name: Run npm install
           command: |
+            pwd
             npm install
       - run:
           name: Run generator unit tests
@@ -34,22 +36,28 @@ jobs:
             cp -r typescript/test/protos .test-out-keymanager
             cp -r typescript/test/protos .test-out-translate
             cp -r typescript/test/protos .test-out-texttospeech
+            ls
+            cd .test-out-showcase
+            pwd
+            cd ..
+            pwd
       - persist_to_workspace:
-          root: /root
+          root: /tmp
           paths:
-            - project
+            - workspace
   showcaseTestApplication:
     docker:
       - image: circleci/node:10-browsers
     steps: 
       - checkout
       - attach_workspace:
-          at: ~/
+          at: workspace
       - run:
           name: Run showcase test for JavaScript and Typescript users
           command: |
+            pwd
             ls
-            cd project
+            cd workspace/gapic-generator-typescript
             ls
             npm run test-application
           environment:
@@ -60,12 +68,14 @@ jobs:
     steps: 
       - checkout
       - attach_workspace:
-          at: ~/
+          at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Showcase library
           command: |
+            cd workspace
+            find / -type d -name '.test-out-showcase'
             ls
-            cd .test-out-showcase
+            cd gapic-generator-typescript/.test-out-showcase
             npm install
             npm test
             npm run fix
