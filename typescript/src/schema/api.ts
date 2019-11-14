@@ -31,6 +31,7 @@ export class API {
   protos: ProtosMap;
   hostName?: string;
   port?: string;
+  mainServiceName?: string;
   // oauth_scopes: plugin.google.protobuf.IServiceOptions.prototype[".google.api.oauthScopes"];
   // TODO: subpackages
 
@@ -69,6 +70,7 @@ export class API {
               const arr = defaultHost.split(':');
               this.hostName = arr[0] || 'localhost';
               this.port = arr.length > 1 ? arr[1] : '443';
+              this.mainServiceName = service.name || this.naming.name;
             }
           }
         });
