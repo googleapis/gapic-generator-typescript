@@ -12,19 +12,60 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import { execSync } from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-const SHOWCASE_LIB = path.join(__dirname, '..', '..', '..', '.test-out-showcase');
-const PACKED_LIB = "showcase-0.1.0.tgz";
+const SHOWCASE_LIB = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  '.test-out-showcase'
+);
+const PACKED_LIB = 'showcase-0.1.0.tgz';
 const PACKED_LIB_PATH = path.join(SHOWCASE_LIB, PACKED_LIB);
-const PROTOS = path.join(__dirname, '..', '..', '..', 'typescript', 'test', 'protos');
-const LOCAL_JS_APPLICTION = path.join(__dirname, '..', '..', '..', '.test-application-js');
-const LOCAL_TS_APPLICTION = path.join(__dirname, '..', '..', '..', '.test-application-ts');
+const PROTOS = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'typescript',
+  'test',
+  'protos'
+);
+const LOCAL_JS_APPLICTION = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  '.test-application-js'
+);
+const LOCAL_TS_APPLICTION = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  '.test-application-ts'
+);
 
-const JS_TEST_APPLICATION = path.join(__dirname, '..', '..', '..', 'typescript', 'test', 'test_application_js');
-const TS_TEST_APPLICATION = path.join(__dirname, '..', '..', '..', 'typescript', 'test', 'test_application_ts');
+const JS_TEST_APPLICATION = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'typescript',
+  'test',
+  'test_application_js'
+);
+const TS_TEST_APPLICATION = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'typescript',
+  'test',
+  'test_application_ts'
+);
 
 describe('TestApplication', () => {
   describe('Test application for js users', () => {
