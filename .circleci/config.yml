@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  testGenerator:
+  install:
     docker:
       - image: circleci/node:10-browsers
     steps:
@@ -16,6 +16,10 @@ jobs:
           name: Run npm install
           command: |
             npm install
+  testGenerator:
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
       - run:
           name: Run generator unit tests
           command: |
@@ -35,6 +39,8 @@ jobs:
           name: Run showcase test for JavaScript users
           command: |
             npm run test-application
+          environment:
+            NPM_CONFIG_PREFIX: /tmp/.npm-global
   showcaseLibTest:
     docker:
       - image: circleci/node:10-browsers
@@ -42,6 +48,7 @@ jobs:
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Showcase library
           command: |
+            pwd
             cd .test-out-showcase
             npm install
             npm test
@@ -57,6 +64,7 @@ jobs:
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated KMS library
           command: |
+            pwd
             cp -r typescript/test/protos ./.test-out-keymanager
             cd .test-out-keymanager
             npm install
