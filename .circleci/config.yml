@@ -16,7 +16,6 @@ jobs:
       - run:
           name: Run npm install
           command: |
-            pwd
             npm install
       - run:
           name: Run generator unit tests
@@ -36,13 +35,11 @@ jobs:
             cp -r typescript/test/protos .test-out-keymanager
             cp -r typescript/test/protos .test-out-translate
             cp -r typescript/test/protos .test-out-texttospeech
-            cd .test-out-showcase
-            cd ..
       - persist_to_workspace:
           root: /tmp
           paths:
             - workspace
-  showcaseTestApplication:
+  showcaseTsTestApplication:
     docker:
       - image: circleci/node:10-browsers
     steps: 
@@ -53,7 +50,21 @@ jobs:
           name: Run showcase test for JavaScript and Typescript users
           command: |
             cd workspace/workspace/gapic-generator-typescript
-            npm run test-application
+            mocha build/test/test_application/test_ts
+          environment:
+            NPM_CONFIG_PREFIX: /tmp/.npm-global
+  showcaseJsTestApplication:
+    docker:
+      - image: circleci/node:10-browsers
+    steps: 
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: Run showcase test for JavaScript and Typescript users
+          command: |
+            cd workspace/workspace/gapic-generator-typescript
+            mocha build/test/test_application/test_js
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
   showcaseLibTest:
@@ -66,8 +77,7 @@ jobs:
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Showcase library
           command: |
-            cd workspace
-            cd workspace/gapic-generator-typescript/.test-out-showcase
+            cd workspace/workspace/gapic-generator-typescript/.test-out-showcase
             npm install
             npm test
             npm run fix
@@ -85,8 +95,7 @@ jobs:
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated KMS library
           command: |
-            cd workspace/workspace/gapic-generator-typescript/
-            cd .test-out-keymanager
+            cd workspace/workspace/gapic-generator-typescript/.test-out-keymanager
             npm install
             npm test
             npm run fix
@@ -104,8 +113,7 @@ jobs:
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Translate library
           command: |
-            cd workspace/workspace/gapic-generator-typescript/
-            cd .test-out-translate
+            cd workspace/workspace/gapic-generator-typescript/.test-out-translate
             npm install
             npm test
             npm run fix
@@ -123,8 +131,7 @@ jobs:
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Text-to-Speech library
           command: |
-            cd workspace/workspace/gapic-generator-typescript/
-            cd .test-out-texttospeech
+            cd workspace/workspace/gapic-generator-typescript/.test-out-texttospeech
             npm install
             npm test
             npm run fix
@@ -137,7 +144,10 @@ workflows:
   tests:
     jobs:
       - testGenerator
-      - showcaseTestApplication:
+      - showcaseTsTestApplication:
+          requires:
+            - testGenerator
+      - showcaseJsTestApplication:
           requires:
             - testGenerator
       - showcaseLibTest:

@@ -33,13 +33,6 @@ const PROTOS = path.join(
   'test',
   'protos'
 );
-const LOCAL_JS_APPLICTION = path.join(
-  __dirname,
-  '..',
-  '..',
-  '..',
-  '.test-application-js'
-);
 const LOCAL_TS_APPLICTION = path.join(
   __dirname,
   '..',
@@ -48,15 +41,6 @@ const LOCAL_TS_APPLICTION = path.join(
   '.test-application-ts'
 );
 
-const JS_TEST_APPLICATION = path.join(
-  __dirname,
-  '..',
-  '..',
-  '..',
-  'typescript',
-  'test',
-  'test_application_js'
-);
 const TS_TEST_APPLICATION = path.join(
   __dirname,
   '..',
@@ -68,45 +52,6 @@ const TS_TEST_APPLICATION = path.join(
 );
 
 describe('TestApplication', () => {
-  describe('Test application for js users', () => {
-    it('Application test using generated showcase library.', function() {
-      this.timeout(120000);
-      // copy protos to generated client library and copy test application to local.
-      fs.copySync(PROTOS, path.join(SHOWCASE_LIB, 'protos'));
-      fs.copySync(JS_TEST_APPLICATION, LOCAL_JS_APPLICTION);
-      process.chdir(SHOWCASE_LIB);
-      try {
-        execSync(`npm install`);
-      } catch (err) {
-        console.warn(`Failed to install packages.`);
-      }
-      try {
-        execSync(`npm pack`);
-      } catch (err) {
-        console.warn(`Failed to pack showcase library`);
-      }
-      process.chdir(LOCAL_JS_APPLICTION);
-      fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_JS_APPLICTION, PACKED_LIB));
-      console.warn(process.cwd());
-      try {
-        execSync(`npm install`);
-      } catch (err) {
-        console.warn(`Failed to install showcase library in test application.`);
-      }
-      // run integration test
-      try {
-        execSync(`npm test`);
-      } catch (err) {
-        console.warn(`Failed to run unit test in test application`);
-      }
-      // run browser test
-      try {
-        execSync(`npm run browser-test`);
-      } catch (err) {
-        console.warn(`Failed to run browser test in test application.`);
-      }
-    });
-  });
   describe('Test application for ts users', () => {
     it('Application test using generated showcase library.', function() {
       this.timeout(120000);
@@ -114,7 +59,6 @@ describe('TestApplication', () => {
       fs.copySync(TS_TEST_APPLICATION, LOCAL_TS_APPLICTION);
       process.chdir(LOCAL_TS_APPLICTION);
       fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_TS_APPLICTION, PACKED_LIB));
-      console.warn(process.cwd());
       try {
         execSync(`npm install`);
       } catch (err) {
