@@ -69,11 +69,11 @@ const TS_TEST_APPLICATION = path.join(
 
 describe('TestApplication', () => {
   describe('Test application for js users', () => {
-    it('Application test using generated showcase library.', function() {
+    it.only('Application test using generated showcase library.', function() {
       this.timeout(120000);
       // copy protos to generated client library and copy test application to local.
       fs.copySync(PROTOS, path.join(SHOWCASE_LIB, 'protos'));
-      fs.copySync(JS_TEST_APPLICATION, LOCAL_JS_APPLICTION);
+      // fs.copySync(JS_TEST_APPLICATION, LOCAL_JS_APPLICTION);
       process.chdir(SHOWCASE_LIB);
       try {
         execSync(`npm install`);
@@ -87,18 +87,17 @@ describe('TestApplication', () => {
       }
       process.chdir(LOCAL_JS_APPLICTION);
       fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_JS_APPLICTION, PACKED_LIB));
-      console.warn(process.cwd());
       try {
         execSync(`npm install`);
       } catch (err) {
         console.warn(`Failed to install showcase library in test application.`);
       }
       // run integration test
-      try {
-        execSync(`npm test`);
-      } catch (err) {
-        console.warn(`Failed to run unit test in test application`);
-      }
+      // try {
+      //   execSync(`npm test`);
+      // } catch (err) {
+      //   console.warn(`Failed to run unit test in test application`);
+      // }
       // run browser test
       try {
         execSync(`npm run browser-test`);
