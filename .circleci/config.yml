@@ -3,6 +3,7 @@ jobs:
   testGenerator:
     docker:
       - image: circleci/node:10-browsers
+    working_directory: /tmp/workspace/gapic-generator-typescript
     steps:
       - checkout
       - run:
@@ -27,27 +28,43 @@ jobs:
           name: Run linting
           command: |
             npm run lint
-  showcaseTestApplication:
+      - run:
+          name: copy protos to generated client library
+          command: |
+            cp -r typescript/test/protos .test-out-showcase
+            cp -r typescript/test/protos .test-out-keymanager
+            cp -r typescript/test/protos .test-out-translate
+            cp -r typescript/test/protos .test-out-texttospeech
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - workspace
+  showcaseTsTestApplication:
     docker:
       - image: circleci/node:10-browsers
     steps: 
       - checkout
-      - run:
-          name: Install protoc
-          command: |
-            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
-            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
-            protoc --version
-          working_directory: /tmp
-      - run:
-          name: Run npm install/test
-          command: |
-            npm install
-            npm test
+      - attach_workspace:
+          at: workspace
       - run:
           name: Run showcase test for JavaScript and Typescript users
           command: |
-            npm run test-application
+            cd workspace/workspace/gapic-generator-typescript
+            npm run ts-test-application
+          environment:
+            NPM_CONFIG_PREFIX: /tmp/.npm-global
+  showcaseJsTestApplication:
+    docker:
+      - image: circleci/node:10-browsers
+    steps: 
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: Run showcase test for JavaScript and Typescript users
+          command: |
+            cd workspace/workspace/gapic-generator-typescript
+            npm run js-test-application
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
   showcaseLibTest:
@@ -55,23 +72,12 @@ jobs:
       - image: circleci/node:10-browsers
     steps: 
       - checkout
-      - run:
-          name: Install protoc
-          command: |
-            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
-            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
-            protoc --version
-          working_directory: /tmp
-      - run:
-          name: Run npm install
-          command: |
-            npm install
-            npm test
+      - attach_workspace:
+          at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Showcase library
           command: |
-            cp -r typescript/test/protos ./.test-out-showcase
-            cd .test-out-showcase
+            cd workspace/workspace/gapic-generator-typescript/.test-out-showcase
             npm install
             npm test
             npm run fix
@@ -84,23 +90,12 @@ jobs:
       - image: circleci/node:10-browsers
     steps: 
       - checkout
-      - run:
-          name: Install protoc
-          command: |
-            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
-            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
-            protoc --version
-          working_directory: /tmp
-      - run:
-          name: Run npm install
-          command: |
-            npm install
-            npm test
+      - attach_workspace:
+          at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated KMS library
           command: |
-            cp -r typescript/test/protos ./.test-out-keymanager
-            cd .test-out-keymanager
+            cd workspace/workspace/gapic-generator-typescript/.test-out-keymanager
             npm install
             npm test
             npm run fix
@@ -113,23 +108,12 @@ jobs:
       - image: circleci/node:10-browsers
     steps: 
       - checkout
-      - run:
-          name: Install protoc
-          command: |
-            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
-            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
-            protoc --version
-          working_directory: /tmp
-      - run:
-          name: Run npm install
-          command: |
-            npm install
-            npm test
+      - attach_workspace:
+          at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Translate library
           command: |
-            cp -r typescript/test/protos ./.test-out-translate
-            cd .test-out-translate
+            cd workspace/workspace/gapic-generator-typescript/.test-out-translate
             npm install
             npm test
             npm run fix
@@ -142,23 +126,12 @@ jobs:
       - image: circleci/node:10-browsers
     steps: 
       - checkout
-      - run:
-          name: Install protoc
-          command: |
-            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
-            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
-            protoc --version
-          working_directory: /tmp
-      - run:
-          name: Run npm install
-          command: |
-            npm install
-            npm test
+      - attach_workspace:
+          at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Text-to-Speech library
           command: |
-            cp -r typescript/test/protos ./.test-out-texttospeech
-            cd .test-out-texttospeech
+            cd workspace/workspace/gapic-generator-typescript/.test-out-texttospeech
             npm install
             npm test
             npm run fix
@@ -171,8 +144,21 @@ workflows:
   tests:
     jobs:
       - testGenerator
-      - showcaseTestApplication
-      - showcaseLibTest
-      - kmsLibTest
-      - translateLibTest
-      - ttsLibTest
+      - showcaseTsTestApplication:
+          requires:
+            - testGenerator
+      - showcaseJsTestApplication:
+          requires:
+            - testGenerator
+      - showcaseLibTest:
+          requires:
+            - testGenerator
+      - kmsLibTest:
+          requires:
+            - testGenerator
+      - translateLibTest:
+          requires:
+            - testGenerator
+      - ttsLibTest:
+          requires:
+            - testGenerator
