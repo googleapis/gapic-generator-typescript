@@ -68,7 +68,7 @@ describe('TestApplication', () => {
     it('npm pack showcase library and copy it to test application', async function() {
       this.timeout(60000);
       try {
-       await exec(`npm pack`);
+        await exec(`npm pack`);
       } catch (err) {
         console.warn(`Failed to pack showcase library`);
       }
