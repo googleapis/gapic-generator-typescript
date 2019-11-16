@@ -51,17 +51,20 @@ const JS_TEST_APPLICATION = path.join(
 );
 describe('TestApplication', () => {
   describe('Test application for js users', () => {
-    it.only('Application test using generated showcase library.', function() {
-      this.timeout(120000);
+    it('npm install showcase', function() {
+      this.timeout(10000);
       // copy protos to generated client library and copy test application to local.
       fs.copySync(PROTOS, path.join(SHOWCASE_LIB, 'protos'));
-      // fs.copySync(JS_TEST_APPLICATION, LOCAL_JS_APPLICTION);
+      fs.copySync(JS_TEST_APPLICATION, LOCAL_JS_APPLICTION);
       process.chdir(SHOWCASE_LIB);
       try {
         execSync(`npm install`);
       } catch (err) {
         console.warn(`Failed to install packages.`);
       }
+    });
+    it('npm pack showcase library and copy it to test application', function() {
+      this.timeout(10000);
       try {
         execSync(`npm pack`);
       } catch (err) {
@@ -69,18 +72,25 @@ describe('TestApplication', () => {
       }
       process.chdir(LOCAL_JS_APPLICTION);
       fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_JS_APPLICTION, PACKED_LIB));
+    });
+    it('npm install showcase library in test application', function() {
+      this.timeout(10000);
       try {
         execSync(`npm install`);
       } catch (err) {
         console.warn(`Failed to install showcase library in test application.`);
       }
-      // run integration test
+    });
+    it('run integration in test application', function() {
+      this.timeout(60000);
       try {
         execSync(`npm test`);
       } catch (err) {
         console.warn(`Failed to run unit test in test application`);
       }
-      // run browser test
+    });
+    it('run browser test in application', function() {
+      this.timeout(120000);
       try {
         execSync(`npm run browser-test`);
       } catch (err) {

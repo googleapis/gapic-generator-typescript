@@ -12,36 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const execSync = require('child_process').execSync;
+const child_process = require('child_process');
 const fs = require('fs-extra');
+const util = require('util');
 const path = require('path');
 const SHOWCASE_SERVER = path.join(__dirname, 'showcase-server');
+const serverProcess = require( './server');
+const exec = util.promisify(child_process.exec);
 
 describe('BrowserTest for showcase library', () => {
-  describe('Run browser test for generated showcase library', () => {
-    if (!fs.existsSync(SHOWCASE_SERVER)) {
-      console.warn(
-        'gapic showcase server does not exist, please download it first.'
-      );
-    }
-    // Run server
-    try {
-      execSync(`showcase-server/gapic-showcase run & \
-      showcase_pid=$! `);
-    } catch (err) {
-      console.warn(`Failed to run showcase server`);
-    }
-    // Run browser test
-    try {
-      execSync(`karma start`);
-    } catch (err) {
-      console.warn(`Failed to start browser test`);
-    }
-    // Kill server process
-    try {
-        execSync(`kill $showcase_pid`);
-      } catch (err) {
-        console.warn(`Failed to kill showcase server`);
-      } 
+  describe('Run browser test for generated showcase library', async function () {
+    it('TEST', async function () {
+      this.timeout(120000);
+      if (!fs.existsSync(SHOWCASE_SERVER)) {
+        console.warn(
+          'gapic showcase server does not exist, please download it first.'
+        );
+      }
+      serverProcess.run();
+      // Run browser test
+      try {
+        await exec('karma start');
+      }
+      catch (err) {
+        console.log('execSync error:', err);
+        console.log('stdout:', err.stdout.toString());
+        console.log('stderr:', err.stderr.toString());
+      }
+      console.warn('run browser test');
+      // Kill server process
+      serverProcess.kill();
+    })    
   });
 });
