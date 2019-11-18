@@ -11,15 +11,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+const fs = require('fs-extra');
 const { spawn } = require('child_process');
+var kill = require('tree-kill');
+const path = require('path');
+const SHOWCASE_SERVER = path.join(
+  __dirname,
+  'showcase-server',
+  'gapic-showcase'
+);
+
 module.exports = {
-  run: function(){
-    this.childProcess = spawn('./showcase-server/gapic-showcase',['run']);
-    this.childProcess.on('error', (err) => {
+  run: function() {
+    if (!fs.existsSync(SHOWCASE_SERVER)) {
+      console.warn(
+        'gapic showcase server does not exist, please download it first.'
+      );
+    }
+    this.childProcess = spawn(`${SHOWCASE_SERVER}`, ['run']);
+    this.childProcess.on('error', err => {
       console.error('Failed to start subprocess.');
     });
   },
-  kill: function(){
-    this.childProcess.kill();
-  }
-}
+  kill: function() {
+    kill(this.childProcess.pid);
+  },
+};

@@ -13,35 +13,25 @@
 // limitations under the License.
 
 const child_process = require('child_process');
-const fs = require('fs-extra');
 const util = require('util');
-const path = require('path');
-const SHOWCASE_SERVER = path.join(__dirname, 'showcase-server');
-const serverProcess = require( './server');
+const serverProcess = require('./server');
 const exec = util.promisify(child_process.exec);
 
 describe('BrowserTest for showcase library', () => {
-  describe('Run browser test for generated showcase library', async function () {
-    it('TEST', async function () {
+  describe('Run browser test for generated showcase library', async function() {
+    it('Browser test, should pass', async function() {
       this.timeout(120000);
-      if (!fs.existsSync(SHOWCASE_SERVER)) {
-        console.warn(
-          'gapic showcase server does not exist, please download it first.'
-        );
-      }
       serverProcess.run();
       // Run browser test
       try {
         await exec('karma start');
-      }
-      catch (err) {
+      } catch (err) {
         console.log('execSync error:', err);
         console.log('stdout:', err.stdout.toString());
         console.log('stderr:', err.stderr.toString());
       }
-      console.warn('run browser test');
       // Kill server process
       serverProcess.kill();
-    })    
+    });
   });
 });
