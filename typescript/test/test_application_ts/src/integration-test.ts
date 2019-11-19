@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const util = require('util');
-const child_process = require('child_process');
+import * as child_process from 'child_process';
+import * as util from 'util';
+import * as path from 'path';
+import * as fs from 'fs-extra';
+import {Server} from './server';
 const exec = util.promisify(child_process.exec);
-const fs = require('fs-extra');
-const path = require('path');
-const SHOWCASE_SERVER = path.join(__dirname, 'showcase-server');
+const SHOWCASE_SERVER = path.join(__dirname,'..', '..', 'showcase-server');
 const SHOWCASE_SERVER_TAR = path.join(
   SHOWCASE_SERVER,
   'gapic-showcase-server.tar.gz'
 );
 const TEST_FILE = path.join(__dirname, 'index.js');
-const serverProcess = require('./server');
 const GAPIC_SHOWCASE_VERSION = '0.5.0';
 const OS = process.platform;
 const ARCH = process.arch == "x64" ? "amd64" : process.arch;
@@ -35,7 +35,7 @@ describe('IntegrationTest for showcase library', () => {
       if (!fs.existsSync(SHOWCASE_SERVER)) {
         fs.mkdirSync(SHOWCASE_SERVER);
       }
-      // Download server
+      //Download server
       process.chdir(SHOWCASE_SERVER);
       try {
         const command = `curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-${ARCH}.tar.gz > gapic-showcase-server.tar.gz`;
@@ -54,17 +54,16 @@ describe('IntegrationTest for showcase library', () => {
     });
     it('run the server and test', async function() {
       this.timeout(120000);
-      serverProcess.run();
+      const server = new Server();
+      server.run();
       // Run test
       try {
         await exec(`mocha ${TEST_FILE}`);
       } catch (err) {
         console.log('Failed to run tests', err);
       }
-    });
-    it('kill the server', async function() {
       // Kill server process
-      serverProcess.kill();
+      server.kill();
     });
   });
 });
