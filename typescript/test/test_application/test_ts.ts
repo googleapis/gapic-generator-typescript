@@ -54,16 +54,19 @@ const TS_TEST_APPLICATION = path.join(
 describe('TestApplication', () => {
   describe('Test application for ts users', () => {
     it('npm install showcase', async function() {
-      this.timeout(60000);
+      this.timeout(30000);
       // copy protos to generated client library and copy test application to local.
-      fs.copySync(PROTOS, path.join(SHOWCASE_LIB, 'protos'));
-      fs.copySync(TS_TEST_APPLICATION, LOCAL_TS_APPLICATION);
+      if (!fs.existsSync(path.join(SHOWCASE_LIB, 'protos'))) {
+        fs.copySync(PROTOS, path.join(SHOWCASE_LIB, 'protos'));
+      }
+      if (!fs.existsSync(LOCAL_TS_APPLICATION)) {
+        fs.copySync(TS_TEST_APPLICATION, LOCAL_TS_APPLICATION);
+      }
       process.chdir(SHOWCASE_LIB);
       await exec(`npm install`);
     });
     it('npm pack showcase library and copy it to test application', async function() {
       this.timeout(60000);
-      await exec(`npm pack`);
       process.chdir(LOCAL_TS_APPLICATION);
       fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_TS_APPLICATION, PACKED_LIB));
     });

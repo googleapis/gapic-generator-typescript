@@ -63,7 +63,7 @@ const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 describe('LibraryWithCommonResourceGenerateTest', () => {
   describe('Generate Client library', () => {
     it('Generated client library with common resource should have same output with baseline.', function() {
-      this.timeout(10000);
+      this.timeout(60000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);
       }

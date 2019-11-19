@@ -30,19 +30,22 @@ const ARCH = 'amd' + process.arch.toString().substring(1);
 
 describe('IntegrationTest for showcase library', () => {
   describe('Run integration test for generated showcase library', async function() {
-    it('download the server', async function() {
+    it.only('download the server', async function() {
       this.timeout(120000);
       if (!fs.existsSync(SHOWCASE_SERVER)) {
         fs.mkdirSync(SHOWCASE_SERVER);
       }
+      console.warn('downloded the server....');
       // Download server
       process.chdir(SHOWCASE_SERVER);
-      try {
-        const command = `curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-${ARCH}.tar.gz > gapic-showcase-server.tar.gz`;
-        await exec(command);
-      } catch (err) {
-        console.log('exec error:', err);
-      }
+      console.warn(process.cwd());
+      // try {
+      //   const command = `curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-${ARCH}.tar.gz > gapic-showcase-server.tar.gz`;
+      //   await exec(command);
+      // } catch (err) {
+      //   console.log('exec error:', err);
+      // }
+      console.warn(' downloaded ');
     });
     //tar -xzf gapic-showcase-server.tar.gz
     it('untar the server directory', async function() {
