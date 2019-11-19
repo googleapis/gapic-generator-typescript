@@ -87,6 +87,9 @@ export class Generator {
   private async readGrpcServiceConfig(map: Map) {
     if (map && map['grpc-service-config']) {
       const filename = map['grpc-service-config'];
+      if (!fs.existsSync(filename)) {
+        throw new Error(`File ${filename} cannot be opened.`);
+      }
       const content = await readFile(filename);
       const json = JSON.parse(content.toString());
       Generator.updateDuration(json);
