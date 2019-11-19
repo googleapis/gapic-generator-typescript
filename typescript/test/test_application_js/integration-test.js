@@ -26,7 +26,7 @@ const TEST_FILE = path.join(__dirname, 'index.js');
 const serverProcess = require('./server');
 const GAPIC_SHOWCASE_VERSION = '0.5.0';
 const OS = process.platform;
-const ARCH = 'amd' + process.arch.toString().substring(1);
+const ARCH = process.arch == "x64" ? "amd64" : process.arch;
 
 describe('IntegrationTest for showcase library', () => {
   describe('Run integration test for generated showcase library', async function() {

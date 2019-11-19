@@ -24,7 +24,7 @@ const SHOWCASE_SERVER = path.join(
 );
 
 export class Server{
-  pid: number = -1;
+  server: child_process.ChildProcessWithoutNullStreams;
   constrcutor() {}
   run(){
     if (!fs.existsSync(SHOWCASE_SERVER)) {
@@ -32,12 +32,9 @@ export class Server{
         'gapic showcase server does not exist, please download it first.'
       );
     }
-    this.pid = child_process.spawn(`${SHOWCASE_SERVER}`, ['run']).pid;
+    this.server = child_process.spawn(`${SHOWCASE_SERVER}`, ['run']);
   }
   kill() {
-    if(this.pid === -1){
-      console.warn('Failed to start child process.');
-    }
-    kill(this.pid);
+    this.server.kill();
   }
 };
