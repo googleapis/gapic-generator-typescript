@@ -38,7 +38,7 @@ describe('IntegrationTest for showcase library', () => {
       // Download server
       process.chdir(SHOWCASE_SERVER);
       try {
-        const command = `curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-amd64.tar.gz > gapic-showcase-server.tar.gz`;
+        const command = `curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-${ARCH}.tar.gz > gapic-showcase-server.tar.gz`;
         await exec(command);
       } catch (err) {
         console.log('exec error:', err);

@@ -18,34 +18,32 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import {Server} from './server';
 const exec = util.promisify(child_process.exec);
-const SHOWCASE_SERVER = path.join(__dirname, 'showcase-server');
+const SHOWCASE_SERVER = path.join(__dirname,'..', '..', 'showcase-server');
 const SHOWCASE_SERVER_TAR = path.join(
   SHOWCASE_SERVER,
   'gapic-showcase-server.tar.gz'
 );
-const TEST_FILE = path.join(__dirname, '..', 'build', 'src', 'index.js');
+const TEST_FILE = path.join(__dirname, 'index.js');
 const GAPIC_SHOWCASE_VERSION = '0.5.0';
 const OS = process.platform;
 const ARCH = 'amd' + process.arch.toString().substring(1);
 
 describe('IntegrationTest for showcase library', () => {
   describe('Run integration test for generated showcase library', async function() {
-    it.only('download the server', async function() {
+    it('download the server', async function() {
       this.timeout(120000);
       if (!fs.existsSync(SHOWCASE_SERVER)) {
         fs.mkdirSync(SHOWCASE_SERVER);
       }
-      console.warn('downloded the server....');
-      // Download server
+      //Download server
       process.chdir(SHOWCASE_SERVER);
       console.warn(process.cwd());
-      // try {
-      //   const command = `curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-${ARCH}.tar.gz > gapic-showcase-server.tar.gz`;
-      //   await exec(command);
-      // } catch (err) {
-      //   console.log('exec error:', err);
-      // }
-      console.warn(' downloaded ');
+      try {
+        const command = `curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-${ARCH}.tar.gz > gapic-showcase-server.tar.gz`;
+        await exec(command);
+      } catch (err) {
+        console.log('exec error:', err);
+      }
     });
     //tar -xzf gapic-showcase-server.tar.gz
     it('untar the server directory', async function() {

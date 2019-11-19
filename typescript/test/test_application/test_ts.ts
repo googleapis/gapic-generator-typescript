@@ -67,6 +67,7 @@ describe('TestApplication', () => {
     });
     it('npm pack showcase library and copy it to test application', async function() {
       this.timeout(60000);
+      await exec(`npm pack`);
       process.chdir(LOCAL_TS_APPLICATION);
       fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_TS_APPLICATION, PACKED_LIB));
     });

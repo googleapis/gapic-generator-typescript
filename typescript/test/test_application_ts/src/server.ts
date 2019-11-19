@@ -17,6 +17,8 @@ import * as kill from 'tree-kill';
 import * as path from 'path';
 const SHOWCASE_SERVER = path.join(
   __dirname,
+  '..',
+  '..',
   'showcase-server',
   'gapic-showcase'
 );
