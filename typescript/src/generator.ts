@@ -39,7 +39,7 @@ export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
   response: plugin.google.protobuf.compiler.CodeGeneratorResponse;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
-  //This field is for users passing proper module name for system test.
+  // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
   publishName?: string;
 
   constructor() {

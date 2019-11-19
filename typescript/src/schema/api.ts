@@ -49,11 +49,7 @@ export class API {
       )
     );
     // users specify the actual package name, if not, set it to product name.
-    if (publishName) {
-      this.publishName = publishName;
-    } else {
-      this.publishName = this.naming.productName.toKebabCase();
-    }
+    this.publishName = publishName || this.naming.productName.toKebabCase();
     // construct resource map
     const resourceMap = getResourceMap(fileDescriptors);
     // parse resource map to Proto constructor

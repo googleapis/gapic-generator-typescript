@@ -34,7 +34,7 @@ const argv = yargs
   .describe('output_dir', 'Path to a directory for the generated code')
   .alias('grpc-service-config', 'grpc_service_config')
   .describe('grpc-service-config', 'Path to gRPC service config JSON')
-  .alias('package-name', 'package-name')
+  .alias('package-name', 'package_name')
   .describe('package-name', 'Publish package name')
   .alias('common-proto-path', 'common_protos_path')
   .describe(
