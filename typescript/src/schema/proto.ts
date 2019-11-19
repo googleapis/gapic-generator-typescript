@@ -389,7 +389,11 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
-  if (method.inputType && messages[method.inputType].field) {
+  if (
+    method.inputType &&
+    messages[method.inputType] &&
+    messages[method.inputType].field
+  ) {
     const paramComment: Comment[] = [];
     const inputType = messages[method.inputType!];
     const inputmessageName = toMessageName(method.inputType);
