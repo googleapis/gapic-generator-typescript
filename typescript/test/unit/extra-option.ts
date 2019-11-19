@@ -88,5 +88,19 @@ describe('Package Name & grpc Config', () => {
       );
       assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR));
     });
+
+    it('Use alias name should also work.', function() {
+      this.timeout(10000);
+      execSync(
+        `node build/src/start_script.js ` +
+          `--output-dir=${OUTPUT_DIR} ` +
+          `-I ${GOOGLE_GAX_PROTOS_DIR} ` +
+          `-I ${PROTOS_DIR} ` +
+          `--grpc_service_config=${GRPC_SERVICE_CONFIG} ` +
+          `--package_name=${PACKAGE_NAME} ` +
+          TTS_PROTO_FILE
+      );
+      assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR));
+    });
   });
 });

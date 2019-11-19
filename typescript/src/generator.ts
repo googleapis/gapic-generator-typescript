@@ -23,6 +23,9 @@ import { API } from './schema/api';
 import { processTemplates } from './templater';
 import { commonPrefix, duration } from './util';
 
+export interface Map {
+  [name: string]: string;
+}
 const readFile = util.promisify(fs.readFile);
 
 const templateDirectory = path.join(
@@ -32,6 +35,7 @@ const templateDirectory = path.join(
   'templates',
   'typescript_gapic'
 );
+
 // If needed, we can make it possible to load templates from different locations
 // to generate code for other languages.
 
@@ -67,27 +71,35 @@ export class Generator {
     }
   }
 
-  private async readGrpcServiceConfig(parameter: string) {
-    const match = parameter.match(/^["']?grpc-service-config=([^"]+)["']?/);
-    if (!match) {
-      throw new Error(`Parameter ${parameter} was not recognized.`);
+  private getParamMap(parameter: string) {
+    // Example: "grpc-service-config=texamplejson","package-name=packageName"
+    const paramMap: Map = {};
+    const parameters = parameter.split(',');
+    for (let param of parameters) {
+      // remove double quote
+      param = param.substring(1, param.length - 1);
+      const arr = param.split('=');
+      paramMap[arr[0].toKebabCase()] = arr[1];
     }
-    const filename = match[1];
-    if (!fs.existsSync(filename)) {
-      throw new Error(`File ${filename} cannot be opened.`);
-    }
-
-    const content = await readFile(filename);
-    const json = JSON.parse(content.toString());
-    Generator.updateDuration(json);
-    this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.fromObject(
-      json
-    );
+    return paramMap;
   }
 
-  private async readPublishPackageName(parameter: string) {
-    const match = parameter.match(/["']?package-name=([^"]+)["']?$/);
-    if (match && match.length > 1) this.publishName = match[1];
+  private async readGrpcServiceConfig(map: Map) {
+    if (map && map['grpc-service-config']) {
+      const filename = map['grpc-service-config'];
+      const content = await readFile(filename);
+      const json = JSON.parse(content.toString());
+      Generator.updateDuration(json);
+      this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.fromObject(
+        json
+      );
+    }
+  }
+
+  private async readPublishPackageName(map: Map) {
+    if (map && map['package-name']) {
+      this.publishName = map['package-name'];
+    }
   }
 
   async initializeFromStdin() {
@@ -96,8 +108,9 @@ export class Generator {
       inputBuffer
     );
     if (this.request.parameter) {
-      await this.readGrpcServiceConfig(this.request.parameter);
-      await this.readPublishPackageName(this.request.parameter);
+      const map = this.getParamMap(this.request.parameter);
+      await this.readGrpcServiceConfig(map);
+      await this.readPublishPackageName(map);
     }
   }
 
