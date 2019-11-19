@@ -23,7 +23,7 @@ const SHOWCASE_SERVER_TAR = path.join(
   SHOWCASE_SERVER,
   'gapic-showcase-server.tar.gz'
 );
-const TEST_FILE = path.join(__dirname,'..', 'build', 'src', 'index.js');
+const TEST_FILE = path.join(__dirname, '..', 'build', 'src', 'index.js');
 const GAPIC_SHOWCASE_VERSION = '0.5.0';
 const OS = process.platform;
 const ARCH = 'amd' + process.arch.toString().substring(1);
