@@ -23,17 +23,17 @@ describe('BrowserTest for showcase library', () => {
       this.timeout(120000);
       const server = new Server();
       console.warn('browser server started.....');
-      // Run browser test
-      // try {
-      //   await exec('karma start');
-      // } catch (err) {
-      //   console.log('execSync error:', err);
-      //   console.log('stdout:', err.stdout.toString());
-      //   console.log('stderr:', err.stderr.toString());
-      // }
-      // console.warn('karma start')
-      // // Kill server process
-      // server.kill();
+      //Run browser test
+      try {
+        await exec('karma start');
+      } catch (err) {
+        console.log('execSync error:', err);
+        console.log('stdout:', err.stdout.toString());
+        console.log('stderr:', err.stderr.toString());
+      }
+      console.warn('karma start')
+      // Kill server process
+      server.kill();
     });
   });
 });
