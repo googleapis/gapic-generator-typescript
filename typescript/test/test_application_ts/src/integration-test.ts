@@ -37,7 +37,6 @@ describe('IntegrationTest for showcase library', () => {
       }
       //Download server
       process.chdir(SHOWCASE_SERVER);
-      console.warn(process.cwd());
       try {
         const command = `curl -L https://github.com/googleapis/gapic-showcase/releases/download/v${GAPIC_SHOWCASE_VERSION}/gapic-showcase-${GAPIC_SHOWCASE_VERSION}-${OS}-${ARCH}.tar.gz > gapic-showcase-server.tar.gz`;
         await exec(command);
@@ -55,17 +54,16 @@ describe('IntegrationTest for showcase library', () => {
     });
     it('run the server and test', async function() {
       this.timeout(120000);
-      this.server = new Server();
+      const server = new Server();
+      server.run();
       // Run test
       try {
         await exec(`mocha ${TEST_FILE}`);
       } catch (err) {
         console.log('Failed to run tests', err);
       }
-    });
-    it('kill the server', async function() {
       // Kill server process
-      this.server.kill();
+      server.kill();
     });
   });
 });
