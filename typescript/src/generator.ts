@@ -39,6 +39,8 @@ export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
   response: plugin.google.protobuf.compiler.CodeGeneratorResponse;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  //This field is for users passing proper module name for system test.
+  publishName?: string;
 
   constructor() {
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
@@ -66,7 +68,7 @@ export class Generator {
   }
 
   private async readGrpcServiceConfig(parameter: string) {
-    const match = parameter.match(/^["']?grpc-service-config=([^"]+)["']?$/);
+    const match = parameter.match(/^["']?grpc-service-config=([^"]+)["']?/);
     if (!match) {
       throw new Error(`Parameter ${parameter} was not recognized.`);
     }
@@ -83,6 +85,11 @@ export class Generator {
     );
   }
 
+  private async readPublishPackageName(parameter: string) {
+    const match = parameter.match(/["']?package-name=([^"]+)["']?$/);
+    if (match && match.length > 1) this.publishName = match[1];
+  }
+
   async initializeFromStdin() {
     const inputBuffer = await getStdin.buffer();
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.decode(
@@ -90,6 +97,7 @@ export class Generator {
     );
     if (this.request.parameter) {
       await this.readGrpcServiceConfig(this.request.parameter);
+      await this.readPublishPackageName(this.request.parameter);
     }
   }
 
@@ -125,7 +133,8 @@ export class Generator {
     const api = new API(
       this.request.protoFile,
       packageName,
-      this.grpcServiceConfig
+      this.grpcServiceConfig,
+      this.publishName
     );
     return api;
   }
