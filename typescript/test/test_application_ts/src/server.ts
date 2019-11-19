@@ -13,7 +13,6 @@
 // limitations under the License.
 import * as fs from 'fs-extra';
 import * as child_process from 'child_process';
-import * as kill from 'tree-kill';
 import * as path from 'path';
 const SHOWCASE_SERVER = path.join(
   __dirname,
@@ -24,7 +23,7 @@ const SHOWCASE_SERVER = path.join(
 );
 
 export class Server{
-  server: child_process.ChildProcessWithoutNullStreams;
+  pid: number = -1;
   constrcutor() {}
   run(){
     if (!fs.existsSync(SHOWCASE_SERVER)) {
@@ -32,9 +31,9 @@ export class Server{
         'gapic showcase server does not exist, please download it first.'
       );
     }
-    this.server = child_process.spawn(`${SHOWCASE_SERVER}`, ['run']);
+    this.pid = child_process.spawn(`${SHOWCASE_SERVER}`, ['run']).pid;
   }
   kill() {
-    this.server.kill();
+    process.kill(this.pid);
   }
 };
