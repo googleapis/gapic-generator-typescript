@@ -23,7 +23,7 @@ import { API } from './schema/api';
 import { processTemplates } from './templater';
 import { commonPrefix, duration } from './util';
 
-export interface Map {
+export interface OptionsMap {
   [name: string]: string;
 }
 const readFile = util.promisify(fs.readFile);
@@ -43,6 +43,7 @@ export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
   response: plugin.google.protobuf.compiler.CodeGeneratorResponse;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  paramMap: OptionsMap;
   // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
   publishName?: string;
 
@@ -50,6 +51,7 @@ export class Generator {
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
     this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
     this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.create();
+    this.paramMap = {};
   }
 
   // Fixes gRPC service config to replace string google.protobuf.Duration
@@ -73,18 +75,16 @@ export class Generator {
 
   private getParamMap(parameter: string) {
     // Example: "grpc-service-config=texamplejson","package-name=packageName"
-    const paramMap: Map = {};
     const parameters = parameter.split(',');
     for (let param of parameters) {
       // remove double quote
       param = param.substring(1, param.length - 1);
       const arr = param.split('=');
-      paramMap[arr[0].toKebabCase()] = arr[1];
+      this.paramMap[arr[0].toKebabCase()] = arr[1];
     }
-    return paramMap;
   }
 
-  private async readGrpcServiceConfig(map: Map) {
+  private async readGrpcServiceConfig(map: OptionsMap) {
     if (map && map['grpc-service-config']) {
       const filename = map['grpc-service-config'];
       if (!fs.existsSync(filename)) {
@@ -99,7 +99,7 @@ export class Generator {
     }
   }
 
-  private async readPublishPackageName(map: Map) {
+  private async readPublishPackageName(map: OptionsMap) {
     if (map && map['package-name']) {
       this.publishName = map['package-name'];
     }
@@ -111,9 +111,9 @@ export class Generator {
       inputBuffer
     );
     if (this.request.parameter) {
-      const map = this.getParamMap(this.request.parameter);
-      await this.readGrpcServiceConfig(map);
-      await this.readPublishPackageName(map);
+      this.getParamMap(this.request.parameter);
+      await this.readGrpcServiceConfig(this.paramMap);
+      await this.readPublishPackageName(this.paramMap);
     }
   }
 
