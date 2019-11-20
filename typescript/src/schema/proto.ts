@@ -215,9 +215,9 @@ function longrunning(method: MethodDescriptorProto) {
 
 function toFullyQualifiedName(packageName: string, messageName: string) {
   if (messageName.includes('.')) {
-    if(!messageName.startsWith('.'))
-    return `.${messageName}`;
-    else return messageName;
+    if (!messageName.startsWith('.')) {
+      return `.${messageName}`;
+    } else return messageName;
   }
   return `.${packageName}.${messageName}`;
 }
