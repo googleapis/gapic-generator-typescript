@@ -23,6 +23,9 @@ import { API } from './schema/api';
 import { processTemplates } from './templater';
 import { commonPrefix, duration } from './util';
 
+export interface OptionsMap {
+  [name: string]: string;
+}
 const readFile = util.promisify(fs.readFile);
 
 const templateDirectory = path.join(
@@ -32,6 +35,7 @@ const templateDirectory = path.join(
   'templates',
   'typescript_gapic'
 );
+
 // If needed, we can make it possible to load templates from different locations
 // to generate code for other languages.
 
@@ -39,11 +43,15 @@ export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
   response: plugin.google.protobuf.compiler.CodeGeneratorResponse;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  paramMap: OptionsMap;
+  // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
+  publishName?: string;
 
   constructor() {
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
     this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
     this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.create();
+    this.paramMap = {};
   }
 
   // Fixes gRPC service config to replace string google.protobuf.Duration
@@ -65,22 +73,36 @@ export class Generator {
     }
   }
 
-  private async readGrpcServiceConfig(parameter: string) {
-    const match = parameter.match(/^["']?grpc-service-config=([^"]+)["']?$/);
-    if (!match) {
-      throw new Error(`Parameter ${parameter} was not recognized.`);
+  private getParamMap(parameter: string) {
+    // Example: "grpc-service-config=texamplejson","package-name=packageName"
+    const parameters = parameter.split(',');
+    for (let param of parameters) {
+      // remove double quote
+      param = param.substring(1, param.length - 1);
+      const arr = param.split('=');
+      this.paramMap[arr[0].toKebabCase()] = arr[1];
     }
-    const filename = match[1];
-    if (!fs.existsSync(filename)) {
-      throw new Error(`File ${filename} cannot be opened.`);
-    }
+  }
 
-    const content = await readFile(filename);
-    const json = JSON.parse(content.toString());
-    Generator.updateDuration(json);
-    this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.fromObject(
-      json
-    );
+  private async readGrpcServiceConfig(map: OptionsMap) {
+    if (map && map['grpc-service-config']) {
+      const filename = map['grpc-service-config'];
+      if (!fs.existsSync(filename)) {
+        throw new Error(`File ${filename} cannot be opened.`);
+      }
+      const content = await readFile(filename);
+      const json = JSON.parse(content.toString());
+      Generator.updateDuration(json);
+      this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.fromObject(
+        json
+      );
+    }
+  }
+
+  private async readPublishPackageName(map: OptionsMap) {
+    if (map && map['package-name']) {
+      this.publishName = map['package-name'];
+    }
   }
 
   async initializeFromStdin() {
@@ -89,7 +111,9 @@ export class Generator {
       inputBuffer
     );
     if (this.request.parameter) {
-      await this.readGrpcServiceConfig(this.request.parameter);
+      this.getParamMap(this.request.parameter);
+      await this.readGrpcServiceConfig(this.paramMap);
+      await this.readPublishPackageName(this.paramMap);
     }
   }
 
@@ -125,7 +149,8 @@ export class Generator {
     const api = new API(
       this.request.protoFile,
       packageName,
-      this.grpcServiceConfig
+      this.grpcServiceConfig,
+      this.publishName
     );
     return api;
   }

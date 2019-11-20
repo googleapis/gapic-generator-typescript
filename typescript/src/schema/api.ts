@@ -32,19 +32,24 @@ export class API {
   hostName?: string;
   port?: string;
   mainServiceName?: string;
+  // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
+  publishName: string;
   // oauth_scopes: plugin.google.protobuf.IServiceOptions.prototype[".google.api.oauthScopes"];
   // TODO: subpackages
 
   constructor(
     fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[],
     packageName: string,
-    grpcServiceConfig: plugin.grpc.service_config.ServiceConfig
+    grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
+    publishName?: string
   ) {
     this.naming = new Naming(
       fileDescriptors.filter(
         fd => fd.package && fd.package.startsWith(packageName)
       )
     );
+    // users specify the actual package name, if not, set it to product name.
+    this.publishName = publishName || this.naming.productName.toKebabCase();
     // construct resource map
     const resourceMap = getResourceMap(fileDescriptors);
     // parse resource map to Proto constructor

@@ -58,12 +58,13 @@ const BASELINE_DIR = path.join(
   'texttospeech'
 );
 
+const PACKAGE_NAME = '@google-cloud/text-to-speech';
 const SRCDIR = path.join(cwd, 'build', 'src');
 const CLI = path.join(SRCDIR, 'cli.js');
 
-describe('gRPC Client Config', () => {
+describe('Package Name & grpc Config', () => {
   describe('Generate Text-to-Speech library', () => {
-    it('Generated proto list should have same output with baseline.', function() {
+    it('Generated library name & grpc Config should be same with baseline.', function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);
@@ -82,6 +83,21 @@ describe('gRPC Client Config', () => {
           `-I ${GOOGLE_GAX_PROTOS_DIR} ` +
           `-I ${PROTOS_DIR} ` +
           `--grpc-service-config=${GRPC_SERVICE_CONFIG} ` +
+          `--package-name=${PACKAGE_NAME} ` +
+          TTS_PROTO_FILE
+      );
+      assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR));
+    });
+
+    it('Use alias name should also work.', function() {
+      this.timeout(10000);
+      execSync(
+        `node build/src/start_script.js ` +
+          `--output-dir=${OUTPUT_DIR} ` +
+          `-I ${GOOGLE_GAX_PROTOS_DIR} ` +
+          `-I ${PROTOS_DIR} ` +
+          `--grpc_service_config=${GRPC_SERVICE_CONFIG} ` +
+          `--package_name=${PACKAGE_NAME} ` +
           TTS_PROTO_FILE
       );
       assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR));
