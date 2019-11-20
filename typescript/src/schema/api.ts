@@ -32,7 +32,7 @@ export class API {
   hostName?: string;
   port?: string;
   mainServiceName?: string;
-  //This field is for users passing roper module name for system test.
+  // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
   publishName: string;
   // oauth_scopes: plugin.google.protobuf.IServiceOptions.prototype[".google.api.oauthScopes"];
   // TODO: subpackages
