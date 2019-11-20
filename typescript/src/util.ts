@@ -71,6 +71,62 @@ export function milliseconds(
   );
 }
 
+// Convert //-style comments to /** */-style comments in the proto file,
+// forcing pbjs/pbts to include them to the resulting js/ts files.
+export function updateProtoComments(protoContent: string): string {
+  const lines = protoContent.split('\n');
+  const resultLines = [];
+
+  let lineNo = 0;
+  // 1. Skip everything before `package` declaration (license and stuff)
+  for ( ; lineNo < lines.length; ++lineNo) {
+    const line = lines[lineNo];
+    if (lines[lineNo].match(/^\s*package\s*/)) {
+      break;
+    }
+    resultLines.push(line);
+  }
+
+  // 2. For each // comment, convert it to /** */.
+  let inComment = false;
+  let lastIndentation = '';
+  for ( ; lineNo < lines.length; ++lineNo) {
+    const line = lines[lineNo];
+    const match = line.match(/^(\s*)\/\/(.*?)\s*$/);
+    if (!match) {
+      if (inComment) {
+        const closing = `${lastIndentation} */`;
+        resultLines.push(closing);
+        inComment = false;
+      }
+      resultLines.push(line);
+      continue;
+    }
+    const [, indentation, comment] = match;
+    if (!inComment) {
+      const opening = `${indentation}/**`;
+      resultLines.push(opening);
+      inComment = true;
+      lastIndentation = indentation;
+    }
+    const safeComment = comment.replace(/\*\//g, '* /');
+    if (safeComment.length > 0) {
+      resultLines.push(`${indentation} *${safeComment}`);
+    }
+    else {
+      resultLines.push(`${indentation} *`);
+    }
+  }
+
+  // 3. If the comment block was not closed, close it now.
+  if (inComment) {
+    const closing = `${lastIndentation} */`;
+    resultLines.push(closing);
+  }
+
+  return resultLines.join('\n');
+}
+
 String.prototype.capitalize = function(this: string): string {
   if (this.length === 0) {
     return this;

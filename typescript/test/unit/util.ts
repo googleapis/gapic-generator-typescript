@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import * as assert from 'assert';
-import { commonPrefix, duration, seconds, milliseconds } from '../../src/util';
+import { commonPrefix, duration, seconds, milliseconds, updateProtoComments } from '../../src/util';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
 describe('util.ts', () => {
@@ -109,6 +109,68 @@ describe('util.ts', () => {
       });
       const result = milliseconds(duration);
       assert.strictEqual(result, 5500);
+    });
+  });
+
+  describe('Update proto comments', () => {
+    it('should update proto comments', () => {
+      const source = `
+// License
+// Should stay unchanged
+
+syntax = "proto3";
+
+package something;
+
+// This block must be converted
+// to a different style of comments
+message MessageA {}
+
+// Single line comments must be processed as well
+message MessageB {
+  // Comments with indentation must be processed
+  // as well, even
+  //
+  // if they consist of several blocks
+  // of text.
+  int32 data = 1; // trailing comments must be left as is
+}
+
+// Unsafe closing sequence */ must be taken care of
+      `;
+      const expectedResult = `
+// License
+// Should stay unchanged
+
+syntax = "proto3";
+
+package something;
+
+/**
+ * This block must be converted
+ * to a different style of comments
+ */
+message MessageA {}
+
+/**
+ * Single line comments must be processed as well
+ */
+message MessageB {
+  /**
+   * Comments with indentation must be processed
+   * as well, even
+   *
+   * if they consist of several blocks
+   * of text.
+   */
+  int32 data = 1; // trailing comments must be left as is
+}
+
+/**
+ * Unsafe closing sequence * / must be taken care of
+ */
+      `;
+      assert.strictEqual(updateProtoComments(source), expectedResult);
     });
   });
 

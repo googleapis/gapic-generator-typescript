@@ -18,7 +18,7 @@ import { execFileSync } from 'child_process';
 import * as path from 'path';
 import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
-const fileSystem = require('file-system');
+import {updateProtoComments} from './util';
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
 const GOOGLE_GAX_PROTOS_DIR = path.join(googleGaxPath, '..', '..', 'protos');
@@ -102,7 +102,11 @@ try {
       protoDirs.forEach(dir => {
         const protoFile = path.join(dir, proto);
         if (fs.existsSync(protoFile)) {
-          fileSystem.copyFileSync(protoFile, path.join(copyProtoDir, proto));
+          const content = fs.readFileSync(protoFile).toString();
+          const destination = path.join(copyProtoDir, proto);
+          fs.ensureFileSync(destination);
+          const convertedContent = updateProtoComments(content);
+          fs.writeFileSync(destination, convertedContent);
         }
       });
     });
