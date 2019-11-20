@@ -79,7 +79,7 @@ export function updateProtoComments(protoContent: string): string {
 
   let lineNo = 0;
   // 1. Skip everything before `package` declaration (license and stuff)
-  for ( ; lineNo < lines.length; ++lineNo) {
+  for (; lineNo < lines.length; ++lineNo) {
     const line = lines[lineNo];
     if (lines[lineNo].match(/^\s*package\s*/)) {
       break;
@@ -90,7 +90,7 @@ export function updateProtoComments(protoContent: string): string {
   // 2. For each // comment, convert it to /** */.
   let inComment = false;
   let lastIndentation = '';
-  for ( ; lineNo < lines.length; ++lineNo) {
+  for (; lineNo < lines.length; ++lineNo) {
     const line = lines[lineNo];
     const match = line.match(/^(\s*)\/\/(.*?)\s*$/);
     if (!match) {
@@ -112,8 +112,7 @@ export function updateProtoComments(protoContent: string): string {
     const safeComment = comment.replace(/\*\//g, '* /');
     if (safeComment.length > 0) {
       resultLines.push(`${indentation} *${safeComment}`);
-    }
-    else {
+    } else {
       resultLines.push(`${indentation} *`);
     }
   }

@@ -13,7 +13,13 @@
 // limitations under the License.
 
 import * as assert from 'assert';
-import { commonPrefix, duration, seconds, milliseconds, updateProtoComments } from '../../src/util';
+import {
+  commonPrefix,
+  duration,
+  seconds,
+  milliseconds,
+  updateProtoComments,
+} from '../../src/util';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
 describe('util.ts', () => {

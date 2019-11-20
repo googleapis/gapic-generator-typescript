@@ -18,7 +18,7 @@ import { execFileSync } from 'child_process';
 import * as path from 'path';
 import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
-import {updateProtoComments} from './util';
+import { updateProtoComments } from './util';
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
 const GOOGLE_GAX_PROTOS_DIR = path.join(googleGaxPath, '..', '..', 'protos');
