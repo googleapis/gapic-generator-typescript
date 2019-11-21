@@ -33,4 +33,7 @@ RUN rm -rf /root/files
 RUN gapic-generator-typescript --version
 RUN protoc --version
 
+# Save git log output for debugging purposes
+COPY ./gitlog.txt /root/
+
 ENTRYPOINT [ "/usr/local/bin/start.sh" ]
