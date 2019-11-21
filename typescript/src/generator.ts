@@ -85,7 +85,7 @@ export class Generator {
   }
 
   private async readGrpcServiceConfig(map: OptionsMap) {
-    if (map && map['grpc-service-config']) {
+    if (map?.['grpc-service-config']) {
       const filename = map['grpc-service-config'];
       if (!fs.existsSync(filename)) {
         throw new Error(`File ${filename} cannot be opened.`);
@@ -100,7 +100,7 @@ export class Generator {
   }
 
   private async readPublishPackageName(map: OptionsMap) {
-    if (map && map['package-name']) {
+    if (map?.['package-name']) {
       this.publishName = map['package-name'];
     }
   }
