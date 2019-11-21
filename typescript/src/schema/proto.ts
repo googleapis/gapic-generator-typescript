@@ -305,13 +305,22 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
   // (in order of appearance in the file AND field number).
   // We believe that all proto fields have numbers, hence !.
   const minFieldNumber = repeatedFields.reduce(
-    (min: number, field: plugin.google.protobuf.IFieldDescriptorProto) => { if (field.number! < min) { min = field.number!; } return min; },
+    (min: number, field: plugin.google.protobuf.IFieldDescriptorProto) => {
+      if (field.number! < min) {
+        min = field.number!;
+      }
+      return min;
+    },
     repeatedFields[0].number!
   );
   if (minFieldNumber !== repeatedFields[0].number) {
-    console.warn(`Warning: method ${method.name} has several repeated fields in the output type and violates https://aip.dev/client-libraries/4233 for auto-pagination. Disabling auto-pagination for this method.`)
+    console.warn(
+      `Warning: method ${method.name} has several repeated fields in the output type and violates https://aip.dev/client-libraries/4233 for auto-pagination. Disabling auto-pagination for this method.`
+    );
     console.warn('Fields considered for pagination:');
-    console.warn(repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n'));
+    console.warn(
+      repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n')
+    );
   }
   return repeatedFields[0];
 }
