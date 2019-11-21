@@ -294,30 +294,39 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
       field.label ===
       plugin.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED
   );
-  if (repeatedFields.length !== 1) {
+  if (repeatedFields.length === 0) {
     return undefined;
+  }
+  if (repeatedFields.length === 1) {
+    return repeatedFields[0];
+  }
+  // According to https://aip.dev/client-libraries/4233, if there are two
+  // or more repeated fields in the output, we must take the the first one
+  // (in order of appearance in the file AND field number).
+  // We believe that all proto fields have numbers, hence !.
+  const minFieldNumber = repeatedFields.reduce(
+    (min: number, field: plugin.google.protobuf.IFieldDescriptorProto) => { if (field.number! < min) { min = field.number!; } return min; },
+    repeatedFields[0].number!
+  );
+  if (minFieldNumber !== repeatedFields[0].number) {
+    console.warn(`Warning: method ${method.name} has several repeated fields in the output type and violates https://aip.dev/client-libraries/4233 for auto-pagination. Disabling auto-pagination for this method.`)
+    console.warn('Fields considered for pagination:');
+    console.warn(repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n'));
   }
   return repeatedFields[0];
 }
 
 function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
-  const repeatedFields = pagingField(messages, method);
-  if (repeatedFields && repeatedFields.name) {
-    return repeatedFields.name;
-  } else {
-    return undefined;
-  }
+  const field = pagingField(messages, method);
+  return field?.name;
 }
 
 function pagingResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto
 ) {
-  const repeatedFields = pagingField(messages, method);
-  if (repeatedFields && repeatedFields.typeName) {
-    return repeatedFields.typeName; //.google.showcase.v1beta1.EchoResponse
-  }
-  return undefined;
+  const field = pagingField(messages, method);
+  return field?.typeName; //.google.showcase.v1beta1.EchoResponse
 }
 
 export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {
