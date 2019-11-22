@@ -314,6 +314,8 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
     console.warn(
       repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n')
     );
+    // TODO: an option to ignore errors
+    throw new Error(`Bad pagination settings for ${method.name}`);
   }
   return repeatedFields[0];
 }
