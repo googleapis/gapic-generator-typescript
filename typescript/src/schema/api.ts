@@ -126,16 +126,16 @@ function getResourceMap(
         }, {} as MessagesMap);
       for (const property of Object.keys(messages)) {
         const m = messages[property];
-        if (m && m.options) {
+        if (m?.options) {
           const option = m.options;
-          if (option && option['.google.api.resource']) {
+          if (option?.['.google.api.resource']) {
             const opt = option['.google.api.resource'];
             const oneResource = option[
               '.google.api.resource'
             ] as ResourceDescriptor;
             if (opt.type) {
               const arr = opt.type.match(/\/([^.]+)$/);
-              if (arr && arr[1]) {
+              if (arr?.[1]) {
                 oneResource.name = arr[1];
               }
             } else {
@@ -150,7 +150,7 @@ function getResourceMap(
               continue;
             }
             const pattern = opt.pattern;
-            if (pattern && pattern[0]) {
+            if (pattern?.[0]) {
               const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
               for (let i = 0; i < params.length; i++) {
                 params[i] = params[i].replace('{', '').replace('}', '');
@@ -161,7 +161,7 @@ function getResourceMap(
               resourceMap[opt.type!] = oneResource;
             } else if (oneResource.name) {
               console.warn(
-                'In file ' +
+                'Warning: in file ' +
                   fd.name +
                   ' message ' +
                   property +
@@ -170,7 +170,7 @@ function getResourceMap(
               );
             } else {
               console.warn(
-                'In file ' +
+                'Warning: in file ' +
                   fd.name +
                   ' message ' +
                   property +
