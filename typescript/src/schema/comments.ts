@@ -150,18 +150,14 @@ export class CommentsMap {
     return this.comments;
   }
   getServiceComment(serviceName: string) {
-    return this.comments[serviceName]
-      ? this.comments[serviceName].comments
-      : [];
+    return this.comments[serviceName]?.comments || [];
   }
   getMethodComments(serviceName: string, methodName: string) {
     const key = serviceName + ':' + methodName;
-    return this.comments[key] ? this.comments[key].comments : [];
+    return this.comments[key]?.comments || [];
   }
   getParamComments(messageName: string, fieldName: string): Comment {
     const key = messageName + ':' + fieldName;
-    return this.comments[key]
-      ? this.comments[key]
-      : { paramName: '', paramType: '', comments: [] };
+    return this.comments[key] ?? { paramName: '', paramType: '', comments: [] };
   }
 }
