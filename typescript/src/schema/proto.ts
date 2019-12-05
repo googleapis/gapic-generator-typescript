@@ -330,7 +330,15 @@ function pagingResponseType(
   method: MethodDescriptorProto
 ) {
   const field = pagingField(messages, method);
-  return field?.typeName; //.google.showcase.v1beta1.EchoResponse
+  if (!field || !field.type) {
+    return undefined;
+  }
+  if (
+    field.type === plugin.google.protobuf.FieldDescriptorProto.Type.TYPE_MESSAGE
+  ) {
+    return field.typeName; //.google.showcase.v1beta1.EchoResponse
+  }
+  return plugin.google.protobuf.FieldDescriptorProto.Type[field.type];
 }
 
 export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {
