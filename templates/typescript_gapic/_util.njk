@@ -79,8 +79,12 @@ limitations under the License.
  * @param { {{- convertParamType(oneComment.paramType) -}} } {{ printRequestField(oneComment) }}
 {%- endif -%}
 {%- set lines = oneComment.comments -%}
-{%- for line in lines %} 
- *  {{ line.replaceAll('*/', '* /') | safe}} 
+{%- for line in lines %}
+{%- if line.length > 0 %}
+ *  {{ line.replaceAll('*/', '* /') | safe}}
+{%- else %} 
+ *
+{%- endif -%}
 {%- endfor -%}
 {%- endfor -%}
 {%- endif %}
@@ -109,19 +113,19 @@ limitations under the License.
 
 {%- macro printReturnSimpleMethod(method) %}
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}}.
+ *   The first element of the array is an object representing {{ typeLink(method.outputType) }}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
 {%- endmacro -%}
 
 {%- macro printReturnPagingServerMethod(method) %}
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}}.
+ *   The first element of the array is an object representing {{ typeLink(method.outputType) }}.
  *   
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}} in a single response.
+ *   The first element is Array of {{ typeLink(method.outputType) }} in a single response.
  *   The second element is the next request object if the response
  *   indicates the next page exists, or null. The third element is
- *   an object representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}}.
+ *   an object representing {{ typeLink(method.outputType) }}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
 {%- endmacro -%}
@@ -129,21 +133,20 @@ limitations under the License.
 
 {%- macro printReturnClientStreamingMethod(method) %}
  * @returns {Stream} - A writable stream which accepts objects representing 
- * [{{- toMessageName(method.inputType) -}}]{@link {{ method.inputType.substring(1) }}}.
+ * {{ typeLink(method.inputType) }}.
 {%- endmacro -%}
 
 {%- macro printReturnBidiStreamingMethod(method) %}
  * @returns {Stream} 
  *   An object stream which is both readable and writable. It accepts objects
- *   representing [{{- toMessageName(method.inputType) -}}]{@link {{ method.inputType.substring(1) }}} for write() method, and
- *   will emit objects representing [{{- toMessageName(method.outputType) -}}]{@link {{ method.outputType.substring(1) }}} on 'data' event asynchronously.
+ *   representing {{ typeLink(method.inputType) }} for write() method, and
+ *   will emit objects representing {{ typeLink(method.outputType) }} on 'data' event asynchronously.
 {%- endmacro -%}
 
 {%- macro printReturnPageStream(method) %}
  * @returns {Stream}
- *   An object stream which emits an object representing [{{- toMessageName(method.pagingResponseType) -}}]{@link {{ method.pagingResponseType.substring(1) }}} on 'data' event.
+ *   An object stream which emits an object representing {{ typeLink(method.pagingResponseType) }} on 'data' event.
 {%- endmacro -%}
-
 
 {%- macro printRequestField(oneComment) %}
 {%- if oneComment.fieldBehavior and oneComment.fieldBehavior === 1 -%}
@@ -153,13 +156,22 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endif -%}
 {%- endmacro -%}
 
+{%- macro typeLink(type) -%}
+{%- set tsType = typescriptType(type) -%}
+{%- if tsType.length > 0 -%}
+{{ tsType }}
+{%- else -%}
+[{{- toMessageName(type) -}}]{@link {{ type.substring(1) }}}
+{%- endif -%}
+{%- endmacro -%}
+
 {%- macro toMessageName(messageType) -%}
 {%- set arr = messageType.split('.') %}
 {{- arr[arr.length - 1] -}}
 {%- endmacro -%}
 
 {%- macro initRequestWithHeaderParam(method) -%}
-            const request: protosTypes{{ toInterface(method.inputInterface) }} = {};
+            const request: {{ toInterface(method.inputInterface) }} = {};
 {%- if method.headerRequestParams.length > 1 %}
 {%- set chain = "request" -%}
 {%- for field in method.headerRequestParams.slice(0, -1) %}
@@ -170,20 +182,33 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endif %}
 {%- endmacro -%}
 
+{%- macro typescriptType(protobufType) -%}
+{#- protobufType can be an array (TYPE_STRING[]), hence .startsWith -#}
+{%- if protobufType.startsWith('TYPE_BYTES') -%}
+{%- set type = protobufType.replace('TYPE_BYTES', 'Buffer') -%}
+{%- elif protobufType.startsWith('TYPE_BOOL') -%}
+{%- set type = protobufType.replace('TYPE_BOOL', 'boolean') -%}
+{%- elif protobufType.startsWith('TYPE_STRING') -%}
+{%- set type = protobufType.replace('TYPE_STRING', 'string') -%}
+{%- elif protobufType.startsWith('TYPE_') -%}
+{#- any other type is essentially a number: int32, uint32, etc. -#}
+{%- set type = protobufType.replace(r/TYPE_\w+/, 'number') -%}
+{%- else -%}
+{%- set type = '' -%}
+{%- endif -%}
+{{ type }}
+{%- endmacro -%}
+
 {%- macro toInterface(type) -%}
+{%- set tsType = typescriptType(type) -%}
+{%- if tsType.length > 0 -%}
+{{ tsType }}
+{%- else -%}
 {%- set index = type.lastIndexOf('.') -%}
-{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
+protosTypes{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
+{%- endif -%}
 {%- endmacro -%}
 
 {%- macro convertParamType(paramType) -%}
-{%- if paramType.includes('TYPE_BYTES') %}
-{%- set type = paramType.replace('TYPE_BYTES', 'Buffer') %}
-{%- elif paramType.includes('TYPE_BOOL') %}
-{%- set type = paramType.replace('TYPE_BOOL', 'boolean') %}
-{%- elif paramType.includes('TYPE_STRING') %}
-{%- set type = paramType.replace('TYPE_STRING', 'string') %}
-{%- else %}
-{%- set type = 'number' %}
-{%- endif %}
-          {{- type -}}
+          {{- typescriptType(paramType) -}}
 {%- endmacro -%}
