@@ -43,10 +43,10 @@ const version = require('../../../package.json').version;
  */
 export class KeyManagementServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
-  private _keyManagementServiceStub: Promise<{[name: string]: Function}>;
   private _innerApiCalls: {[name: string]: Function};
   private _terminated = false;
   auth: gax.GoogleAuth;
+  keyManagementServiceStub: Promise<{[name: string]: Function}>;
 
   /**
    * Construct an instance of KeyManagementServiceClient.
@@ -162,7 +162,7 @@ export class KeyManagementServiceClient {
 
     // Put together the "service stub" for
     // google.cloud.kms.v1.KeyManagementService.
-    this._keyManagementServiceStub = gaxGrpc.createStub(
+    this.keyManagementServiceStub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('google.cloud.kms.v1.KeyManagementService') :
           // tslint:disable-next-line no-any
@@ -175,7 +175,7 @@ export class KeyManagementServiceClient {
         ['listKeyRings', 'listCryptoKeys', 'listCryptoKeyVersions', 'listImportJobs', 'getKeyRing', 'getCryptoKey', 'getCryptoKeyVersion', 'getPublicKey', 'getImportJob', 'createKeyRing', 'createCryptoKey', 'createCryptoKeyVersion', 'importCryptoKeyVersion', 'createImportJob', 'updateCryptoKey', 'updateCryptoKeyVersion', 'encrypt', 'decrypt', 'asymmetricSign', 'asymmetricDecrypt', 'updateCryptoKeyPrimaryVersion', 'destroyCryptoKeyVersion', 'restoreCryptoKeyVersion'];
 
     for (const methodName of keyManagementServiceStubMethods) {
-      const innerCallPromise = this._keyManagementServiceStub.then(
+      const innerCallPromise = this.keyManagementServiceStub.then(
         stub => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
@@ -2074,7 +2074,7 @@ export class KeyManagementServiceClient {
    */
   close(): Promise<void> {
     if (!this._terminated) {
-      return this._keyManagementServiceStub.then(stub => {
+      return this.keyManagementServiceStub.then(stub => {
         this._terminated = true;
         stub.close();
       });

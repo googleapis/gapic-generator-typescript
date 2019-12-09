@@ -36,10 +36,10 @@ const version = require('../../../package.json').version;
  */
 export class EchoClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
-  private _echoStub: Promise<{[name: string]: Function}>;
   private _innerApiCalls: {[name: string]: Function};
   private _terminated = false;
   auth: gax.GoogleAuth;
+  echoStub: Promise<{[name: string]: Function}>;
 
   /**
    * Construct an instance of EchoClient.
@@ -180,7 +180,7 @@ export class EchoClient {
 
     // Put together the "service stub" for
     // google.showcase.v1beta1.Echo.
-    this._echoStub = gaxGrpc.createStub(
+    this.echoStub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('google.showcase.v1beta1.Echo') :
           // tslint:disable-next-line no-any
@@ -193,7 +193,7 @@ export class EchoClient {
         ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'wait'];
 
     for (const methodName of echoStubMethods) {
-      const innerCallPromise = this._echoStub.then(
+      const innerCallPromise = this.echoStub.then(
         stub => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
@@ -586,7 +586,7 @@ export class EchoClient {
    */
   close(): Promise<void> {
     if (!this._terminated) {
-      return this._echoStub.then(stub => {
+      return this.echoStub.then(stub => {
         this._terminated = true;
         stub.close();
       });
