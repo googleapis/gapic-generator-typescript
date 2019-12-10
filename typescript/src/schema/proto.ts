@@ -16,7 +16,6 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 import { CommentsMap, Comment } from './comments';
 import * as objectHash from 'object-hash';
 import { milliseconds } from '../util';
-import { FileSystemLoader } from 'nunjucks';
 
 const defaultNonIdempotentRetryCodesName = 'non_idempotent';
 const defaultNonIdempotentCodes: plugin.google.rpc.Code[] = [];
@@ -540,13 +539,9 @@ function augmentService(
             const resourceReference = option['.google.api.resourceReference'];
             const type = resourceReference.type;
             if (!type || !resourceMap[type.toString()]) {
+              const resourceJson = JSON.stringify(resourceReference);
               console.warn(
-                'Warning: in service proto ' +
-                  service.name +
-                  ' message ' +
-                  property +
-                  ' refers to an unknown resource: ' +
-                  JSON.stringify(resourceReference)
+                `Warning: in service proto ${service.name} message ${property} refers to an unknown resource: ${resourceJson}`
               );
               continue;
             }
