@@ -37,6 +37,7 @@ export class TranslationServiceClient {
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   auth: gax.GoogleAuth;
+  operationsClient: gax.OperationsClient;
   translationServiceStub: Promise<{[name: string]: Function}>;
 
   /**
@@ -154,7 +155,7 @@ export class TranslationServiceClient {
       gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
       gaxModule.protobuf.loadSync(nodejsProtoPath);
 
-    const operationsClient = gaxModule.lro({
+    this.operationsClient = gaxModule.lro({
       auth: this.auth,
       grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
     }).operationsClient(opts);
@@ -173,15 +174,15 @@ export class TranslationServiceClient {
 
     this._descriptors.longrunning = {
       batchTranslateText: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         batchTranslateTextResponse.decode.bind(batchTranslateTextResponse),
         batchTranslateTextMetadata.decode.bind(batchTranslateTextMetadata)),
       createGlossary: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         createGlossaryResponse.decode.bind(createGlossaryResponse),
         createGlossaryMetadata.decode.bind(createGlossaryMetadata)),
       deleteGlossary: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         deleteGlossaryResponse.decode.bind(deleteGlossaryResponse),
         deleteGlossaryMetadata.decode.bind(deleteGlossaryMetadata))
     };
