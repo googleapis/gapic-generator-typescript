@@ -46,6 +46,9 @@ export class {{ service.name }}Client {
   {%- endif %}
   private _terminated = false;
   auth: gax.GoogleAuth;
+{%- if (service.longRunning.length > 0) %}
+  operationsClient: gax.OperationsClient;
+{%- endif %}
   {{ service.name.toCamelCase() }}Stub: Promise<{[name: string]: Function}>;
 
   /**
@@ -185,7 +188,7 @@ export class {{ service.name }}Client {
       gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
       gaxModule.protobuf.loadSync(nodejsProtoPath);
 
-    const operationsClient = gaxModule.lro({
+    this.operationsClient = gaxModule.lro({
       auth: this.auth,
       grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
     }).operationsClient(opts);
@@ -202,7 +205,7 @@ export class {{ service.name }}Client {
 {%- for method in service.longRunning %}
       {{- longRunningJoiner() }}
       {{ method.name.toCamelCase() }}: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         {{ method.name.toCamelCase() }}Response.decode.bind({{ method.name.toCamelCase() }}Response),
         {{ method.name.toCamelCase() }}Metadata.decode.bind({{ method.name.toCamelCase() }}Metadata))
 {%- endfor %}

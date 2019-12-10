@@ -39,6 +39,7 @@ export class EchoClient {
   private _innerApiCalls: {[name: string]: Function};
   private _terminated = false;
   auth: gax.GoogleAuth;
+  operationsClient: gax.OperationsClient;
   echoStub: Promise<{[name: string]: Function}>;
 
   /**
@@ -152,7 +153,7 @@ export class EchoClient {
       gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
       gaxModule.protobuf.loadSync(nodejsProtoPath);
 
-    const operationsClient = gaxModule.lro({
+    this.operationsClient = gaxModule.lro({
       auth: this.auth,
       grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
     }).operationsClient(opts);
@@ -163,7 +164,7 @@ export class EchoClient {
 
     this._descriptors.longrunning = {
       wait: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         waitResponse.decode.bind(waitResponse),
         waitMetadata.decode.bind(waitMetadata))
     };

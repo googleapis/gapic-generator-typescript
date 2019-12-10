@@ -51,6 +51,7 @@ export class CloudRedisClient {
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   auth: gax.GoogleAuth;
+  operationsClient: gax.OperationsClient;
   cloudRedisStub: Promise<{[name: string]: Function}>;
 
   /**
@@ -168,7 +169,7 @@ export class CloudRedisClient {
       gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
       gaxModule.protobuf.loadSync(nodejsProtoPath);
 
-    const operationsClient = gaxModule.lro({
+    this.operationsClient = gaxModule.lro({
       auth: this.auth,
       grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
     }).operationsClient(opts);
@@ -199,27 +200,27 @@ export class CloudRedisClient {
 
     this._descriptors.longrunning = {
       createInstance: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         createInstanceResponse.decode.bind(createInstanceResponse),
         createInstanceMetadata.decode.bind(createInstanceMetadata)),
       updateInstance: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         updateInstanceResponse.decode.bind(updateInstanceResponse),
         updateInstanceMetadata.decode.bind(updateInstanceMetadata)),
       importInstance: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         importInstanceResponse.decode.bind(importInstanceResponse),
         importInstanceMetadata.decode.bind(importInstanceMetadata)),
       exportInstance: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         exportInstanceResponse.decode.bind(exportInstanceResponse),
         exportInstanceMetadata.decode.bind(exportInstanceMetadata)),
       failoverInstance: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         failoverInstanceResponse.decode.bind(failoverInstanceResponse),
         failoverInstanceMetadata.decode.bind(failoverInstanceMetadata)),
       deleteInstance: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         deleteInstanceResponse.decode.bind(deleteInstanceResponse),
         deleteInstanceMetadata.decode.bind(deleteInstanceMetadata))
     };
