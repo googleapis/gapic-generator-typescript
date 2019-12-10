@@ -112,75 +112,75 @@ export class API {
   }
 }
 
+function processOneResource(
+  option: ResourceDescriptor | undefined,
+  fileAndMessageNames: string,
+  resourceMap: ResourceMap
+): void {
+  if (!option) {
+    return;
+  }
+  if (!option.type) {
+    console.warn(
+      `Warning: in ${fileAndMessageNames} refers to a resource which does not have a type: ${option}`
+    );
+    return;
+  }
+
+  const arr = option.type.match(/\/([^.]+)$/);
+  if (!arr?.[1]) {
+    console.warn(
+      `Warning: in ${fileAndMessageNames} refers to a resource which does not have a proper name: ${option}`
+    );
+    return;
+  }
+  option.name = arr[1];
+
+  const pattern = option.pattern;
+  if (!pattern?.[0]) {
+    console.warn(
+      `Warning: in ${fileAndMessageNames} refers to a resource which does not have a proper pattern: ${option}`
+    );
+    return;
+  }
+  const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
+  for (let i = 0; i < params.length; i++) {
+    params[i] = params[i].replace('{', '').replace('}', '');
+  }
+  option.params = params;
+
+  resourceMap[option.type!] = option;
+}
+
 function getResourceMap(
   fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]
 ): ResourceMap {
   const resourceMap: ResourceMap = {};
-  for (const fd of fileDescriptors) {
-    if (fd && fd.messageType) {
-      const messages = fd.messageType
-        .filter(message => message.name)
-        .reduce((map, message) => {
-          map['.' + fd.package! + '.' + message.name!] = message;
-          return map;
-        }, {} as MessagesMap);
-      for (const property of Object.keys(messages)) {
-        const m = messages[property];
-        if (m?.options) {
-          const option = m.options;
-          if (option?.['.google.api.resource']) {
-            const opt = option['.google.api.resource'];
-            const oneResource = option[
-              '.google.api.resource'
-            ] as ResourceDescriptor;
-            if (opt.type) {
-              const arr = opt.type.match(/\/([^.]+)$/);
-              if (arr?.[1]) {
-                oneResource.name = arr[1];
-              }
-            } else {
-              console.warn(
-                'In file ' +
-                  fd.name +
-                  ' message ' +
-                  property +
-                  ' refers to a resource which does not have a type: ' +
-                  opt
-              );
-              continue;
-            }
-            const pattern = opt.pattern;
-            if (pattern?.[0]) {
-              const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
-              for (let i = 0; i < params.length; i++) {
-                params[i] = params[i].replace('{', '').replace('}', '');
-              }
-              oneResource.params = params;
-            }
-            if (oneResource.name && oneResource.params) {
-              resourceMap[opt.type!] = oneResource;
-            } else if (oneResource.name) {
-              console.warn(
-                'Warning: in file ' +
-                  fd.name +
-                  ' message ' +
-                  property +
-                  ' refers to a resource which does not have a proper pattern : ' +
-                  opt
-              );
-            } else {
-              console.warn(
-                'Warning: in file ' +
-                  fd.name +
-                  ' message ' +
-                  property +
-                  ' refers to a resource which does not have a proper name : ' +
-                  opt
-              );
-            }
-          }
-        }
-      }
+  for (const fd of fileDescriptors.filter(fd => fd)) {
+    // process file-level options
+    for (const resource of fd.options?.['.google.api.resourceDefinition'] ??
+      []) {
+      processOneResource(
+        resource as ResourceDescriptor,
+        `file ${fd.name} resource_definition option`,
+        resourceMap
+      );
+    }
+
+    const messages = (fd.messageType ?? [])
+      .filter(message => message.name)
+      .reduce((map, message) => {
+        map['.' + fd.package! + '.' + message.name!] = message;
+        return map;
+      }, {} as MessagesMap);
+
+    for (const property of Object.keys(messages)) {
+      const m = messages[property];
+      processOneResource(
+        m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
+        `file ${fd.name} message ${property}`,
+        resourceMap
+      );
     }
   }
   return resourceMap;
