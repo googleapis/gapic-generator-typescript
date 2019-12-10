@@ -40,13 +40,13 @@ const version = require('../../../package.json').version;
  */
 export class {{ service.name }}Client {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
-  private _{{ service.name.toCamelCase() }}Stub: Promise<{[name: string]: Function}>;
   private _innerApiCalls: {[name: string]: Function};
   {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
   private _terminated = false;
   auth: gax.GoogleAuth;
+  {{ service.name.toCamelCase() }}Stub: Promise<{[name: string]: Function}>;
 
   /**
    * Construct an instance of {{ service.name }}Client.
@@ -221,7 +221,7 @@ export class {{ service.name }}Client {
 
     // Put together the "service stub" for
     // {{api.naming.protoPackage}}.{{ service.name }}.
-    this._{{ service.name.toCamelCase() }}Stub = gaxGrpc.createStub(
+    this.{{ service.name.toCamelCase() }}Stub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('{{api.naming.protoPackage}}.{{ service.name }}') :
           // tslint:disable-next-line no-any
@@ -240,7 +240,7 @@ export class {{ service.name }}Client {
     ];
 
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
-      const innerCallPromise = this._{{ service.name.toCamelCase() }}Stub.then(
+      const innerCallPromise = this.{{ service.name.toCamelCase() }}Stub.then(
         stub => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
@@ -611,7 +611,7 @@ export class {{ service.name }}Client {
    */
   close(): Promise<void> {
     if (!this._terminated) {
-      return this._{{ service.name.toCamelCase() }}Stub.then(stub => {
+      return this.{{ service.name.toCamelCase() }}Stub.then(stub => {
         this._terminated = true;
         stub.close();
       });
