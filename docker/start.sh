@@ -5,7 +5,7 @@
 # Dump the version of the current code to stderr
 echo "gapic-generator-typescript: https://github.com/googleapis/gapic-generator-typescript" 1>&2
 echo "Latest commit: " 1>&2
-cat /root/gitlog.txt 1>&2
+cat /gitlog.txt 1>&2
 echo 1>&2
 
 # Change directory to the input directory. 
