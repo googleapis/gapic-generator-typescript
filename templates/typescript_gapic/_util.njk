@@ -103,7 +103,7 @@ limitations under the License.
 {%- elif method in service.paging %}
 {{- printReturnPagingServerMethod(method) }}
 {%- elif method.serverStreaming %}
-{{- printReturnPagingServerMethod(method) }}
+{{- printReturnServerStreamingMethod(method) }}
 {%- elif method.clientStreaming %}
 {{- printReturnClientStreamingMethod(method) }}
 {%- else %}
@@ -119,17 +119,26 @@ limitations under the License.
 
 {%- macro printReturnPagingServerMethod(method) %}
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing {{ typeLink(method.outputType) }}.
- *   
+ *   The first element of the array is Array of {{ typeLink(method.pagingResponseType) }}.
+ *   The client library support auto-pagination by default: it will call the API as many
+ *   times as needed and will merge results from all the pages into this array.
+ *
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of {{ typeLink(method.outputType) }} in a single response.
- *   The second element is the next request object if the response
- *   indicates the next page exists, or null. The third element is
- *   an object representing {{ typeLink(method.outputType) }}.
+ *   The first element is Array of {{ typeLink(method.pagingResponseType) }} that corresponds to
+ *   the one page received from the API server.
+ *   If the second element is not null it contains the request object of type {{ typeLink(method.inputType) }}
+ *   that can be used to obtain the next page of the results.
+ *   If it is null, the next page does not exist.
+ *   The third element contains the raw response received from the API server. Its type is
+ *   {{ typeLink(method.outputType) }}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
 {%- endmacro -%}
 
+{%- macro printReturnServerStreamingMethod(method) %}
+ * @returns {Stream}
+ *   An object stream which emits {{ typeLink(method.outputType) }} on 'data' event.
+{%- endmacro -%}
 
 {%- macro printReturnClientStreamingMethod(method) %}
  * @returns {Stream} - A writable stream which accepts objects representing 
