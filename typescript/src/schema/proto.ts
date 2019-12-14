@@ -321,7 +321,7 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
 
 function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
   const field = pagingField(messages, method);
-  return field?.name.toCamelCase();
+  return field?.name?.toCamelCase();
 }
 
 function pagingResponseType(
