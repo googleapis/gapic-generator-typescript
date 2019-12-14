@@ -77,6 +77,70 @@ Promise { <pending> }
 > [ { content: 'hello world!' }, undefined, undefined ]
 ```
 
+## Making changes to the generated code
+
+If you came here to make changes to the generated TypeScript libraries (e.g. `@google-cloud/` packages),
+you are in the right place! Chances are high you don't need to edit any code, just the
+[Nunjucks](https://mozilla.github.io/nunjucks/) templates located in the `templates` folder.
+
+After you edited the files, make the generator available globally:
+
+```sh
+# in gapic-generator-typescript folder
+$ npm install -g .
+# make sure gapic-generator-typescript launch script in PATH
+```
+
+You'll need `protoc` in your `PATH` as well, take the latest `protoc-*.zip` from
+their [releases page](https://github.com/protocolbuffers/protobuf/releases).
+Make sure it works:
+
+```sh
+$ protoc --version
+libprotoc 3.7.1  # the exact version does not really matter
+```
+
+Checkout `googleapis`, which has a lot of protobuf definitions of real Google Cloud APIs:
+
+```sh
+$ git clone https://github.com/googleapis/googleapis.git
+$ cd googleapis
+```
+
+Pick some API, how about `translate` `v3`?
+
+```sh
+$ mkdir -p /tmp/translate-v3-typescript  # where to put the result
+# from googleapis folder:
+$ gapic-generator-typescript -I . \
+  --output_dir /tmp/translate-v3-typescript \
+  --grpc-service-config google/cloud/translate/v3/translate_grpc_service_config.json \
+  `find google/cloud/translate/v3 -name '*.proto'` \
+  google/cloud/common_resources.proto
+```
+
+Line by line:  
+`-I .` means pass the current directory (i.e. `googleapis`) to `protoc`  
+`--output_dir /tmp/translate-v3-typescript` is where to put the result  
+`--grpc-service-config google/cloud/translate/v3/translate_grpc_service_config.json`
+is an optional configuration file for timeouts and stuff  
+Then we add all the `translate` `v3` proto file to the command line, as well as the 
+proto file that defines common resources (some APIs need it, some others don't).
+
+If you like the changes, make sure that tests pass!
+
+```sh
+$ npm test
+```
+
+Oh no, baseline tests fail!  That's expected: you might've changed the templates. Just do this:
+
+```sh
+$ npm run baseline
+```
+
+Add all the changed files and send a PR! Thank you for the contribution!
+
 ## Want to know more?
 
 Read the [AIPs](https://aip.dev/) or just create an issue in this repository if you have questions!

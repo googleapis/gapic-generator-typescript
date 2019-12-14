@@ -82,6 +82,27 @@ function checkIdenticalFile(
   const readOutput = fs.readFileSync(outputFullPath).toString();
   const baselineOutput = fs.readFileSync(baselineFullPath).toString();
   if (readOutput === baselineOutput) return IDENTICAL_FILE;
+
+  const readOutputLines = readOutput.split('\n');
+  const baselineOutputLines = baselineOutput.split('\n');
+
+  if (readOutputLines.length !== baselineOutputLines.length) {
+    console.warn(
+      `Line count for ${outputFullPath} was ${readOutputLines.length}, ` +
+        `but expected ${baselineOutputLines.length}.`
+    );
+  } else {
+    for (let i = 0; i < readOutputLines.length; ++i) {
+      if (readOutputLines[i] !== baselineOutputLines[i]) {
+        console.warn(
+          `Line ${i + 1} of ${outputFullPath} was \n\t"${
+            readOutputLines[i]
+          }"\nbut expected\n\t"${baselineOutputLines[i]}"`
+        );
+      }
+    }
+  }
+
   return FILE_WITH_DIFF_CONTENT;
 }
 

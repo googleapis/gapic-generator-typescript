@@ -16,7 +16,6 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 import { CommentsMap, Comment } from './comments';
 import * as objectHash from 'object-hash';
 import { milliseconds } from '../util';
-import { FileSystemLoader } from 'nunjucks';
 
 const defaultNonIdempotentRetryCodesName = 'non_idempotent';
 const defaultNonIdempotentCodes: plugin.google.rpc.Code[] = [];
@@ -207,14 +206,23 @@ export interface EnumsMap {
 // methods of the given service, to use in templates.
 
 function longrunning(method: MethodDescriptorProto) {
-  if (method.options && method.options['.google.longrunning.operationInfo']) {
+  if (method.options?.['.google.longrunning.operationInfo']) {
     return method.options['.google.longrunning.operationInfo']!;
   }
   return undefined;
 }
 
-function toFullyQualifiedName(packageName: string, messageName: string) {
+function toFullyQualifiedName(
+  packageName: string,
+  messageName: string | null | undefined
+) {
+  if (!messageName) {
+    return undefined;
+  }
   if (messageName.includes('.')) {
+    if (!messageName.startsWith('.')) {
+      return `.${messageName}`;
+    }
     return messageName;
   }
   return `.${packageName}.${messageName}`;
@@ -224,34 +232,20 @@ function longRunningResponseType(
   packageName: string,
   method: MethodDescriptorProto
 ) {
-  if (
-    method.options &&
-    method.options['.google.longrunning.operationInfo'] &&
-    method.options['.google.longrunning.operationInfo'].responseType
-  ) {
-    return toFullyQualifiedName(
-      packageName,
-      method.options['.google.longrunning.operationInfo'].responseType
-    );
-  }
-  return undefined;
+  return toFullyQualifiedName(
+    packageName,
+    method.options?.['.google.longrunning.operationInfo']?.responseType
+  );
 }
 
 function longRunningMetadataType(
   packageName: string,
   method: MethodDescriptorProto
 ) {
-  if (
-    method.options &&
-    method.options['.google.longrunning.operationInfo'] &&
-    method.options['.google.longrunning.operationInfo'].metadataType
-  ) {
-    return toFullyQualifiedName(
-      packageName,
-      method.options['.google.longrunning.operationInfo'].metadataType
-    );
-  }
-  return undefined;
+  return toFullyQualifiedName(
+    packageName,
+    method.options?.['.google.longrunning.operationInfo']?.metadataType
+  );
 }
 
 // convert from input interface to message name
@@ -292,30 +286,58 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
       field.label ===
       plugin.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED
   );
-  if (repeatedFields.length !== 1) {
+  if (repeatedFields.length === 0) {
     return undefined;
+  }
+  if (repeatedFields.length === 1) {
+    return repeatedFields[0];
+  }
+  // According to https://aip.dev/client-libraries/4233, if there are two
+  // or more repeated fields in the output, we must take the the first one
+  // (in order of appearance in the file AND field number).
+  // We believe that all proto fields have numbers, hence !.
+  const minFieldNumber = repeatedFields.reduce(
+    (min: number, field: plugin.google.protobuf.IFieldDescriptorProto) => {
+      if (field.number! < min) {
+        min = field.number!;
+      }
+      return min;
+    },
+    repeatedFields[0].number!
+  );
+  if (minFieldNumber !== repeatedFields[0].number) {
+    console.warn(
+      `Warning: method ${method.name} has several repeated fields in the output type and violates https://aip.dev/client-libraries/4233 for auto-pagination. Disabling auto-pagination for this method.`
+    );
+    console.warn('Fields considered for pagination:');
+    console.warn(
+      repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n')
+    );
+    // TODO: an option to ignore errors
+    throw new Error(`Bad pagination settings for ${method.name}`);
   }
   return repeatedFields[0];
 }
 
 function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
-  const repeatedFields = pagingField(messages, method);
-  if (repeatedFields && repeatedFields.name) {
-    return repeatedFields.name.toCamelCase();
-  } else {
-    return undefined;
-  }
+  const field = pagingField(messages, method);
+  return field?.name.toCamelCase();
 }
 
 function pagingResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto
 ) {
-  const repeatedFields = pagingField(messages, method);
-  if (repeatedFields && repeatedFields.typeName) {
-    return repeatedFields.typeName; //.google.showcase.v1beta1.EchoResponse
+  const field = pagingField(messages, method);
+  if (!field || !field.type) {
+    return undefined;
   }
-  return undefined;
+  if (
+    field.type === plugin.google.protobuf.FieldDescriptorProto.Type.TYPE_MESSAGE
+  ) {
+    return field.typeName; //.google.showcase.v1beta1.EchoResponse
+  }
+  return plugin.google.protobuf.FieldDescriptorProto.Type[field.type];
 }
 
 export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {
@@ -323,7 +345,7 @@ export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
   if (message) {
     const res = message.match(/{(.*?)=/);
-    return res && res[1] ? res[1].split('.') : [];
+    return res?.[1] ? res[1].split('.') : [];
   }
   return [];
 }
@@ -389,7 +411,7 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
-  if (method.inputType && messages[method.inputType].field) {
+  if (method.inputType && messages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
     const inputType = messages[method.inputType!];
     const inputmessageName = toMessageName(method.inputType);
@@ -402,10 +424,7 @@ function augmentMethod(
     }
     method.paramComment = paramComment;
   }
-  if (
-    method.methodConfig.retryPolicy &&
-    method.methodConfig.retryPolicy.retryableStatusCodes
-  ) {
+  if (method.methodConfig.retryPolicy?.retryableStatusCodes) {
     method.retryableCodesName = service.retryableCodeMap.getRetryableCodesName(
       method.methodConfig.retryPolicy.retryableStatusCodes
     );
@@ -444,7 +463,7 @@ function augmentMethod(
   if (method.methodConfig.timeout) {
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
   }
-  if (method.options && method.options['.google.api.http']) {
+  if (method.options?.['.google.api.http']) {
     const httpRule = method.options['.google.api.http'];
     method.headerRequestParams = getHeaderParams(httpRule);
   } else method.headerRequestParams = [];
@@ -493,10 +512,7 @@ function augmentService(
 
   augmentedService.hostname = '';
   augmentedService.port = 0;
-  if (
-    augmentedService.options &&
-    augmentedService.options['.google.api.defaultHost']
-  ) {
+  if (augmentedService.options?.['.google.api.defaultHost']) {
     const match = augmentedService.options['.google.api.defaultHost'].match(
       /^(.*):(\d+)$/
     );
@@ -506,10 +522,7 @@ function augmentService(
     }
   }
   augmentedService.oauthScopes = [];
-  if (
-    augmentedService.options &&
-    augmentedService.options['.google.api.oauthScopes']
-  ) {
+  if (augmentedService.options?.['.google.api.oauthScopes']) {
     augmentedService.oauthScopes = augmentedService.options[
       '.google.api.oauthScopes'
     ].split(',');
@@ -517,22 +530,18 @@ function augmentService(
   augmentedService.pathTemplates = [];
   for (const property of Object.keys(messages)) {
     const m = messages[property];
-    if (m && m.field) {
+    if (m?.field) {
       const fields = m.field;
       for (const fieldDescriptor of fields) {
-        if (fieldDescriptor && fieldDescriptor.options) {
+        if (fieldDescriptor?.options) {
           const option = fieldDescriptor.options;
-          if (option && option['.google.api.resourceReference']) {
+          if (option?.['.google.api.resourceReference']) {
             const resourceReference = option['.google.api.resourceReference'];
             const type = resourceReference.type;
             if (!type || !resourceMap[type.toString()]) {
+              const resourceJson = JSON.stringify(resourceReference);
               console.warn(
-                'In service proto ' +
-                  service.name +
-                  ' message ' +
-                  property +
-                  ' refers to an unknown resource: ' +
-                  JSON.stringify(resourceReference)
+                `Warning: in service proto ${service.name} message ${property} refers to an unknown resource: ${resourceJson}`
               );
               continue;
             }

@@ -21,7 +21,7 @@ import { equalToBaseline } from '../util';
 
 const cwd = process.cwd();
 
-const OUTPUT_DIR = path.join(cwd, '.test-out-texttospeech');
+const OUTPUT_DIR = path.join(cwd, '.test-out-redis');
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   cwd,
   'node_modules',
@@ -29,22 +29,20 @@ const GOOGLE_GAX_PROTOS_DIR = path.join(
   'protos'
 );
 const PROTOS_DIR = path.join(cwd, 'build', 'test', 'protos');
-const TTS_PROTO_FILE = path.join(
+const TRANSLATE_PROTO_FILE = path.join(
   PROTOS_DIR,
   'google',
   'cloud',
-  'texttospeech',
-  'v1',
-  'cloud_tts.proto'
+  'redis',
+  'v1beta1',
+  'cloud_redis.proto '
 );
 
-const GRPC_SERVICE_CONFIG = path.join(
+const COMMON_PROTO_FILE = path.join(
   PROTOS_DIR,
   'google',
   'cloud',
-  'texttospeech',
-  'v1',
-  'texttospeech_grpc_service_config.json'
+  'common_resources.proto'
 );
 
 const BASELINE_DIR = path.join(
@@ -54,37 +52,43 @@ const BASELINE_DIR = path.join(
   '..',
   'typescript',
   'test',
-  'testdata',
-  'texttospeech'
+  'testdata'
 );
 
+const BASELINE_DIR_KM = path.join(BASELINE_DIR, 'redis');
 const SRCDIR = path.join(cwd, 'build', 'src');
 const CLI = path.join(SRCDIR, 'cli.js');
+const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
-describe('gRPC Client Config', () => {
-  describe('Generate Text-to-Speech library', () => {
-    it('Generated proto list should have same output with baseline.', function() {
-      this.timeout(10000);
+describe('LongRunning Maetadata & Response Test', () => {
+  describe('Generate Client library', () => {
+    it('Generated client library with common resource should have same output with baseline.', function() {
+      this.timeout(60000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);
       }
       fs.mkdirSync(OUTPUT_DIR);
 
+      if (fs.existsSync(PLUGIN)) {
+        rimraf.sync(PLUGIN);
+      }
+      fs.copyFileSync(CLI, PLUGIN);
+      process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
+
       try {
-        execSync(`chmod +x ${CLI}`);
+        execSync(`chmod +x ${PLUGIN}`);
       } catch (err) {
-        console.warn(`Failed to chmod +x ${CLI}: ${err}. Ignoring...`);
+        console.warn(`Failed to chmod +x ${PLUGIN}: ${err}. Ignoring...`);
       }
 
       execSync(
-        `node build/src/start_script.js ` +
-          `--output-dir=${OUTPUT_DIR} ` +
-          `-I ${GOOGLE_GAX_PROTOS_DIR} ` +
-          `-I ${PROTOS_DIR} ` +
-          `--grpc-service-config=${GRPC_SERVICE_CONFIG} ` +
-          TTS_PROTO_FILE
+        `protoc --typescript_gapic_out=${OUTPUT_DIR} ` +
+          `-I${GOOGLE_GAX_PROTOS_DIR} ` +
+          `-I${PROTOS_DIR} ` +
+          TRANSLATE_PROTO_FILE +
+          COMMON_PROTO_FILE
       );
-      assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR));
+      assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR_KM));
     });
   });
 });

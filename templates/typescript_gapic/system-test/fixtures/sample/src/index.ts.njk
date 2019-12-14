@@ -17,14 +17,17 @@ limitations under the License.
 -#}
 {% import "../../../../_license.njk" as license -%}
 {{license.license()}}
-{%- for service in api.services %}
-import { {{- service.name.toPascalCase() + 'Client' -}} } from '{{ api.naming.productName.toKebabCase() }}';
-{%- endfor %}
+import {
+  {%- set serviceJoiner = joiner(", ") -%}
+  {%- for service in api.services %}
+    {{- serviceJoiner() -}}
+    {{- service.name.toPascalCase() + 'Client' -}}
+  {%- endfor -%}
+} from '{{ api.publishName }}';
 
 function main() {
 {%- for service in api.services %}
   const {{ service.name.toCamelCase() -}}Client = new {{ service.name.toPascalCase() + 'Client' -}}();
-  console.log("{{- service.name.toCamelCase() -}}Client was created!");
 {%- endfor %}
 }
 
