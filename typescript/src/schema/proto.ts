@@ -108,6 +108,9 @@ export class RetryableCodeMap {
     const uniqueName = sortedCodes
       .map(code => this.codeEnumMapping[code])
       .join('_')
+      // toSnakeCase() splits on uppercase and we only want to split on
+      // underscores since all enum codes are uppercase.
+      .toLowerCase()
       .toSnakeCase();
     return uniqueName;
   }
