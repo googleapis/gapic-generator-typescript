@@ -4,7 +4,7 @@ const showcase = require('showcase');
 // Fake auth client for fallback
 const authStub = {
   getRequestHeaders() {
-    return {Authorization: 'Bearer SOME_TOKEN'};
+    return { Authorization: 'Bearer SOME_TOKEN' };
   },
 };
 
@@ -38,7 +38,7 @@ function testShowcase(opts) {
     throw new Error('Wrong options passed!');
   }
   const client = new showcase.v1beta1.EchoClient(clientOptions);
-  runTest(client, {hasStreaming});
+  runTest(client, { hasStreaming });
 }
 
 function runTest(client, opts) {
@@ -133,7 +133,7 @@ function testCollect(client) {
         resolve(result);
       });
       for (const word of words) {
-        const request = {content: word};
+        const request = { content: word };
         stream.write(request);
       }
       stream.end();
@@ -165,7 +165,7 @@ function testChat(client) {
       });
       stream.on('error', reject);
       for (const word of words) {
-        stream.write({content: word});
+        stream.write({ content: word });
       }
       stream.end();
     });
@@ -195,17 +195,17 @@ function testWait(client) {
 describe('Showcase tests', () => {
   if (typeof window !== 'undefined') {
     describe('browser library works', () => {
-      testShowcase({browser: true});
+      testShowcase({ browser: true });
     });
   } else {
     describe('grpc-fallback works', () => {
-      testShowcase({fallback: true});
+      testShowcase({ fallback: true });
     });
     describe('@grpc/grpc-js works', () => {
-      testShowcase({grpcJs: true});
+      testShowcase({ grpcJs: true });
     });
     describe('grpc works', () => {
-      testShowcase({grpc: true});
+      testShowcase({ grpc: true });
     });
   }
 });

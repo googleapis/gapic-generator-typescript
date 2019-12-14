@@ -17,7 +17,7 @@
 // ** All changes to this file may be overwritten. **
 
 import * as gax from 'google-gax';
-import {Callback, LROperation, Descriptors, ClientOptions} from 'google-gax';
+import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback, PaginationResponse} from 'google-gax';
 import * as path from 'path';
 
 import { Transform } from 'stream';
@@ -26,31 +26,21 @@ import * as gapicConfig from './echo_client_config.json';
 
 const version = require('../../../package.json').version;
 
-
-export interface PaginationCallback<
-    RequestObject, ResponseObject, ResponseType> {
-  (err: Error|null, values?: ResponseType[], nextPageRequest?: RequestObject,
-   rawResponse?: ResponseObject): void;
-}
-
-export interface PaginationResponse<
-    RequestObject, ResponseObject, ResponseType> {
-  values?: ResponseType[];
-  nextPageRequest?: RequestObject;
-  rawResponse?: ResponseObject;
-}
-
-
 /**
  *  This service is used showcase the four main types of rpcs - unary, server
  *  side streaming, client side streaming, and bidirectional streaming. This
  *  service also exposes methods that explicitly implement server delay, and
  *  paginated calls.
+ * @class
+ * @memberof v1beta1
  */
 export class EchoClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
+  private _terminated = false;
   auth: gax.GoogleAuth;
+  operationsClient: gax.OperationsClient;
+  echoStub: Promise<{[name: string]: Function}>;
 
   /**
    * Construct an instance of EchoClient.
@@ -163,7 +153,7 @@ export class EchoClient {
       gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
       gaxModule.protobuf.loadSync(nodejsProtoPath);
 
-    const operationsClient = gaxModule.lro({
+    this.operationsClient = gaxModule.lro({
       auth: this.auth,
       grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
     }).operationsClient(opts);
@@ -174,7 +164,7 @@ export class EchoClient {
 
     this._descriptors.longrunning = {
       wait: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         waitResponse.decode.bind(waitResponse),
         waitMetadata.decode.bind(waitMetadata))
     };
@@ -191,7 +181,7 @@ export class EchoClient {
 
     // Put together the "service stub" for
     // google.showcase.v1beta1.Echo.
-    const echoStub = gaxGrpc.createStub(
+    this.echoStub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('google.showcase.v1beta1.Echo') :
           // tslint:disable-next-line no-any
@@ -204,21 +194,32 @@ export class EchoClient {
         ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'wait'];
 
     for (const methodName of echoStubMethods) {
-      const innerCallPromise = echoStub.then(
-        (stub: {[method: string]: Function}) => (...args: Array<{}>) => {
+      const innerCallPromise = this.echoStub.then(
+        stub => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
         (err: Error|null|undefined) => () => {
           throw err;
         });
 
-      this._innerApiCalls[methodName] = gaxModule.createApiCall(
+      const apiCall = gaxModule.createApiCall(
         innerCallPromise,
         defaults[methodName],
         this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] || 
+            this._descriptors.stream[methodName] ||
             this._descriptors.longrunning[methodName]
       );
+
+      this._innerApiCalls[methodName] = (
+        argument: {},
+        callOptions?: CallOptions,
+        callback?: APICallback
+      ) => {
+         if (this._terminated) {
+            return Promise.reject('The client has already been closed.');
+         }
+         return apiCall(argument, callOptions, callback);
+      };
     }
   }
 
@@ -288,9 +289,9 @@ export class EchoClient {
 /**
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.content 
+ * @param {string} request.content
  *   The content to be echoed by the server.
- * @param {google.rpc.Status} request.error 
+ * @param {google.rpc.Status} request.error
  *   The error to be thrown by the server.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -330,22 +331,14 @@ export class EchoClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.content 
+ * @param {string} request.content
  *   The content that will be split into words and returned on the stream.
- * @param {google.rpc.Status} request.error 
+ * @param {google.rpc.Status} request.error
  *   The error that is thrown after all words are sent on the stream.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [EchoResponse]{@link google.showcase.v1beta1.EchoResponse}.
- *   
- *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [EchoResponse]{@link google.showcase.v1beta1.EchoResponse} in a single response.
- *   The second element is the next request object if the response
- *   indicates the next page exists, or null. The third element is
- *   an object representing [EchoResponse]{@link google.showcase.v1beta1.EchoResponse}.
- *
- *   The promise has a method named "cancel" which cancels the ongoing API call.
+ * @returns {Stream}
+ *   An object stream which emits [EchoResponse]{@link google.showcase.v1beta1.EchoResponse} on 'data' event.
  */
   expand(
       request?: protosTypes.google.showcase.v1beta1.IExpandRequest,
@@ -432,14 +425,14 @@ export class EchoClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {google.protobuf.Timestamp} request.endTime 
+ * @param {google.protobuf.Timestamp} request.endTime
  *   The time that this operation will complete.
- * @param {google.protobuf.Duration} request.ttl 
+ * @param {google.protobuf.Duration} request.ttl
  *   The duration of this operation.
- * @param {google.rpc.Status} request.error 
- *   The error that will be returned by the server. If this code is specified 
+ * @param {google.rpc.Status} request.error
+ *   The error that will be returned by the server. If this code is specified
  *   to be the OK rpc code, an empty response will be returned.
- * @param {google.showcase.v1beta1.WaitResponse} request.success 
+ * @param {google.showcase.v1beta1.WaitResponse} request.success
  *   The response to be returned on operation completion.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -477,7 +470,7 @@ export class EchoClient {
       options?: gax.CallOptions):
       Promise<[
         protosTypes.google.showcase.v1beta1.IEchoResponse[],
-        protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null, 
+        protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null,
         protosTypes.google.showcase.v1beta1.IPagedExpandResponse
       ]>;
   pagedExpand(
@@ -493,22 +486,27 @@ export class EchoClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.content 
+ * @param {string} request.content
  *   The string to expand.
- * @param {number} request.pageSize 
+ * @param {number} request.pageSize
  *   The amount of words to returned in each page.
- * @param {string} request.pageToken 
+ * @param {string} request.pageToken
  *   The position of the page to be returned.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [PagedExpandResponse]{@link google.showcase.v1beta1.PagedExpandResponse}.
- *   
+ *   The first element of the array is Array of [EchoResponse]{@link google.showcase.v1beta1.EchoResponse}.
+ *   The client library support auto-pagination by default: it will call the API as many
+ *   times as needed and will merge results from all the pages into this array.
+ *
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [PagedExpandResponse]{@link google.showcase.v1beta1.PagedExpandResponse} in a single response.
- *   The second element is the next request object if the response
- *   indicates the next page exists, or null. The third element is
- *   an object representing [PagedExpandResponse]{@link google.showcase.v1beta1.PagedExpandResponse}.
+ *   The first element is Array of [EchoResponse]{@link google.showcase.v1beta1.EchoResponse} that corresponds to
+ *   the one page received from the API server.
+ *   If the second element is not null it contains the request object of type [PagedExpandRequest]{@link google.showcase.v1beta1.PagedExpandRequest}
+ *   that can be used to obtain the next page of the results.
+ *   If it is null, the next page does not exist.
+ *   The third element contains the raw response received from the API server. Its type is
+ *   [PagedExpandResponse]{@link google.showcase.v1beta1.PagedExpandResponse}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
@@ -516,7 +514,7 @@ export class EchoClient {
       request: protosTypes.google.showcase.v1beta1.IPagedExpandRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protosTypes.google.showcase.v1beta1.IEchoResponse[],
-          protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null, 
+          protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null,
           protosTypes.google.showcase.v1beta1.IPagedExpandResponse>,
       callback?: Callback<
           protosTypes.google.showcase.v1beta1.IEchoResponse[],
@@ -524,7 +522,7 @@ export class EchoClient {
           protosTypes.google.showcase.v1beta1.IPagedExpandResponse>):
       Promise<[
         protosTypes.google.showcase.v1beta1.IEchoResponse[],
-        protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null, 
+        protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null,
         protosTypes.google.showcase.v1beta1.IPagedExpandResponse
       ]>|void {
     request = request || {};
@@ -555,11 +553,11 @@ export class EchoClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.content 
+ * @param {string} request.content
  *   The string to expand.
- * @param {number} request.pageSize 
+ * @param {number} request.pageSize
  *   The amount of words to returned in each page.
- * @param {string} request.pageToken 
+ * @param {string} request.pageToken
  *   The position of the page to be returned.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -577,5 +575,20 @@ export class EchoClient {
       request,
       callSettings
     );
+  }
+
+  /**
+   * Terminate the GRPC channel and close the client.
+   *
+   * The client will no longer be usable and all future behavior is undefined.
+   */
+  close(): Promise<void> {
+    if (!this._terminated) {
+      return this.echoStub.then(stub => {
+        this._terminated = true;
+        stub.close();
+      });
+    }
+    return Promise.resolve();
   }
 }

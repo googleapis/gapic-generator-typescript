@@ -17,7 +17,7 @@
 // ** All changes to this file may be overwritten. **
 
 import * as gax from 'google-gax';
-import {Callback, LROperation, Descriptors, ClientOptions} from 'google-gax';
+import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback, PaginationResponse} from 'google-gax';
 import * as path from 'path';
 
 import { Transform } from 'stream';
@@ -26,29 +26,19 @@ import * as gapicConfig from './translation_service_client_config.json';
 
 const version = require('../../../package.json').version;
 
-
-export interface PaginationCallback<
-    RequestObject, ResponseObject, ResponseType> {
-  (err: Error|null, values?: ResponseType[], nextPageRequest?: RequestObject,
-   rawResponse?: ResponseObject): void;
-}
-
-export interface PaginationResponse<
-    RequestObject, ResponseObject, ResponseType> {
-  values?: ResponseType[];
-  nextPageRequest?: RequestObject;
-  rawResponse?: ResponseObject;
-}
-
-
 /**
  *  Provides natural language translation operations.
+ * @class
+ * @memberof v3beta1
  */
 export class TranslationServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
+  private _terminated = false;
   auth: gax.GoogleAuth;
+  operationsClient: gax.OperationsClient;
+  translationServiceStub: Promise<{[name: string]: Function}>;
 
   /**
    * Construct an instance of TranslationServiceClient.
@@ -165,7 +155,7 @@ export class TranslationServiceClient {
       gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
       gaxModule.protobuf.loadSync(nodejsProtoPath);
 
-    const operationsClient = gaxModule.lro({
+    this.operationsClient = gaxModule.lro({
       auth: this.auth,
       grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
     }).operationsClient(opts);
@@ -184,15 +174,15 @@ export class TranslationServiceClient {
 
     this._descriptors.longrunning = {
       batchTranslateText: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         batchTranslateTextResponse.decode.bind(batchTranslateTextResponse),
         batchTranslateTextMetadata.decode.bind(batchTranslateTextMetadata)),
       createGlossary: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         createGlossaryResponse.decode.bind(createGlossaryResponse),
         createGlossaryMetadata.decode.bind(createGlossaryMetadata)),
       deleteGlossary: new gaxModule.LongrunningDescriptor(
-        operationsClient,
+        this.operationsClient,
         deleteGlossaryResponse.decode.bind(deleteGlossaryResponse),
         deleteGlossaryMetadata.decode.bind(deleteGlossaryMetadata))
     };
@@ -209,7 +199,7 @@ export class TranslationServiceClient {
 
     // Put together the "service stub" for
     // google.cloud.translation.v3beta1.TranslationService.
-    const translationServiceStub = gaxGrpc.createStub(
+    this.translationServiceStub = gaxGrpc.createStub(
         opts.fallback ?
           (protos as protobuf.Root).lookupService('google.cloud.translation.v3beta1.TranslationService') :
           // tslint:disable-next-line no-any
@@ -222,21 +212,32 @@ export class TranslationServiceClient {
         ['translateText', 'detectLanguage', 'getSupportedLanguages', 'batchTranslateText', 'createGlossary', 'listGlossaries', 'getGlossary', 'deleteGlossary'];
 
     for (const methodName of translationServiceStubMethods) {
-      const innerCallPromise = translationServiceStub.then(
-        (stub: {[method: string]: Function}) => (...args: Array<{}>) => {
+      const innerCallPromise = this.translationServiceStub.then(
+        stub => (...args: Array<{}>) => {
           return stub[methodName].apply(stub, args);
         },
         (err: Error|null|undefined) => () => {
           throw err;
         });
 
-      this._innerApiCalls[methodName] = gaxModule.createApiCall(
+      const apiCall = gaxModule.createApiCall(
         innerCallPromise,
         defaults[methodName],
         this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] || 
+            this._descriptors.stream[methodName] ||
             this._descriptors.longrunning[methodName]
       );
+
+      this._innerApiCalls[methodName] = (
+        argument: {},
+        callOptions?: CallOptions,
+        callback?: APICallback
+      ) => {
+         if (this._terminated) {
+            return Promise.reject('The client has already been closed.');
+         }
+         return apiCall(argument, callOptions, callback);
+      };
     }
   }
 
@@ -311,67 +312,67 @@ export class TranslationServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string[]} request.contents 
- *   Required. The content of the input in string format. 
- *   We recommend the total content be less than 30k codepoints. 
+ * @param {string[]} request.contents
+ *   Required. The content of the input in string format.
+ *   We recommend the total content be less than 30k codepoints.
  *   Use BatchTranslateText for larger text.
- * @param {string} [request.mimeType] 
- *   Optional. The format of the source text, for example, "text/html", 
+ * @param {string} [request.mimeType]
+ *   Optional. The format of the source text, for example, "text/html",
  *    "text/plain". If left blank, the MIME type defaults to "text/html".
- * @param {string} [request.sourceLanguageCode] 
- *   Optional. The BCP-47 language code of the input text if 
- *   known, for example, "en-US" or "sr-Latn". Supported language codes are 
- *   listed in Language Support. If the source language isn't specified, the API 
- *   attempts to identify the source language automatically and returns the 
+ * @param {string} [request.sourceLanguageCode]
+ *   Optional. The BCP-47 language code of the input text if
+ *   known, for example, "en-US" or "sr-Latn". Supported language codes are
+ *   listed in Language Support. If the source language isn't specified, the API
+ *   attempts to identify the source language automatically and returns the
  *   source language within the response.
- * @param {string} request.targetLanguageCode 
- *   Required. The BCP-47 language code to use for translation of the input 
+ * @param {string} request.targetLanguageCode
+ *   Required. The BCP-47 language code to use for translation of the input
  *   text, set to one of the language codes listed in Language Support.
- * @param {string} request.parent 
- *   Required. Project or location to make a call. Must refer to a caller's 
+ * @param {string} request.parent
+ *   Required. Project or location to make a call. Must refer to a caller's
  *   project. 
- *   
- *   Format: `projects/{project-id}` or 
+ *
+ *   Format: `projects/{project-id}` or
  *   `projects/{project-id}/locations/{location-id}`. 
- *   
- *   For global calls, use `projects/{project-id}/locations/global` or 
+ *
+ *   For global calls, use `projects/{project-id}/locations/global` or
  *   `projects/{project-id}`. 
- *   
- *   Non-global location is required for requests using AutoML models or 
+ *
+ *   Non-global location is required for requests using AutoML models or
  *   custom glossaries. 
- *   
- *   Models and glossaries must be within the same region (have same 
+ *
+ *   Models and glossaries must be within the same region (have same
  *   location-id), otherwise an INVALID_ARGUMENT (400) error is returned.
- * @param {string} [request.model] 
+ * @param {string} [request.model]
  *   Optional. The `model` type requested for this translation. 
- *   
+ *
  *   The format depends on model type: 
- *   
- *   - AutoML Translation models: 
+ *
+ *   - AutoML Translation models:
  *     `projects/{project-id}/locations/{location-id}/models/{model-id}` 
- *   
- *   - General (built-in) models: 
- *     `projects/{project-id}/locations/{location-id}/models/general/nmt`, 
+ *
+ *   - General (built-in) models:
+ *     `projects/{project-id}/locations/{location-id}/models/general/nmt`,
  *     `projects/{project-id}/locations/{location-id}/models/general/base` 
- *   
- *   
- *   For global (non-regionalized) requests, use `location-id` `global`. 
- *   For example, 
+ * 
+ *
+ *   For global (non-regionalized) requests, use `location-id` `global`.
+ *   For example,
  *   `projects/{project-id}/locations/global/models/general/nmt`. 
- *   
+ *
  *   If missing, the system decides which google base model to use.
- * @param {google.cloud.translation.v3beta1.TranslateTextGlossaryConfig} [request.glossaryConfig] 
- *   Optional. Glossary to be applied. The glossary must be 
- *   within the same region (have the same location-id) as the model, otherwise 
+ * @param {google.cloud.translation.v3beta1.TranslateTextGlossaryConfig} [request.glossaryConfig]
+ *   Optional. Glossary to be applied. The glossary must be
+ *   within the same region (have the same location-id) as the model, otherwise
  *   an INVALID_ARGUMENT (400) error is returned.
- * @param {number} [request.labels] 
+ * @param {number[]} [request.labels]
  *   Optional. The labels with user-defined metadata for the request. 
- *   
- *   Label keys and values can be no longer than 63 characters 
- *   (Unicode codepoints), can only contain lowercase letters, numeric 
- *   characters, underscores and dashes. International characters are allowed. 
+ *
+ *   Label keys and values can be no longer than 63 characters
+ *   (Unicode codepoints), can only contain lowercase letters, numeric
+ *   characters, underscores and dashes. International characters are allowed.
  *   Label values are optional. Label keys must start with a letter. 
- *   
+ *
  *   See https://cloud.google.com/translate/docs/labels for more information.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -430,41 +431,41 @@ export class TranslationServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent 
- *   Required. Project or location to make a call. Must refer to a caller's 
+ * @param {string} request.parent
+ *   Required. Project or location to make a call. Must refer to a caller's
  *   project. 
- *   
- *   Format: `projects/{project-id}/locations/{location-id}` or 
+ *
+ *   Format: `projects/{project-id}/locations/{location-id}` or
  *   `projects/{project-id}`. 
- *   
- *   For global calls, use `projects/{project-id}/locations/global` or 
+ *
+ *   For global calls, use `projects/{project-id}/locations/global` or
  *   `projects/{project-id}`. 
- *   
- *   Only models within the same region (has same location-id) can be used. 
+ *
+ *   Only models within the same region (has same location-id) can be used.
  *   Otherwise an INVALID_ARGUMENT (400) error is returned.
- * @param {string} [request.model] 
+ * @param {string} [request.model]
  *   Optional. The language detection model to be used. 
- *   
- *   Format: 
+ *
+ *   Format:
  *   `projects/{project-id}/locations/{location-id}/models/language-detection/{model-id}` 
- *   
- *   Only one language detection model is currently supported: 
+ *
+ *   Only one language detection model is currently supported:
  *   `projects/{project-id}/locations/{location-id}/models/language-detection/default`. 
- *   
+ *
  *   If not specified, the default model is used.
- * @param {string} request.content 
+ * @param {string} request.content
  *   The content of the input stored as a string.
- * @param {string} [request.mimeType] 
- *   Optional. The format of the source text, for example, "text/html", 
+ * @param {string} [request.mimeType]
+ *   Optional. The format of the source text, for example, "text/html",
  *   "text/plain". If left blank, the MIME type defaults to "text/html".
- * @param {number} request.labels 
+ * @param {number[]} request.labels
  *   Optional. The labels with user-defined metadata for the request. 
- *   
- *   Label keys and values can be no longer than 63 characters 
- *   (Unicode codepoints), can only contain lowercase letters, numeric 
- *   characters, underscores and dashes. International characters are allowed. 
+ *
+ *   Label keys and values can be no longer than 63 characters
+ *   (Unicode codepoints), can only contain lowercase letters, numeric
+ *   characters, underscores and dashes. International characters are allowed.
  *   Label values are optional. Label keys must start with a letter. 
- *   
+ *
  *   See https://cloud.google.com/translate/docs/labels for more information.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -523,38 +524,38 @@ export class TranslationServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent 
- *   Required. Project or location to make a call. Must refer to a caller's 
+ * @param {string} request.parent
+ *   Required. Project or location to make a call. Must refer to a caller's
  *   project. 
- *   
- *   Format: `projects/{project-id}` or 
+ *
+ *   Format: `projects/{project-id}` or
  *   `projects/{project-id}/locations/{location-id}`. 
- *   
- *   For global calls, use `projects/{project-id}/locations/global` or 
+ *
+ *   For global calls, use `projects/{project-id}/locations/global` or
  *   `projects/{project-id}`. 
- *   
+ *
  *   Non-global location is required for AutoML models. 
- *   
- *   Only models within the same region (have same location-id) can be used, 
+ *
+ *   Only models within the same region (have same location-id) can be used,
  *   otherwise an INVALID_ARGUMENT (400) error is returned.
- * @param {string} [request.displayLanguageCode] 
- *   Optional. The language to use to return localized, human readable names 
- *   of supported languages. If missing, then display names are not returned 
+ * @param {string} [request.displayLanguageCode]
+ *   Optional. The language to use to return localized, human readable names
+ *   of supported languages. If missing, then display names are not returned
  *   in a response.
- * @param {string} [request.model] 
+ * @param {string} [request.model]
  *   Optional. Get supported languages of this model. 
- *   
+ *
  *   The format depends on model type: 
- *   
- *   - AutoML Translation models: 
+ *
+ *   - AutoML Translation models:
  *     `projects/{project-id}/locations/{location-id}/models/{model-id}` 
- *   
- *   - General (built-in) models: 
- *     `projects/{project-id}/locations/{location-id}/models/general/nmt`, 
+ *
+ *   - General (built-in) models:
+ *     `projects/{project-id}/locations/{location-id}/models/general/nmt`,
  *     `projects/{project-id}/locations/{location-id}/models/general/base` 
- *   
- *   
- *   Returns languages supported by the specified model. 
+ * 
+ *
+ *   Returns languages supported by the specified model.
  *   If missing, we get supported languages of Google general base (PBMT) model.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -614,7 +615,7 @@ export class TranslationServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.name 
+ * @param {string} request.name
  *   Required. The name of the glossary to retrieve.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -680,57 +681,57 @@ export class TranslationServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent 
+ * @param {string} request.parent
  *   Required. Location to make a call. Must refer to a caller's project. 
- *   
+ *
  *   Format: `projects/{project-id}/locations/{location-id}`. 
- *   
+ *
  *   The `global` location is not supported for batch translation. 
- *   
- *   Only AutoML Translation models or glossaries within the same region (have 
- *   the same location-id) can be used, otherwise an INVALID_ARGUMENT (400) 
+ *
+ *   Only AutoML Translation models or glossaries within the same region (have
+ *   the same location-id) can be used, otherwise an INVALID_ARGUMENT (400)
  *   error is returned.
- * @param {string} request.sourceLanguageCode 
+ * @param {string} request.sourceLanguageCode
  *   Required. Source language code.
- * @param {string[]} request.targetLanguageCodes 
+ * @param {string[]} request.targetLanguageCodes
  *   Required. Specify up to 10 language codes here.
- * @param {number} [request.models] 
- *   Optional. The models to use for translation. Map's key is target language 
- *   code. Map's value is model name. Value can be a built-in general model, 
+ * @param {number[]} [request.models]
+ *   Optional. The models to use for translation. Map's key is target language
+ *   code. Map's value is model name. Value can be a built-in general model,
  *   or an AutoML Translation model. 
- *   
+ *
  *   The value format depends on model type: 
- *   
- *   - AutoML Translation models: 
+ *
+ *   - AutoML Translation models:
  *     `projects/{project-id}/locations/{location-id}/models/{model-id}` 
- *   
- *   - General (built-in) models: 
- *     `projects/{project-id}/locations/{location-id}/models/general/nmt`, 
+ *
+ *   - General (built-in) models:
+ *     `projects/{project-id}/locations/{location-id}/models/general/nmt`,
  *     `projects/{project-id}/locations/{location-id}/models/general/base` 
- *   
- *   
- *   If the map is empty or a specific model is 
+ * 
+ *
+ *   If the map is empty or a specific model is
  *   not requested for a language pair, then default google model (nmt) is used.
- * @param {number} request.inputConfigs 
- *   Required. Input configurations. 
- *   The total number of files matched should be <= 1000. 
- *   The total content size should be <= 100M Unicode codepoints. 
+ * @param {number[]} request.inputConfigs
+ *   Required. Input configurations.
+ *   The total number of files matched should be <= 1000.
+ *   The total content size should be <= 100M Unicode codepoints.
  *   The files must use UTF-8 encoding.
- * @param {google.cloud.translation.v3beta1.OutputConfig} request.outputConfig 
- *   Required. Output configuration. 
- *   If 2 input configs match to the same file (that is, same input path), 
+ * @param {google.cloud.translation.v3beta1.OutputConfig} request.outputConfig
+ *   Required. Output configuration.
+ *   If 2 input configs match to the same file (that is, same input path),
  *   we don't generate output for duplicate inputs.
- * @param {number} [request.glossaries] 
- *   Optional. Glossaries to be applied for translation. 
+ * @param {number[]} [request.glossaries]
+ *   Optional. Glossaries to be applied for translation.
  *   It's keyed by target language code.
- * @param {number} [request.labels] 
+ * @param {number[]} [request.labels]
  *   Optional. The labels with user-defined metadata for the request. 
- *   
- *   Label keys and values can be no longer than 63 characters 
- *   (Unicode codepoints), can only contain lowercase letters, numeric 
- *   characters, underscores and dashes. International characters are allowed. 
+ *
+ *   Label keys and values can be no longer than 63 characters
+ *   (Unicode codepoints), can only contain lowercase letters, numeric
+ *   characters, underscores and dashes. International characters are allowed.
  *   Label values are optional. Label keys must start with a letter. 
- *   
+ *
  *   See https://cloud.google.com/translate/docs/labels for more information.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -790,9 +791,9 @@ export class TranslationServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent 
+ * @param {string} request.parent
  *   Required. The project name.
- * @param {google.cloud.translation.v3beta1.Glossary} request.glossary 
+ * @param {google.cloud.translation.v3beta1.Glossary} request.glossary
  *   Required. The glossary to create.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -853,7 +854,7 @@ export class TranslationServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.name 
+ * @param {string} request.name
  *   Required. The name of the glossary to delete.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -898,7 +899,7 @@ export class TranslationServiceClient {
       options?: gax.CallOptions):
       Promise<[
         protosTypes.google.cloud.translation.v3beta1.IGlossary[],
-        protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest|null, 
+        protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest|null,
         protosTypes.google.cloud.translation.v3beta1.IListGlossariesResponse
       ]>;
   listGlossaries(
@@ -914,30 +915,35 @@ export class TranslationServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent 
+ * @param {string} request.parent
  *   Required. The name of the project from which to list all of the glossaries.
- * @param {number} [request.pageSize] 
- *   Optional. Requested page size. The server may return fewer glossaries than 
+ * @param {number} [request.pageSize]
+ *   Optional. Requested page size. The server may return fewer glossaries than
  *   requested. If unspecified, the server picks an appropriate default.
- * @param {string} [request.pageToken] 
- *   Optional. A token identifying a page of results the server should return. 
- *   Typically, this is the value of [ListGlossariesResponse.next_page_token] 
- *   returned from the previous call to `ListGlossaries` method. 
+ * @param {string} [request.pageToken]
+ *   Optional. A token identifying a page of results the server should return.
+ *   Typically, this is the value of [ListGlossariesResponse.next_page_token]
+ *   returned from the previous call to `ListGlossaries` method.
  *   The first page is returned if `page_token`is empty or missing.
- * @param {string} [request.filter] 
- *   Optional. Filter specifying constraints of a list operation. 
- *   Filtering is not supported yet, and the parameter currently has no effect. 
+ * @param {string} [request.filter]
+ *   Optional. Filter specifying constraints of a list operation.
+ *   Filtering is not supported yet, and the parameter currently has no effect.
  *   If missing, no filtering is performed.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [ListGlossariesResponse]{@link google.cloud.translation.v3beta1.ListGlossariesResponse}.
- *   
+ *   The first element of the array is Array of [Glossary]{@link google.cloud.translation.v3beta1.Glossary}.
+ *   The client library support auto-pagination by default: it will call the API as many
+ *   times as needed and will merge results from all the pages into this array.
+ *
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [ListGlossariesResponse]{@link google.cloud.translation.v3beta1.ListGlossariesResponse} in a single response.
- *   The second element is the next request object if the response
- *   indicates the next page exists, or null. The third element is
- *   an object representing [ListGlossariesResponse]{@link google.cloud.translation.v3beta1.ListGlossariesResponse}.
+ *   The first element is Array of [Glossary]{@link google.cloud.translation.v3beta1.Glossary} that corresponds to
+ *   the one page received from the API server.
+ *   If the second element is not null it contains the request object of type [ListGlossariesRequest]{@link google.cloud.translation.v3beta1.ListGlossariesRequest}
+ *   that can be used to obtain the next page of the results.
+ *   If it is null, the next page does not exist.
+ *   The third element contains the raw response received from the API server. Its type is
+ *   [ListGlossariesResponse]{@link google.cloud.translation.v3beta1.ListGlossariesResponse}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
@@ -945,7 +951,7 @@ export class TranslationServiceClient {
       request: protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protosTypes.google.cloud.translation.v3beta1.IGlossary[],
-          protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest|null, 
+          protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest|null,
           protosTypes.google.cloud.translation.v3beta1.IListGlossariesResponse>,
       callback?: Callback<
           protosTypes.google.cloud.translation.v3beta1.IGlossary[],
@@ -953,7 +959,7 @@ export class TranslationServiceClient {
           protosTypes.google.cloud.translation.v3beta1.IListGlossariesResponse>):
       Promise<[
         protosTypes.google.cloud.translation.v3beta1.IGlossary[],
-        protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest|null, 
+        protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest|null,
         protosTypes.google.cloud.translation.v3beta1.IListGlossariesResponse
       ]>|void {
     request = request || {};
@@ -991,19 +997,19 @@ export class TranslationServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent 
+ * @param {string} request.parent
  *   Required. The name of the project from which to list all of the glossaries.
- * @param {number} [request.pageSize] 
- *   Optional. Requested page size. The server may return fewer glossaries than 
+ * @param {number} [request.pageSize]
+ *   Optional. Requested page size. The server may return fewer glossaries than
  *   requested. If unspecified, the server picks an appropriate default.
- * @param {string} [request.pageToken] 
- *   Optional. A token identifying a page of results the server should return. 
- *   Typically, this is the value of [ListGlossariesResponse.next_page_token] 
- *   returned from the previous call to `ListGlossaries` method. 
+ * @param {string} [request.pageToken]
+ *   Optional. A token identifying a page of results the server should return.
+ *   Typically, this is the value of [ListGlossariesResponse.next_page_token]
+ *   returned from the previous call to `ListGlossaries` method.
  *   The first page is returned if `page_token`is empty or missing.
- * @param {string} [request.filter] 
- *   Optional. Filter specifying constraints of a list operation. 
- *   Filtering is not supported yet, and the parameter currently has no effect. 
+ * @param {string} [request.filter]
+ *   Optional. Filter specifying constraints of a list operation.
+ *   Filtering is not supported yet, and the parameter currently has no effect.
  *   If missing, no filtering is performed.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -1025,32 +1031,104 @@ export class TranslationServiceClient {
   // --------------------
   // -- Path templates --
   // --------------------
-  locationPath(project:string,location:string){
+
+  /**
+   * Return a fully-qualified location resource name string.
+   *
+   * @param {string} project
+   * @param {string} location
+   * @returns {string} Resource name string.
+   */
+  locationPath(project:string,location:string) {
     return this._pathTemplates.locationPathTemplate.render({
       project: project,
       location: location,
     });
   }
-  matchProjectFromLocationName(locationName: string){
+
+  /**
+   * Parse the project from Location resource.
+   *
+   * @param {string} locationName
+   *   A fully-qualified path representing Location resource.
+   * @returns {string} A string representing the project.
+   */
+  matchProjectFromLocationName(locationName: string) {
     return this._pathTemplates.locationPathTemplate.match(locationName).project;
   }
-  matchLocationFromLocationName(locationName: string){
+
+  /**
+   * Parse the location from Location resource.
+   *
+   * @param {string} locationName
+   *   A fully-qualified path representing Location resource.
+   * @returns {string} A string representing the location.
+   */
+  matchLocationFromLocationName(locationName: string) {
     return this._pathTemplates.locationPathTemplate.match(locationName).location;
   }
-  glossaryPath(project:string,location:string,glossary:string){
+
+  /**
+   * Return a fully-qualified glossary resource name string.
+   *
+   * @param {string} project
+   * @param {string} location
+   * @param {string} glossary
+   * @returns {string} Resource name string.
+   */
+  glossaryPath(project:string,location:string,glossary:string) {
     return this._pathTemplates.glossaryPathTemplate.render({
       project: project,
       location: location,
       glossary: glossary,
     });
   }
-  matchProjectFromGlossaryName(glossaryName: string){
+
+  /**
+   * Parse the project from Glossary resource.
+   *
+   * @param {string} glossaryName
+   *   A fully-qualified path representing Glossary resource.
+   * @returns {string} A string representing the project.
+   */
+  matchProjectFromGlossaryName(glossaryName: string) {
     return this._pathTemplates.glossaryPathTemplate.match(glossaryName).project;
   }
-  matchLocationFromGlossaryName(glossaryName: string){
+
+  /**
+   * Parse the location from Glossary resource.
+   *
+   * @param {string} glossaryName
+   *   A fully-qualified path representing Glossary resource.
+   * @returns {string} A string representing the location.
+   */
+  matchLocationFromGlossaryName(glossaryName: string) {
     return this._pathTemplates.glossaryPathTemplate.match(glossaryName).location;
   }
-  matchGlossaryFromGlossaryName(glossaryName: string){
+
+  /**
+   * Parse the glossary from Glossary resource.
+   *
+   * @param {string} glossaryName
+   *   A fully-qualified path representing Glossary resource.
+   * @returns {string} A string representing the glossary.
+   */
+  matchGlossaryFromGlossaryName(glossaryName: string) {
     return this._pathTemplates.glossaryPathTemplate.match(glossaryName).glossary;
+  }
+
+  /**
+   * Terminate the GRPC channel and close the client.
+   *
+   * The client will no longer be usable and all future behavior is undefined.
+   */
+  close(): Promise<void> {
+    if (!this._terminated) {
+      return this.translationServiceStub.then(stub => {
+        this._terminated = true;
+        stub.close();
+      });
+    }
+    return Promise.resolve();
   }
 }

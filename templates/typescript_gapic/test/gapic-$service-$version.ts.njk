@@ -46,6 +46,7 @@ export class Operation{
     promise() {};
 }
 
+{%- if (service.simpleMethods.length > 0) %}
 function mockSimpleGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
     return (actualRequest: {}, options: {}, callback: Callback) => {
         assert.deepStrictEqual(actualRequest, expectedRequest);
@@ -58,6 +59,7 @@ function mockSimpleGrpcMethod(expectedRequest: {}, response: {} | null, error: F
         } 
     };
 }
+{%- endif %}
 {%- if (service.serverStreaming.length > 0) %}
 function mockServerStreamingGrpcMethod(expectedRequest: {}, response: {} | null, error: FakeError | null) {
     return (actualRequest: {}) => {
@@ -116,7 +118,7 @@ function mockLongRunningGrpcMethod(expectedRequest: {}, response: {} | null, err
     };
 }
 {%- endif %}
-describe('{{ service.name }}Client', () => {
+describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
     it('has servicePath', () => {
         const servicePath = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.servicePath;
         assert(servicePath);
@@ -134,7 +136,7 @@ describe('{{ service.name }}Client', () => {
         const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client();
         assert(client);
     });    
-    it('should create a client with gRPC option', () => {
+    it('should create a client with gRPC fallback', () => {
         const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
             fallback: true,
         });
