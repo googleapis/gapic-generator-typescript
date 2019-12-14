@@ -301,7 +301,7 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
 function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
   const repeatedFields = pagingField(messages, method);
   if (repeatedFields && repeatedFields.name) {
-    return repeatedFields.name;
+    return repeatedFields.name.toCamelCase();
   } else {
     return undefined;
   }
