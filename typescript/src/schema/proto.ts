@@ -533,7 +533,7 @@ function augmentService(
       const resourceReference =
         fieldDescriptor.options?.['.google.api.resourceReference'];
 
-      // 1. If this resource reference has .child_type, figure out if we have any known parent resources
+      // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
       const parentResources = resourceDatabase.getParentResourcesByChildType(
         resourceReference?.childType,
         errorLocation
@@ -542,7 +542,7 @@ function augmentService(
         resource => (uniqueResources[resource.name] = resource)
       );
 
-      // 2. If this resource reference has .type, we should have a know resource with this type.
+      // 2. If this resource reference has .type, we should have a known resource with this type.
       const resource = resourceDatabase.getResourceByType(
         resourceReference?.type,
         errorLocation
