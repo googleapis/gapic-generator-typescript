@@ -31,9 +31,9 @@ const defaultParameters = {
   max_retry_delay_millis: 60000,
   // note: the following four parameters are unused but currently required by google-gax.
   // setting them to some big safe default values.
-  initial_rpc_timeout_millis: 20000,
+  initial_rpc_timeout_millis: 60000,
   rpc_timeout_multiplier: 1.0,
-  max_rpc_timeout_millis: 20000,
+  max_rpc_timeout_millis: 60000,
   total_timeout_millis: 600000,
 };
 
