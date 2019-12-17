@@ -75,22 +75,6 @@ describe('ResourceDatabase', () => {
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
-  it('can get registered resource by name', () => {
-    const rdb = new ResourceDatabase();
-    const resource: plugin.google.api.IResourceDescriptor = {
-      type: resourceType,
-      pattern: [resourcePattern],
-    };
-
-    rdb.registerResource(resource, errorLocation);
-    const registeredResource = rdb.getResourceByName(resourceName);
-    assert(registeredResource);
-    assert.strictEqual(registeredResource!.type, resourceType);
-    assert.strictEqual(registeredResource!.name, resourceName);
-    assert.deepStrictEqual(registeredResource!.pattern, [resourcePattern]);
-    assert.strictEqual(warnings.length, 0);
-  });
-
   it('can get registered resource by type', () => {
     const rdb = new ResourceDatabase();
     const resource: plugin.google.api.IResourceDescriptor = {
@@ -131,7 +115,7 @@ describe('ResourceDatabase', () => {
     };
 
     rdb.registerResource(resource, errorLocation);
-    const registeredResource = rdb.getResourceByName(resourceName);
+    const registeredResource = rdb.getResourceByType(resourceType);
     assert(registeredResource);
     assert.deepStrictEqual(registeredResource!.params, resourceParameters);
     assert.strictEqual(warnings.length, 0);
@@ -140,7 +124,7 @@ describe('ResourceDatabase', () => {
   it('warns if cannot find resource by name', () => {
     const rdb = new ResourceDatabase();
 
-    const notFoundResource = rdb.getResourceByName(resourceName, errorLocation);
+    const notFoundResource = rdb.getResourceByType(resourceType, errorLocation);
     assert.strictEqual(notFoundResource, undefined);
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });

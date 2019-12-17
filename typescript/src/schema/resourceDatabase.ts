@@ -86,24 +86,6 @@ export class ResourceDatabase {
     this.types[resourceDescriptor.type!] = resourceDescriptor;
   }
 
-  getResourceByName(
-    name: string | null | undefined,
-    errorLocation?: string
-  ): ResourceDescriptor | undefined {
-    if (!name) {
-      return undefined;
-    }
-    if (!this.names[name]) {
-      if (errorLocation) {
-        console.warn(
-          `Warning: ${errorLocation} refers to an unknown resource: ${name}`
-        );
-      }
-      return undefined;
-    }
-    return this.names[name];
-  }
-
   getResourceByType(
     type: string | null | undefined,
     errorLocation?: string
@@ -145,6 +127,7 @@ export class ResourceDatabase {
     errorLocation?: string
   ): ResourceDescriptor[] {
     // childType looks like "datacatalog.googleapis.com/EntryGroup"
+    // its pattern would be like "projects/{project}/locations/{location}/entryGroups/{entry_group}"
     const result: ResourceDescriptor[] = [];
 
     if (!childType) {
