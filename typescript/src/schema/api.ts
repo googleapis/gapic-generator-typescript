@@ -17,7 +17,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { Naming } from './naming';
-import { Proto, MessagesMap, ResourceDescriptor, ResourceMap } from './proto';
+import { Proto, MessagesMap } from './proto';
+import { ResourceDatabase, ResourceDescriptor } from './resourceDatabase';
 
 const googleGaxLocation = path.dirname(require.resolve('google-gax'));
 const gaxProtosLocation = path.join(googleGaxLocation, '..', '..', 'protos');
@@ -51,7 +52,7 @@ export class API {
     // users specify the actual package name, if not, set it to product name.
     this.publishName = publishName || this.naming.productName.toKebabCase();
     // construct resource map
-    const resourceMap = getResourceMap(fileDescriptors);
+    const resourceMap = getResourceDatabase(fileDescriptors);
     // parse resource map to Proto constructor
     this.protos = fileDescriptors
       .filter(fd => fd.name)
@@ -112,58 +113,17 @@ export class API {
   }
 }
 
-function processOneResource(
-  option: ResourceDescriptor | undefined,
-  fileAndMessageNames: string,
-  resourceMap: ResourceMap
-): void {
-  if (!option) {
-    return;
-  }
-  if (!option.type) {
-    console.warn(
-      `Warning: in ${fileAndMessageNames} refers to a resource which does not have a type: ${option}`
-    );
-    return;
-  }
-
-  const arr = option.type.match(/\/([^.]+)$/);
-  if (!arr?.[1]) {
-    console.warn(
-      `Warning: in ${fileAndMessageNames} refers to a resource which does not have a proper name: ${option}`
-    );
-    return;
-  }
-  option.name = arr[1];
-
-  const pattern = option.pattern;
-  if (!pattern?.[0]) {
-    console.warn(
-      `Warning: in ${fileAndMessageNames} refers to a resource which does not have a proper pattern: ${option}`
-    );
-    return;
-  }
-  const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
-  for (let i = 0; i < params.length; i++) {
-    params[i] = params[i].replace('{', '').replace('}', '');
-  }
-  option.params = params;
-
-  resourceMap[option.type!] = option;
-}
-
-function getResourceMap(
+function getResourceDatabase(
   fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]
-): ResourceMap {
-  const resourceMap: ResourceMap = {};
+): ResourceDatabase {
+  const resourceDatabase = new ResourceDatabase();
   for (const fd of fileDescriptors.filter(fd => fd)) {
     // process file-level options
     for (const resource of fd.options?.['.google.api.resourceDefinition'] ??
       []) {
-      processOneResource(
+      resourceDatabase.registerResource(
         resource as ResourceDescriptor,
-        `file ${fd.name} resource_definition option`,
-        resourceMap
+        `file ${fd.name} resource_definition option`
       );
     }
 
@@ -176,12 +136,11 @@ function getResourceMap(
 
     for (const property of Object.keys(messages)) {
       const m = messages[property];
-      processOneResource(
+      resourceDatabase.registerResource(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
-        `file ${fd.name} message ${property}`,
-        resourceMap
+        `file ${fd.name} message ${property}`
       );
     }
   }
-  return resourceMap;
+  return resourceDatabase;
 }

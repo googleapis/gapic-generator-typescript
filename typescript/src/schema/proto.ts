@@ -16,6 +16,7 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 import { CommentsMap, Comment } from './comments';
 import * as objectHash from 'object-hash';
 import { milliseconds } from '../util';
+import { ResourceDescriptor, ResourceDatabase } from './resourceDatabase';
 
 const defaultNonIdempotentRetryCodesName = 'non_idempotent';
 const defaultNonIdempotentCodes: plugin.google.rpc.Code[] = [];
@@ -184,22 +185,14 @@ interface ServiceDescriptorProto
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
 }
 
-export interface ResourceDescriptor
-  extends plugin.google.api.IResourceDescriptor {
-  name: string;
-  params: string[];
-}
-
-export interface ResourceMap {
-  [name: string]: ResourceDescriptor;
-}
-
 export interface ServicesMap {
   [name: string]: ServiceDescriptorProto;
 }
+
 export interface MessagesMap {
   [name: string]: plugin.google.protobuf.IDescriptorProto;
 }
+
 export interface EnumsMap {
   [name: string]: plugin.google.protobuf.IEnumDescriptorProto;
 }
@@ -479,7 +472,7 @@ function augmentService(
   service: plugin.google.protobuf.IServiceDescriptorProto,
   commentsMap: CommentsMap,
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-  resourceMap: ResourceMap
+  resourceDatabase: ResourceDatabase
 ) {
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.packageName = packageName;
@@ -530,32 +523,36 @@ function augmentService(
       '.google.api.oauthScopes'
     ].split(',');
   }
-  augmentedService.pathTemplates = [];
+
+  // Build a list of resources referenced by this service
+  const uniqueResources: { [name: string]: ResourceDescriptor } = {};
   for (const property of Object.keys(messages)) {
-    const m = messages[property];
-    if (m?.field) {
-      const fields = m.field;
-      for (const fieldDescriptor of fields) {
-        if (fieldDescriptor?.options) {
-          const option = fieldDescriptor.options;
-          if (option?.['.google.api.resourceReference']) {
-            const resourceReference = option['.google.api.resourceReference'];
-            const type = resourceReference.type;
-            if (!type || !resourceMap[type.toString()]) {
-              const resourceJson = JSON.stringify(resourceReference);
-              console.warn(
-                `Warning: in service proto ${service.name} message ${property} refers to an unknown resource: ${resourceJson}`
-              );
-              continue;
-            }
-            const resource = resourceMap[resourceReference.type!.toString()];
-            if (augmentedService.pathTemplates.includes(resource)) continue;
-            augmentedService.pathTemplates.push(resource);
-          }
-        }
+    const errorLocation = `service ${service.name} message ${property}`;
+    for (const fieldDescriptor of messages[property].field ?? []) {
+      // note: ResourceDatabase can accept `undefined` values, so we happily use optional chaining here.
+      const resourceReference =
+        fieldDescriptor.options?.['.google.api.resourceReference'];
+
+      // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
+      const parentResources = resourceDatabase.getParentResourcesByChildType(
+        resourceReference?.childType,
+        errorLocation
+      );
+      parentResources.map(
+        resource => (uniqueResources[resource.name] = resource)
+      );
+
+      // 2. If this resource reference has .type, we should have a known resource with this type.
+      const resource = resourceDatabase.getResourceByType(
+        resourceReference?.type,
+        errorLocation
+      );
+      if (resource) {
+        uniqueResources[resource.name] = resource;
       }
     }
   }
+  augmentedService.pathTemplates = Object.values(uniqueResources);
   return augmentedService;
 }
 
@@ -571,7 +568,7 @@ export class Proto {
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
     grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-    resourceMap: ResourceMap
+    resourceDatabase: ResourceDatabase
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
@@ -605,7 +602,7 @@ export class Proto {
           service,
           commentsMap,
           grpcServiceConfig,
-          resourceMap
+          resourceDatabase
         )
       )
       .reduce((map, service) => {
