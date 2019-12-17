@@ -21,12 +21,10 @@ export interface ResourceDescriptor
 }
 
 export class ResourceDatabase {
-  private names: { [name: string]: ResourceDescriptor };
   private patterns: { [pattern: string]: ResourceDescriptor };
   private types: { [type: string]: ResourceDescriptor };
 
   constructor() {
-    this.names = {};
     this.patterns = {};
     this.types = {};
   }
@@ -81,7 +79,6 @@ export class ResourceDatabase {
       resource
     );
 
-    this.names[resourceDescriptor.name] = resourceDescriptor;
     this.patterns[pattern?.[0]] = resourceDescriptor;
     this.types[resourceDescriptor.type!] = resourceDescriptor;
   }
