@@ -32,17 +32,20 @@ export class API {
   protos: ProtosMap;
   hostName?: string;
   port?: string;
-  mainServiceName?: string;
   // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
   publishName: string;
-  // oauth_scopes: plugin.google.protobuf.IServiceOptions.prototype[".google.api.oauthScopes"];
-  // TODO: subpackages
+  // For historical reasons, Webpack library name matches "the main" service of the client library.
+  // Sometimes it's hard to figure out automatically, so making this an option.
+  mainServiceName: string;
 
   constructor(
     fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[],
     packageName: string,
-    grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-    publishName?: string
+    options: {
+      grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+      publishName?: string;
+      mainServiceName?: string;
+    }
   ) {
     this.naming = new Naming(
       fileDescriptors.filter(
@@ -50,7 +53,8 @@ export class API {
       )
     );
     // users specify the actual package name, if not, set it to product name.
-    this.publishName = publishName || this.naming.productName.toKebabCase();
+    this.publishName =
+      options.publishName || this.naming.productName.toKebabCase();
     // construct resource map
     const resourceMap = getResourceDatabase(fileDescriptors);
     // parse resource map to Proto constructor
@@ -61,27 +65,36 @@ export class API {
         map[fd.name!] = new Proto(
           fd,
           packageName,
-          grpcServiceConfig,
+          options.grpcServiceConfig,
           resourceMap
         );
         return map;
       }, {} as ProtosMap);
-    fileDescriptors.forEach(fd => {
-      if (fd.service) {
-        fd.service.forEach(service => {
-          if (service.options) {
-            const serviceOption = service.options;
-            if (serviceOption['.google.api.defaultHost']) {
-              const defaultHost = serviceOption['.google.api.defaultHost'];
-              const arr = defaultHost.split(':');
-              this.hostName = arr[0] || 'localhost';
-              this.port = arr.length > 1 ? arr[1] : '443';
-              this.mainServiceName = service.name || this.naming.name;
-            }
-          }
-        });
-      }
-    });
+
+    const serviceNamesList: string[] = [];
+    fileDescriptors
+      .filter(fd => fd.service)
+      .reduce((servicesList, fd) => {
+        servicesList.push(...fd.service!);
+        return servicesList;
+      }, [] as plugin.google.protobuf.IServiceDescriptorProto[])
+      .filter(service => service?.options?.['.google.api.defaultHost'])
+      .sort((service1, service2) =>
+        service1.name!.localeCompare(service2.name!)
+      )
+      .forEach(service => {
+        const defaultHost = service!.options!['.google.api.defaultHost']!;
+        const [hostname, port] = defaultHost.split(':');
+        if (hostname && this.hostName && hostname !== this.hostName) {
+          console.warn(
+            `Warning: different hostnames ${hostname} and ${this.hostName} within the same client are not supported.`
+          );
+        }
+        this.hostName = hostname || this.hostName || 'localhost';
+        this.port = port ?? this.port ?? '443';
+        serviceNamesList.push(service.name || this.naming.name);
+      });
+    this.mainServiceName = options.mainServiceName || serviceNamesList[0];
   }
 
   get services() {
@@ -93,7 +106,10 @@ export class API {
           ...Object.keys(proto.services).map(name => proto.services[name])
         );
         return retval;
-      }, [] as plugin.google.protobuf.IServiceDescriptorProto[]);
+      }, [] as plugin.google.protobuf.IServiceDescriptorProto[])
+      .sort((service1, service2) =>
+        service1.name!.localeCompare(service2.name!)
+      );
   }
 
   get filesToGenerate() {

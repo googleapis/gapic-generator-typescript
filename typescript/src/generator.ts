@@ -46,6 +46,9 @@ export class Generator {
   paramMap: OptionsMap;
   // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
   publishName?: string;
+  // For historical reasons, Webpack library name matches "the main" service of the client library.
+  // Sometimes it's hard to figure out automatically, so making this an option.
+  mainServiceName?: string;
 
   constructor() {
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
@@ -99,10 +102,12 @@ export class Generator {
     }
   }
 
-  private async readPublishPackageName(map: OptionsMap) {
-    if (map?.['package-name']) {
-      this.publishName = map['package-name'];
-    }
+  private readPublishPackageName(map: OptionsMap) {
+    this.publishName = map['package-name'];
+  }
+
+  private readMainServiceName(map: OptionsMap) {
+    this.mainServiceName = map['main-service'];
   }
 
   async initializeFromStdin() {
@@ -113,7 +118,8 @@ export class Generator {
     if (this.request.parameter) {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig(this.paramMap);
-      await this.readPublishPackageName(this.paramMap);
+      this.readPublishPackageName(this.paramMap);
+      this.readMainServiceName(this.paramMap);
     }
   }
 
@@ -146,12 +152,11 @@ export class Generator {
     if (packageName === '') {
       throw new Error('Cannot get package name to generate.');
     }
-    const api = new API(
-      this.request.protoFile,
-      packageName,
-      this.grpcServiceConfig,
-      this.publishName
-    );
+    const api = new API(this.request.protoFile, packageName, {
+      grpcServiceConfig: this.grpcServiceConfig,
+      publishName: this.publishName,
+      mainServiceName: this.mainServiceName,
+    });
     return api;
   }
 
@@ -161,8 +166,6 @@ export class Generator {
   }
 
   async generate() {
-    const fileToGenerate = this.request.fileToGenerate;
-
     this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
 
     this.addProtosToResponse();

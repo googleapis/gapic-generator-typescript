@@ -28,7 +28,7 @@ const START_SCRIPT = path.join(
   'src',
   'start_script.js'
 );
-const OUTPUT_DIR = path.join(__dirname, '..', '..', '..', '.client_library');
+const OUTPUT_DIR = path.join(__dirname, '..', '..', '..', '.test-out-showcase');
 const PROTOS_DIR = path.join(process.cwd(), 'build', 'test', 'protos');
 const PROTO_FILE = path.join(
   PROTOS_DIR,
@@ -61,7 +61,8 @@ describe('StarterScriptTest', () => {
           START_SCRIPT +
           ` -I${PROTOS_DIR}` +
           ` ${PROTO_FILE}` +
-          ` --output_dir=${OUTPUT_DIR}`
+          ` --output_dir=${OUTPUT_DIR}` +
+          ` --main_service=ShowcaseService`
       );
       assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR_SHOWCASE));
     });
