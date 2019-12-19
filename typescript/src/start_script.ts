@@ -36,6 +36,11 @@ const argv = yargs
   .describe('grpc-service-config', 'Path to gRPC service config JSON')
   .alias('package-name', 'package_name')
   .describe('package-name', 'Publish package name')
+  .alias('main-service', 'main_service')
+  .describe(
+    'main_service',
+    'Main service name (if the package has multiple services, this one will be used for Webpack bundle name)'
+  )
   .alias('common-proto-path', 'common_protos_path')
   .describe(
     'common_proto_path',
@@ -46,7 +51,7 @@ const argv = yargs
 const outputDir = argv.outputDir as string;
 const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 const packageName = argv.packageName as string | undefined;
-
+const mainServiceName = argv.mainService as string | undefined;
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
@@ -76,6 +81,11 @@ if (grpcServiceConfig) {
 }
 if (packageName) {
   protocCommand.push(`--typescript_gapic_opt="package-name=${packageName}"`);
+}
+if (mainServiceName) {
+  protocCommand.push(
+    `--typescript_gapic_opt="main-service=${mainServiceName}"`
+  );
 }
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
