@@ -245,6 +245,9 @@ export class {{ service.name }}Client {
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
       const innerCallPromise = this.{{ service.name.toCamelCase() }}Stub.then(
         stub => (...args: Array<{}>) => {
+          if (this._terminated) {
+            return Promise.reject('The client has already been closed.');
+          }
           return stub[methodName].apply(stub, args);
         },
         (err: Error|null|undefined) => () => {
@@ -264,10 +267,7 @@ export class {{ service.name }}Client {
         callOptions?: CallOptions,
         callback?: APICallback
       ) => {
-         if (this._terminated) {
-            return Promise.reject('The client has already been closed.');
-         }
-         return apiCall(argument, callOptions, callback);
+        return apiCall(argument, callOptions, callback);
       };
     }
   }
