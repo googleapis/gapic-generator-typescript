@@ -18,6 +18,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import * as util from 'util';
+import { describe, it } from 'mocha';
 import { equalToBaseline } from '../util';
 
 const rmrf = util.promisify(rimraf);
