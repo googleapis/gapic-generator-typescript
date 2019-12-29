@@ -18,6 +18,7 @@ import {
   ResourceDescriptor,
 } from '../../src/schema/resourceDatabase';
 import * as assert from 'assert';
+import {describe, it} from 'mocha';
 
 describe('ResourceDatabase', () => {
   let warnings: string[] = [];

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as assert from 'assert';
+import {describe, it} from 'mocha';
 import * as showcase from 'showcase';
 
 import * as grpc from '@grpc/grpc-js'; // to create credentials for local Showcase server
