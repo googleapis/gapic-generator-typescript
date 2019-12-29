@@ -17,6 +17,7 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
+import { describe, it } from 'mocha';
 import { equalToBaseline } from '../util';
 
 const cwd = process.cwd();

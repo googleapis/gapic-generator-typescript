@@ -16,6 +16,7 @@ import * as util from 'util';
 import * as child_process from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { describe, it } from 'mocha';
 const exec = util.promisify(child_process.exec);
 const SHOWCASE_LIB = path.join(
   __dirname,
