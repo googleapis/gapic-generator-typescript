@@ -35,14 +35,19 @@ limitations under the License.
 {%- macro printCommentsForService(service) -%}
 {%- set lines = service.comments -%}
 {% for line in lines %}
- * {{ line | safe}}
+{%- set trimmed = line.replace(r/\s+$/, '') -%}
+{%- if trimmed.length > 0 %}
+ * {{ trimmed.replaceAll('*/', '* /') | safe}}
+{%- else %}
+ *
+{%- endif %}
 {%- endfor %}
 {%- endmacro -%}
 
 {%- macro printCommentsForMethod(method) -%}
 {%- set lines = method.comments -%}
 {% for line in lines %}
- *{{ line.replaceAll('*/', '* /') | safe}}
+ *{{ line.replaceAll('*/', '* /').replace(r/\s+$/, '') | safe}}
 {%- endfor %}
 {%- endmacro -%}
 
@@ -80,9 +85,10 @@ limitations under the License.
 {%- endif -%}
 {%- set lines = oneComment.comments -%}
 {%- for line in lines %}
-{%- if line.length > 0 %}
- *  {{ line.replaceAll('*/', '* /') | safe}}
-{%- else %} 
+{%- set trimmed = line.replace(r/\s+$/, '') -%}
+{%- if trimmed.length > 0 %}
+ *  {{ trimmed.replaceAll('*/', '* /') | safe}}
+{%- else %}
  *
 {%- endif -%}
 {%- endfor -%}
@@ -141,12 +147,12 @@ limitations under the License.
 {%- endmacro -%}
 
 {%- macro printReturnClientStreamingMethod(method) %}
- * @returns {Stream} - A writable stream which accepts objects representing 
+ * @returns {Stream} - A writable stream which accepts objects representing
  * {{ typeLink(method.inputType) }}.
 {%- endmacro -%}
 
 {%- macro printReturnBidiStreamingMethod(method) %}
- * @returns {Stream} 
+ * @returns {Stream}
  *   An object stream which is both readable and writable. It accepts objects
  *   representing {{ typeLink(method.inputType) }} for write() method, and
  *   will emit objects representing {{ typeLink(method.outputType) }} on 'data' event asynchronously.
