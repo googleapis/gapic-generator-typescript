@@ -4,16 +4,16 @@
 
 This tool is a TypeScript client library generator for network APIs specified
 by [protocol
-buffers](https://developers.google.com/protocol-buffers/) (including, but 
-not limited to, [client libraries](https://www.npmjs.com/search?q=%40google-cloud) 
+buffers](https://developers.google.com/protocol-buffers/) (including, but
+not limited to, [client libraries](https://www.npmjs.com/search?q=%40google-cloud)
 for Google Cloud APIs).
 
-It can be used for any API that uses protocol buffers and follows the conventions 
+It can be used for any API that uses protocol buffers and follows the conventions
 described in [API Improvement Proposals](https://aip.dev/).
 
 ## Getting started
 
-The [Showcase API](https://github.com/googleapis/gapic-showcase) is a good API to 
+The [Showcase API](https://github.com/googleapis/gapic-showcase) is a good API to
 play with if you want to start generating your own client libraries. It has several
 services, we'll use `Echo` service as an example.
 
@@ -119,12 +119,12 @@ $ gapic-generator-typescript -I . \
   google/cloud/common_resources.proto
 ```
 
-Line by line:  
-`-I .` means pass the current directory (i.e. `googleapis`) to `protoc`  
-`--output_dir /tmp/translate-v3-typescript` is where to put the result  
+Line by line:
+`-I .` means pass the current directory (i.e. `googleapis`) to `protoc`
+`--output_dir /tmp/translate-v3-typescript` is where to put the result
 `--grpc-service-config google/cloud/translate/v3/translate_grpc_service_config.json`
-is an optional configuration file for timeouts and stuff  
-Then we add all the `translate` `v3` proto file to the command line, as well as the 
+is an optional configuration file for timeouts and stuff
+Then we add all the `translate` `v3` proto file to the command line, as well as the
 proto file that defines common resources (some APIs need it, some others don't).
 
 If you like the changes, make sure that tests pass!
