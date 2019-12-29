@@ -177,6 +177,9 @@ export class KeyManagementServiceClient {
     for (const methodName of keyManagementServiceStubMethods) {
       const innerCallPromise = this.keyManagementServiceStub.then(
         stub => (...args: Array<{}>) => {
+          if (this._terminated) {
+            return Promise.reject('The client has already been closed.');
+          }
           return stub[methodName].apply(stub, args);
         },
         (err: Error|null|undefined) => () => {
@@ -196,10 +199,7 @@ export class KeyManagementServiceClient {
         callOptions?: CallOptions,
         callback?: APICallback
       ) => {
-         if (this._terminated) {
-            return Promise.reject('The client has already been closed.');
-         }
-         return apiCall(argument, callOptions, callback);
+        return apiCall(argument, callOptions, callback);
       };
     }
   }
