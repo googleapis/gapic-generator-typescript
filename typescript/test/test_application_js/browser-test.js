@@ -14,6 +14,7 @@
 
 const child_process = require('child_process');
 const util = require('util');
+const {describe, it} = require('mocha');
 const serverProcess = require('./server');
 const exec = util.promisify(child_process.exec);
 

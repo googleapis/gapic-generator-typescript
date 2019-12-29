@@ -15,6 +15,7 @@
 import { RetryableCodeMap } from '../../src/schema/proto';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import * as assert from 'assert';
+import { describe, it } from 'mocha';
 
 const Code = plugin.google.rpc.Code;
 

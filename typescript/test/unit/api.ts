@@ -15,6 +15,7 @@
 import { API } from '../../src/schema/api';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import * as assert from 'assert';
+import { describe, it } from 'mocha';
 
 describe('schema/api.ts', () => {
   it('should construct an API object and return list of protos', () => {

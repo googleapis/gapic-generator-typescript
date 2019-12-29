@@ -14,6 +14,7 @@
 
 const util = require('util');
 const child_process = require('child_process');
+const {describe, it} = require('mocha');
 const exec = util.promisify(child_process.exec);
 const fs = require('fs-extra');
 const path = require('path');
