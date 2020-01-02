@@ -34,7 +34,7 @@ The easiest way to get started is to use our Docker image:
 
 ```sh
 $ mkdir showcase-typescript
-$ docker run --rm \
+$ docker run --rm --user $UID \
   --mount type=bind,source=`pwd`/google/showcase/v1beta1,destination=/in/google/showcase/v1beta1,readonly \
   --mount type=bind,source=`pwd`/showcase-typescript,destination=/out \
   gcr.io/gapic-images/gapic-generator-typescript:latest
