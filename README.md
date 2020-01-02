@@ -34,7 +34,7 @@ The easiest way to get started is to use our Docker image:
 
 ```sh
 $ mkdir showcase-typescript
-$ docker run --rm \
+$ docker run --rm --user $UID \
   --mount type=bind,source=`pwd`/google/showcase/v1beta1,destination=/in/google/showcase/v1beta1,readonly \
   --mount type=bind,source=`pwd`/showcase-typescript,destination=/out \
   gcr.io/gapic-images/gapic-generator-typescript:latest
@@ -119,11 +119,11 @@ $ gapic-generator-typescript -I . \
   google/cloud/common_resources.proto
 ```
 
-Line by line:
-`-I .` means pass the current directory (i.e. `googleapis`) to `protoc`
-`--output_dir /tmp/translate-v3-typescript` is where to put the result
+Line by line:  
+`-I .` means pass the current directory (i.e. `googleapis`) to `protoc`  
+`--output_dir /tmp/translate-v3-typescript` is where to put the result  
 `--grpc-service-config google/cloud/translate/v3/translate_grpc_service_config.json`
-is an optional configuration file for timeouts and stuff
+is an optional configuration file for timeouts and stuff  
 Then we add all the `translate` `v3` proto file to the command line, as well as the
 proto file that defines common resources (some APIs need it, some others don't).
 
