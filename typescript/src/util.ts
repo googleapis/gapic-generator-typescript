@@ -128,13 +128,16 @@ String.prototype.replaceAll = function(
   return this.split(search).join(replacement);
 };
 
-Array.prototype.camelCaseBeforeDot = function(
+Array.prototype.toCamelCaseString = function(
   this: string[],
   joiner: string
 ): string {
-  if (this.length <= 1) {
-    return this.toString().toCamelCase();
-  }
-  const res = this.slice(0, -1).map(w => w.toCamelCase());
-  return res.join(joiner) + joiner + this[this.length - 1];
+  return this.map(part => part.toCamelCase()).join(joiner);
+};
+
+Array.prototype.toSnakeCaseString = function(
+  this: string[],
+  joiner: string
+): string {
+  return this.map(part => part.toSnakeCase()).join(joiner);
 };

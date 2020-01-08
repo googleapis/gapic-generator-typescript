@@ -311,43 +311,86 @@ describe('util.ts', () => {
   });
 
   describe('array manipulation', () => {
-    it('should convert to camel case except last element', () => {
-      it('should convert to camelCase before dot', () => {
-        assert.deepStrictEqual([''].camelCaseBeforeDot('!.'), '');
-        assert.deepStrictEqual(['test'].camelCaseBeforeDot('!.'), 'test');
-        assert.deepStrictEqual(
-          ['camelCaseString'].camelCaseBeforeDot('!.'),
-          'camelCaseString'
-        );
-        assert.deepStrictEqual(
-          ['PascalCaseString'].camelCaseBeforeDot('!.'),
-          'pascalCaseString'
-        );
-        assert.deepStrictEqual(
-          ['snake_case_string'].camelCaseBeforeDot('!.'),
-          'snakeCaseString'
-        );
-        assert.deepStrictEqual(
-          ['kebab-case-string'].camelCaseBeforeDot('!.'),
-          'kebabCaseString'
-        );
-        assert.deepStrictEqual(
-          ['random/separators-string'].camelCaseBeforeDot('!.'),
-          'randomSeparatorsString'
-        );
-        assert.deepStrictEqual(
-          ['mixedType-string', 'SomewhatWeird'].camelCaseBeforeDot('!.'),
-          'mixedTypeString!.SomewhatWeird'
-        );
-        assert.deepStrictEqual(
-          ['productName', 'v1p1beta1'].camelCaseBeforeDot('!.'),
-          'productName!.v1p1beta1'
-        );
-        assert.deepStrictEqual(
-          ['product_key', 'lower_name', 'v1p1beta1'].camelCaseBeforeDot('!.'),
-          'productKey!.lowerName!.v1p1beta1'
-        );
-      });
+    it('should convert array to camel case string using the joiner', () => {
+      assert.deepStrictEqual([''].toCamelCaseString('!.'), '');
+      assert.deepStrictEqual(['test'].toCamelCaseString('!.'), 'test');
+      assert.deepStrictEqual(
+        ['camelCaseString'].toCamelCaseString('!.'),
+        'camelCaseString'
+      );
+      assert.deepStrictEqual(
+        ['PascalCaseString'].toCamelCaseString('!.'),
+        'pascalCaseString'
+      );
+      assert.deepStrictEqual(
+        ['snake_case_string'].toCamelCaseString('!.'),
+        'snakeCaseString'
+      );
+      assert.deepStrictEqual(
+        ['kebab-case-string'].toCamelCaseString('!.'),
+        'kebabCaseString'
+      );
+      assert.deepStrictEqual(
+        ['random/separators-string'].toCamelCaseString('!.'),
+        'randomSeparatorsString'
+      );
+      assert.deepStrictEqual(
+        ['mixedType-string', 'SomewhatWeird'].toCamelCaseString('!.'),
+        'mixedTypeString!.somewhatWeird'
+      );
+      assert.deepStrictEqual(
+        ['productName', 'v1p1beta1'].toCamelCaseString('!.'),
+        'productName!.v1p1beta1'
+      );
+      assert.deepStrictEqual(
+        ['product_key', 'lower_name', 'v1p1beta1'].toCamelCaseString('!.'),
+        'productKey!.lowerName!.v1p1beta1'
+      );
+      assert.deepStrictEqual(
+        ['tableReference', 'project_id'].toCamelCaseString('!.'),
+        'tableReference!.projectId'
+      );
+    });
+
+    it('should convert array to snake case string using the joiner', () => {
+      assert.deepStrictEqual([''].toSnakeCaseString('!.'), '');
+      assert.deepStrictEqual(['test'].toSnakeCaseString('!.'), 'test');
+      assert.deepStrictEqual(
+        ['camelCaseString'].toSnakeCaseString('!.'),
+        'camel_case_string'
+      );
+      assert.deepStrictEqual(
+        ['PascalCaseString'].toSnakeCaseString('!.'),
+        'pascal_case_string'
+      );
+      assert.deepStrictEqual(
+        ['snake_case_string'].toSnakeCaseString('!.'),
+        'snake_case_string'
+      );
+      assert.deepStrictEqual(
+        ['kebab-case-string'].toSnakeCaseString('!.'),
+        'kebab_case_string'
+      );
+      assert.deepStrictEqual(
+        ['random/separators-string'].toSnakeCaseString('!.'),
+        'random_separators_string'
+      );
+      assert.deepStrictEqual(
+        ['mixedType-string', 'SomewhatWeird'].toSnakeCaseString('!.'),
+        'mixed_type_string!.somewhat_weird'
+      );
+      assert.deepStrictEqual(
+        ['productName', 'v1p1beta1'].toSnakeCaseString('!.'),
+        'product_name!.v1p1beta1'
+      );
+      assert.deepStrictEqual(
+        ['product_key', 'lower_name', 'v1p1beta1'].toSnakeCaseString('!.'),
+        'product_key!.lower_name!.v1p1beta1'
+      );
+      assert.deepStrictEqual(
+        ['tableReference', 'project_id'].toSnakeCaseString('!.'),
+        'table_reference!.project_id'
+      );
     });
   });
 });
