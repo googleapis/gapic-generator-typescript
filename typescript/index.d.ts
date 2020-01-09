@@ -23,5 +23,6 @@ interface String {
 }
 
 interface Array<T> {
-  camelCaseBeforeDot(this: string[], joiner: string): string;
+  toCamelCaseString(this: string[], joiner: string): string;
+  toSnakeCaseString(this: string[], joiner: string): string;
 }
