@@ -44,6 +44,7 @@ const version = require('../../../package.json').version;
 export class KeyManagementServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
+  private _innerCallPromise: {[name: string]: any};
   private _terminated = false;
   auth: gax.GoogleAuth;
   keyManagementServiceStub: Promise<{[name: string]: Function}>;
@@ -173,9 +174,9 @@ export class KeyManagementServiceClient {
     // and create an API call method for each.
     const keyManagementServiceStubMethods =
         ['listKeyRings', 'listCryptoKeys', 'listCryptoKeyVersions', 'listImportJobs', 'getKeyRing', 'getCryptoKey', 'getCryptoKeyVersion', 'getPublicKey', 'getImportJob', 'createKeyRing', 'createCryptoKey', 'createCryptoKeyVersion', 'importCryptoKeyVersion', 'createImportJob', 'updateCryptoKey', 'updateCryptoKeyVersion', 'encrypt', 'decrypt', 'asymmetricSign', 'asymmetricDecrypt', 'updateCryptoKeyPrimaryVersion', 'destroyCryptoKeyVersion', 'restoreCryptoKeyVersion'];
-
+    this._innerCallPromise = {};
     for (const methodName of keyManagementServiceStubMethods) {
-      const innerCallPromise = this.keyManagementServiceStub.then(
+      this._innerCallPromise[methodName] = this.keyManagementServiceStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -187,7 +188,7 @@ export class KeyManagementServiceClient {
         });
 
       const apiCall = gaxModule.createApiCall(
-        innerCallPromise,
+        this._innerCallPromise[methodName],
         defaults[methodName],
         this._descriptors.page[methodName] ||
             this._descriptors.stream[methodName] ||
@@ -1665,6 +1666,51 @@ export class KeyManagementServiceClient {
       callSettings
     );
   }
+
+  /**
+ * Equivalent to {@link listKeyRings}, but returns an iterable object.
+ *
+ * for-await-of synctax is used with the iterable to resursively get response element on-demand.
+ *
+ * autoPaginate option will be ignored.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent
+ *   Required. The resource name of the location associated with the
+ *   [KeyRings][google.cloud.kms.v1.KeyRing], in the format `projects/* /locations/*`.
+ * @param {number} request.pageSize
+ *   Optional limit on the number of [KeyRings][google.cloud.kms.v1.KeyRing] to include in the
+ *   response.  Further [KeyRings][google.cloud.kms.v1.KeyRing] can subsequently be obtained by
+ *   including the [ListKeyRingsResponse.next_page_token][google.cloud.kms.v1.ListKeyRingsResponse.next_page_token] in a subsequent
+ *   request.  If unspecified, the server will pick an appropriate default.
+ * @param {string} request.pageToken
+ *   Optional pagination token, returned earlier via
+ *   [ListKeyRingsResponse.next_page_token][google.cloud.kms.v1.ListKeyRingsResponse.next_page_token].
+ * @param {string} request.filter
+ *   Optional. Only include resources that match the filter in the response.
+ * @param {string} request.orderBy
+ *   Optional. Specify how the results should be sorted. If not specified, the
+ *   results will be sorted in the default order.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Object}
+ *   An iterable Object whose iterable properties are to be iterated over.
+ */
+
+  listKeyRingsAsync(
+      request?: protosTypes.google.cloud.kms.v1.IListKeyRingsRequest,
+      options?: gax.CallOptions | {}):
+    {}{
+    request = request || {};
+    options = options || {};
+    const callSettings = new gax.CallSettings(options);
+    return this._descriptors.page.listKeyRings.async(
+      this._innerCallPromise['listKeyRings'],
+      request,
+      callSettings
+    );
+  }
   listCryptoKeys(
       request: protosTypes.google.cloud.kms.v1.IListCryptoKeysRequest,
       options?: gax.CallOptions):
@@ -1802,6 +1848,53 @@ export class KeyManagementServiceClient {
     const callSettings = new gax.CallSettings(options);
     return this._descriptors.page.listCryptoKeys.createStream(
       this._innerApiCalls.listCryptoKeys as gax.GaxCall,
+      request,
+      callSettings
+    );
+  }
+
+  /**
+ * Equivalent to {@link listCryptoKeys}, but returns an iterable object.
+ *
+ * for-await-of synctax is used with the iterable to resursively get response element on-demand.
+ *
+ * autoPaginate option will be ignored.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent
+ *   Required. The resource name of the [KeyRing][google.cloud.kms.v1.KeyRing] to list, in the format
+ *   `projects/* /locations/* /keyRings/*`.
+ * @param {number} request.pageSize
+ *   Optional limit on the number of [CryptoKeys][google.cloud.kms.v1.CryptoKey] to include in the
+ *   response.  Further [CryptoKeys][google.cloud.kms.v1.CryptoKey] can subsequently be obtained by
+ *   including the [ListCryptoKeysResponse.next_page_token][google.cloud.kms.v1.ListCryptoKeysResponse.next_page_token] in a subsequent
+ *   request.  If unspecified, the server will pick an appropriate default.
+ * @param {string} request.pageToken
+ *   Optional pagination token, returned earlier via
+ *   [ListCryptoKeysResponse.next_page_token][google.cloud.kms.v1.ListCryptoKeysResponse.next_page_token].
+ * @param {google.cloud.kms.v1.CryptoKeyVersion.CryptoKeyVersionView} request.versionView
+ *   The fields of the primary version to include in the response.
+ * @param {string} request.filter
+ *   Optional. Only include resources that match the filter in the response.
+ * @param {string} request.orderBy
+ *   Optional. Specify how the results should be sorted. If not specified, the
+ *   results will be sorted in the default order.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Object}
+ *   An iterable Object whose iterable properties are to be iterated over.
+ */
+
+  listCryptoKeysAsync(
+      request?: protosTypes.google.cloud.kms.v1.IListCryptoKeysRequest,
+      options?: gax.CallOptions | {}):
+    {}{
+    request = request || {};
+    options = options || {};
+    const callSettings = new gax.CallSettings(options);
+    return this._descriptors.page.listCryptoKeys.async(
+      this._innerCallPromise['listCryptoKeys'],
       request,
       callSettings
     );
@@ -1949,6 +2042,54 @@ export class KeyManagementServiceClient {
       callSettings
     );
   }
+
+  /**
+ * Equivalent to {@link listCryptoKeyVersions}, but returns an iterable object.
+ *
+ * for-await-of synctax is used with the iterable to resursively get response element on-demand.
+ *
+ * autoPaginate option will be ignored.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent
+ *   Required. The resource name of the [CryptoKey][google.cloud.kms.v1.CryptoKey] to list, in the format
+ *   `projects/* /locations/* /keyRings/* /cryptoKeys/*`.
+ * @param {number} request.pageSize
+ *   Optional limit on the number of [CryptoKeyVersions][google.cloud.kms.v1.CryptoKeyVersion] to
+ *   include in the response. Further [CryptoKeyVersions][google.cloud.kms.v1.CryptoKeyVersion] can
+ *   subsequently be obtained by including the
+ *   [ListCryptoKeyVersionsResponse.next_page_token][google.cloud.kms.v1.ListCryptoKeyVersionsResponse.next_page_token] in a subsequent request.
+ *   If unspecified, the server will pick an appropriate default.
+ * @param {string} request.pageToken
+ *   Optional pagination token, returned earlier via
+ *   [ListCryptoKeyVersionsResponse.next_page_token][google.cloud.kms.v1.ListCryptoKeyVersionsResponse.next_page_token].
+ * @param {google.cloud.kms.v1.CryptoKeyVersion.CryptoKeyVersionView} request.view
+ *   The fields to include in the response.
+ * @param {string} request.filter
+ *   Optional. Only include resources that match the filter in the response.
+ * @param {string} request.orderBy
+ *   Optional. Specify how the results should be sorted. If not specified, the
+ *   results will be sorted in the default order.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Object}
+ *   An iterable Object whose iterable properties are to be iterated over.
+ */
+
+  listCryptoKeyVersionsAsync(
+      request?: protosTypes.google.cloud.kms.v1.IListCryptoKeyVersionsRequest,
+      options?: gax.CallOptions | {}):
+    {}{
+    request = request || {};
+    options = options || {};
+    const callSettings = new gax.CallSettings(options);
+    return this._descriptors.page.listCryptoKeyVersions.async(
+      this._innerCallPromise['listCryptoKeyVersions'],
+      request,
+      callSettings
+    );
+  }
   listImportJobs(
       request: protosTypes.google.cloud.kms.v1.IListImportJobsRequest,
       options?: gax.CallOptions):
@@ -2082,6 +2223,51 @@ export class KeyManagementServiceClient {
     const callSettings = new gax.CallSettings(options);
     return this._descriptors.page.listImportJobs.createStream(
       this._innerApiCalls.listImportJobs as gax.GaxCall,
+      request,
+      callSettings
+    );
+  }
+
+  /**
+ * Equivalent to {@link listImportJobs}, but returns an iterable object.
+ *
+ * for-await-of synctax is used with the iterable to resursively get response element on-demand.
+ *
+ * autoPaginate option will be ignored.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent
+ *   Required. The resource name of the [KeyRing][google.cloud.kms.v1.KeyRing] to list, in the format
+ *   `projects/* /locations/* /keyRings/*`.
+ * @param {number} request.pageSize
+ *   Optional limit on the number of [ImportJobs][google.cloud.kms.v1.ImportJob] to include in the
+ *   response. Further [ImportJobs][google.cloud.kms.v1.ImportJob] can subsequently be obtained by
+ *   including the [ListImportJobsResponse.next_page_token][google.cloud.kms.v1.ListImportJobsResponse.next_page_token] in a subsequent
+ *   request. If unspecified, the server will pick an appropriate default.
+ * @param {string} request.pageToken
+ *   Optional pagination token, returned earlier via
+ *   [ListImportJobsResponse.next_page_token][google.cloud.kms.v1.ListImportJobsResponse.next_page_token].
+ * @param {string} request.filter
+ *   Optional. Only include resources that match the filter in the response.
+ * @param {string} request.orderBy
+ *   Optional. Specify how the results should be sorted. If not specified, the
+ *   results will be sorted in the default order.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Object}
+ *   An iterable Object whose iterable properties are to be iterated over.
+ */
+
+  listImportJobsAsync(
+      request?: protosTypes.google.cloud.kms.v1.IListImportJobsRequest,
+      options?: gax.CallOptions | {}):
+    {}{
+    request = request || {};
+    options = options || {};
+    const callSettings = new gax.CallSettings(options);
+    return this._descriptors.page.listImportJobs.async(
+      this._innerCallPromise['listImportJobs'],
       request,
       callSettings
     );

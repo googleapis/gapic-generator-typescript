@@ -41,6 +41,7 @@ const version = require('../../../package.json').version;
 export class {{ service.name }}Client {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
+  private _innerCallPromise: {[name: string]: any};
   {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
@@ -241,9 +242,9 @@ export class {{ service.name }}Client {
       '{{ method.name.toCamelCase() }}'
 {%- endfor -%}
     ];
-
+    this._innerCallPromise = {};
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
-      const innerCallPromise = this.{{ service.name.toCamelCase() }}Stub.then(
+      this._innerCallPromise[methodName] = this.{{ service.name.toCamelCase() }}Stub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -255,7 +256,7 @@ export class {{ service.name }}Client {
         });
 
       const apiCall = gaxModule.createApiCall(
-        innerCallPromise,
+        this._innerCallPromise[methodName],
         defaults[methodName],
         this._descriptors.page[methodName] ||
             this._descriptors.stream[methodName] ||
@@ -560,6 +561,24 @@ export class {{ service.name }}Client {
     const callSettings = new gax.CallSettings(options);
     return this._descriptors.page.{{ method.name.toCamelCase() }}.createStream(
       this._innerApiCalls.{{ method.name.toCamelCase() }} as gax.GaxCall,
+      request,
+      callSettings
+    );
+  }
+
+  /**
+{{- util.printCommentsPageAsync(method) }}
+ */
+
+  {{ method.name.toCamelCase() }}Async(
+      request?: {{ util.toInterface(method.inputInterface) }},
+      options?: gax.CallOptions | {}):
+    {}{
+    request = request || {};
+    options = options || {};
+    const callSettings = new gax.CallSettings(options);
+    return this._descriptors.page.{{ method.name.toCamelCase() }}.async(
+      this._innerCallPromise['{{ method.name.toCamelCase() }}'],
       request,
       callSettings
     );
