@@ -27,6 +27,7 @@ import {APICallback, Callback, CallOptions, Descriptors, ClientOptions
 import * as path from 'path';
 {% if (service.paging.length > 0) %}
 import { Transform } from 'stream';
+import { RequestType } from 'google-gax/build/src/apitypes';
 {%- endif %}
 import * as protosTypes from '../../protos/protos';
 import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json';
@@ -41,8 +42,7 @@ const version = require('../../../package.json').version;
 export class {{ service.name }}Client {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
-  // tslint:disable-next-line no-any
-  private _innerCallPromises: {[name: string]: any};
+  private _innerCallPromises: {[name: string]: gax.UnaryCall | gax.ServerStreamingCall | gax.ClientStreamingCall | gax.BiDiStreamingCall | Promise<gax.GRPCCall>};
   {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
@@ -578,9 +578,9 @@ export class {{ service.name }}Client {
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.{{ method.name.toCamelCase() }}.async(
-      this._innerCallPromises['{{ method.name.toCamelCase() }}'],
-      request,
+    return this._descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate(
+      this._innerCallPromises['{{ method.name.toCamelCase() }}'] as unknown as gax.GaxCall,
+      request as unknown as RequestType,
       callSettings
     );
   }

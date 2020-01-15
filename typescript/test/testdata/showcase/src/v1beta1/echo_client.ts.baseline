@@ -21,6 +21,7 @@ import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, LROperat
 import * as path from 'path';
 
 import { Transform } from 'stream';
+import { RequestType } from 'google-gax/build/src/apitypes';
 import * as protosTypes from '../../protos/protos';
 import * as gapicConfig from './echo_client_config.json';
 
@@ -37,8 +38,7 @@ const version = require('../../../package.json').version;
 export class EchoClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
-  // tslint:disable-next-line no-any
-  private _innerCallPromises: {[name: string]: any};
+  private _innerCallPromises: {[name: string]: gax.UnaryCall | gax.ServerStreamingCall | gax.ClientStreamingCall | gax.BiDiStreamingCall | Promise<gax.GRPCCall>};
   private _terminated = false;
   auth: gax.GoogleAuth;
   operationsClient: gax.OperationsClient;
@@ -605,9 +605,9 @@ export class EchoClient {
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.pagedExpand.async(
-      this._innerCallPromises['pagedExpand'],
-      request,
+    return this._descriptors.page.pagedExpand.asyncIterate(
+      this._innerCallPromises['pagedExpand'] as unknown as gax.GaxCall,
+      request as unknown as RequestType,
       callSettings
     );
   }

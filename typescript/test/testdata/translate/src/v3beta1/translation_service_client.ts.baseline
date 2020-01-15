@@ -21,6 +21,7 @@ import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, LROperat
 import * as path from 'path';
 
 import { Transform } from 'stream';
+import { RequestType } from 'google-gax/build/src/apitypes';
 import * as protosTypes from '../../protos/protos';
 import * as gapicConfig from './translation_service_client_config.json';
 
@@ -34,8 +35,7 @@ const version = require('../../../package.json').version;
 export class TranslationServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
-  // tslint:disable-next-line no-any
-  private _innerCallPromises: {[name: string]: any};
+  private _innerCallPromises: {[name: string]: gax.UnaryCall | gax.ServerStreamingCall | gax.ClientStreamingCall | gax.BiDiStreamingCall | Promise<gax.GRPCCall>};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   auth: gax.GoogleAuth;
@@ -1065,9 +1065,9 @@ export class TranslationServiceClient {
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.listGlossaries.async(
-      this._innerCallPromises['listGlossaries'],
-      request,
+    return this._descriptors.page.listGlossaries.asyncIterate(
+      this._innerCallPromises['listGlossaries'] as unknown as gax.GaxCall,
+      request as unknown as RequestType,
       callSettings
     );
   }
