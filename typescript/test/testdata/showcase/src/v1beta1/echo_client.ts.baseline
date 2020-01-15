@@ -38,7 +38,7 @@ export class EchoClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   // tslint:disable-next-line no-any
-  private _innerCallPromise: {[name: string]: any};
+  private _innerCallPromises: {[name: string]: any};
   private _terminated = false;
   auth: gax.GoogleAuth;
   operationsClient: gax.OperationsClient;
@@ -194,9 +194,9 @@ export class EchoClient {
     // and create an API call method for each.
     const echoStubMethods =
         ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'wait'];
-    this._innerCallPromise = {};
+    this._innerCallPromises = {};
     for (const methodName of echoStubMethods) {
-      this._innerCallPromise[methodName] = this.echoStub.then(
+      this._innerCallPromises[methodName] = this.echoStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -208,7 +208,7 @@ export class EchoClient {
         });
 
       const apiCall = gaxModule.createApiCall(
-        this._innerCallPromise[methodName],
+        this._innerCallPromises[methodName],
         defaults[methodName],
         this._descriptors.page[methodName] ||
             this._descriptors.stream[methodName] ||
@@ -582,9 +582,7 @@ export class EchoClient {
   /**
  * Equivalent to {@link pagedExpand}, but returns an iterable object.
  *
- * for-await-of synctax is used with the iterable to resursively get response element on-demand.
- *
- * autoPaginate option will be ignored.
+ * for-await-of syntax is used with the iterable to recursively get response element on-demand.
  *
  * @param {Object} request
  *   The request object that will be sent.
@@ -597,18 +595,18 @@ export class EchoClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Object}
- *   An iterable Object whose iterable properties are to be iterated over.
+ *   An iterable Object that conforms to @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols.
  */
 
   pagedExpandAsync(
       request?: protosTypes.google.showcase.v1beta1.IPagedExpandRequest,
       options?: gax.CallOptions | {}):
-    {}{
+    AsyncIterable<{} | undefined>{
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
     return this._descriptors.page.pagedExpand.async(
-      this._innerCallPromise['pagedExpand'],
+      this._innerCallPromises['pagedExpand'],
       request,
       callSettings
     );
