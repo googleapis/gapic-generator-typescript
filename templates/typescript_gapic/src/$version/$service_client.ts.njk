@@ -42,7 +42,7 @@ export class {{ service.name }}Client {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   // tslint:disable-next-line no-any
-  private _innerCallPromise: {[name: string]: any};
+  private _innerCallPromises: {[name: string]: any};
   {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
@@ -243,9 +243,9 @@ export class {{ service.name }}Client {
       '{{ method.name.toCamelCase() }}'
 {%- endfor -%}
     ];
-    this._innerCallPromise = {};
+    this._innerCallPromises = {};
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
-      this._innerCallPromise[methodName] = this.{{ service.name.toCamelCase() }}Stub.then(
+      this._innerCallPromises[methodName] = this.{{ service.name.toCamelCase() }}Stub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -257,7 +257,7 @@ export class {{ service.name }}Client {
         });
 
       const apiCall = gaxModule.createApiCall(
-        this._innerCallPromise[methodName],
+        this._innerCallPromises[methodName],
         defaults[methodName],
         this._descriptors.page[methodName] ||
             this._descriptors.stream[methodName] ||
@@ -574,12 +574,12 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}Async(
       request?: {{ util.toInterface(method.inputInterface) }},
       options?: gax.CallOptions | {}):
-    {}{
+    AsyncIterable<{} | undefined>{
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
     return this._descriptors.page.{{ method.name.toCamelCase() }}.async(
-      this._innerCallPromise['{{ method.name.toCamelCase() }}'],
+      this._innerCallPromises['{{ method.name.toCamelCase() }}'],
       request,
       callSettings
     );
