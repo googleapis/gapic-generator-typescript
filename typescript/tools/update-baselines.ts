@@ -18,12 +18,12 @@
 // needs to be propagated to all baselines.
 // Usage: node build/tools/update-baselines.js
 
-import { exec } from 'child_process';
-import * as path from 'path';
-import * as rimraf from 'rimraf';
-import { promisify } from 'util';
-import { readdir, stat, mkdir, existsSync } from 'fs';
-import * as ncp from 'ncp';
+import { exec } from "child_process";
+import * as path from "path";
+import * as rimraf from "rimraf";
+import { promisify } from "util";
+import { readdir, stat, mkdir, existsSync } from "fs";
+import * as ncp from "ncp";
 
 const rmrf = promisify(rimraf);
 const readdirp = promisify(readdir);
@@ -32,18 +32,18 @@ const mkdirp = promisify(mkdir);
 const execp = promisify(exec);
 const ncpp = promisify(ncp);
 
-const root = path.resolve(__dirname, '..', '..');
+const root = path.resolve(__dirname, "..", "..");
 const resultPrefix = /^\.test-out-(.*)$/;
 
 function getBaselineDirectory(library: string): string {
-  return path.join(root, 'typescript', 'test', 'testdata', library);
+  return path.join(root, "typescript", "test", "testdata", library);
 }
 
 function getBaselineFilename(library: string, filename: string): string {
   return path.join(getBaselineDirectory(library), `${filename}.baseline`);
 }
 
-async function copyBaseline(library: string, root: string, directory = '.') {
+async function copyBaseline(library: string, root: string, directory = ".") {
   const start = path.join(root, directory);
   const targetDirectory = path.join(getBaselineDirectory(library), directory);
   if (!existsSync(targetDirectory)) {
@@ -68,8 +68,8 @@ async function main() {
   // generate test output
   try {
     console.log(`Running npm test...`);
-    await execp('npm test');
-    console.log('Tests passed! No need to update baselines.');
+    await execp("npm test");
+    console.log("Tests passed! No need to update baselines.");
     return;
   } catch (err) {
     console.log(`Tests failed - that's OK, will update baselines.`);
@@ -93,7 +93,7 @@ async function main() {
     await rmrf(baselineDir);
     console.log(`  - copying files from ${dir}...`);
     await copyBaseline(library, path.join(root, dir));
-    console.log('done!');
+    console.log("done!");
   }
 }
 

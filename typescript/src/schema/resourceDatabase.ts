@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as plugin from '../../../pbjs-genfiles/plugin';
+import * as plugin from "../../../pbjs-genfiles/plugin";
 
 export interface ResourceDescriptor
   extends plugin.google.api.IResourceDescriptor {
@@ -68,13 +68,13 @@ export class ResourceDatabase {
     }
     const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
     for (let i = 0; i < params.length; i++) {
-      params[i] = params[i].replace('{', '').replace('}', '');
+      params[i] = params[i].replace("{", "").replace("}", "");
     }
 
     const resourceDescriptor: ResourceDescriptor = Object.assign(
       {
         name,
-        params,
+        params
       },
       resource
     );
@@ -141,10 +141,10 @@ export class ResourceDatabase {
       return result;
     }
 
-    let pattern = '';
-    for (const segment of childPattern.split('/')) {
-      if (pattern !== '') {
-        pattern += '/';
+    let pattern = "";
+    for (const segment of childPattern.split("/")) {
+      if (pattern !== "") {
+        pattern += "/";
       }
       pattern += segment;
       const parent = this.getResourceByPattern(pattern);

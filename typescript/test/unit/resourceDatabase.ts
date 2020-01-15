@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as plugin from '../../../pbjs-genfiles/plugin';
-import { ResourceDatabase } from '../../src/schema/resourceDatabase';
-import { describe, it, beforeEach, afterEach } from 'mocha';
-import * as assert from 'assert';
+import * as plugin from "../../../pbjs-genfiles/plugin";
+import { ResourceDatabase } from "../../src/schema/resourceDatabase";
+import { describe, it, beforeEach, afterEach } from "mocha";
+import * as assert from "assert";
 
-describe('ResourceDatabase', () => {
+describe("ResourceDatabase", () => {
   let warnings: string[] = [];
   const savedWarn = console.warn;
-  const errorLocation = 'ERROR LOCATION';
-  const resourceName = 'Example';
-  const resourceType = 'examples.googleapis.com/Example';
-  const resourcePattern = 'locations/{location}/examples/{example}';
-  const resourceParameters = ['location', 'example'];
-  const parentResourceName = 'Location';
-  const parentResourceType = 'locations.googleapis.com/Location';
-  const parentResourcePattern = 'locations/{location}';
+  const errorLocation = "ERROR LOCATION";
+  const resourceName = "Example";
+  const resourceType = "examples.googleapis.com/Example";
+  const resourcePattern = "locations/{location}/examples/{example}";
+  const resourceParameters = ["location", "example"];
+  const parentResourceName = "Location";
+  const parentResourceType = "locations.googleapis.com/Location";
+  const parentResourcePattern = "locations/{location}";
 
   beforeEach(() => {
     warnings = [];
@@ -40,44 +40,44 @@ describe('ResourceDatabase', () => {
     console.warn = savedWarn;
   });
 
-  it('warns when registering resource with no type', () => {
+  it("warns when registering resource with no type", () => {
     const rdb = new ResourceDatabase();
     const resource: plugin.google.api.IResourceDescriptor = {
-      type: '',
-      pattern: [resourcePattern],
+      type: "",
+      pattern: [resourcePattern]
     };
 
     rdb.registerResource(resource, errorLocation);
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
-  it('warns when registering resource with malformed type', () => {
+  it("warns when registering resource with malformed type", () => {
     const rdb = new ResourceDatabase();
     const resource: plugin.google.api.IResourceDescriptor = {
-      type: 'examples.googleapis.com',
-      pattern: [resourcePattern],
+      type: "examples.googleapis.com",
+      pattern: [resourcePattern]
     };
 
     rdb.registerResource(resource, errorLocation);
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
-  it('warns when registering resource with no pattern', () => {
+  it("warns when registering resource with no pattern", () => {
     const rdb = new ResourceDatabase();
     const resource: plugin.google.api.IResourceDescriptor = {
       type: resourceType,
-      pattern: [],
+      pattern: []
     };
 
     rdb.registerResource(resource, errorLocation);
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
-  it('can get registered resource by type', () => {
+  it("can get registered resource by type", () => {
     const rdb = new ResourceDatabase();
     const resource: plugin.google.api.IResourceDescriptor = {
       type: resourceType,
-      pattern: [resourcePattern],
+      pattern: [resourcePattern]
     };
 
     rdb.registerResource(resource, errorLocation);
@@ -89,11 +89,11 @@ describe('ResourceDatabase', () => {
     assert.strictEqual(warnings.length, 0);
   });
 
-  it('can get registered resource by pattern', () => {
+  it("can get registered resource by pattern", () => {
     const rdb = new ResourceDatabase();
     const resource: plugin.google.api.IResourceDescriptor = {
       type: resourceType,
-      pattern: [resourcePattern],
+      pattern: [resourcePattern]
     };
 
     rdb.registerResource(resource, errorLocation);
@@ -105,11 +105,11 @@ describe('ResourceDatabase', () => {
     assert.strictEqual(warnings.length, 0);
   });
 
-  it('extracts parameters from pattern', () => {
+  it("extracts parameters from pattern", () => {
     const rdb = new ResourceDatabase();
     const resource: plugin.google.api.IResourceDescriptor = {
       type: resourceType,
-      pattern: [resourcePattern],
+      pattern: [resourcePattern]
     };
 
     rdb.registerResource(resource, errorLocation);
@@ -119,7 +119,7 @@ describe('ResourceDatabase', () => {
     assert.strictEqual(warnings.length, 0);
   });
 
-  it('warns if cannot find resource by name', () => {
+  it("warns if cannot find resource by name", () => {
     const rdb = new ResourceDatabase();
 
     const notFoundResource = rdb.getResourceByType(resourceType, errorLocation);
@@ -127,7 +127,7 @@ describe('ResourceDatabase', () => {
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
-  it('warns if cannot find resource by type', () => {
+  it("warns if cannot find resource by type", () => {
     const rdb = new ResourceDatabase();
 
     const notFoundResource = rdb.getResourceByType(resourceType, errorLocation);
@@ -135,7 +135,7 @@ describe('ResourceDatabase', () => {
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
-  it('warns if cannot find resource by pattern', () => {
+  it("warns if cannot find resource by pattern", () => {
     const rdb = new ResourceDatabase();
 
     const notFoundResource = rdb.getResourceByPattern(
@@ -146,15 +146,15 @@ describe('ResourceDatabase', () => {
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
-  it('returns known parent resources', () => {
+  it("returns known parent resources", () => {
     const rdb = new ResourceDatabase();
     const parentResource: plugin.google.api.IResourceDescriptor = {
       type: parentResourceType,
-      pattern: [parentResourcePattern],
+      pattern: [parentResourcePattern]
     };
     const resource: plugin.google.api.IResourceDescriptor = {
       type: resourceType,
-      pattern: [resourcePattern],
+      pattern: [resourcePattern]
     };
     rdb.registerResource(parentResource);
     rdb.registerResource(resource);

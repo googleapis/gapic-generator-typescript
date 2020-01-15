@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as plugin from '../../../pbjs-genfiles/plugin';
-import { CommentsMap, Comment } from './comments';
-import * as objectHash from 'object-hash';
-import { milliseconds } from '../util';
-import { ResourceDescriptor, ResourceDatabase } from './resourceDatabase';
+import * as plugin from "../../../pbjs-genfiles/plugin";
+import { CommentsMap, Comment } from "./comments";
+import * as objectHash from "object-hash";
+import { milliseconds } from "../util";
+import { ResourceDescriptor, ResourceDatabase } from "./resourceDatabase";
 
-const defaultNonIdempotentRetryCodesName = 'non_idempotent';
+const defaultNonIdempotentRetryCodesName = "non_idempotent";
 const defaultNonIdempotentCodes: plugin.google.rpc.Code[] = [];
-const defaultIdempotentRetryCodesName = 'idempotent';
+const defaultIdempotentRetryCodesName = "idempotent";
 const defaultIdempotentCodes = [
   plugin.google.rpc.Code.DEADLINE_EXCEEDED,
-  plugin.google.rpc.Code.UNAVAILABLE,
+  plugin.google.rpc.Code.UNAVAILABLE
 ];
-const defaultParametersName = 'default';
+const defaultParametersName = "default";
 const defaultParameters = {
   initial_retry_delay_millis: 100,
   retry_delay_multiplier: 1.3,
@@ -35,7 +35,7 @@ const defaultParameters = {
   initial_rpc_timeout_millis: 60000,
   rpc_timeout_multiplier: 1.0,
   max_rpc_timeout_millis: 60000,
-  total_timeout_millis: 600000,
+  total_timeout_millis: 600000
 };
 
 interface MethodDescriptorProto
@@ -44,9 +44,9 @@ interface MethodDescriptorProto
   longRunningResponseType?: string;
   longRunningMetadataType?: string;
   streaming:
-    | 'CLIENT_STREAMING'
-    | 'SERVER_STREAMING'
-    | 'BIDI_STREAMING'
+    | "CLIENT_STREAMING"
+    | "SERVER_STREAMING"
+    | "BIDI_STREAMING"
     | undefined;
   pagingFieldName: string | undefined;
   pagingResponseType?: string;
@@ -95,7 +95,7 @@ export class RetryableCodeMap {
       defaultIdempotentCodes,
       defaultIdempotentRetryCodesName
     );
-    this.getParamsName(defaultParameters, 'default');
+    this.getParamsName(defaultParameters, "default");
   }
 
   private buildUniqueCodesName(
@@ -107,7 +107,7 @@ export class RetryableCodeMap {
     );
     const uniqueName = sortedCodes
       .map(code => this.codeEnumMapping[code])
-      .join('_')
+      .join("_")
       // toSnakeCase() splits on uppercase and we only want to split on
       // underscores since all enum codes are uppercase.
       .toLowerCase()
@@ -202,8 +202,8 @@ export interface EnumsMap {
 // methods of the given service, to use in templates.
 
 function longrunning(method: MethodDescriptorProto) {
-  if (method.options?.['.google.longrunning.operationInfo']) {
-    return method.options['.google.longrunning.operationInfo']!;
+  if (method.options?.[".google.longrunning.operationInfo"]) {
+    return method.options[".google.longrunning.operationInfo"]!;
   }
   return undefined;
 }
@@ -215,8 +215,8 @@ function toFullyQualifiedName(
   if (!messageName) {
     return undefined;
   }
-  if (messageName.includes('.')) {
-    if (!messageName.startsWith('.')) {
+  if (messageName.includes(".")) {
+    if (!messageName.startsWith(".")) {
       return `.${messageName}`;
     }
     return messageName;
@@ -230,7 +230,7 @@ function longRunningResponseType(
 ) {
   return toFullyQualifiedName(
     packageName,
-    method.options?.['.google.longrunning.operationInfo']?.responseType
+    method.options?.[".google.longrunning.operationInfo"]?.responseType
   );
 }
 
@@ -240,26 +240,26 @@ function longRunningMetadataType(
 ) {
   return toFullyQualifiedName(
     packageName,
-    method.options?.['.google.longrunning.operationInfo']?.metadataType
+    method.options?.[".google.longrunning.operationInfo"]?.metadataType
   );
 }
 
 // convert from input interface to message name
 // eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
 function toMessageName(messageType: string): string {
-  const arr = messageType.split('.');
+  const arr = messageType.split(".");
   return arr[arr.length - 1];
 }
 
 function streaming(method: MethodDescriptorProto) {
   if (method.serverStreaming && method.clientStreaming) {
-    return 'BIDI_STREAMING';
+    return "BIDI_STREAMING";
   }
   if (method.clientStreaming) {
-    return 'CLIENT_STREAMING';
+    return "CLIENT_STREAMING";
   }
   if (method.serverStreaming) {
-    return 'SERVER_STREAMING';
+    return "SERVER_STREAMING";
   }
   return undefined;
 }
@@ -268,12 +268,12 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
-    inputType && inputType.field!.some(field => field.name === 'page_token');
+    inputType && inputType.field!.some(field => field.name === "page_token");
   const hasPageSize =
-    inputType && inputType.field!.some(field => field.name === 'page_size');
+    inputType && inputType.field!.some(field => field.name === "page_size");
   const hasNextPageToken =
     outputType &&
-    outputType.field!.some(field => field.name === 'next_page_token');
+    outputType.field!.some(field => field.name === "next_page_token");
   if (!hasPageToken || !hasPageSize || !hasNextPageToken) {
     return undefined;
   }
@@ -305,11 +305,10 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
     console.warn(
       `Warning: method ${method.name} has several repeated fields in the output type and violates https://aip.dev/client-libraries/4233 for auto-pagination. Disabling auto-pagination for this method.`
     );
-    console.warn('Fields considered for pagination:');
+    console.warn("Fields considered for pagination:");
     console.warn(
-      repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n')
+      repeatedFields.map(field => `${field.name} = ${field.number}`).join("\n")
     );
-    // TODO: an option to ignore errors
     throw new Error(`Bad pagination settings for ${method.name}`);
   }
   return repeatedFields[0];
@@ -341,7 +340,7 @@ export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
   if (message) {
     const res = message.match(/{(.*?)=/);
-    return res?.[1] ? res[1].split('.') : [];
+    return res?.[1] ? res[1].split(".") : [];
   }
   return [];
 }
@@ -403,7 +402,7 @@ function augmentMethod(
         method.name!
       ),
       retryableCodesName: defaultNonIdempotentRetryCodesName,
-      retryParamsName: defaultParametersName,
+      retryParamsName: defaultParametersName
     },
     method
   ) as MethodDescriptorProto;
@@ -459,8 +458,8 @@ function augmentMethod(
   if (method.methodConfig.timeout) {
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
   }
-  if (method.options?.['.google.api.http']) {
-    const httpRule = method.options['.google.api.http'];
+  if (method.options?.[".google.api.http"]) {
+    const httpRule = method.options[".google.api.http"];
     method.headerRequestParams = getHeaderParams(httpRule);
   } else method.headerRequestParams = [];
   return method;
@@ -494,22 +493,22 @@ function augmentService(
     method => method.streaming
   );
   augmentedService.clientStreaming = augmentedService.method.filter(
-    method => method.streaming === 'CLIENT_STREAMING'
+    method => method.streaming === "CLIENT_STREAMING"
   );
   augmentedService.serverStreaming = augmentedService.method.filter(
-    method => method.streaming === 'SERVER_STREAMING'
+    method => method.streaming === "SERVER_STREAMING"
   );
   augmentedService.bidiStreaming = augmentedService.method.filter(
-    method => method.streaming === 'BIDI_STREAMING'
+    method => method.streaming === "BIDI_STREAMING"
   );
   augmentedService.paging = augmentedService.method.filter(
     method => method.pagingFieldName
   );
 
-  augmentedService.hostname = '';
+  augmentedService.hostname = "";
   augmentedService.port = 0;
-  if (augmentedService.options?.['.google.api.defaultHost']) {
-    const match = augmentedService.options['.google.api.defaultHost'].match(
+  if (augmentedService.options?.[".google.api.defaultHost"]) {
+    const match = augmentedService.options[".google.api.defaultHost"].match(
       /^(.*):(\d+)$/
     );
     if (match) {
@@ -518,10 +517,10 @@ function augmentService(
     }
   }
   augmentedService.oauthScopes = [];
-  if (augmentedService.options?.['.google.api.oauthScopes']) {
+  if (augmentedService.options?.[".google.api.oauthScopes"]) {
     augmentedService.oauthScopes = augmentedService.options[
-      '.google.api.oauthScopes'
-    ].split(',');
+      ".google.api.oauthScopes"
+    ].split(",");
   }
 
   // Build a list of resources referenced by this service
@@ -531,7 +530,7 @@ function augmentService(
     for (const fieldDescriptor of messages[property].field ?? []) {
       // note: ResourceDatabase can accept `undefined` values, so we happily use optional chaining here.
       const resourceReference =
-        fieldDescriptor.options?.['.google.api.resourceReference'];
+        fieldDescriptor.options?.[".google.api.resourceReference"];
 
       // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
       const parentResources = resourceDatabase.getParentResourcesByChildType(
@@ -562,7 +561,6 @@ export class Proto {
   messages: MessagesMap = {};
   enums: EnumsMap = {};
   fileToGenerate: boolean;
-  // TODO: need to store metadata? address?
 
   constructor(
     fd: plugin.google.protobuf.IFileDescriptorProto,
@@ -579,7 +577,7 @@ export class Proto {
     this.messages = fd.messageType
       .filter(message => message.name)
       .reduce((map, message) => {
-        map['.' + fd.package! + '.' + message.name!] = message;
+        map["." + fd.package! + "." + message.name!] = message;
         return map;
       }, {} as MessagesMap);
 

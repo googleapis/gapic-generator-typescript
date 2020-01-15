@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as getStdin from 'get-stdin';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as util from 'util';
+import * as getStdin from "get-stdin";
+import * as path from "path";
+import * as fs from "fs";
+import * as util from "util";
 
-import * as plugin from '../../pbjs-genfiles/plugin';
+import * as plugin from "../../pbjs-genfiles/plugin";
 
-import { API } from './schema/api';
-import { processTemplates } from './templater';
-import { commonPrefix, duration } from './util';
+import { API } from "./schema/api";
+import { processTemplates } from "./templater";
+import { commonPrefix, duration } from "./util";
 
 export interface OptionsMap {
   [name: string]: string;
@@ -30,10 +30,10 @@ const readFile = util.promisify(fs.readFile);
 
 const templateDirectory = path.join(
   __dirname,
-  '..',
-  '..',
-  'templates',
-  'typescript_gapic'
+  "..",
+  "..",
+  "templates",
+  "typescript_gapic"
 );
 
 // If needed, we can make it possible to load templates from different locations
@@ -62,15 +62,15 @@ export class Generator {
   // string Durations such as "30s".
   private static updateDuration(obj: { [key: string]: {} }) {
     const fieldNames = [
-      'timeout',
-      'initialBackoff',
-      'maxBackoff',
-      'hedgingDelay',
+      "timeout",
+      "initialBackoff",
+      "maxBackoff",
+      "hedgingDelay"
     ];
     for (const key of Object.keys(obj)) {
-      if (fieldNames.includes(key) && typeof obj[key] === 'string') {
+      if (fieldNames.includes(key) && typeof obj[key] === "string") {
         obj[key] = duration((obj[key] as unknown) as string);
-      } else if (typeof obj[key] === 'object') {
+      } else if (typeof obj[key] === "object") {
         this.updateDuration(obj[key]);
       }
     }
@@ -78,18 +78,18 @@ export class Generator {
 
   private getParamMap(parameter: string) {
     // Example: "grpc-service-config=texamplejson","package-name=packageName"
-    const parameters = parameter.split(',');
+    const parameters = parameter.split(",");
     for (let param of parameters) {
       // remove double quote
       param = param.substring(1, param.length - 1);
-      const arr = param.split('=');
+      const arr = param.split("=");
       this.paramMap[arr[0].toKebabCase()] = arr[1];
     }
   }
 
   private async readGrpcServiceConfig(map: OptionsMap) {
-    if (map?.['grpc-service-config']) {
-      const filename = map['grpc-service-config'];
+    if (map?.["grpc-service-config"]) {
+      const filename = map["grpc-service-config"];
       if (!fs.existsSync(filename)) {
         throw new Error(`File ${filename} cannot be opened.`);
       }
@@ -103,11 +103,11 @@ export class Generator {
   }
 
   private readPublishPackageName(map: OptionsMap) {
-    this.publishName = map['package-name'];
+    this.publishName = map["package-name"];
   }
 
   private readMainServiceName(map: OptionsMap) {
-    this.mainServiceName = map['main-service'];
+    this.mainServiceName = map["main-service"];
   }
 
   async initializeFromStdin() {
@@ -131,8 +131,8 @@ export class Generator {
       }
     }
     const protoList = plugin.google.protobuf.compiler.CodeGeneratorResponse.File.create();
-    protoList.name = 'proto.list';
-    protoList.content = protoFilenames.join('\n') + '\n';
+    protoList.name = "proto.list";
+    protoList.content = protoFilenames.join("\n") + "\n";
     this.response.file.push(protoList);
   }
 
@@ -142,20 +142,20 @@ export class Generator {
         pf.name &&
         this.request.fileToGenerate.includes(pf.name) &&
         // ignoring some common package names
-        pf.package !== 'google.longrunning' &&
-        pf.package !== 'google.cloud'
+        pf.package !== "google.longrunning" &&
+        pf.package !== "google.cloud"
     );
     const packageNamesToGenerate = protoFilesToGenerate.map(
-      pf => pf.package || ''
+      pf => pf.package || ""
     );
-    const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
-    if (packageName === '') {
-      throw new Error('Cannot get package name to generate.');
+    const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, "");
+    if (packageName === "") {
+      throw new Error("Cannot get package name to generate.");
     }
     const api = new API(this.request.protoFile, packageName, {
       grpcServiceConfig: this.grpcServiceConfig,
       publishName: this.publishName,
-      mainServiceName: this.mainServiceName,
+      mainServiceName: this.mainServiceName
     });
     return api;
   }

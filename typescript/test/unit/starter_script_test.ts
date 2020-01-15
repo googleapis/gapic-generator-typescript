@@ -12,53 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as assert from 'assert';
-import { execSync } from 'child_process';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as rimraf from 'rimraf';
-import * as util from 'util';
-import { describe, it } from 'mocha';
-import { equalToBaseline } from '../util';
+import * as assert from "assert";
+import { execSync } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
+import * as rimraf from "rimraf";
+import * as util from "util";
+import { describe, it } from "mocha";
+import { equalToBaseline } from "../util";
 
 const rmrf = util.promisify(rimraf);
 
 const START_SCRIPT = path.join(
   process.cwd(),
-  'build',
-  'src',
-  'start_script.js'
+  "build",
+  "src",
+  "start_script.js"
 );
-const OUTPUT_DIR = path.join(__dirname, '..', '..', '..', '.test-out-showcase');
-const PROTOS_DIR = path.join(process.cwd(), 'build', 'test', 'protos');
+const OUTPUT_DIR = path.join(__dirname, "..", "..", "..", ".test-out-showcase");
+const PROTOS_DIR = path.join(process.cwd(), "build", "test", "protos");
 const PROTO_FILE = path.join(
   PROTOS_DIR,
-  'google',
-  'showcase',
-  'v1beta1',
-  'echo.proto'
+  "google",
+  "showcase",
+  "v1beta1",
+  "echo.proto"
 );
 const BASELINE_DIR_SHOWCASE = path.join(
   __dirname,
-  '..',
-  '..',
-  '..',
-  'typescript',
-  'test',
-  'testdata',
-  'showcase'
+  "..",
+  "..",
+  "..",
+  "typescript",
+  "test",
+  "testdata",
+  "showcase"
 );
 
-describe('StarterScriptTest', () => {
-  describe('use start script for generating showcase library ', () => {
-    it('use custom folder for generated client library.', async function() {
+describe("StarterScriptTest", () => {
+  describe("use start script for generating showcase library ", () => {
+    it("use custom folder for generated client library.", async function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
         await rmrf(OUTPUT_DIR);
       }
       fs.mkdirSync(OUTPUT_DIR);
       execSync(
-        'node ' +
+        "node " +
           START_SCRIPT +
           ` -I${PROTOS_DIR}` +
           ` ${PROTO_FILE}` +

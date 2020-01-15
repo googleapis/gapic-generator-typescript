@@ -12,50 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as assert from 'assert';
-import { execSync } from 'child_process';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as rimraf from 'rimraf';
-import { describe, it } from 'mocha';
-import { equalToBaseline } from '../util';
+import * as assert from "assert";
+import { execSync } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
+import * as rimraf from "rimraf";
+import { describe, it } from "mocha";
+import { equalToBaseline } from "../util";
 
 const cwd = process.cwd();
 
-const OUTPUT_DIR = path.join(cwd, '.test-out-keymanager');
+const OUTPUT_DIR = path.join(cwd, ".test-out-keymanager");
 const GOOGLE_GAX_PROTOS_DIR = path.join(
   cwd,
-  'node_modules',
-  'google-gax',
-  'protos'
+  "node_modules",
+  "google-gax",
+  "protos"
 );
-const PROTOS_DIR = path.join(cwd, 'build', 'test', 'protos');
+const PROTOS_DIR = path.join(cwd, "build", "test", "protos");
 const KMS_PROTO_FILE = path.join(
   PROTOS_DIR,
-  'google',
-  'kms',
-  'v1',
-  'service.proto'
+  "google",
+  "kms",
+  "v1",
+  "service.proto"
 );
 
 const BASELINE_DIR = path.join(
   __dirname,
-  '..',
-  '..',
-  '..',
-  'typescript',
-  'test',
-  'testdata'
+  "..",
+  "..",
+  "..",
+  "typescript",
+  "test",
+  "testdata"
 );
 
-const BASELINE_DIR_KM = path.join(BASELINE_DIR, 'keymanager');
-const SRCDIR = path.join(cwd, 'build', 'src');
-const CLI = path.join(SRCDIR, 'cli.js');
-const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
+const BASELINE_DIR_KM = path.join(BASELINE_DIR, "keymanager");
+const SRCDIR = path.join(cwd, "build", "src");
+const CLI = path.join(SRCDIR, "cli.js");
+const PLUGIN = path.join(SRCDIR, "protoc-gen-typescript_gapic");
 
-describe('MultiProtoListGenerateTest', () => {
-  describe('Generate Client library', () => {
-    it('Generated proto list should have same output with baseline.', function() {
+describe("MultiProtoListGenerateTest", () => {
+  describe("Generate Client library", () => {
+    it("Generated proto list should have same output with baseline.", function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);
@@ -66,7 +66,7 @@ describe('MultiProtoListGenerateTest', () => {
         rimraf.sync(PLUGIN);
       }
       fs.copyFileSync(CLI, PLUGIN);
-      process.env['PATH'] = SRCDIR + path.delimiter + process.env['PATH'];
+      process.env["PATH"] = SRCDIR + path.delimiter + process.env["PATH"];
 
       try {
         execSync(`chmod +x ${PLUGIN}`);

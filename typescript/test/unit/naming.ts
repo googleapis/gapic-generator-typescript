@@ -12,116 +12,116 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as assert from 'assert';
-import { describe, it } from 'mocha';
-import * as plugin from '../../../pbjs-genfiles/plugin';
-import { Naming } from '../../src/schema/naming';
+import * as assert from "assert";
+import { describe, it } from "mocha";
+import * as plugin from "../../../pbjs-genfiles/plugin";
+import { Naming } from "../../src/schema/naming";
 
-describe('schema/naming.ts', () => {
-  it('parses name correctly', () => {
+describe("schema/naming.ts", () => {
+  it("parses name correctly", () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
-    descriptor1.package = 'google.namespace.service.v1beta1';
+    descriptor1.package = "google.namespace.service.v1beta1";
     descriptor1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
-    descriptor2.package = 'google.namespace.service.v1beta1';
+    descriptor2.package = "google.namespace.service.v1beta1";
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     const naming = new Naming([descriptor1, descriptor2]);
-    assert.strictEqual(naming.name, 'Service');
-    assert.strictEqual(naming.productName, 'Service');
-    assert.deepStrictEqual(naming.namespace, ['google', 'namespace']);
-    assert.strictEqual(naming.version, 'v1beta1');
-    assert.strictEqual(naming.protoPackage, 'google.namespace.service.v1beta1');
+    assert.strictEqual(naming.name, "Service");
+    assert.strictEqual(naming.productName, "Service");
+    assert.deepStrictEqual(naming.namespace, ["google", "namespace"]);
+    assert.strictEqual(naming.version, "v1beta1");
+    assert.strictEqual(naming.protoPackage, "google.namespace.service.v1beta1");
   });
 
-  it('ignores files with no services when determining package name', () => {
+  it("ignores files with no services when determining package name", () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
-    descriptor1.package = 'google.namespace.service.v1beta1';
+    descriptor1.package = "google.namespace.service.v1beta1";
     descriptor1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
-    descriptor2.package = 'google.namespace.service.v1beta2';
+    descriptor2.package = "google.namespace.service.v1beta2";
     const naming = new Naming([descriptor1, descriptor2]);
-    assert.strictEqual(naming.name, 'Service');
-    assert.strictEqual(naming.productName, 'Service');
-    assert.deepStrictEqual(naming.namespace, ['google', 'namespace']);
-    assert.strictEqual(naming.version, 'v1beta1');
-    assert.strictEqual(naming.protoPackage, 'google.namespace.service.v1beta1');
+    assert.strictEqual(naming.name, "Service");
+    assert.strictEqual(naming.productName, "Service");
+    assert.deepStrictEqual(naming.namespace, ["google", "namespace"]);
+    assert.strictEqual(naming.version, "v1beta1");
+    assert.strictEqual(naming.protoPackage, "google.namespace.service.v1beta1");
   });
 
-  it('ignores LRO files when determining package name', () => {
+  it("ignores LRO files when determining package name", () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
-    descriptor1.package = 'google.namespace.service.v1beta1';
+    descriptor1.package = "google.namespace.service.v1beta1";
     descriptor1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
-    descriptor2.package = 'google.longrunning';
+    descriptor2.package = "google.longrunning";
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     const naming = new Naming([descriptor1, descriptor2]);
-    assert.strictEqual(naming.name, 'Service');
-    assert.strictEqual(naming.productName, 'Service');
-    assert.deepStrictEqual(naming.namespace, ['google', 'namespace']);
-    assert.strictEqual(naming.version, 'v1beta1');
-    assert.strictEqual(naming.protoPackage, 'google.namespace.service.v1beta1');
+    assert.strictEqual(naming.name, "Service");
+    assert.strictEqual(naming.productName, "Service");
+    assert.deepStrictEqual(naming.namespace, ["google", "namespace"]);
+    assert.strictEqual(naming.version, "v1beta1");
+    assert.strictEqual(naming.protoPackage, "google.namespace.service.v1beta1");
   });
 
-  it('fails on bad package name 1', () => {
+  it("fails on bad package name 1", () => {
     const descriptor = new plugin.google.protobuf.FileDescriptorProto();
-    descriptor.package = 'nonamespace';
+    descriptor.package = "nonamespace";
     descriptor.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
-      const naming = new Naming([descriptor]);
+      new Naming([descriptor]);
     });
   });
 
-  it('fails on bad package name 2', () => {
+  it("fails on bad package name 2", () => {
     const descriptor = new plugin.google.protobuf.FileDescriptorProto();
-    descriptor.package = '---';
+    descriptor.package = "---";
     descriptor.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
-      const naming = new Naming([descriptor]);
+      new Naming([descriptor]);
     });
   });
 
-  it('fails on no package name', () => {
+  it("fails on no package name", () => {
     const descriptor = new plugin.google.protobuf.FileDescriptorProto();
-    descriptor.package = '';
+    descriptor.package = "";
     descriptor.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
-      const naming = new Naming([descriptor]);
+      new Naming([descriptor]);
     });
   });
 
-  it('fails if no common package', () => {
+  it("fails if no common package", () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
-    descriptor1.package = 'namespace1.service.v1beta1';
+    descriptor1.package = "namespace1.service.v1beta1";
     descriptor1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
-    descriptor2.package = 'namespace2.service.v1beta1';
+    descriptor2.package = "namespace2.service.v1beta1";
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
-      const naming = new Naming([descriptor1, descriptor2]);
+      new Naming([descriptor1, descriptor2]);
     });
   });
 
-  it('fails if different versions', () => {
+  it("fails if different versions", () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
-    descriptor1.package = 'namespace.service.v1beta1';
+    descriptor1.package = "namespace.service.v1beta1";
     descriptor1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
-    descriptor2.package = 'namespace.service.v1beta2';
+    descriptor2.package = "namespace.service.v1beta2";
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
-      const naming = new Naming([descriptor1, descriptor2]);
+      new Naming([descriptor1, descriptor2]);
     });
   });
 
-  it('fails if not all packages have versions', () => {
+  it("fails if not all packages have versions", () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
-    descriptor1.package = 'namespace.service.v1beta1';
+    descriptor1.package = "namespace.service.v1beta1";
     descriptor1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
-    descriptor2.package = 'namespace.service';
+    descriptor2.package = "namespace.service";
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
-      const naming = new Naming([descriptor1, descriptor2]);
+      new Naming([descriptor1, descriptor2]);
     });
   });
 });

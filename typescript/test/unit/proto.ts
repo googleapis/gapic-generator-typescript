@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as assert from 'assert';
-import { describe, it } from 'mocha';
-import * as plugin from '../../../pbjs-genfiles/plugin';
-import { getHeaderParams } from '../../src/schema/proto';
+import * as assert from "assert";
+import { describe, it } from "mocha";
+import * as plugin from "../../../pbjs-genfiles/plugin";
+import { getHeaderParams } from "../../src/schema/proto";
 
-describe('schema/proto.ts', () => {
-  it('should get header parameters from http rule', () => {
-    it('works with no parameter ', () => {
+describe("schema/proto.ts", () => {
+  it("should get header parameters from http rule", () => {
+    it("works with no parameter ", () => {
       const httpRule: plugin.google.api.IHttpRule = {};
-      httpRule.post = '{=abc/*/d/*/ef/}';
+      httpRule.post = "{=abc/*/d/*/ef/}";
       assert.strictEqual([], getHeaderParams(httpRule));
     });
-    it('works only one parameter ', () => {
+    it("works only one parameter ", () => {
       const httpRule: plugin.google.api.IHttpRule = {};
-      httpRule.post = '{param1=abc/*/d/*/ef/}';
-      assert.strictEqual(['param1'], getHeaderParams(httpRule));
+      httpRule.post = "{param1=abc/*/d/*/ef/}";
+      assert.strictEqual(["param1"], getHeaderParams(httpRule));
     });
-    it('works with multiple parameter ', () => {
+    it("works with multiple parameter ", () => {
       const httpRule: plugin.google.api.IHttpRule = {};
-      httpRule.post = '{param1.param2.param3=abc/*/d/*/ef/}';
+      httpRule.post = "{param1.param2.param3=abc/*/d/*/ef/}";
       assert.strictEqual(
-        ['param1', 'param2', 'param3'],
+        ["param1", "param2", "param3"],
         getHeaderParams(httpRule)
       );
     });
