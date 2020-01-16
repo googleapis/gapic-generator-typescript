@@ -38,8 +38,13 @@ export class Naming {
 
     // Define the regular expression to match a version component
     // (e.g. "v1", "v1beta4", etc.).
-    const pattern = /^((?:[a-z0-9_.]+?)\.)?([a-z0-9_]+)(?:\.(v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
-    const match = rootPackage.match(pattern);
+    const pattern1 = /^((?:[a-z0-9_.]+?)\.)?([a-z0-9_]+)(?:\.(v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
+    // Special pattern match for API like grafeas which in 'googleapis/grafeas/v1' without namespace.
+    const pattern2 = /^(([a-z0-9_.]+?)\.)((v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
+    let match = rootPackage.match(pattern1);
+    if (!rootPackage.startsWith('google')) {
+      match = rootPackage.match(pattern2);
+    }
     if (!match) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);
     }

@@ -71,6 +71,21 @@ describe('schema/api.ts', () => {
     assert.deepStrictEqual(api.mainServiceName, 'AService');
   });
 
+  it('should return correct mainServiceName for API without namespace', () => {
+    const fd1 = new plugin.google.protobuf.FileDescriptorProto();
+    fd1.name = 'service/v1/test.proto';
+    fd1.package = 'service.v1';
+    fd1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    fd1.service[0].name = 'Service';
+    fd1.service[0].options = {
+      '.google.api.defaultHost': 'hostname.example.com:443',
+    };
+    const api = new API([fd1], 'service.v1', {
+      grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+    });
+    assert.deepStrictEqual(api.mainServiceName, 'Service');
+  });
+
   it('should return main service name specificed as an option', () => {
     const fd1 = new plugin.google.protobuf.FileDescriptorProto();
     fd1.name = 'google/cloud/test/v1/test.proto';
