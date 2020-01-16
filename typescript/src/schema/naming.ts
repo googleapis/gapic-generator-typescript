@@ -42,7 +42,7 @@ export class Naming {
     const version = match[match.length - 1];
     // version should follow the pattern of 'v1' or 'v1alpha1'
     const versionpattern = /^((v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
-    if(!version.match(versionpattern)){
+    if (!version.match(versionpattern)) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);
     }
     const name = match[match.length - 2];
