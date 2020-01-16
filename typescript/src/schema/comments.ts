@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as plugin from "../../../pbjs-genfiles/plugin";
+import * as plugin from '../../../pbjs-genfiles/plugin';
 
 // For one comment in service and method level, paramName & paramName will be ''.
 // Only field has name and type of parameters.
@@ -52,13 +52,13 @@ export class CommentsMap {
           if (p.length === 2 && p[0] === 6) {
             if (fd.service && fd.service[p[1]] && fd.service[p[1]].name) {
               const serviceName = fd.service[p[1]].name!;
-              const comments = (location.leadingComments || "")
-                .split("\n")
+              const comments = (location.leadingComments || '')
+                .split('\n')
                 .slice(0, -1);
               const serviceComment: Comment = {
-                paramName: "",
-                paramType: "",
-                comments
+                paramName: '',
+                paramType: '',
+                comments,
               };
               commentsMap[serviceName] = serviceComment;
             }
@@ -74,12 +74,12 @@ export class CommentsMap {
               // add method comment into the map
               const methodName = fd.service[p[1]].method![p[3]].name!;
               if (!commentsMap[methodName]) {
-                const comments = (location.leadingComments || "").split("\n");
-                const key = serviceName + ":" + methodName;
+                const comments = (location.leadingComments || '').split('\n');
+                const key = serviceName + ':' + methodName;
                 const methodComment: Comment = {
-                  paramName: "",
-                  paramType: "",
-                  comments
+                  paramName: '',
+                  paramType: '',
+                  comments,
                 };
                 commentsMap[key] = methodComment;
               }
@@ -113,30 +113,30 @@ export class CommentsMap {
                   plugin.google.protobuf.FieldDescriptorProto.Type[field.type!];
                 // If field.label is 'REPEATED' then the paramType is an array.
                 if (field.label === 3) {
-                  paramType += "[]";
+                  paramType += '[]';
                 }
-                const paramName = field.name || "";
+                const paramName = field.name || '';
                 if (
-                  paramType === "TYPE_MESSAGE" ||
-                  paramType === "TYPE_ENUM" ||
-                  paramType === "TYPE_GROUP"
+                  paramType === 'TYPE_MESSAGE' ||
+                  paramType === 'TYPE_ENUM' ||
+                  paramType === 'TYPE_GROUP'
                 ) {
                   paramType = field.typeName!;
                 }
-                const comments = (location.leadingComments || "")
-                  .split("\n")
+                const comments = (location.leadingComments || '')
+                  .split('\n')
                   .slice(0, -1);
                 const options = field.options;
                 const fieldComment: Comment = {
                   paramName,
                   paramType,
-                  comments
+                  comments,
                 };
-                if (options && options[".google.api.fieldBehavior"]) {
-                  const fieldBehavior = options[".google.api.fieldBehavior"][0];
+                if (options && options['.google.api.fieldBehavior']) {
+                  const fieldBehavior = options['.google.api.fieldBehavior'][0];
                   fieldComment.fieldBehavior = fieldBehavior;
                 }
-                const key = messageType + ":" + field.name;
+                const key = messageType + ':' + field.name;
                 commentsMap[key] = fieldComment;
               }
             }
@@ -153,11 +153,11 @@ export class CommentsMap {
     return this.comments[serviceName]?.comments || [];
   }
   getMethodComments(serviceName: string, methodName: string) {
-    const key = serviceName + ":" + methodName;
+    const key = serviceName + ':' + methodName;
     return this.comments[key]?.comments || [];
   }
   getParamComments(messageName: string, fieldName: string): Comment {
-    const key = messageName + ":" + fieldName;
-    return this.comments[key] ?? { paramName: "", paramType: "", comments: [] };
+    const key = messageName + ':' + fieldName;
+    return this.comments[key] ?? {paramName: '', paramType: '', comments: []};
   }
 }

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as fs from "fs-extra";
-import * as path from "path";
+import * as fs from 'fs-extra';
+import * as path from 'path';
 
 const NO_OUTPUT_FILE = 0;
 const IDENTICAL_FILE = 1;
 const FILE_WITH_DIFF_CONTENT = 2;
 
-const BASELINE_EXTENSION = ".baseline";
+const BASELINE_EXTENSION = '.baseline';
 
 export function equalToBaseline(
   outpurDir: string,
@@ -61,7 +61,7 @@ export function equalToBaseline(
   }
   if (fileStack.length !== 0) {
     fileStack.forEach(file => {
-      console.warn(file + " is not identical with the generated file. ");
+      console.warn(file + ' is not identical with the generated file. ');
     });
     result = false;
   }
@@ -72,19 +72,19 @@ function checkIdenticalFile(
   outputFullPath: string,
   baselineFullPath: string
 ): number {
-  if (outputFullPath.endsWith(".proto")) {
+  if (outputFullPath.endsWith('.proto')) {
     return IDENTICAL_FILE;
   }
   if (!fs.existsSync(baselineFullPath)) {
-    console.warn(baselineFullPath + " is not generated. ");
+    console.warn(baselineFullPath + ' is not generated. ');
     return NO_OUTPUT_FILE;
   }
   const readOutput = fs.readFileSync(outputFullPath).toString();
   const baselineOutput = fs.readFileSync(baselineFullPath).toString();
   if (readOutput === baselineOutput) return IDENTICAL_FILE;
 
-  const readOutputLines = readOutput.split("\n");
-  const baselineOutputLines = baselineOutput.split("\n");
+  const readOutputLines = readOutput.split('\n');
+  const baselineOutputLines = baselineOutput.split('\n');
 
   if (readOutputLines.length !== baselineOutputLines.length) {
     console.warn(

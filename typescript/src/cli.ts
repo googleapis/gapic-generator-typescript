@@ -14,15 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as yargs from "yargs";
-import { Generator } from "./generator";
+import * as yargs from 'yargs';
+import {Generator} from './generator';
 
 async function main() {
   const argv = yargs.argv;
 
   if (argv.descriptor) {
-    console.error("Descriptor option is not yet supported.");
-    throw new Error("Descriptor option is not yet supported");
+    console.error('Descriptor option is not yet supported.');
+    throw new Error('Descriptor option is not yet supported');
   }
 
   const generator = new Generator();

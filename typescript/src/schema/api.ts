@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as plugin from "../../../pbjs-genfiles/plugin";
-import * as fs from "fs";
-import * as path from "path";
+import * as plugin from '../../../pbjs-genfiles/plugin';
+import * as fs from 'fs';
+import * as path from 'path';
 
-import { Naming } from "./naming";
-import { Proto, MessagesMap } from "./proto";
-import { ResourceDatabase, ResourceDescriptor } from "./resourceDatabase";
+import {Naming} from './naming';
+import {Proto, MessagesMap} from './proto';
+import {ResourceDatabase, ResourceDescriptor} from './resourceDatabase';
 
-const googleGaxLocation = path.dirname(require.resolve("google-gax"));
-const gaxProtosLocation = path.join(googleGaxLocation, "..", "..", "protos");
+const googleGaxLocation = path.dirname(require.resolve('google-gax'));
+const gaxProtosLocation = path.join(googleGaxLocation, '..', '..', 'protos');
 
 export interface ProtosMap {
   [filename: string]: Proto;
@@ -78,20 +78,20 @@ export class API {
         servicesList.push(...fd.service!);
         return servicesList;
       }, [] as plugin.google.protobuf.IServiceDescriptorProto[])
-      .filter(service => service?.options?.[".google.api.defaultHost"])
+      .filter(service => service?.options?.['.google.api.defaultHost'])
       .sort((service1, service2) =>
         service1.name!.localeCompare(service2.name!)
       )
       .forEach(service => {
-        const defaultHost = service!.options![".google.api.defaultHost"]!;
-        const [hostname, port] = defaultHost.split(":");
+        const defaultHost = service!.options!['.google.api.defaultHost']!;
+        const [hostname, port] = defaultHost.split(':');
         if (hostname && this.hostName && hostname !== this.hostName) {
           console.warn(
             `Warning: different hostnames ${hostname} and ${this.hostName} within the same client are not supported.`
           );
         }
-        this.hostName = hostname || this.hostName || "localhost";
-        this.port = port ?? this.port ?? "443";
+        this.hostName = hostname || this.hostName || 'localhost';
+        this.port = port ?? this.port ?? '443';
         serviceNamesList.push(service.name || this.naming.name);
       });
     this.mainServiceName = options.mainServiceName || serviceNamesList[0];
@@ -124,7 +124,7 @@ export class API {
         return `../../protos/${file}`;
       }),
       null,
-      "  "
+      '  '
     );
   }
 }
@@ -135,7 +135,7 @@ function getResourceDatabase(
   const resourceDatabase = new ResourceDatabase();
   for (const fd of fileDescriptors.filter(fd => fd)) {
     // process file-level options
-    for (const resource of fd.options?.[".google.api.resourceDefinition"] ??
+    for (const resource of fd.options?.['.google.api.resourceDefinition'] ??
       []) {
       resourceDatabase.registerResource(
         resource as ResourceDescriptor,
@@ -146,14 +146,14 @@ function getResourceDatabase(
     const messages = (fd.messageType ?? [])
       .filter(message => message.name)
       .reduce((map, message) => {
-        map["." + fd.package! + "." + message.name!] = message;
+        map['.' + fd.package! + '.' + message.name!] = message;
         return map;
       }, {} as MessagesMap);
 
     for (const property of Object.keys(messages)) {
       const m = messages[property];
       resourceDatabase.registerResource(
-        m?.options?.[".google.api.resource"] as ResourceDescriptor | undefined,
+        m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
         `file ${fd.name} message ${property}`
       );
     }

@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as plugin from "../../pbjs-genfiles/plugin";
+import * as plugin from '../../pbjs-genfiles/plugin';
 
 export function commonPrefix(strings: string[]): string {
   if (strings.length === 0) {
-    return "";
+    return '';
   }
-  let result = "";
+  let result = '';
   while (result.length < strings[0].length) {
     // try one more character
     const next = result + strings[0][result.length];
@@ -34,11 +34,11 @@ export function commonPrefix(strings: string[]): string {
 // Convert a string Duration, e.g. "600s", to a proper protobuf type since
 // protobufjs does not support it at this moment.
 export function duration(text: string): plugin.google.protobuf.Duration {
-  const multipliers: { [suffix: string]: number } = {
+  const multipliers: {[suffix: string]: number} = {
     s: 1,
     m: 60,
     h: 60 * 60,
-    d: 60 * 60 * 24
+    d: 60 * 60 * 24,
   };
   const match = text.match(/^([\d.]+)([smhd])$/);
   if (!match) {
@@ -52,7 +52,7 @@ export function duration(text: string): plugin.google.protobuf.Duration {
   const frac = seconds - floor;
   const result = plugin.google.protobuf.Duration.fromObject({
     seconds: floor,
-    nanos: frac * 1e9
+    nanos: frac * 1e9,
   });
   return result;
 }
@@ -92,7 +92,7 @@ String.prototype.toCamelCase = function(this: string): string {
   }
   const result = [words[0]];
   result.push(...words.slice(1).map(w => w.capitalize()));
-  return result.join("");
+  return result.join('');
 };
 
 String.prototype.toPascalCase = function(this: string): string {
@@ -101,7 +101,7 @@ String.prototype.toPascalCase = function(this: string): string {
     return this;
   }
   const result = words.map(w => w.capitalize());
-  return result.join("");
+  return result.join('');
 };
 
 String.prototype.toKebabCase = function(this: string): string {
@@ -109,7 +109,7 @@ String.prototype.toKebabCase = function(this: string): string {
   if (words.length === 0) {
     return this;
   }
-  return words.join("-");
+  return words.join('-');
 };
 
 String.prototype.toSnakeCase = function(this: string): string {
@@ -117,7 +117,7 @@ String.prototype.toSnakeCase = function(this: string): string {
   if (words.length === 0) {
     return this;
   }
-  return words.join("_");
+  return words.join('_');
 };
 
 String.prototype.replaceAll = function(

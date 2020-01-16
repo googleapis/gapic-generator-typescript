@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as fs from "fs";
-import * as nunjucks from "nunjucks";
-import * as path from "path";
-import * as util from "util";
+import * as fs from 'fs';
+import * as nunjucks from 'nunjucks';
+import * as path from 'path';
+import * as util from 'util';
 
-import * as plugin from "../../pbjs-genfiles/plugin";
+import * as plugin from '../../pbjs-genfiles/plugin';
 
-import { API } from "./schema/api";
+import {API} from './schema/api';
 
-const commonParameters: { [name: string]: string } = {
-  copyrightYear: new Date().getFullYear().toString()
+const commonParameters: {[name: string]: string} = {
+  copyrightYear: new Date().getFullYear().toString(),
 };
 
 const lstat = util.promisify(fs.lstat);
@@ -60,7 +60,7 @@ function renderFile(
   if (targetFilename.match(/\.json$/i)) {
     try {
       const json = JSON.parse(processed);
-      const pretty = JSON.stringify(json, null, "  ") + "\n";
+      const pretty = JSON.stringify(json, null, '  ') + '\n';
       processed = pretty;
     } catch (err) {
       console.warn(
@@ -81,7 +81,7 @@ function processOneTemplate(
 ) {
   const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
   const relativeTemplateName = templateFilename.substr(basePath.length + 1);
-  let outputFilename = relativeTemplateName.replace(/\.njk$/, "");
+  let outputFilename = relativeTemplateName.replace(/\.njk$/, '');
 
   // Filename can have one or more variables in it that should be substituted
   // with their actual values. Currently supported: $service, $version Note:
@@ -95,7 +95,7 @@ function processOneTemplate(
         renderFile(
           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
           relativeTemplateName,
-          { api, commonParameters, service }
+          {api, commonParameters, service}
         )
       );
     }
@@ -103,7 +103,7 @@ function processOneTemplate(
     result.push(
       renderFile(outputFilename, relativeTemplateName, {
         api,
-        commonParameters
+        commonParameters,
       })
     );
   }
@@ -113,7 +113,7 @@ function processOneTemplate(
 
 export async function processTemplates(basePath: string, api: API) {
   nunjucks.configure(basePath);
-  basePath = basePath.replace(/\/*$/, "");
+  basePath = basePath.replace(/\/*$/, '');
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
   for (const templateFilename of templateFiles) {
