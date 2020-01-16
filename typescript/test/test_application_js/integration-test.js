@@ -14,7 +14,7 @@
 
 const util = require('util');
 const child_process = require('child_process');
-const { describe, it } = require('mocha');
+const {describe, it} = require('mocha');
 const exec = util.promisify(child_process.exec);
 const fs = require('fs-extra');
 const path = require('path');
@@ -27,7 +27,7 @@ const TEST_FILE = path.join(__dirname, 'index.js');
 const serverProcess = require('./server');
 const GAPIC_SHOWCASE_VERSION = '0.5.0';
 const OS = process.platform;
-const ARCH = process.arch == 'x64' ? 'amd64' : process.arch;
+const ARCH = process.arch == "x64" ? "amd64" : process.arch;
 
 describe('IntegrationTest for showcase library', () => {
   describe('Run integration test for generated showcase library', async function() {

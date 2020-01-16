@@ -12,53 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as util from "util";
-import * as child_process from "child_process";
-import * as fs from "fs-extra";
-import * as path from "path";
-import { describe, it } from "mocha";
+import * as util from 'util';
+import * as child_process from 'child_process';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import { describe, it } from 'mocha';
 const exec = util.promisify(child_process.exec);
 const SHOWCASE_LIB = path.join(
   __dirname,
-  "..",
-  "..",
-  "..",
-  ".test-out-showcase"
+  '..',
+  '..',
+  '..',
+  '.test-out-showcase'
 );
-const PACKED_LIB = "showcase-0.1.0.tgz";
+const PACKED_LIB = 'showcase-0.1.0.tgz';
 const PACKED_LIB_PATH = path.join(SHOWCASE_LIB, PACKED_LIB);
 const PROTOS = path.join(
   __dirname,
-  "..",
-  "..",
-  "..",
-  "typescript",
-  "test",
-  "protos"
+  '..',
+  '..',
+  '..',
+  'typescript',
+  'test',
+  'protos'
 );
 const LOCAL_TS_APPLICATION = path.join(
   __dirname,
-  "..",
-  "..",
-  "..",
-  ".test-application-ts"
+  '..',
+  '..',
+  '..',
+  '.test-application-ts'
 );
 const TS_TEST_APPLICATION = path.join(
   __dirname,
-  "..",
-  "..",
-  "..",
-  "typescript",
-  "test",
-  "test_application_ts"
+  '..',
+  '..',
+  '..',
+  'typescript',
+  'test',
+  'test_application_ts'
 );
-describe("TestApplication", () => {
-  describe("Test application for ts users", () => {
-    it("npm install showcase", async function() {
+describe('TestApplication', () => {
+  describe('Test application for ts users', () => {
+    it('npm install showcase', async function() {
       this.timeout(60000);
       // copy protos to generated client library and copy test application to local.
-      if (!fs.existsSync(path.join(SHOWCASE_LIB, "protos"))) {
-        fs.copySync(PROTOS, path.join(SHOWCASE_LIB, "protos"));
+      if (!fs.existsSync(path.join(SHOWCASE_LIB, 'protos'))) {
+        fs.copySync(PROTOS, path.join(SHOWCASE_LIB, 'protos'));
       }
       if (!fs.existsSync(LOCAL_TS_APPLICATION)) {
         fs.copySync(TS_TEST_APPLICATION, LOCAL_TS_APPLICATION);
@@ -66,21 +66,21 @@ describe("TestApplication", () => {
       process.chdir(SHOWCASE_LIB);
       await exec(`npm install`);
     });
-    it("npm pack showcase library and copy it to test application", async function() {
+    it('npm pack showcase library and copy it to test application', async function() {
       this.timeout(60000);
       await exec(`npm pack`);
       process.chdir(LOCAL_TS_APPLICATION);
       fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_TS_APPLICATION, PACKED_LIB));
     });
-    it("npm install showcase library in test application", async function() {
+    it('npm install showcase library in test application', async function() {
       this.timeout(60000);
       await exec(`npm install`);
     });
-    it("run integration in test application", async function() {
+    it('run integration in test application', async function() {
       this.timeout(120000);
       await exec(`npm test`);
     });
-    it("run browser test in application", async function() {
+    it('run browser test in application', async function() {
       this.timeout(120000);
       await exec(`npm run browser-test`);
     });

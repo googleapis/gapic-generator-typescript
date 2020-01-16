@@ -13,7 +13,7 @@
 // limitations under the License.
 const fs = require('fs-extra');
 const { spawn } = require('child_process');
-const kill = require('tree-kill');
+var kill = require('tree-kill');
 const path = require('path');
 const SHOWCASE_SERVER = path.join(
   __dirname,
