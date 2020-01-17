@@ -35,18 +35,20 @@ export class Naming {
       throw new Error('Protos provided have different proto packages.');
     }
     const rootPackage = prefix.replace(/\.$/, '');
-    const match = rootPackage.split('.');
-    if (!match || match.length < 2) {
+    const segments = rootPackage.split('.');
+    if (!segments || segments.length < 2) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);
     }
-    const version = match[match.length - 1];
+    const version = segments[segments.length - 1];
     // version should follow the pattern of 'v1' or 'v1alpha1'
-    const versionpattern = /^((v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
-    if (!version.match(versionpattern)) {
-      throw new Error(`Cannot parse package name ${rootPackage}.`);
+    const versionPattern = /^((v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
+    if (!version.match(versionPattern)) {
+      throw new Error(
+        `Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`
+      );
     }
-    const name = match[match.length - 2];
-    const namespaces = match.slice(0, match.length - 2).join('.');
+    const name = segments[segments.length - 2];
+    const namespaces = segments.slice(0, -2).join('.');
     this.name = name.capitalize();
     this.productName = this.name;
     this.namespace = namespaces.replace(/\.$/, '').split('.');
