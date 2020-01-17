@@ -35,20 +35,20 @@ export class Naming {
       throw new Error('Protos provided have different proto packages.');
     }
     const rootPackage = prefix.replace(/\.$/, '');
-
-    // Define the regular expression to match a version component
-    // (e.g. "v1", "v1beta4", etc.).
-    const pattern = /^((?:[a-z0-9_.]+?)\.)?([a-z0-9_]+)(?:\.(v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
-    const match = rootPackage.match(pattern);
-    if (!match) {
+    const segments = rootPackage.split('.');
+    if (!segments || segments.length < 2) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);
     }
-    const [, namespaces, name, version] = match;
-    if (!namespaces) {
+    const version = segments[segments.length - 1];
+    // version should follow the pattern of 'v1' or 'v1alpha1'
+    const versionPattern = /^((v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
+    if (!version.match(versionPattern)) {
       throw new Error(
-        `Cannot parse package name ${rootPackage}: namespace is not defined.`
+        `Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`
       );
     }
+    const name = segments[segments.length - 2];
+    const namespaces = segments.slice(0, -2).join('.');
     this.name = name.capitalize();
     this.productName = this.name;
     this.namespace = namespaces.replace(/\.$/, '').split('.');
