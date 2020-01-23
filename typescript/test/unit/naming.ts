@@ -33,6 +33,30 @@ describe('schema/naming.ts', () => {
     assert.strictEqual(naming.protoPackage, 'google.namespace.service.v1beta1');
   });
 
+  it('parses name correctly 2', () => {
+    const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
+    descriptor1.package = 'service.v1beta1';
+    descriptor1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    const naming = new Naming([descriptor1]);
+    assert.strictEqual(naming.name, 'Service');
+    assert.strictEqual(naming.productName, 'Service');
+    assert.deepStrictEqual(naming.namespace, ['']);
+    assert.strictEqual(naming.version, 'v1beta1');
+    assert.strictEqual(naming.protoPackage, 'service.v1beta1');
+  });
+
+  it('parses name correctly 3', () => {
+    const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
+    descriptor1.package = 'company.service.v1beta1';
+    descriptor1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    const naming = new Naming([descriptor1]);
+    assert.strictEqual(naming.name, 'Service');
+    assert.strictEqual(naming.productName, 'Service');
+    assert.deepStrictEqual(naming.namespace, ['company']);
+    assert.strictEqual(naming.version, 'v1beta1');
+    assert.strictEqual(naming.protoPackage, 'company.service.v1beta1');
+  });
+
   it('ignores files with no services when determining package name', () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();

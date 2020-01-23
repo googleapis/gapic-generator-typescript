@@ -165,4 +165,23 @@ describe('ResourceDatabase', () => {
     assert.strictEqual(parentResources[1].name, resourceName);
     assert.strictEqual(warnings.length, 0);
   });
+
+  it('can parse different patterns into parameters', () => {
+    const rdb = new ResourceDatabase();
+    const resource: plugin.google.api.IResourceDescriptor = {
+      type: resourceType,
+      pattern: [
+        'lettersdigits/{abc123}/underscores/{snake_case}/trailing/{trailing=**}',
+      ],
+    };
+
+    rdb.registerResource(resource, errorLocation);
+    const registeredResource = rdb.getResourceByType(resourceType);
+    assert(registeredResource);
+    assert.deepStrictEqual(registeredResource!.params, [
+      'snake_case',
+      'trailing',
+    ]);
+    assert.strictEqual(warnings.length, 0);
+  });
 });
