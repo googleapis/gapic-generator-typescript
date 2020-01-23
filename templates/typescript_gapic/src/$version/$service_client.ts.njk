@@ -27,6 +27,7 @@ import {APICallback, Callback, CallOptions, Descriptors, ClientOptions
 import * as path from 'path';
 {% if (service.paging.length > 0) %}
 import { Transform } from 'stream';
+import { RequestType } from 'google-gax/build/src/apitypes';
 {%- endif %}
 import * as protosTypes from '../../protos/protos';
 import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json';
@@ -41,6 +42,7 @@ const version = require('../../../package.json').version;
 export class {{ service.name }}Client {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
+  private _innerCallPromises: {[name: string]: gax.UnaryCall | gax.ServerStreamingCall | gax.ClientStreamingCall | gax.BiDiStreamingCall | Promise<gax.GRPCCall>};
   {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
@@ -241,9 +243,9 @@ export class {{ service.name }}Client {
       '{{ method.name.toCamelCase() }}'
 {%- endfor -%}
     ];
-
+    this._innerCallPromises = {};
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
-      const innerCallPromise = this.{{ service.name.toCamelCase() }}Stub.then(
+      this._innerCallPromises[methodName] = this.{{ service.name.toCamelCase() }}Stub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -255,7 +257,7 @@ export class {{ service.name }}Client {
         });
 
       const apiCall = gaxModule.createApiCall(
-        innerCallPromise,
+        this._innerCallPromises[methodName],
         defaults[methodName],
         this._descriptors.page[methodName] ||
             this._descriptors.stream[methodName] ||
@@ -561,6 +563,24 @@ export class {{ service.name }}Client {
     return this._descriptors.page.{{ method.name.toCamelCase() }}.createStream(
       this._innerApiCalls.{{ method.name.toCamelCase() }} as gax.GaxCall,
       request,
+      callSettings
+    );
+  }
+
+/**
+{{- util.printCommentsPageAsync(method) }}
+ */
+
+  {{ method.name.toCamelCase() }}Async(
+      request?: {{ util.toInterface(method.inputInterface) }},
+      options?: gax.CallOptions | {}):
+    AsyncIterable<{} | undefined>{
+    request = request || {};
+    options = options || {};
+    const callSettings = new gax.CallSettings(options);
+    return this._descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate(
+      this._innerCallPromises['{{ method.name.toCamelCase() }}'] as unknown as gax.GaxCall,
+      request as unknown as RequestType,
       callSettings
     );
   }

@@ -55,7 +55,7 @@ const JS_TEST_APPLICATION = path.join(
 describe('TestApplication', () => {
   describe('Test application for js users', () => {
     it('npm install showcase', async function() {
-      this.timeout(60000);
+      this.timeout(180000);
       // copy protos to generated client library and copy test application to local.
       fs.copySync(PROTOS, path.join(SHOWCASE_LIB, 'protos'));
       fs.copySync(JS_TEST_APPLICATION, LOCAL_JS_APPLICATION);
