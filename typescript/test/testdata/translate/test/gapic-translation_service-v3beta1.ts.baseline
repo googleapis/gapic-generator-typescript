@@ -485,4 +485,39 @@ describe('v3beta1.TranslationServiceClient', () => {
             stream.write(request);
         });
     });
+    describe('listGlossariesAsync', () => {
+        it('invokes listGlossaries using async iterator', async () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            // Mock request
+            const request: protosTypes.google.cloud.translation.v3beta1.IListGlossariesRequest = {};
+            // Expected Response
+            const expectedResponse = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+            client._descriptors.page.listGlossaries.asyncIterate = (apiCall: Function, request: {}, options: {}) => {
+                let count = 0;
+                const asyncIterable = {
+                [Symbol.asyncIterator]() {
+                    return {
+                    async next(){
+                        count = count + 1;
+                        if(count === 10) return Promise.resolve({done: true, value: undefined});
+                        return Promise.resolve({done: false, value: count});
+                    }
+                    }
+                }
+                }
+                return asyncIterable;
+            }
+            // test paging method by async iterator
+            const response = [];
+            const iterable = client.pagedExpandAsync(request);
+            for await (const resource of iterable){
+                response.push(resource);
+            }
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+    });
 });
