@@ -66,9 +66,9 @@ export class ResourceDatabase {
       }
       return;
     }
-    const params = pattern[0].match(/{[a-zA-Z]+}/g) || [];
+    const params = pattern[0].match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
     for (let i = 0; i < params.length; i++) {
-      params[i] = params[i].replace('{', '').replace('}', '');
+      params[i] = params[i].replace(/{([a-zA-Z_]+).*/, '$1');
     }
 
     const resourceDescriptor: ResourceDescriptor = Object.assign(
