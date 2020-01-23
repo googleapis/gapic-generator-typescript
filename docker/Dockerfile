@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM node:12
 
 # Create folder structure
 RUN mkdir -p /in
@@ -11,11 +11,9 @@ COPY ./package.tgz /root/files/
 RUN npm install -g /root/files/package.tgz
 
 # Download and install protoc
-RUN apk update && apk add libc6-compat && rm -f /var/cache/apk/*
-ENV LD_LIBRARY_PATH /lib64:$LD_LIBRARY_PATH
 RUN cd /root/files && \
-    wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
-RUN cd /usr/local && unzip /root/files/protoc-3.10.0-linux-x86_64.zip
+    wget https://github.com/protocolbuffers/protobuf/releases/download/v3.11.2/protoc-3.11.2-linux-x86_64.zip
+RUN cd /usr/local && unzip /root/files/protoc-3.11.2-linux-x86_64.zip
 
 # Download a copy of API common protos
 RUN cd /root/files && \
