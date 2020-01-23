@@ -73,7 +73,7 @@ describe('TestApplication', () => {
       fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_TS_APPLICATION, PACKED_LIB));
     });
     it('npm install showcase library in test application', async function() {
-      this.timeout(60000);
+      this.timeout(120000);
       await exec(`npm install`);
     });
     it('run integration in test application', async function() {
