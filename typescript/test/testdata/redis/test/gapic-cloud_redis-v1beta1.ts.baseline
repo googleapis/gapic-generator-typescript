@@ -524,21 +524,21 @@ describe('v1beta1.CloudRedisClient', () => {
             client._descriptors.page.listInstances.asyncIterate = (apiCall: Function, request: {}, options: {}) => {
                 let count = 0;
                 const asyncIterable = {
-                [Symbol.asyncIterator]() {
-                    return {
-                    async next(){
-                        count = count + 1;
-                        if(count === 10) return Promise.resolve({done: true, value: undefined});
-                        return Promise.resolve({done: false, value: count});
+                    [Symbol.asyncIterator]() {
+                        return {
+                            async next(){
+                                count = count + 1;
+                                if(count === 10) return Promise.resolve({done: true, value: undefined});
+                                return Promise.resolve({done: false, value: count});
+                            }
+                        }
                     }
-                    }
-                }
                 }
                 return asyncIterable;
             }
             // test paging method by async iterator
             const response = [];
-            const iterable = client.listInstances(request);
+            const iterable = client.listInstancesAsync(request);
             for await (const resource of iterable){
                 response.push(resource);
             }
