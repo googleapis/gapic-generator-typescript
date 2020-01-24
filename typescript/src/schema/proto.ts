@@ -530,11 +530,16 @@ function augmentService(
     const errorLocation = `service ${service.name} message ${property}`;
     // take the option['.google.api.resource'] of the message as resource, add it to resourceDatabase id it's not there.
     const descriptorProto = messages[property];
-    if(descriptorProto.options && descriptorProto.options[".google.api.resource"]){
-      const resource = descriptorProto.options[".google.api.resource"];
-      if(!resourceDatabase.getResourceByType(resource.type)){
+    if (
+      descriptorProto.options &&
+      descriptorProto.options['.google.api.resource']
+    ) {
+      const resource = descriptorProto.options['.google.api.resource'];
+      if (!resourceDatabase.getResourceByType(resource.type)) {
         resourceDatabase.registerResource(resource);
-        const registeredResource = resourceDatabase.getResourceByType(resource.type)!;
+        const registeredResource = resourceDatabase.getResourceByType(
+          resource.type
+        )!;
         uniqueResources[registeredResource.name] = registeredResource;
       }
     }
