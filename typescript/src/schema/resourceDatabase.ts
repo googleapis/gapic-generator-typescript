@@ -66,24 +66,33 @@ export class ResourceDatabase {
     }
     const multiPattern = patterns!.length > 1;
     // only one pattern exists for the resource.
-    if(!multiPattern){
+    if (!multiPattern) {
       const name = arr![1];
       const params = this.getParams(patterns![0]);
-      const resourceDescriptor = this.getResourceDescriptor(name, params, resource);
+      const resourceDescriptor = this.getResourceDescriptor(
+        name,
+        params,
+        resource
+      );
       this.patterns[patterns?.[0]] = resourceDescriptor;
       this.types[resourceDescriptor.type!] = resourceDescriptor;
     }
     // resource: {name, type, pattern: [p1, p2]}
     // register resource does: in type map {type: { name, type, pattern: [p1, p2]} }
     //                         in pattern map {p1: { name1, type, p1} , p2: { name2, type, p2}}
-    else{
-      for(const pattern of patterns!){
+    else {
+      for (const pattern of patterns!) {
         const params = this.getParams(pattern);
-        const name = params.map(r=>r.toPascalCase()).join('');
-        let resourceDescriptor: ResourceDescriptor = {name: name, params: params, pattern: [pattern], type:resource.type};
+        const name = params.map(r => r.toPascalCase()).join('');
+        let resourceDescriptor: ResourceDescriptor = {
+          name,
+          params,
+          pattern: [pattern],
+          type: resource.type,
+        };
         this.patterns[pattern] = resourceDescriptor;
         resourceDescriptor = this.getResourceDescriptor(name, params, resource);
-        if(this.types[resource.type]) continue;
+        if (this.types[resource.type]) continue;
         this.types[resource.type] = resourceDescriptor;
       }
     }
@@ -162,14 +171,18 @@ export class ResourceDatabase {
     return result;
   }
 
-  private getParams(pattern: string): string[]{
+  private getParams(pattern: string): string[] {
     const params = pattern.match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
     for (let i = 0; i < params.length; i++) {
       params[i] = params[i].replace(/{([a-zA-Z_]+).*/, '$1');
     }
     return params;
   }
-  private getResourceDescriptor(name: string, params: string[], resource: plugin.google.api.IResourceDescriptor): ResourceDescriptor{
+  private getResourceDescriptor(
+    name: string,
+    params: string[],
+    resource: plugin.google.api.IResourceDescriptor
+  ): ResourceDescriptor {
     const resourceDescriptor = Object.assign(
       {
         name,

@@ -83,7 +83,10 @@ describe('ResourceDatabase', () => {
 
     rdb.registerResource(resource, errorLocation);
     const resourceByType = rdb.getResourceByType(resourceType);
-    assert.deepStrictEqual(resourceByType!.pattern, [resourcePattern, resourcePattern2]);
+    assert.deepStrictEqual(resourceByType!.pattern, [
+      resourcePattern,
+      resourcePattern2,
+    ]);
     const registeredResource1 = rdb.getResourceByPattern(resourcePattern);
     assert(registeredResource1);
     const registeredResource2 = rdb.getResourceByPattern(resourcePattern2);

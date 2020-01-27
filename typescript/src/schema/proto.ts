@@ -547,12 +547,14 @@ function augmentService(
         resourceReference?.type,
         errorLocation
       );
-      if(!resourceByType || ! resourceByType.pattern) continue;
-        // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
-        // look up pattern map for all resources.
-      for(const pattern of resourceByType!.pattern!){
-        const resourceByPattern = resourceDatabase.getResourceByPattern(pattern);
-        if(!resourceByPattern) continue;
+      if (!resourceByType || !resourceByType.pattern) continue;
+      // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
+      // look up pattern map for all resources.
+      for (const pattern of resourceByType!.pattern!) {
+        const resourceByPattern = resourceDatabase.getResourceByPattern(
+          pattern
+        );
+        if (!resourceByPattern) continue;
         uniqueResources[resourceByPattern.name] = resourceByPattern;
       }
     }
