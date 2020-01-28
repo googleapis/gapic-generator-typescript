@@ -83,7 +83,7 @@ export class ResourceDatabase {
     else {
       for (const pattern of patterns!) {
         const params = this.getParams(pattern);
-        const name = params.map(r => r.toPascalCase()).join('');
+        const name = params.join('_');
         let resourceDescriptor: ResourceDescriptor = {
           name,
           params,

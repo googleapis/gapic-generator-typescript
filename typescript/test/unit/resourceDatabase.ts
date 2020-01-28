@@ -93,8 +93,8 @@ describe('ResourceDatabase', () => {
     assert(registeredResource2);
     assert.strictEqual(registeredResource1!.type, resourceType);
     assert.strictEqual(registeredResource2!.type, resourceType);
-    assert.strictEqual(registeredResource1!.name, 'LocationExample');
-    assert.strictEqual(registeredResource2!.name, 'ProjectExample');
+    assert.strictEqual(registeredResource1!.name, 'location_example');
+    assert.strictEqual(registeredResource2!.name, 'project_example');
     assert.strictEqual(warnings.length, 0);
   });
 
