@@ -24,6 +24,7 @@ describe('ResourceDatabase', () => {
   const resourceName = 'Example';
   const resourceType = 'examples.googleapis.com/Example';
   const resourcePattern = 'locations/{location}/examples/{example}';
+  const resourcePattern2 = 'project/{project}/examples/{example}';
   const resourceParameters = ['location', 'example'];
   const parentResourceName = 'Location';
   const parentResourceType = 'locations.googleapis.com/Location';
@@ -71,6 +72,30 @@ describe('ResourceDatabase', () => {
 
     rdb.registerResource(resource, errorLocation);
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
+  });
+
+  it('can register multi-pattern resource properly', () => {
+    const rdb = new ResourceDatabase();
+    const resource: plugin.google.api.IResourceDescriptor = {
+      type: resourceType,
+      pattern: [resourcePattern, resourcePattern2],
+    };
+
+    rdb.registerResource(resource, errorLocation);
+    const resourceByType = rdb.getResourceByType(resourceType);
+    assert.deepStrictEqual(resourceByType!.pattern, [
+      resourcePattern,
+      resourcePattern2,
+    ]);
+    const registeredResource1 = rdb.getResourceByPattern(resourcePattern);
+    assert(registeredResource1);
+    const registeredResource2 = rdb.getResourceByPattern(resourcePattern2);
+    assert(registeredResource2);
+    assert.strictEqual(registeredResource1!.type, resourceType);
+    assert.strictEqual(registeredResource2!.type, resourceType);
+    assert.strictEqual(registeredResource1!.name, 'location_example');
+    assert.strictEqual(registeredResource2!.name, 'project_example');
+    assert.strictEqual(warnings.length, 0);
   });
 
   it('can get registered resource by type', () => {

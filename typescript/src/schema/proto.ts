@@ -543,12 +543,19 @@ function augmentService(
       );
 
       // 2. If this resource reference has .type, we should have a known resource with this type.
-      const resource = resourceDatabase.getResourceByType(
+      const resourceByType = resourceDatabase.getResourceByType(
         resourceReference?.type,
         errorLocation
       );
-      if (resource) {
-        uniqueResources[resource.name] = resource;
+      if (!resourceByType || !resourceByType.pattern) continue;
+      // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
+      // look up pattern map for all resources.
+      for (const pattern of resourceByType!.pattern!) {
+        const resourceByPattern = resourceDatabase.getResourceByPattern(
+          pattern
+        );
+        if (!resourceByPattern) continue;
+        uniqueResources[resourceByPattern.name] = resourceByPattern;
       }
     }
   }
