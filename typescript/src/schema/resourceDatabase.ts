@@ -172,10 +172,8 @@ export class ResourceDatabase {
   }
 
   private getParams(pattern: string): string[] {
-    const params = pattern.match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
-    for (let i = 0; i < params.length; i++) {
-      params[i] = params[i].replace(/{([a-zA-Z_]+).*/, '$1');
-    }
+    let params = pattern.match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
+    params = params.map(p => p.replace(/{([a-zA-Z_]+).*/, '$1'));
     return params;
   }
   private getResourceDescriptor(
