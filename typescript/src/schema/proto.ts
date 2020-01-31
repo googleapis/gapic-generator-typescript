@@ -528,6 +528,21 @@ function augmentService(
   const uniqueResources: { [name: string]: ResourceDescriptor } = {};
   for (const property of Object.keys(messages)) {
     const errorLocation = `service ${service.name} message ${property}`;
+    // take the option['.google.api.resource'] of the message as resource, add it to resourceDatabase id it's not there.
+    const descriptorProto = messages[property];
+    if (
+      descriptorProto.options &&
+      descriptorProto.options['.google.api.resource']
+    ) {
+      const resource = descriptorProto.options['.google.api.resource'];
+      if (!resourceDatabase.getResourceByType(resource.type)) {
+        resourceDatabase.registerResource(resource);
+        const registeredResource = resourceDatabase.getResourceByType(
+          resource.type
+        )!;
+        uniqueResources[registeredResource.name] = registeredResource;
+      }
+    }
     for (const fieldDescriptor of messages[property].field ?? []) {
       // note: ResourceDatabase can accept `undefined` values, so we happily use optional chaining here.
       const resourceReference =

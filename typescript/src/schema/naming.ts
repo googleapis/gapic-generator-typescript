@@ -15,6 +15,11 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import { commonPrefix } from '../util';
 
+export interface Options {
+  grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  publishName?: string;
+  mainServiceName?: string;
+}
 export class Naming {
   name: string;
   namespace: string[];
@@ -22,7 +27,12 @@ export class Naming {
   productName: string;
   protoPackage: string;
 
-  constructor(fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]) {
+  constructor(
+    fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[],
+    options?: Options
+  ) {
+    let rootPackage = '';
+    const mainServiceName = options ? options.mainServiceName : '';
     const protoPackages = fileDescriptors
       .filter(fd => fd.service && fd.service.length > 0)
       // LRO is an exception: it's a service but we don't generate any code for it
@@ -31,10 +41,17 @@ export class Naming {
     const prefix = commonPrefix(protoPackages);
     // common prefix must either end with `.`, or be equal to at least one of
     // the packages' prefix
-    if (!prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix)) {
+    const invalidPrefix =
+      !prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix);
+    if (invalidPrefix && mainServiceName) {
+      rootPackage = this.checkServiceInPackage(protoPackages, mainServiceName);
+    }
+    if (invalidPrefix && !mainServiceName) {
       throw new Error('Protos provided have different proto packages.');
     }
-    const rootPackage = prefix.replace(/\.$/, '');
+    if (!invalidPrefix) {
+      rootPackage = prefix.replace(/\.$/, '');
+    }
     const segments = rootPackage.split('.');
     if (!segments || segments.length < 2) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);
@@ -60,5 +77,17 @@ export class Naming {
         'All protos must have the same proto package up to and including the version.'
       );
     }
+  }
+
+  private checkServiceInPackage(
+    protoPackages: string[],
+    mainServiceName: string
+  ) {
+    for (const packageName of protoPackages) {
+      if (packageName.indexOf(mainServiceName.toLowerCase()) !== -1) {
+        return packageName;
+      }
+    }
+    return '';
   }
 }
