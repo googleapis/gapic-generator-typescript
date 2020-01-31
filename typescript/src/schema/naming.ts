@@ -42,12 +42,12 @@ export class Naming {
     // common prefix must either end with `.`, or be equal to at least one of
     // the packages' prefix
     if (!prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix)) {
-      if (mainServiceName)
+      if (mainServiceName) {
         rootPackage = this.checkServiceInPackage(
           protoPackages,
           mainServiceName
         );
-      else throw new Error('Protos provided have different proto packages.');
+      } else throw new Error('Protos provided have different proto packages.');
     } else rootPackage = prefix.replace(/\.$/, '');
     const segments = rootPackage.split('.');
     if (!segments || segments.length < 2) {
