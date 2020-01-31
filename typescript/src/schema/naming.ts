@@ -45,9 +45,11 @@ export class Naming {
       !prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix);
     if (invalidPrefix && mainServiceName) {
       rootPackage = this.checkServiceInPackage(protoPackages, mainServiceName);
-    } else if (invalidPrefix && !mainServiceName) {
+    }
+    if (invalidPrefix && !mainServiceName) {
       throw new Error('Protos provided have different proto packages.');
-    } else {
+    }
+    if (!invalidPrefix) {
       rootPackage = prefix.replace(/\.$/, '');
     }
     const segments = rootPackage.split('.');
