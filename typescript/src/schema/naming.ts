@@ -27,8 +27,11 @@ export class Naming {
   productName: string;
   protoPackage: string;
 
-  constructor(fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[], options?: Options) {
-    let rootPackage: string = '';
+  constructor(
+    fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[],
+    options?: Options
+  ) {
+    let rootPackage = '';
     const mainServiceName = options ? options.mainServiceName : '';
     const protoPackages = fileDescriptors
       .filter(fd => fd.service && fd.service.length > 0)
@@ -39,10 +42,13 @@ export class Naming {
     // common prefix must either end with `.`, or be equal to at least one of
     // the packages' prefix
     if (!prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix)) {
-      if(mainServiceName) rootPackage = this.checkServiceInPackage(protoPackages, mainServiceName);
+      if (mainServiceName)
+        rootPackage = this.checkServiceInPackage(
+          protoPackages,
+          mainServiceName
+        );
       else throw new Error('Protos provided have different proto packages.');
-    }
-    else rootPackage = prefix.replace(/\.$/, '');
+    } else rootPackage = prefix.replace(/\.$/, '');
     const segments = rootPackage.split('.');
     if (!segments || segments.length < 2) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);
@@ -70,10 +76,14 @@ export class Naming {
     }
   }
 
-  private checkServiceInPackage(protoPackages: string[], mainServiceName: string){
-    for(const packageName of protoPackages){
-      if(packageName.indexOf(mainServiceName.toLowerCase()) !== -1)
+  private checkServiceInPackage(
+    protoPackages: string[],
+    mainServiceName: string
+  ) {
+    for (const packageName of protoPackages) {
+      if (packageName.indexOf(mainServiceName.toLowerCase()) !== -1) {
         return packageName;
+      }
     }
     return '';
   }
