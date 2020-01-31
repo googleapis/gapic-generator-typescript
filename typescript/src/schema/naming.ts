@@ -41,14 +41,15 @@ export class Naming {
     const prefix = commonPrefix(protoPackages);
     // common prefix must either end with `.`, or be equal to at least one of
     // the packages' prefix
-    if (!prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix)) {
-      if (mainServiceName) {
-        rootPackage = this.checkServiceInPackage(
-          protoPackages,
-          mainServiceName
-        );
-      } else throw new Error('Protos provided have different proto packages.');
-    } else rootPackage = prefix.replace(/\.$/, '');
+    const invalidPrefix =
+      !prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix);
+    if (invalidPrefix && mainServiceName) {
+      rootPackage = this.checkServiceInPackage(protoPackages, mainServiceName);
+    } else if (invalidPrefix && !mainServiceName) {
+      throw new Error('Protos provided have different proto packages.');
+    } else {
+      rootPackage = prefix.replace(/\.$/, '');
+    }
     const segments = rootPackage.split('.');
     if (!segments || segments.length < 2) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);
