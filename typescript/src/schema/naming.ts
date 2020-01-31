@@ -15,7 +15,7 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import { commonPrefix } from '../util';
 
-interface Options {
+export interface Options {
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
   publishName?: string;
   mainServiceName?: string;
@@ -36,26 +36,11 @@ export class Naming {
       .filter(fd => fd.package !== 'google.longrunning')
       .map(fd => fd.package || '');
     const prefix = commonPrefix(protoPackages);
-    console.warn('prefix: ', prefix);
-    if(!prefix && mainServiceName){
-      fileDescriptors.map(fd => {
-        if(fd.service && fd.package){
-          const serviceList = fd.service;
-          console.warn('service list: ', serviceList);
-          for(const service of serviceList){
-            if(service.name && service.name.indexOf(mainServiceName.capitalize()) !== -1){
-              console.warn('service name: ', service.name);
-              rootPackage = fd.package;
-              console.warn('root package with service name: ', rootPackage);
-            }
-          }
-        }
-      })
-    }
     // common prefix must either end with `.`, or be equal to at least one of
     // the packages' prefix
-    else if (!prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix)) {
-      throw new Error('Protos provided have different proto packages.');
+    if (!prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix)) {
+      if(mainServiceName) rootPackage = this.checkServiceInPackage(protoPackages, mainServiceName);
+      else throw new Error('Protos provided have different proto packages.');
     }
     else rootPackage = prefix.replace(/\.$/, '');
     const segments = rootPackage.split('.');
@@ -83,5 +68,13 @@ export class Naming {
         'All protos must have the same proto package up to and including the version.'
       );
     }
+  }
+
+  private checkServiceInPackage(protoPackages: string[], mainServiceName: string){
+    for(const packageName of protoPackages){
+      if(packageName.indexOf(mainServiceName.toLowerCase()) !== -1)
+        return packageName;
+    }
+    return '';
   }
 }
