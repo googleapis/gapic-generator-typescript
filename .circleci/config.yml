@@ -35,6 +35,7 @@ jobs:
             cp -r typescript/test/protos .test-out-keymanager
             cp -r typescript/test/protos .test-out-translate
             cp -r typescript/test/protos .test-out-texttospeech
+            cp -r typescript/test/protos .test-out-dlp
       - persist_to_workspace:
           root: /tmp
           paths:
@@ -121,6 +122,23 @@ jobs:
             npm run system-test
             npm run docs
             npm run docs-test
+  dlpLibTest:
+    docker:
+      - image: circleci/node:10-browsers
+    steps: 
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated dlp library
+          command: |
+            cd workspace/workspace/gapic-generator-typescript/.test-out-dlp
+            npm install
+            npm test
+            npm run fix
+            npm run compile
+            npm run system-test
+            npm run docs
   ttsLibTest:
     docker:
       - image: circleci/node:10-browsers
@@ -154,6 +172,9 @@ workflows:
           requires:
             - testGenerator
       - kmsLibTest:
+          requires:
+            - testGenerator
+      - dlpLibTest:
           requires:
             - testGenerator
       - translateLibTest:

@@ -16,9 +16,10 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { Naming } from './naming';
+import { Naming, Options as namingOptions } from './naming';
 import { Proto, MessagesMap } from './proto';
 import { ResourceDatabase, ResourceDescriptor } from './resourceDatabase';
+import { Options } from 'yargs-parser';
 
 const googleGaxLocation = path.dirname(require.resolve('google-gax'));
 const gaxProtosLocation = path.join(googleGaxLocation, '..', '..', 'protos');
@@ -41,16 +42,13 @@ export class API {
   constructor(
     fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[],
     packageName: string,
-    options: {
-      grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
-      publishName?: string;
-      mainServiceName?: string;
-    }
+    options: namingOptions
   ) {
     this.naming = new Naming(
       fileDescriptors.filter(
         fd => fd.package && fd.package.startsWith(packageName)
-      )
+      ),
+      options
     );
     // users specify the actual package name, if not, set it to product name.
     this.publishName =

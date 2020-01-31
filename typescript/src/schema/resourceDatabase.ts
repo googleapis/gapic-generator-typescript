@@ -55,10 +55,8 @@ export class ResourceDatabase {
       }
       return;
     }
-    const name = arr[1];
-
-    const pattern = resource.pattern;
-    if (!pattern?.[0]) {
+    const patterns = resource.pattern;
+    if (!patterns?.[0]) {
       if (errorLocation) {
         console.warn(
           `Warning: ${errorLocation} refers to a resource which does not have a proper pattern: ${resource}`
@@ -66,21 +64,38 @@ export class ResourceDatabase {
       }
       return;
     }
-    const params = pattern[0].match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
-    for (let i = 0; i < params.length; i++) {
-      params[i] = params[i].replace(/{([a-zA-Z_]+).*/, '$1');
-    }
-
-    const resourceDescriptor: ResourceDescriptor = Object.assign(
-      {
+    const multiPattern = patterns!.length > 1;
+    // only one pattern exists for the resource.
+    if (!multiPattern) {
+      const name = arr![1];
+      const params = this.getParams(patterns![0]);
+      const resourceDescriptor = this.getResourceDescriptor(
         name,
         params,
-      },
-      resource
-    );
-
-    this.patterns[pattern?.[0]] = resourceDescriptor;
-    this.types[resourceDescriptor.type!] = resourceDescriptor;
+        resource
+      );
+      this.patterns[patterns?.[0]] = resourceDescriptor;
+      this.types[resourceDescriptor.type!] = resourceDescriptor;
+    }
+    // resource: {name, type, pattern: [p1, p2]}
+    // register resource does: in type map {type: { name, type, pattern: [p1, p2]} }
+    //                         in pattern map {p1: { name1, type, p1} , p2: { name2, type, p2}}
+    else {
+      for (const pattern of patterns!) {
+        const params = this.getParams(pattern);
+        const name = params.join('_');
+        let resourceDescriptor: ResourceDescriptor = {
+          name,
+          params,
+          pattern: [pattern],
+          type: resource.type,
+        };
+        this.patterns[pattern] = resourceDescriptor;
+        resourceDescriptor = this.getResourceDescriptor(name, params, resource);
+        if (this.types[resource.type]) continue;
+        this.types[resource.type] = resourceDescriptor;
+      }
+    }
   }
 
   getResourceByType(
@@ -154,5 +169,25 @@ export class ResourceDatabase {
     }
 
     return result;
+  }
+
+  private getParams(pattern: string): string[] {
+    let params = pattern.match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
+    params = params.map(p => p.replace(/{([a-zA-Z_]+).*/, '$1'));
+    return params;
+  }
+  private getResourceDescriptor(
+    name: string,
+    params: string[],
+    resource: plugin.google.api.IResourceDescriptor
+  ): ResourceDescriptor {
+    const resourceDescriptor = Object.assign(
+      {
+        name,
+        params,
+      },
+      resource
+    );
+    return resourceDescriptor;
   }
 }
