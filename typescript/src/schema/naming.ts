@@ -15,6 +15,11 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import { commonPrefix } from '../util';
 
+interface Options {
+  grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  publishName?: string;
+  mainServiceName?: string;
+}
 export class Naming {
   name: string;
   namespace: string[];
@@ -22,19 +27,37 @@ export class Naming {
   productName: string;
   protoPackage: string;
 
-  constructor(fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]) {
+  constructor(fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[], options?: Options) {
+    let rootPackage: string = '';
+    const mainServiceName = options ? options.mainServiceName : '';
     const protoPackages = fileDescriptors
       .filter(fd => fd.service && fd.service.length > 0)
       // LRO is an exception: it's a service but we don't generate any code for it
       .filter(fd => fd.package !== 'google.longrunning')
       .map(fd => fd.package || '');
     const prefix = commonPrefix(protoPackages);
+    console.warn('prefix: ', prefix);
+    if(!prefix && mainServiceName){
+      fileDescriptors.map(fd => {
+        if(fd.service && fd.package){
+          const serviceList = fd.service;
+          console.warn('service list: ', serviceList);
+          for(const service of serviceList){
+            if(service.name && service.name.indexOf(mainServiceName.capitalize()) !== -1){
+              console.warn('service name: ', service.name);
+              rootPackage = fd.package;
+              console.warn('root package with service name: ', rootPackage);
+            }
+          }
+        }
+      })
+    }
     // common prefix must either end with `.`, or be equal to at least one of
     // the packages' prefix
-    if (!prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix)) {
+    else if (!prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix)) {
       throw new Error('Protos provided have different proto packages.');
     }
-    const rootPackage = prefix.replace(/\.$/, '');
+    else rootPackage = prefix.replace(/\.$/, '');
     const segments = rootPackage.split('.');
     if (!segments || segments.length < 2) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);

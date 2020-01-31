@@ -50,7 +50,7 @@ export class API {
     this.naming = new Naming(
       fileDescriptors.filter(
         fd => fd.package && fd.package.startsWith(packageName)
-      )
+      ), options
     );
     // users specify the actual package name, if not, set it to product name.
     this.publishName =
