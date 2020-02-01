@@ -554,12 +554,12 @@ function augmentService(
       let resourceByType = resourceDefinitionDatabase.getResourceByType(
         resourceReference?.type
       );
-      resourceByType = resourceByType
-        ? resourceByType
-        : resourceDatabase.getResourceByType(
-            resourceReference?.type,
-            errorLocation
-          );
+      resourceByType =
+        resourceByType ??
+        resourceDatabase.getResourceByType(
+          resourceReference?.type,
+          errorLocation
+        );
       if (!resourceByType || !resourceByType.pattern) continue;
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
       // look up pattern map for all resources.
