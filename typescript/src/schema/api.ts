@@ -118,9 +118,11 @@ export class API {
 
   get protoFilesToGenerateJSON() {
     return JSON.stringify(
-      this.filesToGenerate.map(file => {
-        return `../../protos/${file}`;
-      }),
+      this.filesToGenerate
+        .map(file => {
+          return `../../protos/${file}`;
+        })
+        .sort(),
       null,
       '  '
     );

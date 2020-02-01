@@ -109,4 +109,27 @@ describe('schema/api.ts', () => {
     });
     assert.deepStrictEqual(api.mainServiceName, 'OverriddenName');
   });
+
+  it('should return list of protos in lexicographical order', () => {
+    const fd1 = new plugin.google.protobuf.FileDescriptorProto();
+    fd1.name = 'google/cloud/example/v1/test.proto';
+    fd1.package = 'google.cloud.example.v1';
+
+    fd1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    fd1.service[0].name = 'Service';
+    fd1.service[0].options = {
+      '.google.api.defaultHost': 'hostname.example.com:443',
+    };
+    const fd2 = new plugin.google.protobuf.FileDescriptorProto();
+    fd2.name = 'google/cloud/example/v1/example.proto';
+    fd2.package = 'google.cloud.example.v1';
+    fd2.service = [];
+    const api = new API([fd1, fd2], 'google.cloud.example.v1', {
+      grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+    });
+    assert.deepStrictEqual(JSON.parse(api.protoFilesToGenerateJSON), [
+      '../../protos/google/cloud/example/v1/example.proto',
+      '../../protos/google/cloud/example/v1/test.proto',
+    ]);
+  });
 });
