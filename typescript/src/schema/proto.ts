@@ -526,30 +526,33 @@ function augmentService(
   }
 
   // Build a list of resources referenced by this service
-  const uniqueResources: { [name: string]: ResourceDescriptor } = Object.assign({}, resourceDatabase.names);
-  console.warn('===== unique resources: ', uniqueResources);
+  const uniqueResources: { [name: string]: ResourceDescriptor } = {};
+  // Copy all resources in resourceDatabase to uniqueResources
+  const allPatterns = resourceDatabase.patterns;
+  for(const pattern of Object.keys(allPatterns)){
+    const resource = allPatterns[pattern];
+    uniqueResources[resource.name] = resource;
+  }
+
+  // Copy all resources definination which are referenced into unique resources map. 
   for (const property of Object.keys(messages)) {
     const errorLocation = `service ${service.name} message ${property}`;
     for (const fieldDescriptor of messages[property].field ?? []) {
       // note: ResourceDatabase can accept `undefined` values, so we happily use optional chaining here.
       const resourceReference =
         fieldDescriptor.options?.['.google.api.resourceReference'];
-      if(resourceReference) {console.warn('===== resource reference: ', resourceReference);}
       // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
       let parentResources = resourceDefinitionDatabase.getParentResourcesByChildType(
         resourceReference?.childType,
         errorLocation
       );
-      if(parentResources.length > 0) {console.warn('==== parent resource for resource reference: ', parentResources)};
       parentResources.map(
         resource => (uniqueResources[resource.name] = resource)
       );
 
-      // 2. If this resource reference has .type, we should have a known resource with this type.
-      const resourceByType = resourceDefinitionDatabase.getResourceByType(
-        resourceReference?.type
-      ) 
-      const resourceByType2 = resourceDatabase.getResourceByType(resourceReference?.type);
+      // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
+      let resourceByType = resourceDefinitionDatabase.getResourceByType(resourceReference?.type);
+      resourceByType = resourceByType ? resourceByType : resourceDatabase.getResourceByType(resourceReference?.type, errorLocation);
       if (!resourceByType || !resourceByType.pattern) continue;
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
       // look up pattern map for all resources.
@@ -559,11 +562,10 @@ function augmentService(
         );
         if (!resourceByPattern) continue;
         uniqueResources[resourceByPattern.name] = resourceByPattern;
-        console.warn('===== query resource by type in definition database: ', resourceByType.name);
       }
     }
   }
-  augmentedService.pathTemplates = Object.values(uniqueResources);
+  augmentedService.pathTemplates = Object.values(uniqueResources).sort();
   return augmentedService;
 }
 

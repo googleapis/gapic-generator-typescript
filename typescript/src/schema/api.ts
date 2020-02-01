@@ -159,7 +159,5 @@ function getResourceDatabase(
       );
     }
   }
-  console.warn('======= resource dtabase: ', resourceDatabase);
-  console.warn('======= resource definition database: ', resourceDefinitionDatabase);
   return [resourceDatabase, resourceDefinitionDatabase];
 }
