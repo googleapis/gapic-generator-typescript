@@ -19,7 +19,6 @@ import * as path from 'path';
 import { Naming, Options as namingOptions } from './naming';
 import { Proto, MessagesMap } from './proto';
 import { ResourceDatabase, ResourceDescriptor } from './resourceDatabase';
-import { Options } from 'yargs-parser';
 
 const googleGaxLocation = path.dirname(require.resolve('google-gax'));
 const gaxProtosLocation = path.join(googleGaxLocation, '..', '..', 'protos');
@@ -54,7 +53,9 @@ export class API {
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
     // construct resource map
-    const resourceMap = getResourceDatabase(fileDescriptors);
+    const [resourceDatabase, resourceDefinitionDatabase] = getResourceDatabase(
+      fileDescriptors
+    );
     // parse resource map to Proto constructor
     this.protos = fileDescriptors
       .filter(fd => fd.name)
@@ -64,7 +65,8 @@ export class API {
           fd,
           packageName,
           options.grpcServiceConfig,
-          resourceMap
+          resourceDatabase,
+          resourceDefinitionDatabase
         );
         return map;
       }, {} as ProtosMap);
@@ -131,13 +133,14 @@ export class API {
 
 function getResourceDatabase(
   fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]
-): ResourceDatabase {
+): ResourceDatabase[] {
   const resourceDatabase = new ResourceDatabase();
+  const resourceDefinitionDatabase = new ResourceDatabase();
   for (const fd of fileDescriptors.filter(fd => fd)) {
     // process file-level options
     for (const resource of fd.options?.['.google.api.resourceDefinition'] ??
       []) {
-      resourceDatabase.registerResource(
+      resourceDefinitionDatabase.registerResource(
         resource as ResourceDescriptor,
         `file ${fd.name} resource_definition option`
       );
@@ -158,5 +161,5 @@ function getResourceDatabase(
       );
     }
   }
-  return resourceDatabase;
+  return [resourceDatabase, resourceDefinitionDatabase];
 }
