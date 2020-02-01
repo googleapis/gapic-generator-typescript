@@ -53,7 +53,9 @@ export class API {
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
     // construct resource map
-    const [resourceDatabase, resourceDefinitionDatabase] = getResourceDatabase(fileDescriptors);
+    const [resourceDatabase, resourceDefinitionDatabase] = getResourceDatabase(
+      fileDescriptors
+    );
     // parse resource map to Proto constructor
     this.protos = fileDescriptors
       .filter(fd => fd.name)
@@ -138,7 +140,7 @@ function getResourceDatabase(
     // process file-level options
     for (const resource of fd.options?.['.google.api.resourceDefinition'] ??
       []) {
-        resourceDefinitionDatabase.registerResource(
+      resourceDefinitionDatabase.registerResource(
         resource as ResourceDescriptor,
         `file ${fd.name} resource_definition option`
       );

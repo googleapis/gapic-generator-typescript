@@ -529,12 +529,12 @@ function augmentService(
   const uniqueResources: { [name: string]: ResourceDescriptor } = {};
   // Copy all resources in resourceDatabase to uniqueResources
   const allPatterns = resourceDatabase.patterns;
-  for(const pattern of Object.keys(allPatterns)){
+  for (const pattern of Object.keys(allPatterns)) {
     const resource = allPatterns[pattern];
     uniqueResources[resource.name] = resource;
   }
 
-  // Copy all resources definination which are referenced into unique resources map. 
+  // Copy all resources definination which are referenced into unique resources map.
   for (const property of Object.keys(messages)) {
     const errorLocation = `service ${service.name} message ${property}`;
     for (const fieldDescriptor of messages[property].field ?? []) {
@@ -542,7 +542,7 @@ function augmentService(
       const resourceReference =
         fieldDescriptor.options?.['.google.api.resourceReference'];
       // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
-      let parentResources = resourceDefinitionDatabase.getParentResourcesByChildType(
+      const parentResources = resourceDefinitionDatabase.getParentResourcesByChildType(
         resourceReference?.childType,
         errorLocation
       );
@@ -551,8 +551,15 @@ function augmentService(
       );
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
-      let resourceByType = resourceDefinitionDatabase.getResourceByType(resourceReference?.type);
-      resourceByType = resourceByType ? resourceByType : resourceDatabase.getResourceByType(resourceReference?.type, errorLocation);
+      let resourceByType = resourceDefinitionDatabase.getResourceByType(
+        resourceReference?.type
+      );
+      resourceByType = resourceByType
+        ? resourceByType
+        : resourceDatabase.getResourceByType(
+            resourceReference?.type,
+            errorLocation
+          );
       if (!resourceByType || !resourceByType.pattern) continue;
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
       // look up pattern map for all resources.
@@ -581,8 +588,8 @@ export class Proto {
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
     grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-    resourceDatabase: ResourceDatabase, 
-    resourceDefinitionDatabase: ResourceDatabase,
+    resourceDatabase: ResourceDatabase,
+    resourceDefinitionDatabase: ResourceDatabase
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
