@@ -472,7 +472,8 @@ function augmentService(
   service: plugin.google.protobuf.IServiceDescriptorProto,
   commentsMap: CommentsMap,
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-  resourceDatabase: ResourceDatabase
+  resourceDatabase: ResourceDatabase,
+  resourceDefinitionDatabase: ResourceDatabase
 ) {
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.packageName = packageName;
@@ -525,52 +526,40 @@ function augmentService(
   }
 
   // Build a list of resources referenced by this service
-  const uniqueResources: { [name: string]: ResourceDescriptor } = {};
+  const uniqueResources: { [name: string]: ResourceDescriptor } = Object.assign({}, resourceDatabase.names);
+  console.warn('===== unique resources: ', uniqueResources);
   for (const property of Object.keys(messages)) {
     const errorLocation = `service ${service.name} message ${property}`;
-    // take the option['.google.api.resource'] of the message as resource, add it to resourceDatabase id it's not there.
-    const descriptorProto = messages[property];
-    if (
-      descriptorProto.options &&
-      descriptorProto.options['.google.api.resource']
-    ) {
-      const resource = descriptorProto.options['.google.api.resource'];
-      if (!resourceDatabase.getResourceByType(resource.type)) {
-        resourceDatabase.registerResource(resource);
-        const registeredResource = resourceDatabase.getResourceByType(
-          resource.type
-        )!;
-        uniqueResources[registeredResource.name] = registeredResource;
-      }
-    }
     for (const fieldDescriptor of messages[property].field ?? []) {
       // note: ResourceDatabase can accept `undefined` values, so we happily use optional chaining here.
       const resourceReference =
         fieldDescriptor.options?.['.google.api.resourceReference'];
-
+      if(resourceReference) {console.warn('===== resource reference: ', resourceReference);}
       // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
-      const parentResources = resourceDatabase.getParentResourcesByChildType(
+      let parentResources = resourceDefinitionDatabase.getParentResourcesByChildType(
         resourceReference?.childType,
         errorLocation
       );
+      if(parentResources.length > 0) {console.warn('==== parent resource for resource reference: ', parentResources)};
       parentResources.map(
         resource => (uniqueResources[resource.name] = resource)
       );
 
       // 2. If this resource reference has .type, we should have a known resource with this type.
-      const resourceByType = resourceDatabase.getResourceByType(
-        resourceReference?.type,
-        errorLocation
-      );
+      const resourceByType = resourceDefinitionDatabase.getResourceByType(
+        resourceReference?.type
+      ) 
+      const resourceByType2 = resourceDatabase.getResourceByType(resourceReference?.type);
       if (!resourceByType || !resourceByType.pattern) continue;
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
       // look up pattern map for all resources.
       for (const pattern of resourceByType!.pattern!) {
-        const resourceByPattern = resourceDatabase.getResourceByPattern(
+        const resourceByPattern = resourceDefinitionDatabase.getResourceByPattern(
           pattern
         );
         if (!resourceByPattern) continue;
         uniqueResources[resourceByPattern.name] = resourceByPattern;
+        console.warn('===== query resource by type in definition database: ', resourceByType.name);
       }
     }
   }
@@ -590,7 +579,8 @@ export class Proto {
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
     grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-    resourceDatabase: ResourceDatabase
+    resourceDatabase: ResourceDatabase, 
+    resourceDefinitionDatabase: ResourceDatabase,
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
@@ -624,7 +614,8 @@ export class Proto {
           service,
           commentsMap,
           grpcServiceConfig,
-          resourceDatabase
+          resourceDatabase,
+          resourceDefinitionDatabase
         )
       )
       .reduce((map, service) => {
