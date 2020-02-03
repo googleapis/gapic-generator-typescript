@@ -526,7 +526,7 @@ function augmentService(
   }
 
   // Build a list of resources referenced by this service
-  
+
   // allResourceDatabase: resources that defined by `google.api.resource`
   // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
   const uniqueResources: { [name: string]: ResourceDescriptor } = {};
