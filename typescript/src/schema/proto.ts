@@ -588,8 +588,8 @@ export class Proto {
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
     grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-    resourceDatabase: ResourceDatabase,
-    resourceDefinitionDatabase: ResourceDatabase
+    allResourceDatabase: ResourceDatabase,
+    resourceDatabase: ResourceDatabase
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
@@ -623,8 +623,8 @@ export class Proto {
           service,
           commentsMap,
           grpcServiceConfig,
-          resourceDatabase,
-          resourceDefinitionDatabase
+          allResourceDatabase,
+          resourceDatabase
         )
       )
       .reduce((map, service) => {

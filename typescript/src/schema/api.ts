@@ -53,7 +53,7 @@ export class API {
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
     // construct resource map
-    const [resourceDatabase, resourceDefinitionDatabase] = getResourceDatabase(
+    const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
       fileDescriptors
     );
     // parse resource map to Proto constructor
@@ -65,8 +65,8 @@ export class API {
           fd,
           packageName,
           options.grpcServiceConfig,
-          resourceDatabase,
-          resourceDefinitionDatabase
+          allResourceDatabase,
+          resourceDatabase
         );
         return map;
       }, {} as ProtosMap);
