@@ -135,7 +135,7 @@ function getResourceDatabase(
   fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]
 ): ResourceDatabase[] {
   const resourceDatabase = new ResourceDatabase(); // resources that defined by `google.api.resource`
-  const allResourceDatabase = new ResourceDatabase(); // All resources defined by `google.api.resource` or `google.api.resource_definition`
+  const allResourceDatabase = new ResourceDatabase(); // all resources defined by `google.api.resource` or `google.api.resource_definition`
   for (const fd of fileDescriptors.filter(fd => fd)) {
     // process file-level options
     for (const resource of fd.options?.['.google.api.resourceDefinition'] ??

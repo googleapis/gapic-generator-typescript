@@ -526,6 +526,9 @@ function augmentService(
   }
 
   // Build a list of resources referenced by this service
+  
+  // allResourceDatabase: resources that defined by `google.api.resource`
+  // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
   const uniqueResources: { [name: string]: ResourceDescriptor } = {};
   // Copy all resources in resourceDatabase to uniqueResources
   const allPatterns = resourceDatabase.patterns;
@@ -584,6 +587,8 @@ export class Proto {
   fileToGenerate: boolean;
   // TODO: need to store metadata? address?
 
+  // allResourceDatabase: resources that defined by `google.api.resource`
+  // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
   constructor(
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
