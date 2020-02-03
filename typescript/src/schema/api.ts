@@ -140,7 +140,7 @@ function getResourceDatabase(
     // process file-level options
     for (const resource of fd.options?.['.google.api.resourceDefinition'] ??
       []) {
-        allResourceDatabase.registerResource(
+      allResourceDatabase.registerResource(
         resource as ResourceDescriptor,
         `file ${fd.name} resource_definition option`
       );
