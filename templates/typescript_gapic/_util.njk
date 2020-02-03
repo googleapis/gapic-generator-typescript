@@ -185,15 +185,32 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {{- arr[arr.length - 1] -}}
 {%- endmacro -%}
 
+{%- macro buildHeaderRequestParam(method) -%}
+    options = options || {};
+{%- if method.headerRequestParams.length > 0 %}
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+{%- for requestParam in method.headerRequestParams %}
+      '{{ requestParam.toSnakeCaseString(".") }}': request.{{ requestParam.toCamelCaseString("!.") }} || '',
+{%- endfor %}
+    });
+{%- endif %}
+{%- endmacro -%}
+
 {%- macro initRequestWithHeaderParam(method) -%}
             const request: {{ toInterface(method.inputInterface) }} = {};
-{%- if method.headerRequestParams.length > 1 %}
+{%- if method.headerRequestParams.length > 0 %}
+{%- for requestParam in method.headerRequestParams %}
 {%- set chain = "request" -%}
-{%- for field in method.headerRequestParams.slice(0, -1) %}
+{%- for field in requestParam.slice(0, -1) %}
             {{ chain }}.{{ field.toCamelCase() }} = {};
 {%- set chain = chain + "." + field.toCamelCase() -%}
 {%- endfor %}
-            {{ chain }}.{{ method.headerRequestParams.slice(-1)[0].toCamelCase() }} = '';
+            {{ chain }}.{{ requestParam.slice(-1)[0].toCamelCase() }} = '';
+{%- endfor %}
 {%- endif %}
 {%- endmacro -%}
 

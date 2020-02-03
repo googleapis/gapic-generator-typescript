@@ -15,26 +15,80 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { getHeaderParams } from '../../src/schema/proto';
+import { getHeaderRequestParams } from '../../src/schema/proto';
 
 describe('schema/proto.ts', () => {
-  it('should get header parameters from http rule', () => {
-    it('works with no parameter ', () => {
-      const httpRule: plugin.google.api.IHttpRule = {};
-      httpRule.post = '{=abc/*/d/*/ef/}';
-      assert.strictEqual([], getHeaderParams(httpRule));
+  describe('should get header parameters from http rule', () => {
+    it('works with no parameter', () => {
+      const httpRule: plugin.google.api.IHttpRule = {
+        post: '{=abc/*/d/*/ef/}',
+      };
+      assert.deepStrictEqual([], getHeaderRequestParams(httpRule));
     });
-    it('works only one parameter ', () => {
-      const httpRule: plugin.google.api.IHttpRule = {};
-      httpRule.post = '{param1=abc/*/d/*/ef/}';
-      assert.strictEqual(['param1'], getHeaderParams(httpRule));
+
+    it('works only one parameter', () => {
+      const httpRule: plugin.google.api.IHttpRule = {
+        post: '{param1=abc/*/d/*/ef/}',
+      };
+      assert.deepStrictEqual([['param1']], getHeaderRequestParams(httpRule));
     });
-    it('works with multiple parameter ', () => {
-      const httpRule: plugin.google.api.IHttpRule = {};
-      httpRule.post = '{param1.param2.param3=abc/*/d/*/ef/}';
-      assert.strictEqual(
-        ['param1', 'param2', 'param3'],
-        getHeaderParams(httpRule)
+
+    it('works with multiple parameter', () => {
+      const httpRule: plugin.google.api.IHttpRule = {
+        post: '{param1.param2.param3=abc/*/d/*/ef/}',
+      };
+      assert.deepStrictEqual(
+        [['param1', 'param2', 'param3']],
+        getHeaderRequestParams(httpRule)
+      );
+    });
+
+    it('works with additional bindings', () => {
+      const httpRule: plugin.google.api.IHttpRule = {
+        post: '{param1.param2.param3=abc/*/d/*/ef/}',
+        additionalBindings: [
+          {
+            post: '{foo1.foo2=foos/*}',
+          },
+          {
+            post: 'no_parameters_here',
+          },
+          {
+            post: '{bar1.bar2.bar3=bars/*}',
+          },
+        ],
+      };
+      assert.deepStrictEqual(
+        [
+          ['param1', 'param2', 'param3'],
+          ['foo1', 'foo2'],
+          ['bar1', 'bar2', 'bar3'],
+        ],
+        getHeaderRequestParams(httpRule)
+      );
+    });
+
+    it('dedups parameters', () => {
+      const httpRule: plugin.google.api.IHttpRule = {
+        post: '{param1.param2.param3=abc/*/d/*/ef/}',
+        additionalBindings: [
+          {
+            post: '{foo1.foo2=foos/*}',
+          },
+          {
+            post: '{param1.param2.param3=abc/*/d/*/ef/}',
+          },
+          {
+            post: '{param1.param2.param3=abc/*/d/*/ef/}',
+          },
+        ],
+      };
+      assert.deepStrictEqual(
+        [
+          ['param1', 'param2', 'param3'],
+          ['foo1', 'foo2'],
+        ],
+        getHeaderRequestParams(httpRule)
       );
     });
   });

@@ -59,7 +59,10 @@ interface MethodDescriptorProto
   retryableCodesName: string;
   retryParamsName: string;
   timeoutMillis?: number;
-  headerRequestParams: string[];
+  // headerRequestParams: if we need to pass "request.foo" and "request.bar"
+  // into x-goog-request-params header, the array will contain
+  // [ ['request', 'foo'], ['request', 'bar']]
+  headerRequestParams: string[][];
 }
 
 export class RetryableCodeMap {
@@ -336,7 +339,9 @@ function pagingResponseType(
   return plugin.google.protobuf.FieldDescriptorProto.Type[field.type];
 }
 
-export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {
+export function getSingleHeaderParam(
+  rule: plugin.google.api.IHttpRule
+): string[] {
   const message =
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
   if (message) {
@@ -459,11 +464,42 @@ function augmentMethod(
   if (method.methodConfig.timeout) {
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
   }
-  if (method.options?.['.google.api.http']) {
-    const httpRule = method.options['.google.api.http'];
-    method.headerRequestParams = getHeaderParams(httpRule);
-  } else method.headerRequestParams = [];
+  method.headerRequestParams = getHeaderRequestParams(
+    method.options?.['.google.api.http']
+  );
   return method;
+}
+
+export function getHeaderRequestParams(
+  httpRule: plugin.google.api.IHttpRule | null | undefined
+) {
+  if (!httpRule) {
+    return [];
+  }
+  const params: string[][] = [];
+  params.push(getSingleHeaderParam(httpRule));
+
+  httpRule.additionalBindings = httpRule.additionalBindings ?? [];
+  params.push(
+    ...httpRule.additionalBindings.map(binding => getSingleHeaderParam(binding))
+  );
+
+  // de-dup result array
+  const used = new Set();
+  const result: string[][] = [];
+  for (const param of params) {
+    if (param.length === 0) {
+      continue;
+    }
+    const joined = param.join('.');
+    if (used.has(joined)) {
+      continue;
+    }
+    used.add(joined);
+    result.push(param);
+  }
+
+  return result;
 }
 
 function augmentService(
