@@ -53,7 +53,7 @@ export class API {
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
     // construct resource map
-    const [resourceDatabase, resourceDefinitionDatabase] = getResourceDatabase(
+    const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
       fileDescriptors
     );
     // parse resource map to Proto constructor
@@ -65,8 +65,8 @@ export class API {
           fd,
           packageName,
           options.grpcServiceConfig,
-          resourceDatabase,
-          resourceDefinitionDatabase
+          allResourceDatabase,
+          resourceDatabase
         );
         return map;
       }, {} as ProtosMap);
@@ -134,13 +134,13 @@ export class API {
 function getResourceDatabase(
   fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]
 ): ResourceDatabase[] {
-  const resourceDatabase = new ResourceDatabase();
-  const resourceDefinitionDatabase = new ResourceDatabase();
+  const resourceDatabase = new ResourceDatabase(); // resources that defined by `google.api.resource`
+  const allResourceDatabase = new ResourceDatabase(); // all resources defined by `google.api.resource` or `google.api.resource_definition`
   for (const fd of fileDescriptors.filter(fd => fd)) {
     // process file-level options
     for (const resource of fd.options?.['.google.api.resourceDefinition'] ??
       []) {
-      resourceDefinitionDatabase.registerResource(
+      allResourceDatabase.registerResource(
         resource as ResourceDescriptor,
         `file ${fd.name} resource_definition option`
       );
@@ -159,7 +159,11 @@ function getResourceDatabase(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
         `file ${fd.name} message ${property}`
       );
+      allResourceDatabase.registerResource(
+        m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
+        `file ${fd.name} message ${property}`
+      );
     }
   }
-  return [resourceDatabase, resourceDefinitionDatabase];
+  return [allResourceDatabase, resourceDatabase];
 }

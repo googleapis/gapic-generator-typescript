@@ -508,8 +508,8 @@ function augmentService(
   service: plugin.google.protobuf.IServiceDescriptorProto,
   commentsMap: CommentsMap,
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-  resourceDatabase: ResourceDatabase,
-  resourceDefinitionDatabase: ResourceDatabase
+  allResourceDatabase: ResourceDatabase,
+  resourceDatabase: ResourceDatabase
 ) {
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.packageName = packageName;
@@ -562,6 +562,9 @@ function augmentService(
   }
 
   // Build a list of resources referenced by this service
+
+  // allResourceDatabase: resources that defined by `google.api.resource`
+  // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
   const uniqueResources: { [name: string]: ResourceDescriptor } = {};
   // Copy all resources in resourceDatabase to uniqueResources
   const allPatterns = resourceDatabase.patterns;
@@ -578,7 +581,7 @@ function augmentService(
       const resourceReference =
         fieldDescriptor.options?.['.google.api.resourceReference'];
       // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
-      const parentResources = resourceDefinitionDatabase.getParentResourcesByChildType(
+      const parentResources = allResourceDatabase.getParentResourcesByChildType(
         resourceReference?.childType,
         errorLocation
       );
@@ -587,12 +590,12 @@ function augmentService(
       );
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
-      let resourceByType = resourceDefinitionDatabase.getResourceByType(
+      let resourceByType = allResourceDatabase.getResourceByType(
         resourceReference?.type
       );
       resourceByType =
         resourceByType ??
-        resourceDatabase.getResourceByType(
+        allResourceDatabase.getResourceByType(
           resourceReference?.type,
           errorLocation
         );
@@ -600,7 +603,7 @@ function augmentService(
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
       // look up pattern map for all resources.
       for (const pattern of resourceByType!.pattern!) {
-        const resourceByPattern = resourceDefinitionDatabase.getResourceByPattern(
+        const resourceByPattern = allResourceDatabase.getResourceByPattern(
           pattern
         );
         if (!resourceByPattern) continue;
@@ -620,12 +623,14 @@ export class Proto {
   fileToGenerate: boolean;
   // TODO: need to store metadata? address?
 
+  // allResourceDatabase: resources that defined by `google.api.resource`
+  // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
   constructor(
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
     grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-    resourceDatabase: ResourceDatabase,
-    resourceDefinitionDatabase: ResourceDatabase
+    allResourceDatabase: ResourceDatabase,
+    resourceDatabase: ResourceDatabase
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
@@ -659,8 +664,8 @@ export class Proto {
           service,
           commentsMap,
           grpcServiceConfig,
-          resourceDatabase,
-          resourceDefinitionDatabase
+          allResourceDatabase,
+          resourceDatabase
         )
       )
       .reduce((map, service) => {
