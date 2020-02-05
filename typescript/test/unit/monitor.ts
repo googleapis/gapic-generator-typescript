@@ -9,13 +9,20 @@ import {equalToBaseline} from '../util';
 
 const cwd = process.cwd();
 
+const START_SCRIPT = path.join(
+  process.cwd(),
+  'build',
+  'src',
+  'start_script.js'
+);
+
 const OUTPUT_DIR = path.join(cwd, '.test-out-monitoring');
 const GOOGLE_GAX_PROTOS_DIR =
     path.join(cwd, 'node_modules', 'google-gax', 'protos');
 
 const PROTOS_DIR = path.join(cwd, 'build', 'test', 'protos');
 const MONITOR_PROTO_FILE =
-    path.join(PROTOS_DIR, 'google', 'monitoring', 'v3', 'uptime.proto');
+    path.join(PROTOS_DIR, 'google', 'monitoring', 'v3', 'service_service.proto');
 
 const BASELINE_DIR =
     path.join(__dirname, '..', '..', '..', 'typescript', 'test', 'testdata');
@@ -48,9 +55,13 @@ describe('MonitoringGenerateTest', () => {
          }
 
          execSync(
-             `protoc --typescript_gapic_out=${OUTPUT_DIR} ` +
-             `-I${GOOGLE_GAX_PROTOS_DIR} ` +
-             `-I${PROTOS_DIR} ` + MONITOR_PROTO_FILE);
+            'node ' +
+            START_SCRIPT +
+            ` -I${PROTOS_DIR}` +
+            ` ${MONITOR_PROTO_FILE}` +
+            ` --output_dir=${OUTPUT_DIR}` +
+            ` --main_service=monitoring`
+              );
          assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR_MONITOR));
        });
   });
