@@ -16,9 +16,9 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { Naming, Options as namingOptions } from './naming';
-import { Proto, MessagesMap } from './proto';
-import { ResourceDatabase, ResourceDescriptor } from './resourceDatabase';
+import {Naming, Options as namingOptions} from './naming';
+import {Proto, MessagesMap} from './proto';
+import {ResourceDatabase, ResourceDescriptor} from './resourceDatabase';
 
 const googleGaxLocation = path.dirname(require.resolve('google-gax'));
 const gaxProtosLocation = path.join(googleGaxLocation, '..', '..', 'protos');
@@ -59,7 +59,6 @@ export class API {
     // parse resource map to Proto constructor
     this.protos = fileDescriptors
       .filter(fd => fd.name)
-      .filter(fd => !fs.existsSync(path.join(gaxProtosLocation, fd.name!)))
       .reduce((map, fd) => {
         map[fd.name!] = new Proto(
           fd,
