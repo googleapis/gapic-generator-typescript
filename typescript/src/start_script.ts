@@ -70,7 +70,6 @@ const commonProtoPath = argv.commonProtoPath || GOOGLE_GAX_PROTOS_DIR;
 // run protoc command to generate client library
 const cliPath = path.join(__dirname, 'cli.js');
 const protocCommand = [
-  `-I${commonProtoPath}`,
   `--plugin=protoc-gen-typescript_gapic=${cliPath}`,
   `--typescript_gapic_out=${outputDir}`,
 ];
@@ -89,6 +88,7 @@ if (mainServiceName) {
 }
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
+protocCommand.push(`-I${commonProtoPath}`);
 try {
   execFileSync(`protoc`, protocCommand, { stdio: 'inherit' });
 } catch (err) {
