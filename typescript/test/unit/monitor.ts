@@ -1,11 +1,11 @@
 import * as assert from 'assert';
-import {execSync} from 'child_process';
+import { execSync } from 'child_process';
 import * as fs from 'fs';
-import {describe, it} from 'mocha';
+import { describe, it } from 'mocha';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 
-import {equalToBaseline} from '../util';
+import { equalToBaseline } from '../util';
 
 const cwd = process.cwd();
 
@@ -44,7 +44,7 @@ const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
 describe('MonitoringGenerateTest', () => {
   describe('Generate Client library', () => {
-    it('Generated proto list should have same output with baseline.', function () {
+    it('Generated proto list should have same output with baseline.', function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);
@@ -65,11 +65,11 @@ describe('MonitoringGenerateTest', () => {
 
       execSync(
         'node ' +
-        START_SCRIPT +
-        ` -I${PROTOS_DIR}` +
-        ` ${MONITOR_PROTO_FILE1}` +
-        ` --output_dir=${OUTPUT_DIR}` +
-        ` --main_service=monitoring`
+          START_SCRIPT +
+          ` -I${PROTOS_DIR}` +
+          ` ${MONITOR_PROTO_FILE1}` +
+          ` --output_dir=${OUTPUT_DIR}` +
+          ` --main_service=monitoring`
       );
       assert(equalToBaseline(OUTPUT_DIR, BASELINE_DIR_MONITOR));
     });
