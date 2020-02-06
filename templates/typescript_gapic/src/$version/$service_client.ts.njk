@@ -384,7 +384,7 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}(
       options?: gax.CallOptions):
     gax.CancellableStream{
-    options = options || {};
+    {{ util.buildHeaderRequestParam(method) }}
     return this._innerApiCalls.{{ method.name.toCamelCase() }}(options);
   }
 {%- elif method.serverStreaming %}
@@ -396,18 +396,18 @@ export class {{ service.name }}Client {
       options?: gax.CallOptions):
     gax.CancellableStream{
     request = request || {};
-    options = options || {};
+    {{ util.buildHeaderRequestParam(method) }}
     return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options);
   }
 {%- elif method.clientStreaming %}
   {{ method.name.toCamelCase() }}(
-      options: gax.CallOptions,
-      callback: Callback<
+      options?: gax.CallOptions,
+      callback?: Callback<
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined>):
     gax.CancellableStream;
   {{ method.name.toCamelCase() }}(
-      callback: Callback<
+      callback?: Callback<
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined>):
     gax.CancellableStream;
@@ -415,7 +415,7 @@ export class {{ service.name }}Client {
 {{- util.printComments(method, service) }}
  */
   {{ method.name.toCamelCase() }}(
-      optionsOrCallback: gax.CallOptions|Callback<
+      optionsOrCallback?: gax.CallOptions|Callback<
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined>,
       callback?: Callback<
@@ -426,8 +426,9 @@ export class {{ service.name }}Client {
         callback = optionsOrCallback;
         optionsOrCallback = {};
     }
-    optionsOrCallback = optionsOrCallback || {};
-    return this._innerApiCalls.{{ method.name.toCamelCase() }}(null, optionsOrCallback, callback);
+    let options = optionsOrCallback as gax.CallOptions;
+    {{ util.buildHeaderRequestParam(method) }}
+    return this._innerApiCalls.{{ method.name.toCamelCase() }}(null, options, callback);
   }
 {%- endif %}
 {% endfor %}
@@ -527,9 +528,10 @@ export class {{ service.name }}Client {
  */
   {{ method.name.toCamelCase() }}Stream(
       request?: {{ util.toInterface(method.inputInterface) }},
-      options?: gax.CallOptions | {}):
+      options?: gax.CallOptions):
     Transform{
     request = request || {};
+    {{ util.buildHeaderRequestParam(method) }}
     const callSettings = new gax.CallSettings(options);
     return this._descriptors.page.{{ method.name.toCamelCase() }}.createStream(
       this._innerApiCalls.{{ method.name.toCamelCase() }} as gax.GaxCall,
