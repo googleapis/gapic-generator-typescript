@@ -17,20 +17,14 @@ const START_SCRIPT = path.join(
 );
 
 const OUTPUT_DIR = path.join(cwd, '.test-out-monitoring');
-const GOOGLE_GAX_PROTOS_DIR = path.join(
-  cwd,
-  'node_modules',
-  'google-gax',
-  'protos'
-);
 
 const PROTOS_DIR = path.join(cwd, 'build', 'test', 'protos');
-const MONITOR_PROTO_FILE = path.join(
+const MONITOR_PROTO_FILES = path.join(
   PROTOS_DIR,
   'google',
   'monitoring',
   'v3',
-  'service_service.proto'
+  '*_service.proto'
 );
 
 const BASELINE_DIR = path.join(
@@ -50,7 +44,7 @@ const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
 describe('MonitoringGenerateTest', () => {
   describe('Generate Client library', () => {
-    it('Generated proto list should have same output with baseline.', function() {
+    it('Generated monitoring library have same output with baseline.', function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);
@@ -73,7 +67,7 @@ describe('MonitoringGenerateTest', () => {
         'node ' +
           START_SCRIPT +
           ` -I${PROTOS_DIR}` +
-          ` ${MONITOR_PROTO_FILE}` +
+          ` ${MONITOR_PROTO_FILES}` +
           ` --output_dir=${OUTPUT_DIR}` +
           ` --main_service=monitoring`
       );

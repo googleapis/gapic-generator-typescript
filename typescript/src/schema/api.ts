@@ -59,7 +59,6 @@ export class API {
     // parse resource map to Proto constructor
     this.protos = fileDescriptors
       .filter(fd => fd.name)
-      .filter(fd => !fs.existsSync(path.join(gaxProtosLocation, fd.name!)))
       .reduce((map, fd) => {
         map[fd.name!] = new Proto(
           fd,
