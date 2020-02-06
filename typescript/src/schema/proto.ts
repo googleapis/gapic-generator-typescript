@@ -625,7 +625,6 @@ function augmentService(
       return 0;
     }
   );
-  console.warn(augmentedService.pathTemplates);
   return augmentedService;
 }
 

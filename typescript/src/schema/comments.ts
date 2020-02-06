@@ -106,7 +106,6 @@ export class CommentsMap {
             ) {
               const messageType = fd.messageType[p[1]].name;
               const field = fd.messageType[p[1]].field![p[3]];
-              // console.warn(field);
               if (field) {
                 //Type Enum: TYPE_STRING, TYPE_BOOL, etc.
                 let paramType =
