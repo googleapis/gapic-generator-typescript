@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import * as yargs from 'yargs';
-import { Generator } from './generator';
+import {Generator} from './generator';
 
 async function main() {
   const argv = yargs.argv;
@@ -32,4 +32,5 @@ async function main() {
 
 main().catch(err => {
   console.error(err);
+  process.exit(1);
 });
