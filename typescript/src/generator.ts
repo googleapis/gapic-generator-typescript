@@ -141,9 +141,7 @@ export class Generator {
       pf =>
         pf.name &&
         this.request.fileToGenerate.includes(pf.name) &&
-        // ignoring some common package names
-        pf.package !== 'google.longrunning' &&
-        pf.package !== 'google.cloud'
+        !API.isIgnoredService(pf)
     );
     const packageNamesToGenerate = protoFilesToGenerate.map(
       pf => pf.package || ''

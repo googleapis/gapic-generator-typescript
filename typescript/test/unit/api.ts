@@ -48,7 +48,11 @@ describe('schema/api.ts', () => {
     fd2.name = 'google/longrunning/operation.proto';
     fd2.package = 'google.longrunning';
     fd2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
-    const api = new API([fd1, fd2], 'google.cloud.test.v1', {
+    const fd3 = new plugin.google.protobuf.FileDescriptorProto();
+    fd3.name = 'google/iam/v1/iam_policy.proto';
+    fd3.package = 'google.iam.v1';
+    fd2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    const api = new API([fd1, fd2, fd3], 'google.cloud.test.v1', {
       grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
     });
     assert.deepStrictEqual(api.filesToGenerate, [
