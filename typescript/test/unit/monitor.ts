@@ -19,7 +19,7 @@ const START_SCRIPT = path.join(
 const OUTPUT_DIR = path.join(cwd, '.test-out-monitoring');
 
 const PROTOS_DIR = path.join(cwd, 'build', 'test', 'protos');
-const MONITOR_PROTO_FILE1 = path.join(
+const MONITOR_PROTO_FILES = path.join(
   PROTOS_DIR,
   'google',
   'monitoring',
@@ -67,7 +67,7 @@ describe('MonitoringGenerateTest', () => {
         'node ' +
           START_SCRIPT +
           ` -I${PROTOS_DIR}` +
-          ` ${MONITOR_PROTO_FILE1}` +
+          ` ${MONITOR_PROTO_FILES}` +
           ` --output_dir=${OUTPUT_DIR}` +
           ` --main_service=monitoring`
       );
