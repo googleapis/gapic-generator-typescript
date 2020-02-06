@@ -74,8 +74,11 @@ export class ResourceDatabase {
         params,
         resource
       );
-      this.patterns[patterns?.[0]] = resourceDescriptor;
-      this.types[resourceDescriptor.type!] = resourceDescriptor;
+      // We ignore resources with no parameters (e.g. pattern = '*').
+      if (params.length > 0) {
+        this.patterns[patterns?.[0]] = resourceDescriptor;
+        this.types[resourceDescriptor.type!] = resourceDescriptor;
+      }
     }
     // resource: {name, type, pattern: [p1, p2]}
     // register resource does: in type map {type: { name, type, pattern: [p1, p2]} }
@@ -83,6 +86,10 @@ export class ResourceDatabase {
     else {
       for (const pattern of patterns!) {
         const params = this.getParams(pattern);
+        // We ignore resources with no parameters (e.g. pattern = '*').
+        if (params.length === 0) {
+          continue;
+        }
         const name = params.join('_');
         let resourceDescriptor: ResourceDescriptor = {
           name,
@@ -177,6 +184,7 @@ export class ResourceDatabase {
     params = params.map(p => p.replace(/{([a-zA-Z_]+).*/, '$1'));
     return params;
   }
+
   private getResourceDescriptor(
     name: string,
     params: string[],

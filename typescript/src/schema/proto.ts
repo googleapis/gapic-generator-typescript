@@ -611,7 +611,21 @@ function augmentService(
       }
     }
   }
-  augmentedService.pathTemplates = Object.values(uniqueResources).sort();
+  augmentedService.pathTemplates = Object.values(uniqueResources).sort(
+    (resourceA, resourceB) => {
+      // Path templates names can be cased differently
+      // (e.g. 'Project' and 'project_deidentify_template'),
+      // so we use camel case for comparison.
+      if (resourceA.name.toCamelCase() < resourceB.name.toCamelCase()) {
+        return -1;
+      }
+      if (resourceA.name.toCamelCase() > resourceB.name.toCamelCase()) {
+        return 1;
+      }
+      return 0;
+    }
+  );
+  console.warn(augmentedService.pathTemplates);
   return augmentedService;
 }
 
