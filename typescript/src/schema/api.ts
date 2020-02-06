@@ -95,7 +95,7 @@ export class API {
       });
     if (serviceNamesList.length === 0) {
       throw new Error(
-        `Can't find ${this.naming.name}'s service names, please make sure that service names are defined in the proto file.`
+        `Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
       );
     }
     this.mainServiceName = options.mainServiceName || serviceNamesList[0];

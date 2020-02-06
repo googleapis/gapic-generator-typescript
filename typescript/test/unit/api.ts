@@ -142,11 +142,11 @@ describe('schema/api.ts', () => {
   });
 
   it('should throw error when the service name is not found', () => {
+    const fd = new plugin.google.protobuf.FileDescriptorProto();
+    fd.name = 'google/cloud/test/v1/test.proto';
+    fd.package = 'google.cloud.test.v1';
+    fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
-      const fd = new plugin.google.protobuf.FileDescriptorProto();
-      fd.name = 'google/cloud/test/v1/test.proto';
-      fd.package = 'google.cloud.test.v1';
-      fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
       const api = new API([fd], 'google.cloud.test.v1', {
         grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
       });
