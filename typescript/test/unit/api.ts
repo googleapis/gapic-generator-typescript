@@ -23,6 +23,10 @@ describe('schema/api.ts', () => {
     fd.name = 'google/cloud/test/v1/test.proto';
     fd.package = 'google.cloud.test.v1';
     fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    fd.service[0].name = 'ZService';
+    fd.service[0].options = {
+      '.google.api.defaultHost': 'hostname.example.com:443',
+    };
     const api = new API([fd], 'google.cloud.test.v1', {
       grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
     });
@@ -36,6 +40,10 @@ describe('schema/api.ts', () => {
     fd1.name = 'google/cloud/test/v1/test.proto';
     fd1.package = 'google.cloud.test.v1';
     fd1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    fd1.service[0].name = 'ZService';
+    fd1.service[0].options = {
+      '.google.api.defaultHost': 'hostname.example.com:443',
+    };
     const fd2 = new plugin.google.protobuf.FileDescriptorProto();
     fd2.name = 'google/longrunning/operation.proto';
     fd2.package = 'google.longrunning';
@@ -131,5 +139,17 @@ describe('schema/api.ts', () => {
       '../../protos/google/cloud/example/v1/example.proto',
       '../../protos/google/cloud/example/v1/test.proto',
     ]);
+  });
+
+  it('should throw error when the service name is not found', () => {
+    const fd = new plugin.google.protobuf.FileDescriptorProto();
+    fd.name = 'google/cloud/test/v1/test.proto';
+    fd.package = 'google.cloud.test.v1';
+    fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    assert.throws(() => {
+      const api = new API([fd], 'google.cloud.test.v1', {
+        grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+      });
+    });
   });
 });

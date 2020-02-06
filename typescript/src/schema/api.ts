@@ -93,6 +93,11 @@ export class API {
         this.port = port ?? this.port ?? '443';
         serviceNamesList.push(service.name || this.naming.name);
       });
+    if (serviceNamesList.length === 0) {
+      throw new Error(
+        `Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
+      );
+    }
     this.mainServiceName = options.mainServiceName || serviceNamesList[0];
   }
 
