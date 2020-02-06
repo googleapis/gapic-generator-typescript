@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import * as yargs from 'yargs';
-import {Generator} from './generator';
+import { Generator } from './generator';
 
 async function main() {
   const argv = yargs.argv;
