@@ -14,12 +14,14 @@
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import { commonPrefix } from '../util';
+import { API } from './api';
 
 export interface Options {
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
   publishName?: string;
   mainServiceName?: string;
 }
+
 export class Naming {
   name: string;
   namespace: string[];
@@ -35,8 +37,7 @@ export class Naming {
     const mainServiceName = options ? options.mainServiceName : '';
     const protoPackages = fileDescriptors
       .filter(fd => fd.service && fd.service.length > 0)
-      // LRO is an exception: it's a service but we don't generate any code for it
-      .filter(fd => fd.package !== 'google.longrunning')
+      .filter(fd => !API.isIgnoredService(fd))
       .map(fd => fd.package || '');
     const prefix = commonPrefix(protoPackages);
     // common prefix must either end with `.`, or be equal to at least one of

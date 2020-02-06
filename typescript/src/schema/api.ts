@@ -38,6 +38,18 @@ export class API {
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName: string;
 
+  static isIgnoredService(
+    fd: plugin.google.protobuf.IFileDescriptorProto
+  ): boolean {
+    // Some common proto files define common services which we don't want to generate.
+    // List them here.
+    return (
+      fd.package === 'google.longrunning' ||
+      fd.package === 'google.iam.v1' ||
+      fd.package === 'google.cloud'
+    );
+  }
+
   constructor(
     fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[],
     packageName: string,
@@ -59,6 +71,7 @@ export class API {
     // parse resource map to Proto constructor
     this.protos = fileDescriptors
       .filter(fd => fd.name)
+      .filter(fd => !API.isIgnoredService(fd))
       .reduce((map, fd) => {
         map[fd.name!] = new Proto(
           fd,
@@ -72,6 +85,7 @@ export class API {
 
     const serviceNamesList: string[] = [];
     fileDescriptors
+      .filter(fd => !API.isIgnoredService(fd))
       .filter(fd => fd.service)
       .reduce((servicesList, fd) => {
         servicesList.push(...fd.service!);
