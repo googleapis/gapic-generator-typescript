@@ -18,7 +18,6 @@ import { execFileSync } from 'child_process';
 import * as path from 'path';
 import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
-import { Z_FIXED } from 'zlib';
 const fileSystem = require('file-system');
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
@@ -105,9 +104,7 @@ try {
   }
   // copy proto file to generated folder
   const protoList = path.join(outputDir, 'proto.list');
-  const protoFilesMap = new Map<string, string>(
-    protoFiles.map(proto => [proto, proto])
-  );
+  const protoFilesSet = new Set(protoFiles);
   fs.readFileSync(protoList)
     .toString()
     .split('\n')
@@ -115,7 +112,7 @@ try {
       protoDirs.forEach(dir => {
         const protoFile = path.join(dir, proto);
         if (
-          (protoFilesMap.has(protoFile) ||
+          (protoFilesSet.has(protoFile) ||
             !fs.existsSync(path.join(GOOGLE_GAX_PROTOS_DIR, proto))) &&
           fs.existsSync(protoFile)
         ) {
