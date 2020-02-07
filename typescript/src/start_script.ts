@@ -14,10 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { execFileSync } from 'child_process';
+import {execFileSync} from 'child_process';
 import * as path from 'path';
 import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
+import {Z_FIXED} from 'zlib';
 const fileSystem = require('file-system');
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
@@ -90,7 +91,7 @@ protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 protocCommand.push(`-I${commonProtoPath}`);
 try {
-  execFileSync(`protoc`, protocCommand, { stdio: 'inherit' });
+  execFileSync(`protoc`, protocCommand, {stdio: 'inherit'});
 } catch (err) {
   console.error(err.toString());
   process.exit(1);
@@ -104,14 +105,16 @@ try {
   }
   // copy proto file to generated folder
   const protoList = path.join(outputDir, 'proto.list');
+  const protoFilesMap = new Map<string, string>(
+    protoFiles.map(proto => [proto, proto])
+  );
   fs.readFileSync(protoList)
     .toString()
     .split('\n')
-    .filter(proto => !fs.existsSync(path.join(GOOGLE_GAX_PROTOS_DIR, proto)))
     .forEach(proto => {
       protoDirs.forEach(dir => {
         const protoFile = path.join(dir, proto);
-        if (fs.existsSync(protoFile)) {
+        if ((protoFilesMap.has(protoFile) || !fs.existsSync(path.join(GOOGLE_GAX_PROTOS_DIR, proto))) && fs.existsSync(protoFile)) {
           fileSystem.copyFileSync(protoFile, path.join(copyProtoDir, proto));
         }
       });
