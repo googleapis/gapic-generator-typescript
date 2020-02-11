@@ -22,32 +22,26 @@ import * as path from 'path';
 
 import { Transform } from 'stream';
 import * as protosTypes from '../../protos/protos';
-import * as gapicConfig from './uptime_check_service_client_config.json';
+import * as gapicConfig from './notification_channel_service_client_config.json';
 
 const version = require('../../../package.json').version;
 
 /**
- *  The UptimeCheckService API is used to manage (list, create, delete, edit)
- *  Uptime check configurations in the Stackdriver Monitoring product. An Uptime
- *  check is a piece of configuration that determines which resources and
- *  services to monitor for availability. These configurations can also be
- *  configured interactively by navigating to the [Cloud Console]
- *  (http://console.cloud.google.com), selecting the appropriate project,
- *  clicking on "Monitoring" on the left-hand side to navigate to Stackdriver,
- *  and then clicking on "Uptime".
+ *  The Notification Channel API provides access to configuration that
+ *  controls how messages related to incidents are sent.
  * @class
  * @memberof v3
  */
-export class UptimeCheckServiceClient {
+export class NotificationChannelServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   auth: gax.GoogleAuth;
-  uptimeCheckServiceStub: Promise<{[name: string]: Function}>;
+  notificationChannelServiceStub: Promise<{[name: string]: Function}>;
 
   /**
-   * Construct an instance of UptimeCheckServiceClient.
+   * Construct an instance of NotificationChannelServiceClient.
    *
    * @param {object} [options] - The configuration object. See the subsequent
    *   parameters for more details.
@@ -76,7 +70,7 @@ export class UptimeCheckServiceClient {
 
   constructor(opts?: ClientOptions) {
     // Ensure that options include the service address and port.
-    const staticMembers = this.constructor as typeof UptimeCheckServiceClient;
+    const staticMembers = this.constructor as typeof NotificationChannelServiceClient;
     const servicePath = opts && opts.servicePath ?
         opts.servicePath :
         ((opts && opts.apiEndpoint) ? opts.apiEndpoint :
@@ -101,7 +95,7 @@ export class UptimeCheckServiceClient {
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
-    opts.scopes = (this.constructor as typeof UptimeCheckServiceClient).scopes;
+    opts.scopes = (this.constructor as typeof NotificationChannelServiceClient).scopes;
     const gaxGrpc = new gaxModule.GrpcClient(opts);
 
     // Save the auth object to the client, for use by other methods.
@@ -216,15 +210,15 @@ export class UptimeCheckServiceClient {
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
     this._descriptors.page = {
-      listUptimeCheckConfigs:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'uptimeCheckConfigs'),
-      listUptimeCheckIps:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'uptimeCheckIps')
+      listNotificationChannelDescriptors:
+          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'channelDescriptors'),
+      listNotificationChannels:
+          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'notificationChannels')
     };
 
     // Put together the default options sent with requests.
     const defaults = gaxGrpc.constructSettings(
-        'google.monitoring.v3.UptimeCheckService', gapicConfig as gax.ClientConfig,
+        'google.monitoring.v3.NotificationChannelService', gapicConfig as gax.ClientConfig,
         opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
 
     // Set up a dictionary of "inner API calls"; the core implementation
@@ -233,21 +227,21 @@ export class UptimeCheckServiceClient {
     this._innerApiCalls = {};
 
     // Put together the "service stub" for
-    // google.monitoring.v3.UptimeCheckService.
-    this.uptimeCheckServiceStub = gaxGrpc.createStub(
+    // google.monitoring.v3.NotificationChannelService.
+    this.notificationChannelServiceStub = gaxGrpc.createStub(
         opts.fallback ?
-          (protos as protobuf.Root).lookupService('google.monitoring.v3.UptimeCheckService') :
+          (protos as protobuf.Root).lookupService('google.monitoring.v3.NotificationChannelService') :
           // tslint:disable-next-line no-any
-          (protos as any).google.monitoring.v3.UptimeCheckService,
+          (protos as any).google.monitoring.v3.NotificationChannelService,
         opts) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
-    const uptimeCheckServiceStubMethods =
-        ['listUptimeCheckConfigs', 'getUptimeCheckConfig', 'createUptimeCheckConfig', 'updateUptimeCheckConfig', 'deleteUptimeCheckConfig', 'listUptimeCheckIps'];
+    const notificationChannelServiceStubMethods =
+        ['listNotificationChannelDescriptors', 'getNotificationChannelDescriptor', 'listNotificationChannels', 'getNotificationChannel', 'createNotificationChannel', 'updateNotificationChannel', 'deleteNotificationChannel', 'sendNotificationChannelVerificationCode', 'getNotificationChannelVerificationCode', 'verifyNotificationChannel'];
 
-    for (const methodName of uptimeCheckServiceStubMethods) {
-      const innerCallPromise = this.uptimeCheckServiceStub.then(
+    for (const methodName of notificationChannelServiceStubMethods) {
+      const innerCallPromise = this.notificationChannelServiceStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -329,46 +323,47 @@ export class UptimeCheckServiceClient {
   // -------------------
   // -- Service calls --
   // -------------------
-  getUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+  getNotificationChannelDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined, {}|undefined
       ]>;
-  getUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+  getNotificationChannelDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined,
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined,
           {}|undefined>): void;
 /**
- * Gets a single Uptime check configuration.
+ * Gets a single channel descriptor. The descriptor indicates which fields
+ * are expected / permitted for a notification channel of the given type.
  *
  * @param {Object} request
  *   The request object that will be sent.
  * @param {string} request.name
- *   Required. The Uptime check configuration to retrieve. The format
- *     is `projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID]`.
+ *   Required. The channel type for which to execute the request. The format is
+ *   `projects/[PROJECT_ID]/notificationChannelDescriptors/{channel_type}`.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig}.
+ *   The first element of the array is an object representing [NotificationChannelDescriptor]{@link google.monitoring.v3.NotificationChannelDescriptor}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  getUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+  getNotificationChannelDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined,
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -387,189 +382,251 @@ export class UptimeCheckServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
-    return this._innerApiCalls.getUptimeCheckConfig(request, options, callback);
+    return this._innerApiCalls.getNotificationChannelDescriptor(request, options, callback);
   }
-  createUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
+  getNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined, {}|undefined
       ]>;
-  createUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
+  getNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined,
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined,
           {}|undefined>): void;
 /**
- * Creates a new Uptime check configuration.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. The project in which to create the Uptime check. The format
- *     is `projects/[PROJECT_ID]`.
- * @param {google.monitoring.v3.UptimeCheckConfig} request.uptimeCheckConfig
- *   Required. The new Uptime check configuration.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  createUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
-    });
-    return this._innerApiCalls.createUptimeCheckConfig(request, options, callback);
-  }
-  updateUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined
-      ]>;
-  updateUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined,
-          {}|undefined>): void;
-/**
- * Updates an Uptime check configuration. You can either replace the entire
- * configuration with a new one or replace only certain fields in the current
- * configuration by specifying the fields to be updated via `updateMask`.
- * Returns the updated configuration.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {google.protobuf.FieldMask} request.updateMask
- *   Optional. If present, only the listed fields in the current Uptime check
- *   configuration are updated with values from the new configuration. If this
- *   field is empty, then the current configuration is completely replaced with
- *   the new configuration.
- * @param {google.monitoring.v3.UptimeCheckConfig} request.uptimeCheckConfig
- *   Required. If an `updateMask` has been specified, this field gives
- *   the values for the set of fields mentioned in the `updateMask`. If an
- *   `updateMask` has not been given, this Uptime check configuration replaces
- *   the current configuration. If a field is mentioned in `updateMask` but
- *   the corresonding field is omitted in this partial Uptime check
- *   configuration, it has the effect of deleting/clearing the field from the
- *   configuration on the server.
- *
- *   The following fields can be updated: `display_name`,
- *   `http_check`, `tcp_check`, `timeout`, `content_matchers`, and
- *   `selected_regions`.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  updateUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'uptime_check_config.name': request.uptimeCheckConfig!.name || '',
-    });
-    return this._innerApiCalls.updateUptimeCheckConfig(request, options, callback);
-  }
-  deleteUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined
-      ]>;
-  deleteUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined,
-          {}|undefined>): void;
-/**
- * Deletes an Uptime check configuration. Note that this method will fail
- * if the Uptime check configuration is referenced by an alert policy or
- * other dependent configs that would be rendered invalid by the deletion.
+ * Gets a single notification channel. The channel includes the relevant
+ * configuration details with which the channel was created. However, the
+ * response may truncate or omit passwords, API keys, or other private key
+ * matter and thus the response may not be 100% identical to the information
+ * that was supplied in the call to the create method.
  *
  * @param {Object} request
  *   The request object that will be sent.
  * @param {string} request.name
- *   Required. The Uptime check configuration to delete. The format
- *     is `projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID]`.
+ *   Required. The channel for which to execute the request. The format is
+ *   `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  getNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.getNotificationChannel(request, options, callback);
+  }
+  createNotificationChannel(
+      request: protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined, {}|undefined
+      ]>;
+  createNotificationChannel(
+      request: protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Creates a new notification channel, representing a single notification
+ * endpoint such as an email address, SMS number, or PagerDuty service.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is:
+ *
+ *       projects/[PROJECT_ID]
+ *
+ *   Note that this names the container into which the channel will be
+ *   written. This does not name the newly created channel. The resulting
+ *   channel's name will have a normalized version of this field as a prefix,
+ *   but will add `/notificationChannels/[CHANNEL_ID]` to identify the channel.
+ * @param {google.monitoring.v3.NotificationChannel} request.notificationChannel
+ *   Required. The definition of the `NotificationChannel` to create.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  createNotificationChannel(
+      request: protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.createNotificationChannel(request, options, callback);
+  }
+  updateNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined, {}|undefined
+      ]>;
+  updateNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Updates a notification channel. Fields not specified in the field mask
+ * remain unchanged.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {google.protobuf.FieldMask} request.updateMask
+ *   The fields to update.
+ * @param {google.monitoring.v3.NotificationChannel} request.notificationChannel
+ *   Required. A description of the changes to be applied to the specified
+ *   notification channel. The description must provide a definition for
+ *   fields to be updated; the names of these fields should also be
+ *   included in the `update_mask`.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  updateNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'notification_channel.name': request.notificationChannel!.name || '',
+    });
+    return this._innerApiCalls.updateNotificationChannel(request, options, callback);
+  }
+  deleteNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.protobuf.IEmpty,
+        protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined, {}|undefined
+      ]>;
+  deleteNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Deletes a notification channel.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The channel for which to execute the request. The format is
+ *   `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`.
+ * @param {boolean} request.force
+ *   If true, the notification channel will be deleted regardless of its
+ *   use in alert policies (the policies will be updated to remove the
+ *   channel). If false, channels that are still referenced by an existing
+ *   alerting policy will fail to be deleted in a delete operation.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  deleteUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
+  deleteNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined, {}|undefined>,
       callback?: Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined,
+          protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined,
           {}|undefined>):
       Promise<[
         protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -588,74 +645,48 @@ export class UptimeCheckServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
-    return this._innerApiCalls.deleteUptimeCheckConfig(request, options, callback);
+    return this._innerApiCalls.deleteNotificationChannel(request, options, callback);
   }
-
-  listUptimeCheckConfigs(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+  sendNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse
+        protosTypes.google.protobuf.IEmpty,
+        protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined, {}|undefined
       ]>;
-  listUptimeCheckConfigs(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+  sendNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse>): void;
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined,
+          {}|undefined>): void;
 /**
- * Lists the existing valid Uptime check configurations for the project
- * (leaving out any invalid configurations).
+ * Causes a verification code to be delivered to the channel. The code
+ * can then be supplied in `VerifyNotificationChannel` to verify the channel.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. The project whose Uptime check configurations are listed. The format
- *     is `projects/[PROJECT_ID]`.
- * @param {number} request.pageSize
- *   The maximum number of results to return in a single response. The server
- *   may further constrain the maximum number of results returned in a single
- *   page. If the page_size is <=0, the server will decide the number of results
- *   to be returned.
- * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return more results from the previous method call.
+ * @param {string} request.name
+ *   Required. The notification channel to which to send a verification code.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig}.
- *   The client library support auto-pagination by default: it will call the API as many
- *   times as needed and will merge results from all the pages into this array.
- *
- *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig} that corresponds to
- *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type [ListUptimeCheckConfigsRequest]{@link google.monitoring.v3.ListUptimeCheckConfigsRequest}
- *   that can be used to obtain the next page of the results.
- *   If it is null, the next page does not exist.
- *   The third element contains the raw response received from the API server. Its type is
- *   [ListUptimeCheckConfigsResponse]{@link google.monitoring.v3.ListUptimeCheckConfigsResponse}.
- *
+ *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  listUptimeCheckConfigs(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+  sendNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse>,
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse>):
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined,
+          {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse
+        protosTypes.google.protobuf.IEmpty,
+        protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -672,15 +703,267 @@ export class UptimeCheckServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
-    return this._innerApiCalls.listUptimeCheckConfigs(request, options, callback);
+    return this._innerApiCalls.sendNotificationChannelVerificationCode(request, options, callback);
+  }
+  getNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined, {}|undefined
+      ]>;
+  getNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Requests a verification code for an already verified channel that can then
+ * be used in a call to VerifyNotificationChannel() on a different channel
+ * with an equivalent identity in the same or in a different project. This
+ * makes it possible to copy a channel between projects without requiring
+ * manual reverification of the channel. If the channel is not in the
+ * verified state, this method will fail (in other words, this may only be
+ * used if the SendNotificationChannelVerificationCode and
+ * VerifyNotificationChannel paths have already been used to put the given
+ * channel into the verified state).
+ *
+ * There is no guarantee that the verification codes returned by this method
+ * will be of a similar structure or form as the ones that are delivered
+ * to the channel via SendNotificationChannelVerificationCode; while
+ * VerifyNotificationChannel() will recognize both the codes delivered via
+ * SendNotificationChannelVerificationCode() and returned from
+ * GetNotificationChannelVerificationCode(), it is typically the case that
+ * the verification codes delivered via
+ * SendNotificationChannelVerificationCode() will be shorter and also
+ * have a shorter expiration (e.g. codes such as "G-123456") whereas
+ * GetVerificationCode() will typically return a much longer, websafe base
+ * 64 encoded string that has a longer expiration time.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The notification channel for which a verification code is to be generated
+ *   and retrieved. This must name a channel that is already verified; if
+ *   the specified channel is not verified, the request will fail.
+ * @param {google.protobuf.Timestamp} request.expireTime
+ *   The desired expiration time. If specified, the API will guarantee that
+ *   the returned code will not be valid after the specified timestamp;
+ *   however, the API cannot guarantee that the returned code will be
+ *   valid for at least as long as the requested time (the API puts an upper
+ *   bound on the amount of time for which a code may be valid). If omitted,
+ *   a default expiration will be used, which may be less than the max
+ *   permissible expiration (so specifying an expiration may extend the
+ *   code's lifetime over omitting an expiration, even though the API does
+ *   impose an upper limit on the maximum expiration that is permitted).
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [GetNotificationChannelVerificationCodeResponse]{@link google.monitoring.v3.GetNotificationChannelVerificationCodeResponse}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  getNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.getNotificationChannelVerificationCode(request, options, callback);
+  }
+  verifyNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined, {}|undefined
+      ]>;
+  verifyNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Verifies a `NotificationChannel` by proving receipt of the code
+ * delivered to the channel as a result of calling
+ * `SendNotificationChannelVerificationCode`.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The notification channel to verify.
+ * @param {string} request.code
+ *   Required. The verification code that was delivered to the channel as
+ *   a result of invoking the `SendNotificationChannelVerificationCode` API
+ *   method or that was retrieved from a verified channel via
+ *   `GetNotificationChannelVerificationCode`. For example, one might have
+ *   "G-123456" or "TKNZGhhd2EyN3I1MnRnMjRv" (in general, one is only
+ *   guaranteed that the code is valid UTF-8; one should not
+ *   make any assumptions regarding the structure or format of the code).
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  verifyNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.verifyNotificationChannel(request, options, callback);
+  }
+
+  listNotificationChannelDescriptors(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+        protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+        protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse
+      ]>;
+  listNotificationChannelDescriptors(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse>): void;
+/**
+ * Lists the descriptors for supported channel types. The use of descriptors
+ * makes it possible for new channel types to be dynamically added.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The REST resource name of the parent from which to retrieve
+ *   the notification channel descriptors. The expected syntax is:
+ *
+ *       projects/[PROJECT_ID]
+ *
+ *   Note that this names the parent container in which to look for the
+ *   descriptors; to retrieve a single descriptor by name, use the
+ *   [GetNotificationChannelDescriptor][google.monitoring.v3.NotificationChannelService.GetNotificationChannelDescriptor]
+ *   operation, instead.
+ * @param {number} request.pageSize
+ *   The maximum number of results to return in a single response. If
+ *   not set to a positive number, a reasonable value will be chosen by the
+ *   service.
+ * @param {string} request.pageToken
+ *   If non-empty, `page_token` must contain a value returned as the
+ *   `next_page_token` in a previous response to request the next set
+ *   of results.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is Array of [NotificationChannelDescriptor]{@link google.monitoring.v3.NotificationChannelDescriptor}.
+ *   The client library support auto-pagination by default: it will call the API as many
+ *   times as needed and will merge results from all the pages into this array.
+ *
+ *   When autoPaginate: false is specified through options, the array has three elements.
+ *   The first element is Array of [NotificationChannelDescriptor]{@link google.monitoring.v3.NotificationChannelDescriptor} that corresponds to
+ *   the one page received from the API server.
+ *   If the second element is not null it contains the request object of type [ListNotificationChannelDescriptorsRequest]{@link google.monitoring.v3.ListNotificationChannelDescriptorsRequest}
+ *   that can be used to obtain the next page of the results.
+ *   If it is null, the next page does not exist.
+ *   The third element contains the raw response received from the API server. Its type is
+ *   [ListNotificationChannelDescriptorsResponse]{@link google.monitoring.v3.ListNotificationChannelDescriptorsResponse}.
+ *
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  listNotificationChannelDescriptors(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse>):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+        protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+        protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.listNotificationChannelDescriptors(request, options, callback);
   }
 
 /**
- * Equivalent to {@link listUptimeCheckConfigs}, but returns a NodeJS Stream object.
+ * Equivalent to {@link listNotificationChannelDescriptors}, but returns a NodeJS Stream object.
  *
- * This fetches the paged responses for {@link listUptimeCheckConfigs} continuously
+ * This fetches the paged responses for {@link listNotificationChannelDescriptors} continuously
  * and invokes the callback registered for 'data' event for each element in the
  * responses.
  *
@@ -692,25 +975,31 @@ export class UptimeCheckServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. The project whose Uptime check configurations are listed. The format
- *     is `projects/[PROJECT_ID]`.
+ * @param {string} request.name
+ *   Required. The REST resource name of the parent from which to retrieve
+ *   the notification channel descriptors. The expected syntax is:
+ *
+ *       projects/[PROJECT_ID]
+ *
+ *   Note that this names the parent container in which to look for the
+ *   descriptors; to retrieve a single descriptor by name, use the
+ *   [GetNotificationChannelDescriptor][google.monitoring.v3.NotificationChannelService.GetNotificationChannelDescriptor]
+ *   operation, instead.
  * @param {number} request.pageSize
- *   The maximum number of results to return in a single response. The server
- *   may further constrain the maximum number of results returned in a single
- *   page. If the page_size is <=0, the server will decide the number of results
- *   to be returned.
+ *   The maximum number of results to return in a single response. If
+ *   not set to a positive number, a reasonable value will be chosen by the
+ *   service.
  * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return more results from the previous method call.
+ *   If non-empty, `page_token` must contain a value returned as the
+ *   `next_page_token` in a previous response to request the next set
+ *   of results.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig} on 'data' event.
+ *   An object stream which emits an object representing [NotificationChannelDescriptor]{@link google.monitoring.v3.NotificationChannelDescriptor} on 'data' event.
  */
-  listUptimeCheckConfigsStream(
-      request?: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+  listNotificationChannelDescriptorsStream(
+      request?: protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -720,78 +1009,96 @@ export class UptimeCheckServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.listUptimeCheckConfigs.createStream(
-      this._innerApiCalls.listUptimeCheckConfigs as gax.GaxCall,
+    return this._descriptors.page.listNotificationChannelDescriptors.createStream(
+      this._innerApiCalls.listNotificationChannelDescriptors as gax.GaxCall,
       request,
       callSettings
     );
   }
-  listUptimeCheckIps(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+  listNotificationChannels(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse
+        protosTypes.google.monitoring.v3.INotificationChannel[],
+        protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+        protosTypes.google.monitoring.v3.IListNotificationChannelsResponse
       ]>;
-  listUptimeCheckIps(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+  listNotificationChannels(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelsRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse>): void;
+          protosTypes.google.monitoring.v3.INotificationChannel[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelsResponse>): void;
 /**
- * Returns the list of IP addresses that checkers run from
+ * Lists the notification channels that have been created for the project.
  *
  * @param {Object} request
  *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `projects/[PROJECT_ID]`. That is, this names the container
+ *   in which to look for the notification channels; it does not name a
+ *   specific channel. To query a specific channel by REST resource name, use
+ *   the
+ *   [`GetNotificationChannel`][google.monitoring.v3.NotificationChannelService.GetNotificationChannel]
+ *   operation.
+ * @param {string} request.filter
+ *   If provided, this field specifies the criteria that must be met by
+ *   notification channels to be included in the response.
+ *
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
+ * @param {string} request.orderBy
+ *   A comma-separated list of fields by which to sort the result. Supports
+ *   the same set of fields as in `filter`. Entries can be prefixed with
+ *   a minus sign to sort in descending rather than ascending order.
+ *
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
  * @param {number} request.pageSize
- *   The maximum number of results to return in a single response. The server
- *   may further constrain the maximum number of results returned in a single
- *   page. If the page_size is <=0, the server will decide the number of results
- *   to be returned.
- *   NOTE: this field is not yet implemented
+ *   The maximum number of results to return in a single response. If
+ *   not set to a positive number, a reasonable value will be chosen by the
+ *   service.
  * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return more results from the previous method call.
- *   NOTE: this field is not yet implemented
+ *   If non-empty, `page_token` must contain a value returned as the
+ *   `next_page_token` in a previous response to request the next set
+ *   of results.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [UptimeCheckIp]{@link google.monitoring.v3.UptimeCheckIp}.
+ *   The first element of the array is Array of [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
  *   The client library support auto-pagination by default: it will call the API as many
  *   times as needed and will merge results from all the pages into this array.
  *
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [UptimeCheckIp]{@link google.monitoring.v3.UptimeCheckIp} that corresponds to
+ *   The first element is Array of [NotificationChannel]{@link google.monitoring.v3.NotificationChannel} that corresponds to
  *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type [ListUptimeCheckIpsRequest]{@link google.monitoring.v3.ListUptimeCheckIpsRequest}
+ *   If the second element is not null it contains the request object of type [ListNotificationChannelsRequest]{@link google.monitoring.v3.ListNotificationChannelsRequest}
  *   that can be used to obtain the next page of the results.
  *   If it is null, the next page does not exist.
  *   The third element contains the raw response received from the API server. Its type is
- *   [ListUptimeCheckIpsResponse]{@link google.monitoring.v3.ListUptimeCheckIpsResponse}.
+ *   [ListNotificationChannelsResponse]{@link google.monitoring.v3.ListNotificationChannelsResponse}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  listUptimeCheckIps(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+  listNotificationChannels(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelsRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse>,
+          protosTypes.google.monitoring.v3.INotificationChannel[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelsResponse>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse>):
+          protosTypes.google.monitoring.v3.INotificationChannel[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelsResponse>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse
+        protosTypes.google.monitoring.v3.INotificationChannel[],
+        protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+        protosTypes.google.monitoring.v3.IListNotificationChannelsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -803,13 +1110,20 @@ export class UptimeCheckServiceClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
-    return this._innerApiCalls.listUptimeCheckIps(request, options, callback);
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.listNotificationChannels(request, options, callback);
   }
 
 /**
- * Equivalent to {@link listUptimeCheckIps}, but returns a NodeJS Stream object.
+ * Equivalent to {@link listNotificationChannels}, but returns a NodeJS Stream object.
  *
- * This fetches the paged responses for {@link listUptimeCheckIps} continuously
+ * This fetches the paged responses for {@link listNotificationChannels} continuously
  * and invokes the callback registered for 'data' event for each element in the
  * responses.
  *
@@ -821,31 +1135,56 @@ export class UptimeCheckServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `projects/[PROJECT_ID]`. That is, this names the container
+ *   in which to look for the notification channels; it does not name a
+ *   specific channel. To query a specific channel by REST resource name, use
+ *   the
+ *   [`GetNotificationChannel`][google.monitoring.v3.NotificationChannelService.GetNotificationChannel]
+ *   operation.
+ * @param {string} request.filter
+ *   If provided, this field specifies the criteria that must be met by
+ *   notification channels to be included in the response.
+ *
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
+ * @param {string} request.orderBy
+ *   A comma-separated list of fields by which to sort the result. Supports
+ *   the same set of fields as in `filter`. Entries can be prefixed with
+ *   a minus sign to sort in descending rather than ascending order.
+ *
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
  * @param {number} request.pageSize
- *   The maximum number of results to return in a single response. The server
- *   may further constrain the maximum number of results returned in a single
- *   page. If the page_size is <=0, the server will decide the number of results
- *   to be returned.
- *   NOTE: this field is not yet implemented
+ *   The maximum number of results to return in a single response. If
+ *   not set to a positive number, a reasonable value will be chosen by the
+ *   service.
  * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return more results from the previous method call.
- *   NOTE: this field is not yet implemented
+ *   If non-empty, `page_token` must contain a value returned as the
+ *   `next_page_token` in a previous response to request the next set
+ *   of results.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [UptimeCheckIp]{@link google.monitoring.v3.UptimeCheckIp} on 'data' event.
+ *   An object stream which emits an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel} on 'data' event.
  */
-  listUptimeCheckIpsStream(
-      request?: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+  listNotificationChannelsStream(
+      request?: protosTypes.google.monitoring.v3.IListNotificationChannelsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
     options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.listUptimeCheckIps.createStream(
-      this._innerApiCalls.listUptimeCheckIps as gax.GaxCall,
+    return this._descriptors.page.listNotificationChannels.createStream(
+      this._innerApiCalls.listNotificationChannels as gax.GaxCall,
       request,
       callSettings
     );
@@ -1803,7 +2142,7 @@ export class UptimeCheckServiceClient {
    */
   close(): Promise<void> {
     if (!this._terminated) {
-      return this.uptimeCheckServiceStub.then(stub => {
+      return this.notificationChannelServiceStub.then(stub => {
         this._terminated = true;
         stub.close();
       });

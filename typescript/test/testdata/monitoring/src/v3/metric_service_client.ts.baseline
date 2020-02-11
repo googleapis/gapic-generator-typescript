@@ -22,32 +22,26 @@ import * as path from 'path';
 
 import { Transform } from 'stream';
 import * as protosTypes from '../../protos/protos';
-import * as gapicConfig from './uptime_check_service_client_config.json';
+import * as gapicConfig from './metric_service_client_config.json';
 
 const version = require('../../../package.json').version;
 
 /**
- *  The UptimeCheckService API is used to manage (list, create, delete, edit)
- *  Uptime check configurations in the Stackdriver Monitoring product. An Uptime
- *  check is a piece of configuration that determines which resources and
- *  services to monitor for availability. These configurations can also be
- *  configured interactively by navigating to the [Cloud Console]
- *  (http://console.cloud.google.com), selecting the appropriate project,
- *  clicking on "Monitoring" on the left-hand side to navigate to Stackdriver,
- *  and then clicking on "Uptime".
+ *  Manages metric descriptors, monitored resource descriptors, and
+ *  time series data.
  * @class
  * @memberof v3
  */
-export class UptimeCheckServiceClient {
+export class MetricServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   auth: gax.GoogleAuth;
-  uptimeCheckServiceStub: Promise<{[name: string]: Function}>;
+  metricServiceStub: Promise<{[name: string]: Function}>;
 
   /**
-   * Construct an instance of UptimeCheckServiceClient.
+   * Construct an instance of MetricServiceClient.
    *
    * @param {object} [options] - The configuration object. See the subsequent
    *   parameters for more details.
@@ -76,7 +70,7 @@ export class UptimeCheckServiceClient {
 
   constructor(opts?: ClientOptions) {
     // Ensure that options include the service address and port.
-    const staticMembers = this.constructor as typeof UptimeCheckServiceClient;
+    const staticMembers = this.constructor as typeof MetricServiceClient;
     const servicePath = opts && opts.servicePath ?
         opts.servicePath :
         ((opts && opts.apiEndpoint) ? opts.apiEndpoint :
@@ -101,7 +95,7 @@ export class UptimeCheckServiceClient {
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
-    opts.scopes = (this.constructor as typeof UptimeCheckServiceClient).scopes;
+    opts.scopes = (this.constructor as typeof MetricServiceClient).scopes;
     const gaxGrpc = new gaxModule.GrpcClient(opts);
 
     // Save the auth object to the client, for use by other methods.
@@ -150,6 +144,12 @@ export class UptimeCheckServiceClient {
       folderGroupPathTemplate: new gaxModule.PathTemplate(
         'folders/{folder}/groups/{group}'
       ),
+      folderMetricDescriptorPathTemplate: new gaxModule.PathTemplate(
+        'folders/{folder}/metricDescriptors/{metric_descriptor=**}'
+      ),
+      folderMonitoredResourceDescriptorPathTemplate: new gaxModule.PathTemplate(
+        'folders/{folder}/monitoredResourceDescriptors/{monitored_resource_descriptor}'
+      ),
       folderNotificationChannelPathTemplate: new gaxModule.PathTemplate(
         'folders/{folder}/notificationChannels/{notification_channel}'
       ),
@@ -173,6 +173,12 @@ export class UptimeCheckServiceClient {
       ),
       organizationGroupPathTemplate: new gaxModule.PathTemplate(
         'organizations/{organization}/groups/{group}'
+      ),
+      organizationMetricDescriptorPathTemplate: new gaxModule.PathTemplate(
+        'organizations/{organization}/metricDescriptors/{metric_descriptor=**}'
+      ),
+      organizationMonitoredResourceDescriptorPathTemplate: new gaxModule.PathTemplate(
+        'organizations/{organization}/monitoredResourceDescriptors/{monitored_resource_descriptor}'
       ),
       organizationNotificationChannelPathTemplate: new gaxModule.PathTemplate(
         'organizations/{organization}/notificationChannels/{notification_channel}'
@@ -198,6 +204,12 @@ export class UptimeCheckServiceClient {
       projectGroupPathTemplate: new gaxModule.PathTemplate(
         'projects/{project}/groups/{group}'
       ),
+      projectMetricDescriptorPathTemplate: new gaxModule.PathTemplate(
+        'projects/{project}/metricDescriptors/{metric_descriptor=**}'
+      ),
+      projectMonitoredResourceDescriptorPathTemplate: new gaxModule.PathTemplate(
+        'projects/{project}/monitoredResourceDescriptors/{monitored_resource_descriptor}'
+      ),
       projectNotificationChannelPathTemplate: new gaxModule.PathTemplate(
         'projects/{project}/notificationChannels/{notification_channel}'
       ),
@@ -216,15 +228,17 @@ export class UptimeCheckServiceClient {
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
     this._descriptors.page = {
-      listUptimeCheckConfigs:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'uptimeCheckConfigs'),
-      listUptimeCheckIps:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'uptimeCheckIps')
+      listMonitoredResourceDescriptors:
+          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'resourceDescriptors'),
+      listMetricDescriptors:
+          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'metricDescriptors'),
+      listTimeSeries:
+          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'timeSeries')
     };
 
     // Put together the default options sent with requests.
     const defaults = gaxGrpc.constructSettings(
-        'google.monitoring.v3.UptimeCheckService', gapicConfig as gax.ClientConfig,
+        'google.monitoring.v3.MetricService', gapicConfig as gax.ClientConfig,
         opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
 
     // Set up a dictionary of "inner API calls"; the core implementation
@@ -233,21 +247,21 @@ export class UptimeCheckServiceClient {
     this._innerApiCalls = {};
 
     // Put together the "service stub" for
-    // google.monitoring.v3.UptimeCheckService.
-    this.uptimeCheckServiceStub = gaxGrpc.createStub(
+    // google.monitoring.v3.MetricService.
+    this.metricServiceStub = gaxGrpc.createStub(
         opts.fallback ?
-          (protos as protobuf.Root).lookupService('google.monitoring.v3.UptimeCheckService') :
+          (protos as protobuf.Root).lookupService('google.monitoring.v3.MetricService') :
           // tslint:disable-next-line no-any
-          (protos as any).google.monitoring.v3.UptimeCheckService,
+          (protos as any).google.monitoring.v3.MetricService,
         opts) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
-    const uptimeCheckServiceStubMethods =
-        ['listUptimeCheckConfigs', 'getUptimeCheckConfig', 'createUptimeCheckConfig', 'updateUptimeCheckConfig', 'deleteUptimeCheckConfig', 'listUptimeCheckIps'];
+    const metricServiceStubMethods =
+        ['listMonitoredResourceDescriptors', 'getMonitoredResourceDescriptor', 'listMetricDescriptors', 'getMetricDescriptor', 'createMetricDescriptor', 'deleteMetricDescriptor', 'listTimeSeries', 'createTimeSeries'];
 
-    for (const methodName of uptimeCheckServiceStubMethods) {
-      const innerCallPromise = this.uptimeCheckServiceStub.then(
+    for (const methodName of metricServiceStubMethods) {
+      const innerCallPromise = this.metricServiceStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -306,7 +320,8 @@ export class UptimeCheckServiceClient {
     return [
       'https://www.googleapis.com/auth/cloud-platform',
       'https://www.googleapis.com/auth/monitoring',
-      'https://www.googleapis.com/auth/monitoring.read'
+      'https://www.googleapis.com/auth/monitoring.read',
+      'https://www.googleapis.com/auth/monitoring.write'
     ];
   }
 
@@ -329,46 +344,48 @@ export class UptimeCheckServiceClient {
   // -------------------
   // -- Service calls --
   // -------------------
-  getUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+  getMonitoredResourceDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined
+        protosTypes.google.api.IMonitoredResourceDescriptor,
+        protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined
       ]>;
-  getUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+  getMonitoredResourceDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined,
+          protosTypes.google.api.IMonitoredResourceDescriptor,
+          protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
           {}|undefined>): void;
 /**
- * Gets a single Uptime check configuration.
+ * Gets a single monitored resource descriptor. This method does not require a Stackdriver account.
  *
  * @param {Object} request
  *   The request object that will be sent.
  * @param {string} request.name
- *   Required. The Uptime check configuration to retrieve. The format
- *     is `projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID]`.
+ *   Required. The monitored resource descriptor to get.  The format is
+ *   `"projects/{project_id_or_number}/monitoredResourceDescriptors/{resource_type}"`.
+ *   The `{resource_type}` is a predefined type, such as
+ *   `cloudsql_database`.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig}.
+ *   The first element of the array is an object representing [MonitoredResourceDescriptor]{@link google.api.MonitoredResourceDescriptor}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  getUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+  getMonitoredResourceDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined>,
+          protosTypes.google.api.IMonitoredResourceDescriptor,
+          protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined,
+          protosTypes.google.api.IMonitoredResourceDescriptor,
+          protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined
+        protosTypes.google.api.IMonitoredResourceDescriptor,
+        protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -387,189 +404,178 @@ export class UptimeCheckServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
-    return this._innerApiCalls.getUptimeCheckConfig(request, options, callback);
+    return this._innerApiCalls.getMonitoredResourceDescriptor(request, options, callback);
   }
-  createUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
+  getMetricDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined
+        protosTypes.google.api.IMetricDescriptor,
+        protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined
       ]>;
-  createUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
+  getMetricDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined,
+          protosTypes.google.api.IMetricDescriptor,
+          protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
           {}|undefined>): void;
 /**
- * Creates a new Uptime check configuration.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. The project in which to create the Uptime check. The format
- *     is `projects/[PROJECT_ID]`.
- * @param {google.monitoring.v3.UptimeCheckConfig} request.uptimeCheckConfig
- *   Required. The new Uptime check configuration.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  createUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
-    });
-    return this._innerApiCalls.createUptimeCheckConfig(request, options, callback);
-  }
-  updateUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined
-      ]>;
-  updateUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined,
-          {}|undefined>): void;
-/**
- * Updates an Uptime check configuration. You can either replace the entire
- * configuration with a new one or replace only certain fields in the current
- * configuration by specifying the fields to be updated via `updateMask`.
- * Returns the updated configuration.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {google.protobuf.FieldMask} request.updateMask
- *   Optional. If present, only the listed fields in the current Uptime check
- *   configuration are updated with values from the new configuration. If this
- *   field is empty, then the current configuration is completely replaced with
- *   the new configuration.
- * @param {google.monitoring.v3.UptimeCheckConfig} request.uptimeCheckConfig
- *   Required. If an `updateMask` has been specified, this field gives
- *   the values for the set of fields mentioned in the `updateMask`. If an
- *   `updateMask` has not been given, this Uptime check configuration replaces
- *   the current configuration. If a field is mentioned in `updateMask` but
- *   the corresonding field is omitted in this partial Uptime check
- *   configuration, it has the effect of deleting/clearing the field from the
- *   configuration on the server.
- *
- *   The following fields can be updated: `display_name`,
- *   `http_check`, `tcp_check`, `timeout`, `content_matchers`, and
- *   `selected_regions`.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  updateUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'uptime_check_config.name': request.uptimeCheckConfig!.name || '',
-    });
-    return this._innerApiCalls.updateUptimeCheckConfig(request, options, callback);
-  }
-  deleteUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined
-      ]>;
-  deleteUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined,
-          {}|undefined>): void;
-/**
- * Deletes an Uptime check configuration. Note that this method will fail
- * if the Uptime check configuration is referenced by an alert policy or
- * other dependent configs that would be rendered invalid by the deletion.
+ * Gets a single metric descriptor. This method does not require a Stackdriver account.
  *
  * @param {Object} request
  *   The request object that will be sent.
  * @param {string} request.name
- *   Required. The Uptime check configuration to delete. The format
- *     is `projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID]`.
+ *   Required. The metric descriptor on which to execute the request. The format is
+ *   `"projects/{project_id_or_number}/metricDescriptors/{metric_id}"`.
+ *   An example value of `{metric_id}` is
+ *   `"compute.googleapis.com/instance/disk/read_bytes_count"`.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [MetricDescriptor]{@link google.api.MetricDescriptor}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  getMetricDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.api.IMetricDescriptor,
+          protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.api.IMetricDescriptor,
+          protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.api.IMetricDescriptor,
+        protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.getMetricDescriptor(request, options, callback);
+  }
+  createMetricDescriptor(
+      request: protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.api.IMetricDescriptor,
+        protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined
+      ]>;
+  createMetricDescriptor(
+      request: protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.api.IMetricDescriptor,
+          protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Creates a new metric descriptor.
+ * User-created metric descriptors define
+ * [custom metrics](/monitoring/custom-metrics).
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `"projects/{project_id_or_number}"`.
+ * @param {google.api.MetricDescriptor} request.metricDescriptor
+ *   Required. The new [custom metric](/monitoring/custom-metrics)
+ *   descriptor.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [MetricDescriptor]{@link google.api.MetricDescriptor}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  createMetricDescriptor(
+      request: protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.api.IMetricDescriptor,
+          protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.api.IMetricDescriptor,
+          protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.api.IMetricDescriptor,
+        protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.createMetricDescriptor(request, options, callback);
+  }
+  deleteMetricDescriptor(
+      request: protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.protobuf.IEmpty,
+        protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined
+      ]>;
+  deleteMetricDescriptor(
+      request: protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Deletes a metric descriptor. Only user-created
+ * [custom metrics](/monitoring/custom-metrics) can be deleted.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The metric descriptor on which to execute the request. The format is
+ *   `"projects/{project_id_or_number}/metricDescriptors/{metric_id}"`.
+ *   An example of `{metric_id}` is:
+ *   `"custom.googleapis.com/my_test_metric"`.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  deleteUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
+  deleteMetricDescriptor(
+      request: protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined>,
       callback?: Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined,
+          protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
           {}|undefined>):
       Promise<[
         protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -588,74 +594,59 @@ export class UptimeCheckServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
-    return this._innerApiCalls.deleteUptimeCheckConfig(request, options, callback);
+    return this._innerApiCalls.deleteMetricDescriptor(request, options, callback);
   }
-
-  listUptimeCheckConfigs(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+  createTimeSeries(
+      request: protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse
+        protosTypes.google.protobuf.IEmpty,
+        protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined
       ]>;
-  listUptimeCheckConfigs(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+  createTimeSeries(
+      request: protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse>): void;
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
+          {}|undefined>): void;
 /**
- * Lists the existing valid Uptime check configurations for the project
- * (leaving out any invalid configurations).
+ * Creates or adds data to one or more time series.
+ * The response is empty if all time series in the request were written.
+ * If any time series could not be written, a corresponding failure message is
+ * included in the error response.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. The project whose Uptime check configurations are listed. The format
- *     is `projects/[PROJECT_ID]`.
- * @param {number} request.pageSize
- *   The maximum number of results to return in a single response. The server
- *   may further constrain the maximum number of results returned in a single
- *   page. If the page_size is <=0, the server will decide the number of results
- *   to be returned.
- * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return more results from the previous method call.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `"projects/{project_id_or_number}"`.
+ * @param {number[]} request.timeSeries
+ *   Required. The new data to be added to a list of time series.
+ *   Adds at most one data point to each of several time series.  The new data
+ *   point must be more recent than any other point in its time series.  Each
+ *   `TimeSeries` value must fully specify a unique time series by supplying
+ *   all label values for the metric and the monitored resource.
+ *
+ *   The maximum number of `TimeSeries` objects per `Create` request is 200.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig}.
- *   The client library support auto-pagination by default: it will call the API as many
- *   times as needed and will merge results from all the pages into this array.
- *
- *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig} that corresponds to
- *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type [ListUptimeCheckConfigsRequest]{@link google.monitoring.v3.ListUptimeCheckConfigsRequest}
- *   that can be used to obtain the next page of the results.
- *   If it is null, the next page does not exist.
- *   The third element contains the raw response received from the API server. Its type is
- *   [ListUptimeCheckConfigsResponse]{@link google.monitoring.v3.ListUptimeCheckConfigsResponse}.
- *
+ *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  listUptimeCheckConfigs(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+  createTimeSeries(
+      request: protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse>,
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse>):
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
+          {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse
+        protosTypes.google.protobuf.IEmpty,
+        protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -672,15 +663,105 @@ export class UptimeCheckServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
-    return this._innerApiCalls.listUptimeCheckConfigs(request, options, callback);
+    return this._innerApiCalls.createTimeSeries(request, options, callback);
+  }
+
+  listMonitoredResourceDescriptors(
+      request: protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.api.IMonitoredResourceDescriptor[],
+        protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
+        protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse
+      ]>;
+  listMonitoredResourceDescriptors(
+      request: protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.api.IMonitoredResourceDescriptor[],
+          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse>): void;
+/**
+ * Lists monitored resource descriptors that match a filter. This method does not require a Stackdriver account.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `"projects/{project_id_or_number}"`.
+ * @param {string} request.filter
+ *   An optional [filter](/monitoring/api/v3/filters) describing
+ *   the descriptors to be returned.  The filter can reference
+ *   the descriptor's type and labels. For example, the
+ *   following filter returns only Google Compute Engine descriptors
+ *   that have an `id` label:
+ *
+ *       resource.type = starts_with("gce_") AND resource.label:id
+ * @param {number} request.pageSize
+ *   A positive number that is the maximum number of results to return.
+ * @param {string} request.pageToken
+ *   If this field is not empty then it must contain the `nextPageToken` value
+ *   returned by a previous call to this method.  Using this field causes the
+ *   method to return additional results from the previous method call.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is Array of [MonitoredResourceDescriptor]{@link google.api.MonitoredResourceDescriptor}.
+ *   The client library support auto-pagination by default: it will call the API as many
+ *   times as needed and will merge results from all the pages into this array.
+ *
+ *   When autoPaginate: false is specified through options, the array has three elements.
+ *   The first element is Array of [MonitoredResourceDescriptor]{@link google.api.MonitoredResourceDescriptor} that corresponds to
+ *   the one page received from the API server.
+ *   If the second element is not null it contains the request object of type [ListMonitoredResourceDescriptorsRequest]{@link google.monitoring.v3.ListMonitoredResourceDescriptorsRequest}
+ *   that can be used to obtain the next page of the results.
+ *   If it is null, the next page does not exist.
+ *   The third element contains the raw response received from the API server. Its type is
+ *   [ListMonitoredResourceDescriptorsResponse]{@link google.monitoring.v3.ListMonitoredResourceDescriptorsResponse}.
+ *
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  listMonitoredResourceDescriptors(
+      request: protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.api.IMonitoredResourceDescriptor[],
+          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse>,
+      callback?: Callback<
+          protosTypes.google.api.IMonitoredResourceDescriptor[],
+          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse>):
+      Promise<[
+        protosTypes.google.api.IMonitoredResourceDescriptor[],
+        protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
+        protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.listMonitoredResourceDescriptors(request, options, callback);
   }
 
 /**
- * Equivalent to {@link listUptimeCheckConfigs}, but returns a NodeJS Stream object.
+ * Equivalent to {@link listMonitoredResourceDescriptors}, but returns a NodeJS Stream object.
  *
- * This fetches the paged responses for {@link listUptimeCheckConfigs} continuously
+ * This fetches the paged responses for {@link listMonitoredResourceDescriptors} continuously
  * and invokes the callback registered for 'data' event for each element in the
  * responses.
  *
@@ -692,25 +773,30 @@ export class UptimeCheckServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. The project whose Uptime check configurations are listed. The format
- *     is `projects/[PROJECT_ID]`.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `"projects/{project_id_or_number}"`.
+ * @param {string} request.filter
+ *   An optional [filter](/monitoring/api/v3/filters) describing
+ *   the descriptors to be returned.  The filter can reference
+ *   the descriptor's type and labels. For example, the
+ *   following filter returns only Google Compute Engine descriptors
+ *   that have an `id` label:
+ *
+ *       resource.type = starts_with("gce_") AND resource.label:id
  * @param {number} request.pageSize
- *   The maximum number of results to return in a single response. The server
- *   may further constrain the maximum number of results returned in a single
- *   page. If the page_size is <=0, the server will decide the number of results
- *   to be returned.
+ *   A positive number that is the maximum number of results to return.
  * @param {string} request.pageToken
  *   If this field is not empty then it must contain the `nextPageToken` value
  *   returned by a previous call to this method.  Using this field causes the
- *   method to return more results from the previous method call.
+ *   method to return additional results from the previous method call.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig} on 'data' event.
+ *   An object stream which emits an object representing [MonitoredResourceDescriptor]{@link google.api.MonitoredResourceDescriptor} on 'data' event.
  */
-  listUptimeCheckConfigsStream(
-      request?: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+  listMonitoredResourceDescriptorsStream(
+      request?: protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -720,78 +806,85 @@ export class UptimeCheckServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.listUptimeCheckConfigs.createStream(
-      this._innerApiCalls.listUptimeCheckConfigs as gax.GaxCall,
+    return this._descriptors.page.listMonitoredResourceDescriptors.createStream(
+      this._innerApiCalls.listMonitoredResourceDescriptors as gax.GaxCall,
       request,
       callSettings
     );
   }
-  listUptimeCheckIps(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+  listMetricDescriptors(
+      request: protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse
+        protosTypes.google.api.IMetricDescriptor[],
+        protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
+        protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse
       ]>;
-  listUptimeCheckIps(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+  listMetricDescriptors(
+      request: protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse>): void;
+          protosTypes.google.api.IMetricDescriptor[],
+          protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse>): void;
 /**
- * Returns the list of IP addresses that checkers run from
+ * Lists metric descriptors that match a filter. This method does not require a Stackdriver account.
  *
  * @param {Object} request
  *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `"projects/{project_id_or_number}"`.
+ * @param {string} request.filter
+ *   If this field is empty, all custom and
+ *   system-defined metric descriptors are returned.
+ *   Otherwise, the [filter](/monitoring/api/v3/filters)
+ *   specifies which metric descriptors are to be
+ *   returned. For example, the following filter matches all
+ *   [custom metrics](/monitoring/custom-metrics):
+ *
+ *       metric.type = starts_with("custom.googleapis.com/")
  * @param {number} request.pageSize
- *   The maximum number of results to return in a single response. The server
- *   may further constrain the maximum number of results returned in a single
- *   page. If the page_size is <=0, the server will decide the number of results
- *   to be returned.
- *   NOTE: this field is not yet implemented
+ *   A positive number that is the maximum number of results to return.
  * @param {string} request.pageToken
  *   If this field is not empty then it must contain the `nextPageToken` value
  *   returned by a previous call to this method.  Using this field causes the
- *   method to return more results from the previous method call.
- *   NOTE: this field is not yet implemented
+ *   method to return additional results from the previous method call.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [UptimeCheckIp]{@link google.monitoring.v3.UptimeCheckIp}.
+ *   The first element of the array is Array of [MetricDescriptor]{@link google.api.MetricDescriptor}.
  *   The client library support auto-pagination by default: it will call the API as many
  *   times as needed and will merge results from all the pages into this array.
  *
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [UptimeCheckIp]{@link google.monitoring.v3.UptimeCheckIp} that corresponds to
+ *   The first element is Array of [MetricDescriptor]{@link google.api.MetricDescriptor} that corresponds to
  *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type [ListUptimeCheckIpsRequest]{@link google.monitoring.v3.ListUptimeCheckIpsRequest}
+ *   If the second element is not null it contains the request object of type [ListMetricDescriptorsRequest]{@link google.monitoring.v3.ListMetricDescriptorsRequest}
  *   that can be used to obtain the next page of the results.
  *   If it is null, the next page does not exist.
  *   The third element contains the raw response received from the API server. Its type is
- *   [ListUptimeCheckIpsResponse]{@link google.monitoring.v3.ListUptimeCheckIpsResponse}.
+ *   [ListMetricDescriptorsResponse]{@link google.monitoring.v3.ListMetricDescriptorsResponse}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  listUptimeCheckIps(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+  listMetricDescriptors(
+      request: protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse>,
+          protosTypes.google.api.IMetricDescriptor[],
+          protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse>):
+          protosTypes.google.api.IMetricDescriptor[],
+          protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse
+        protosTypes.google.api.IMetricDescriptor[],
+        protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
+        protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -803,13 +896,20 @@ export class UptimeCheckServiceClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
-    return this._innerApiCalls.listUptimeCheckIps(request, options, callback);
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.listMetricDescriptors(request, options, callback);
   }
 
 /**
- * Equivalent to {@link listUptimeCheckIps}, but returns a NodeJS Stream object.
+ * Equivalent to {@link listMetricDescriptors}, but returns a NodeJS Stream object.
  *
- * This fetches the paged responses for {@link listUptimeCheckIps} continuously
+ * This fetches the paged responses for {@link listMetricDescriptors} continuously
  * and invokes the callback registered for 'data' event for each element in the
  * responses.
  *
@@ -821,31 +921,230 @@ export class UptimeCheckServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `"projects/{project_id_or_number}"`.
+ * @param {string} request.filter
+ *   If this field is empty, all custom and
+ *   system-defined metric descriptors are returned.
+ *   Otherwise, the [filter](/monitoring/api/v3/filters)
+ *   specifies which metric descriptors are to be
+ *   returned. For example, the following filter matches all
+ *   [custom metrics](/monitoring/custom-metrics):
+ *
+ *       metric.type = starts_with("custom.googleapis.com/")
  * @param {number} request.pageSize
- *   The maximum number of results to return in a single response. The server
- *   may further constrain the maximum number of results returned in a single
- *   page. If the page_size is <=0, the server will decide the number of results
- *   to be returned.
- *   NOTE: this field is not yet implemented
+ *   A positive number that is the maximum number of results to return.
  * @param {string} request.pageToken
  *   If this field is not empty then it must contain the `nextPageToken` value
  *   returned by a previous call to this method.  Using this field causes the
- *   method to return more results from the previous method call.
- *   NOTE: this field is not yet implemented
+ *   method to return additional results from the previous method call.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [UptimeCheckIp]{@link google.monitoring.v3.UptimeCheckIp} on 'data' event.
+ *   An object stream which emits an object representing [MetricDescriptor]{@link google.api.MetricDescriptor} on 'data' event.
  */
-  listUptimeCheckIpsStream(
-      request?: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+  listMetricDescriptorsStream(
+      request?: protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
     options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.listUptimeCheckIps.createStream(
-      this._innerApiCalls.listUptimeCheckIps as gax.GaxCall,
+    return this._descriptors.page.listMetricDescriptors.createStream(
+      this._innerApiCalls.listMetricDescriptors as gax.GaxCall,
+      request,
+      callSettings
+    );
+  }
+  listTimeSeries(
+      request: protosTypes.google.monitoring.v3.IListTimeSeriesRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.monitoring.v3.ITimeSeries[],
+        protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
+        protosTypes.google.monitoring.v3.IListTimeSeriesResponse
+      ]>;
+  listTimeSeries(
+      request: protosTypes.google.monitoring.v3.IListTimeSeriesRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.monitoring.v3.ITimeSeries[],
+          protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
+          protosTypes.google.monitoring.v3.IListTimeSeriesResponse>): void;
+/**
+ * Lists time series that match a filter. This method does not require a Stackdriver account.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   "projects/{project_id_or_number}".
+ * @param {string} request.filter
+ *   Required. A [monitoring filter](/monitoring/api/v3/filters) that specifies which time
+ *   series should be returned.  The filter must specify a single metric type,
+ *   and can additionally specify metric labels and other information. For
+ *   example:
+ *
+ *       metric.type = "compute.googleapis.com/instance/cpu/usage_time" AND
+ *           metric.labels.instance_name = "my-instance-name"
+ * @param {google.monitoring.v3.TimeInterval} request.interval
+ *   Required. The time interval for which results should be returned. Only time series
+ *   that contain data points in the specified interval are included
+ *   in the response.
+ * @param {google.monitoring.v3.Aggregation} request.aggregation
+ *   Specifies the alignment of data points in individual time series as
+ *   well as how to combine the retrieved time series across specified labels.
+ *
+ *   By default (if no `aggregation` is explicitly specified), the raw time
+ *   series data is returned.
+ * @param {string} request.orderBy
+ *   Unsupported: must be left blank. The points in each time series are
+ *   currently returned in reverse time order (most recent to oldest).
+ * @param {google.monitoring.v3.ListTimeSeriesRequest.TimeSeriesView} request.view
+ *   Required. Specifies which information is returned about the time series.
+ * @param {number} request.pageSize
+ *   A positive number that is the maximum number of results to return. If
+ *   `page_size` is empty or more than 100,000 results, the effective
+ *   `page_size` is 100,000 results. If `view` is set to `FULL`, this is the
+ *   maximum number of `Points` returned. If `view` is set to `HEADERS`, this is
+ *   the maximum number of `TimeSeries` returned.
+ * @param {string} request.pageToken
+ *   If this field is not empty then it must contain the `nextPageToken` value
+ *   returned by a previous call to this method.  Using this field causes the
+ *   method to return additional results from the previous method call.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is Array of [TimeSeries]{@link google.monitoring.v3.TimeSeries}.
+ *   The client library support auto-pagination by default: it will call the API as many
+ *   times as needed and will merge results from all the pages into this array.
+ *
+ *   When autoPaginate: false is specified through options, the array has three elements.
+ *   The first element is Array of [TimeSeries]{@link google.monitoring.v3.TimeSeries} that corresponds to
+ *   the one page received from the API server.
+ *   If the second element is not null it contains the request object of type [ListTimeSeriesRequest]{@link google.monitoring.v3.ListTimeSeriesRequest}
+ *   that can be used to obtain the next page of the results.
+ *   If it is null, the next page does not exist.
+ *   The third element contains the raw response received from the API server. Its type is
+ *   [ListTimeSeriesResponse]{@link google.monitoring.v3.ListTimeSeriesResponse}.
+ *
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  listTimeSeries(
+      request: protosTypes.google.monitoring.v3.IListTimeSeriesRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.ITimeSeries[],
+          protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
+          protosTypes.google.monitoring.v3.IListTimeSeriesResponse>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.ITimeSeries[],
+          protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
+          protosTypes.google.monitoring.v3.IListTimeSeriesResponse>):
+      Promise<[
+        protosTypes.google.monitoring.v3.ITimeSeries[],
+        protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
+        protosTypes.google.monitoring.v3.IListTimeSeriesResponse
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.listTimeSeries(request, options, callback);
+  }
+
+/**
+ * Equivalent to {@link listTimeSeries}, but returns a NodeJS Stream object.
+ *
+ * This fetches the paged responses for {@link listTimeSeries} continuously
+ * and invokes the callback registered for 'data' event for each element in the
+ * responses.
+ *
+ * The returned object has 'end' method when no more elements are required.
+ *
+ * autoPaginate option will be ignored.
+ *
+ * @see {@link https://nodejs.org/api/stream.html}
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   "projects/{project_id_or_number}".
+ * @param {string} request.filter
+ *   Required. A [monitoring filter](/monitoring/api/v3/filters) that specifies which time
+ *   series should be returned.  The filter must specify a single metric type,
+ *   and can additionally specify metric labels and other information. For
+ *   example:
+ *
+ *       metric.type = "compute.googleapis.com/instance/cpu/usage_time" AND
+ *           metric.labels.instance_name = "my-instance-name"
+ * @param {google.monitoring.v3.TimeInterval} request.interval
+ *   Required. The time interval for which results should be returned. Only time series
+ *   that contain data points in the specified interval are included
+ *   in the response.
+ * @param {google.monitoring.v3.Aggregation} request.aggregation
+ *   Specifies the alignment of data points in individual time series as
+ *   well as how to combine the retrieved time series across specified labels.
+ *
+ *   By default (if no `aggregation` is explicitly specified), the raw time
+ *   series data is returned.
+ * @param {string} request.orderBy
+ *   Unsupported: must be left blank. The points in each time series are
+ *   currently returned in reverse time order (most recent to oldest).
+ * @param {google.monitoring.v3.ListTimeSeriesRequest.TimeSeriesView} request.view
+ *   Required. Specifies which information is returned about the time series.
+ * @param {number} request.pageSize
+ *   A positive number that is the maximum number of results to return. If
+ *   `page_size` is empty or more than 100,000 results, the effective
+ *   `page_size` is 100,000 results. If `view` is set to `FULL`, this is the
+ *   maximum number of `Points` returned. If `view` is set to `HEADERS`, this is
+ *   the maximum number of `TimeSeries` returned.
+ * @param {string} request.pageToken
+ *   If this field is not empty then it must contain the `nextPageToken` value
+ *   returned by a previous call to this method.  Using this field causes the
+ *   method to return additional results from the previous method call.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Stream}
+ *   An object stream which emits an object representing [TimeSeries]{@link google.monitoring.v3.TimeSeries} on 'data' event.
+ */
+  listTimeSeriesStream(
+      request?: protosTypes.google.monitoring.v3.IListTimeSeriesRequest,
+      options?: gax.CallOptions):
+    Transform{
+    request = request || {};
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    const callSettings = new gax.CallSettings(options);
+    return this._descriptors.page.listTimeSeries.createStream(
+      this._innerApiCalls.listTimeSeries as gax.GaxCall,
       request,
       callSettings
     );
@@ -1009,6 +1308,78 @@ export class UptimeCheckServiceClient {
    */
   matchGroupFromFolderGroupName(folderGroupName: string) {
     return this._pathTemplates.folderGroupPathTemplate.match(folderGroupName).group;
+  }
+
+  /**
+   * Return a fully-qualified folderMetricDescriptor resource name string.
+   *
+   * @param {string} folder
+   * @param {string} metric_descriptor
+   * @returns {string} Resource name string.
+   */
+  folderMetricDescriptorPath(folder:string,metricDescriptor:string) {
+    return this._pathTemplates.folderMetricDescriptorPathTemplate.render({
+      folder: folder,
+      metric_descriptor: metricDescriptor,
+    });
+  }
+
+  /**
+   * Parse the folder from FolderMetricDescriptor resource.
+   *
+   * @param {string} folderMetricDescriptorName
+   *   A fully-qualified path representing folder_metric_descriptor resource.
+   * @returns {string} A string representing the folder.
+   */
+  matchFolderFromFolderMetricDescriptorName(folderMetricDescriptorName: string) {
+    return this._pathTemplates.folderMetricDescriptorPathTemplate.match(folderMetricDescriptorName).folder;
+  }
+
+  /**
+   * Parse the metric_descriptor from FolderMetricDescriptor resource.
+   *
+   * @param {string} folderMetricDescriptorName
+   *   A fully-qualified path representing folder_metric_descriptor resource.
+   * @returns {string} A string representing the metric_descriptor.
+   */
+  matchMetricDescriptorFromFolderMetricDescriptorName(folderMetricDescriptorName: string) {
+    return this._pathTemplates.folderMetricDescriptorPathTemplate.match(folderMetricDescriptorName).metric_descriptor;
+  }
+
+  /**
+   * Return a fully-qualified folderMonitoredResourceDescriptor resource name string.
+   *
+   * @param {string} folder
+   * @param {string} monitored_resource_descriptor
+   * @returns {string} Resource name string.
+   */
+  folderMonitoredResourceDescriptorPath(folder:string,monitoredResourceDescriptor:string) {
+    return this._pathTemplates.folderMonitoredResourceDescriptorPathTemplate.render({
+      folder: folder,
+      monitored_resource_descriptor: monitoredResourceDescriptor,
+    });
+  }
+
+  /**
+   * Parse the folder from FolderMonitoredResourceDescriptor resource.
+   *
+   * @param {string} folderMonitoredResourceDescriptorName
+   *   A fully-qualified path representing folder_monitored_resource_descriptor resource.
+   * @returns {string} A string representing the folder.
+   */
+  matchFolderFromFolderMonitoredResourceDescriptorName(folderMonitoredResourceDescriptorName: string) {
+    return this._pathTemplates.folderMonitoredResourceDescriptorPathTemplate.match(folderMonitoredResourceDescriptorName).folder;
+  }
+
+  /**
+   * Parse the monitored_resource_descriptor from FolderMonitoredResourceDescriptor resource.
+   *
+   * @param {string} folderMonitoredResourceDescriptorName
+   *   A fully-qualified path representing folder_monitored_resource_descriptor resource.
+   * @returns {string} A string representing the monitored_resource_descriptor.
+   */
+  matchMonitoredResourceDescriptorFromFolderMonitoredResourceDescriptorName(folderMonitoredResourceDescriptorName: string) {
+    return this._pathTemplates.folderMonitoredResourceDescriptorPathTemplate.match(folderMonitoredResourceDescriptorName).monitored_resource_descriptor;
   }
 
   /**
@@ -1326,6 +1697,78 @@ export class UptimeCheckServiceClient {
   }
 
   /**
+   * Return a fully-qualified organizationMetricDescriptor resource name string.
+   *
+   * @param {string} organization
+   * @param {string} metric_descriptor
+   * @returns {string} Resource name string.
+   */
+  organizationMetricDescriptorPath(organization:string,metricDescriptor:string) {
+    return this._pathTemplates.organizationMetricDescriptorPathTemplate.render({
+      organization: organization,
+      metric_descriptor: metricDescriptor,
+    });
+  }
+
+  /**
+   * Parse the organization from OrganizationMetricDescriptor resource.
+   *
+   * @param {string} organizationMetricDescriptorName
+   *   A fully-qualified path representing organization_metric_descriptor resource.
+   * @returns {string} A string representing the organization.
+   */
+  matchOrganizationFromOrganizationMetricDescriptorName(organizationMetricDescriptorName: string) {
+    return this._pathTemplates.organizationMetricDescriptorPathTemplate.match(organizationMetricDescriptorName).organization;
+  }
+
+  /**
+   * Parse the metric_descriptor from OrganizationMetricDescriptor resource.
+   *
+   * @param {string} organizationMetricDescriptorName
+   *   A fully-qualified path representing organization_metric_descriptor resource.
+   * @returns {string} A string representing the metric_descriptor.
+   */
+  matchMetricDescriptorFromOrganizationMetricDescriptorName(organizationMetricDescriptorName: string) {
+    return this._pathTemplates.organizationMetricDescriptorPathTemplate.match(organizationMetricDescriptorName).metric_descriptor;
+  }
+
+  /**
+   * Return a fully-qualified organizationMonitoredResourceDescriptor resource name string.
+   *
+   * @param {string} organization
+   * @param {string} monitored_resource_descriptor
+   * @returns {string} Resource name string.
+   */
+  organizationMonitoredResourceDescriptorPath(organization:string,monitoredResourceDescriptor:string) {
+    return this._pathTemplates.organizationMonitoredResourceDescriptorPathTemplate.render({
+      organization: organization,
+      monitored_resource_descriptor: monitoredResourceDescriptor,
+    });
+  }
+
+  /**
+   * Parse the organization from OrganizationMonitoredResourceDescriptor resource.
+   *
+   * @param {string} organizationMonitoredResourceDescriptorName
+   *   A fully-qualified path representing organization_monitored_resource_descriptor resource.
+   * @returns {string} A string representing the organization.
+   */
+  matchOrganizationFromOrganizationMonitoredResourceDescriptorName(organizationMonitoredResourceDescriptorName: string) {
+    return this._pathTemplates.organizationMonitoredResourceDescriptorPathTemplate.match(organizationMonitoredResourceDescriptorName).organization;
+  }
+
+  /**
+   * Parse the monitored_resource_descriptor from OrganizationMonitoredResourceDescriptor resource.
+   *
+   * @param {string} organizationMonitoredResourceDescriptorName
+   *   A fully-qualified path representing organization_monitored_resource_descriptor resource.
+   * @returns {string} A string representing the monitored_resource_descriptor.
+   */
+  matchMonitoredResourceDescriptorFromOrganizationMonitoredResourceDescriptorName(organizationMonitoredResourceDescriptorName: string) {
+    return this._pathTemplates.organizationMonitoredResourceDescriptorPathTemplate.match(organizationMonitoredResourceDescriptorName).monitored_resource_descriptor;
+  }
+
+  /**
    * Return a fully-qualified organizationNotificationChannel resource name string.
    *
    * @param {string} organization
@@ -1640,6 +2083,78 @@ export class UptimeCheckServiceClient {
   }
 
   /**
+   * Return a fully-qualified projectMetricDescriptor resource name string.
+   *
+   * @param {string} project
+   * @param {string} metric_descriptor
+   * @returns {string} Resource name string.
+   */
+  projectMetricDescriptorPath(project:string,metricDescriptor:string) {
+    return this._pathTemplates.projectMetricDescriptorPathTemplate.render({
+      project: project,
+      metric_descriptor: metricDescriptor,
+    });
+  }
+
+  /**
+   * Parse the project from ProjectMetricDescriptor resource.
+   *
+   * @param {string} projectMetricDescriptorName
+   *   A fully-qualified path representing project_metric_descriptor resource.
+   * @returns {string} A string representing the project.
+   */
+  matchProjectFromProjectMetricDescriptorName(projectMetricDescriptorName: string) {
+    return this._pathTemplates.projectMetricDescriptorPathTemplate.match(projectMetricDescriptorName).project;
+  }
+
+  /**
+   * Parse the metric_descriptor from ProjectMetricDescriptor resource.
+   *
+   * @param {string} projectMetricDescriptorName
+   *   A fully-qualified path representing project_metric_descriptor resource.
+   * @returns {string} A string representing the metric_descriptor.
+   */
+  matchMetricDescriptorFromProjectMetricDescriptorName(projectMetricDescriptorName: string) {
+    return this._pathTemplates.projectMetricDescriptorPathTemplate.match(projectMetricDescriptorName).metric_descriptor;
+  }
+
+  /**
+   * Return a fully-qualified projectMonitoredResourceDescriptor resource name string.
+   *
+   * @param {string} project
+   * @param {string} monitored_resource_descriptor
+   * @returns {string} Resource name string.
+   */
+  projectMonitoredResourceDescriptorPath(project:string,monitoredResourceDescriptor:string) {
+    return this._pathTemplates.projectMonitoredResourceDescriptorPathTemplate.render({
+      project: project,
+      monitored_resource_descriptor: monitoredResourceDescriptor,
+    });
+  }
+
+  /**
+   * Parse the project from ProjectMonitoredResourceDescriptor resource.
+   *
+   * @param {string} projectMonitoredResourceDescriptorName
+   *   A fully-qualified path representing project_monitored_resource_descriptor resource.
+   * @returns {string} A string representing the project.
+   */
+  matchProjectFromProjectMonitoredResourceDescriptorName(projectMonitoredResourceDescriptorName: string) {
+    return this._pathTemplates.projectMonitoredResourceDescriptorPathTemplate.match(projectMonitoredResourceDescriptorName).project;
+  }
+
+  /**
+   * Parse the monitored_resource_descriptor from ProjectMonitoredResourceDescriptor resource.
+   *
+   * @param {string} projectMonitoredResourceDescriptorName
+   *   A fully-qualified path representing project_monitored_resource_descriptor resource.
+   * @returns {string} A string representing the monitored_resource_descriptor.
+   */
+  matchMonitoredResourceDescriptorFromProjectMonitoredResourceDescriptorName(projectMonitoredResourceDescriptorName: string) {
+    return this._pathTemplates.projectMonitoredResourceDescriptorPathTemplate.match(projectMonitoredResourceDescriptorName).monitored_resource_descriptor;
+  }
+
+  /**
    * Return a fully-qualified projectNotificationChannel resource name string.
    *
    * @param {string} project
@@ -1803,7 +2318,7 @@ export class UptimeCheckServiceClient {
    */
   close(): Promise<void> {
     if (!this._terminated) {
-      return this.uptimeCheckServiceStub.then(stub => {
+      return this.metricServiceStub.then(stub => {
         this._terminated = true;
         stub.close();
       });

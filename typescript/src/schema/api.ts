@@ -163,24 +163,25 @@ function getResourceDatabase(
         `file ${fd.name} resource_definition option`
       );
     }
-
-    const messages = (fd.messageType ?? [])
-      .filter(message => message.name)
-      .reduce((map, message) => {
-        map['.' + fd.package! + '.' + message.name!] = message;
-        return map;
-      }, {} as MessagesMap);
-
-    for (const property of Object.keys(messages)) {
-      const m = messages[property];
+    const messagesStack: plugin.google.protobuf.IDescriptorProto[] = [];
+    const messages = (fd.messageType ?? []).filter(
+      (message: plugin.google.protobuf.IDescriptorProto) => message.name
+    );
+    // put first layer of messages in the stack
+    messagesStack.push(...messages);
+    while (messagesStack.length !== 0) {
+      const m = messagesStack.pop();
+      if (!m || !m.name) continue;
+      const messageName = '.' + fd.package + '.' + m.name!;
       resourceDatabase.registerResource(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
-        `file ${fd.name} message ${property}`
+        `file ${fd.name} message ${messageName}`
       );
       allResourceDatabase.registerResource(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
-        `file ${fd.name} message ${property}`
+        `file ${fd.name} message ${messageName}`
       );
+      (m.nestedType ?? []).map(m => messagesStack.push(m));
     }
   }
   return [allResourceDatabase, resourceDatabase];

@@ -24,7 +24,7 @@ const MONITOR_PROTO_FILES = path.join(
   'google',
   'monitoring',
   'v3',
-  '*_service.proto'
+  '*.proto'
 );
 
 const BASELINE_DIR = path.join(
