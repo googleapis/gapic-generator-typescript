@@ -44,7 +44,7 @@ const PLUGIN = path.join(SRCDIR, 'protoc-gen-typescript_gapic');
 
 describe('MonitoringGenerateTest', () => {
   describe('Generate Client library', () => {
-    it.only('Generated monitoring library have same output with baseline.', function() {
+    it('Generated monitoring library have same output with baseline.', function() {
       this.timeout(10000);
       if (fs.existsSync(OUTPUT_DIR)) {
         rimraf.sync(OUTPUT_DIR);

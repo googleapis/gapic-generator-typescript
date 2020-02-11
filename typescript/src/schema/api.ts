@@ -195,6 +195,5 @@ function getResourceDatabase(
       }
     }
   }
-  console.warn('resource database: ', resourceDatabase.patterns);
   return [allResourceDatabase, resourceDatabase];
 }
