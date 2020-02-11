@@ -163,7 +163,7 @@ function getResourceDatabase(
         `file ${fd.name} resource_definition option`
       );
     }
-    let messagesStack: plugin.google.protobuf.IDescriptorProto[]  = [];
+    const messagesStack: plugin.google.protobuf.IDescriptorProto[] = [];
     const messages = (fd.messageType ?? [])
       .filter(message => message.name)
       .reduce((map, message) => {
@@ -171,16 +171,13 @@ function getResourceDatabase(
         return map;
       }, {} as MessagesMap);
     // put first layer of messages in the stack
-    for(const property of Object.keys(messages)){
+    for (const property of Object.keys(messages)) {
       messagesStack.push(messages[property]);
     }
-    while(messagesStack.length != 0){
-      const m = messagesStack.shift();
-      if(!m || !m.name) continue;
-      if(m && m.options && m.options['.google.api.resource']){
-        console.warn('message name: ', m.name);
-      }
-      const massgeName = '.' + fd.package + '.' + m.name!
+    while (messagesStack.length !== 0) {
+      const m = messagesStack.pop();
+      if (!m || !m.name) continue;
+      const massgeName = '.' + fd.package + '.' + m.name!;
       resourceDatabase.registerResource(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
         `file ${fd.name} message ${massgeName}`
@@ -189,7 +186,7 @@ function getResourceDatabase(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
         `file ${fd.name} message ${massgeName}`
       );
-      if(m.nestedType){
+      if (m.nestedType) {
         const nestedMessages = m.nestedType;
         nestedMessages.map(m => messagesStack.push(m));
       }
