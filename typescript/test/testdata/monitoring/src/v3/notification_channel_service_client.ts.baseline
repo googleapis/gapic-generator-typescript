@@ -22,28 +22,26 @@ import * as path from 'path';
 
 import { Transform } from 'stream';
 import * as protosTypes from '../../protos/protos';
-import * as gapicConfig from './service_monitoring_service_client_config.json';
+import * as gapicConfig from './notification_channel_service_client_config.json';
 
 const version = require('../../../package.json').version;
 
 /**
- *  The Stackdriver Monitoring Service-Oriented Monitoring API has endpoints for
- *  managing and querying aspects of a workspace's services. These include the
- *  `Service`'s monitored resources, its Service-Level Objectives, and a taxonomy
- *  of categorized Health Metrics.
+ *  The Notification Channel API provides access to configuration that
+ *  controls how messages related to incidents are sent.
  * @class
  * @memberof v3
  */
-export class ServiceMonitoringServiceClient {
+export class NotificationChannelServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   auth: gax.GoogleAuth;
-  serviceMonitoringServiceStub: Promise<{[name: string]: Function}>;
+  notificationChannelServiceStub: Promise<{[name: string]: Function}>;
 
   /**
-   * Construct an instance of ServiceMonitoringServiceClient.
+   * Construct an instance of NotificationChannelServiceClient.
    *
    * @param {object} [options] - The configuration object. See the subsequent
    *   parameters for more details.
@@ -72,7 +70,7 @@ export class ServiceMonitoringServiceClient {
 
   constructor(opts?: ClientOptions) {
     // Ensure that options include the service address and port.
-    const staticMembers = this.constructor as typeof ServiceMonitoringServiceClient;
+    const staticMembers = this.constructor as typeof NotificationChannelServiceClient;
     const servicePath = opts && opts.servicePath ?
         opts.servicePath :
         ((opts && opts.apiEndpoint) ? opts.apiEndpoint :
@@ -97,7 +95,7 @@ export class ServiceMonitoringServiceClient {
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
-    opts.scopes = (this.constructor as typeof ServiceMonitoringServiceClient).scopes;
+    opts.scopes = (this.constructor as typeof NotificationChannelServiceClient).scopes;
     const gaxGrpc = new gaxModule.GrpcClient(opts);
 
     // Save the auth object to the client, for use by other methods.
@@ -203,15 +201,15 @@ export class ServiceMonitoringServiceClient {
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
     this._descriptors.page = {
-      listServices:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'services'),
-      listServiceLevelObjectives:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'serviceLevelObjectives')
+      listNotificationChannelDescriptors:
+          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'channelDescriptors'),
+      listNotificationChannels:
+          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'notificationChannels')
     };
 
     // Put together the default options sent with requests.
     const defaults = gaxGrpc.constructSettings(
-        'google.monitoring.v3.ServiceMonitoringService', gapicConfig as gax.ClientConfig,
+        'google.monitoring.v3.NotificationChannelService', gapicConfig as gax.ClientConfig,
         opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
 
     // Set up a dictionary of "inner API calls"; the core implementation
@@ -220,21 +218,21 @@ export class ServiceMonitoringServiceClient {
     this._innerApiCalls = {};
 
     // Put together the "service stub" for
-    // google.monitoring.v3.ServiceMonitoringService.
-    this.serviceMonitoringServiceStub = gaxGrpc.createStub(
+    // google.monitoring.v3.NotificationChannelService.
+    this.notificationChannelServiceStub = gaxGrpc.createStub(
         opts.fallback ?
-          (protos as protobuf.Root).lookupService('google.monitoring.v3.ServiceMonitoringService') :
+          (protos as protobuf.Root).lookupService('google.monitoring.v3.NotificationChannelService') :
           // tslint:disable-next-line no-any
-          (protos as any).google.monitoring.v3.ServiceMonitoringService,
+          (protos as any).google.monitoring.v3.NotificationChannelService,
         opts) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
-    const serviceMonitoringServiceStubMethods =
-        ['createService', 'getService', 'listServices', 'updateService', 'deleteService', 'createServiceLevelObjective', 'getServiceLevelObjective', 'listServiceLevelObjectives', 'updateServiceLevelObjective', 'deleteServiceLevelObjective'];
+    const notificationChannelServiceStubMethods =
+        ['listNotificationChannelDescriptors', 'getNotificationChannelDescriptor', 'listNotificationChannels', 'getNotificationChannel', 'createNotificationChannel', 'updateNotificationChannel', 'deleteNotificationChannel', 'sendNotificationChannelVerificationCode', 'getNotificationChannelVerificationCode', 'verifyNotificationChannel'];
 
-    for (const methodName of serviceMonitoringServiceStubMethods) {
-      const innerCallPromise = this.serviceMonitoringServiceStub.then(
+    for (const methodName of notificationChannelServiceStubMethods) {
+      const innerCallPromise = this.notificationChannelServiceStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -316,111 +314,47 @@ export class ServiceMonitoringServiceClient {
   // -------------------
   // -- Service calls --
   // -------------------
-  createService(
-      request: protosTypes.google.monitoring.v3.ICreateServiceRequest,
+  getNotificationChannelDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined, {}|undefined
       ]>;
-  createService(
-      request: protosTypes.google.monitoring.v3.ICreateServiceRequest,
+  getNotificationChannelDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined,
           {}|undefined>): void;
 /**
- * Create a `Service`.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent workspace.
- *   Of the form `projects/{project_id}`.
- * @param {string} request.serviceId
- *   Optional. The Service id to use for this Service. If omitted, an id will be
- *   generated instead. Must match the pattern [a-z0-9\-]+
- * @param {google.monitoring.v3.Service} request.service
- *   Required. The `Service` to create.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Service]{@link google.monitoring.v3.Service}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  createService(
-      request: protosTypes.google.monitoring.v3.ICreateServiceRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
-    });
-    return this._innerApiCalls.createService(request, options, callback);
-  }
-  getService(
-      request: protosTypes.google.monitoring.v3.IGetServiceRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.IGetServiceRequest|undefined, {}|undefined
-      ]>;
-  getService(
-      request: protosTypes.google.monitoring.v3.IGetServiceRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IGetServiceRequest|undefined,
-          {}|undefined>): void;
-/**
- * Get the named `Service`.
+ * Gets a single channel descriptor. The descriptor indicates which fields
+ * are expected / permitted for a notification channel of the given type.
  *
  * @param {Object} request
  *   The request object that will be sent.
  * @param {string} request.name
- *   Required. Resource name of the `Service`.
- *   Of the form `projects/{project_id}/services/{service_id}`.
+ *   Required. The channel type for which to execute the request. The format is
+ *   `projects/[PROJECT_ID]/notificationChannelDescriptors/{channel_type}`.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Service]{@link google.monitoring.v3.Service}.
+ *   The first element of the array is an object representing [NotificationChannelDescriptor]{@link google.monitoring.v3.NotificationChannelDescriptor}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  getService(
-      request: protosTypes.google.monitoring.v3.IGetServiceRequest,
+  getNotificationChannelDescriptor(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IGetServiceRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IGetServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.IGetServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.INotificationChannelDescriptor,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelDescriptorRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -439,50 +373,52 @@ export class ServiceMonitoringServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
-    return this._innerApiCalls.getService(request, options, callback);
+    return this._innerApiCalls.getNotificationChannelDescriptor(request, options, callback);
   }
-  updateService(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceRequest,
+  getNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined, {}|undefined
       ]>;
-  updateService(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceRequest,
+  getNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined,
           {}|undefined>): void;
 /**
- * Update this `Service`.
+ * Gets a single notification channel. The channel includes the relevant
+ * configuration details with which the channel was created. However, the
+ * response may truncate or omit passwords, API keys, or other private key
+ * matter and thus the response may not be 100% identical to the information
+ * that was supplied in the call to the create method.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {google.monitoring.v3.Service} request.service
- *   Required. The `Service` to draw updates from.
- *   The given `name` specifies the resource to update.
- * @param {google.protobuf.FieldMask} request.updateMask
- *   A set of field paths defining which fields to use for the update.
+ * @param {string} request.name
+ *   Required. The channel for which to execute the request. The format is
+ *   `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Service]{@link google.monitoring.v3.Service}.
+ *   The first element of the array is an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  updateService(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceRequest,
+  getNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -499,50 +435,189 @@ export class ServiceMonitoringServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'service.name': request.service!.name || '',
+      'name': request.name || '',
     });
-    return this._innerApiCalls.updateService(request, options, callback);
+    return this._innerApiCalls.getNotificationChannel(request, options, callback);
   }
-  deleteService(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceRequest,
+  createNotificationChannel(
+      request: protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined, {}|undefined
       ]>;
-  deleteService(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceRequest,
+  createNotificationChannel(
+      request: protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined,
           {}|undefined>): void;
 /**
- * Soft delete this `Service`.
+ * Creates a new notification channel, representing a single notification
+ * endpoint such as an email address, SMS number, or PagerDuty service.
  *
  * @param {Object} request
  *   The request object that will be sent.
  * @param {string} request.name
- *   Required. Resource name of the `Service` to delete.
- *   Of the form `projects/{project_id}/services/{service_id}`.
+ *   Required. The project on which to execute the request. The format is:
+ *
+ *       projects/[PROJECT_ID]
+ *
+ *   Note that this names the container into which the channel will be
+ *   written. This does not name the newly created channel. The resulting
+ *   channel's name will have a normalized version of this field as a prefix,
+ *   but will add `/notificationChannels/[CHANNEL_ID]` to identify the channel.
+ * @param {google.monitoring.v3.NotificationChannel} request.notificationChannel
+ *   Required. The definition of the `NotificationChannel` to create.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  createNotificationChannel(
+      request: protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.ICreateNotificationChannelRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.createNotificationChannel(request, options, callback);
+  }
+  updateNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined, {}|undefined
+      ]>;
+  updateNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Updates a notification channel. Fields not specified in the field mask
+ * remain unchanged.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {google.protobuf.FieldMask} request.updateMask
+ *   The fields to update.
+ * @param {google.monitoring.v3.NotificationChannel} request.notificationChannel
+ *   Required. A description of the changes to be applied to the specified
+ *   notification channel. The description must provide a definition for
+ *   fields to be updated; the names of these fields should also be
+ *   included in the `update_mask`.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  updateNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IUpdateNotificationChannelRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'notification_channel.name': request.notificationChannel!.name || '',
+    });
+    return this._innerApiCalls.updateNotificationChannel(request, options, callback);
+  }
+  deleteNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.protobuf.IEmpty,
+        protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined, {}|undefined
+      ]>;
+  deleteNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Deletes a notification channel.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The channel for which to execute the request. The format is
+ *   `projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID]`.
+ * @param {boolean} request.force
+ *   If true, the notification channel will be deleted regardless of its
+ *   use in alert policies (the policies will be updated to remove the
+ *   channel). If false, channels that are still referenced by an existing
+ *   alerting policy will fail to be deleted in a delete operation.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  deleteService(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceRequest,
+  deleteNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined, {}|undefined>,
       callback?: Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined,
           {}|undefined>):
       Promise<[
         protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IDeleteNotificationChannelRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -561,245 +636,48 @@ export class ServiceMonitoringServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
-    return this._innerApiCalls.deleteService(request, options, callback);
+    return this._innerApiCalls.deleteNotificationChannel(request, options, callback);
   }
-  createServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>;
-  createServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined,
-          {}|undefined>): void;
-/**
- * Create a `ServiceLevelObjective` for the given `Service`.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Service`.
- *   Of the form `projects/{project_id}/services/{service_id}`.
- * @param {string} request.serviceLevelObjectiveId
- *   Optional. The ServiceLevelObjective id to use for this
- *   ServiceLevelObjective. If omitted, an id will be generated instead. Must
- *   match the pattern [a-z0-9\-]+
- * @param {google.monitoring.v3.ServiceLevelObjective} request.serviceLevelObjective
- *   Required. The `ServiceLevelObjective` to create.
- *   The provided `name` will be respected if no `ServiceLevelObjective` exists
- *   with this name.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  createServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
-    });
-    return this._innerApiCalls.createServiceLevelObjective(request, options, callback);
-  }
-  getServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>;
-  getServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined,
-          {}|undefined>): void;
-/**
- * Get a `ServiceLevelObjective` by name.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.name
- *   Required. Resource name of the `ServiceLevelObjective` to get.
- *   Of the form
- *   `projects/{project_id}/services/{service_id}/serviceLevelObjectives/{slo_name}`.
- * @param {google.monitoring.v3.ServiceLevelObjective.View} request.view
- *   View of the `ServiceLevelObjective` to return. If `DEFAULT`, return the
- *   `ServiceLevelObjective` as originally defined. If `EXPLICIT` and the
- *   `ServiceLevelObjective` is defined in terms of a `BasicSli`, replace the
- *   `BasicSli` with a `RequestBasedSli` spelling out how the SLI is computed.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  getServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
-    });
-    return this._innerApiCalls.getServiceLevelObjective(request, options, callback);
-  }
-  updateServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>;
-  updateServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined,
-          {}|undefined>): void;
-/**
- * Update the given `ServiceLevelObjective`.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {google.monitoring.v3.ServiceLevelObjective} request.serviceLevelObjective
- *   Required. The `ServiceLevelObjective` to draw updates from.
- *   The given `name` specifies the resource to update.
- * @param {google.protobuf.FieldMask} request.updateMask
- *   A set of field paths defining which fields to use for the update.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  updateServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'service_level_objective.name': request.serviceLevelObjective!.name || '',
-    });
-    return this._innerApiCalls.updateServiceLevelObjective(request, options, callback);
-  }
-  deleteServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest,
+  sendNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest,
       options?: gax.CallOptions):
       Promise<[
         protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined, {}|undefined
       ]>;
-  deleteServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest,
+  sendNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest,
       options: gax.CallOptions,
       callback: Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined,
+          protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined,
           {}|undefined>): void;
 /**
- * Delete the given `ServiceLevelObjective`.
+ * Causes a verification code to be delivered to the channel. The code
+ * can then be supplied in `VerifyNotificationChannel` to verify the channel.
  *
  * @param {Object} request
  *   The request object that will be sent.
  * @param {string} request.name
- *   Required. Resource name of the `ServiceLevelObjective` to delete.
- *   Of the form
- *   `projects/{project_id}/services/{service_id}/serviceLevelObjectives/{slo_name}`.
+ *   Required. The notification channel to which to send a verification code.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  deleteServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest,
+  sendNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined, {}|undefined>,
       callback?: Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined,
+          protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined,
           {}|undefined>):
       Promise<[
         protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.ISendNotificationChannelVerificationCodeRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -818,87 +696,240 @@ export class ServiceMonitoringServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
-    return this._innerApiCalls.deleteServiceLevelObjective(request, options, callback);
+    return this._innerApiCalls.sendNotificationChannelVerificationCode(request, options, callback);
+  }
+  getNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined, {}|undefined
+      ]>;
+  getNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Requests a verification code for an already verified channel that can then
+ * be used in a call to VerifyNotificationChannel() on a different channel
+ * with an equivalent identity in the same or in a different project. This
+ * makes it possible to copy a channel between projects without requiring
+ * manual reverification of the channel. If the channel is not in the
+ * verified state, this method will fail (in other words, this may only be
+ * used if the SendNotificationChannelVerificationCode and
+ * VerifyNotificationChannel paths have already been used to put the given
+ * channel into the verified state).
+ *
+ * There is no guarantee that the verification codes returned by this method
+ * will be of a similar structure or form as the ones that are delivered
+ * to the channel via SendNotificationChannelVerificationCode; while
+ * VerifyNotificationChannel() will recognize both the codes delivered via
+ * SendNotificationChannelVerificationCode() and returned from
+ * GetNotificationChannelVerificationCode(), it is typically the case that
+ * the verification codes delivered via
+ * SendNotificationChannelVerificationCode() will be shorter and also
+ * have a shorter expiration (e.g. codes such as "G-123456") whereas
+ * GetVerificationCode() will typically return a much longer, websafe base
+ * 64 encoded string that has a longer expiration time.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The notification channel for which a verification code is to be generated
+ *   and retrieved. This must name a channel that is already verified; if
+ *   the specified channel is not verified, the request will fail.
+ * @param {google.protobuf.Timestamp} request.expireTime
+ *   The desired expiration time. If specified, the API will guarantee that
+ *   the returned code will not be valid after the specified timestamp;
+ *   however, the API cannot guarantee that the returned code will be
+ *   valid for at least as long as the requested time (the API puts an upper
+ *   bound on the amount of time for which a code may be valid). If omitted,
+ *   a default expiration will be used, which may be less than the max
+ *   permissible expiration (so specifying an expiration may extend the
+ *   code's lifetime over omitting an expiration, even though the API does
+ *   impose an upper limit on the maximum expiration that is permitted).
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [GetNotificationChannelVerificationCodeResponse]{@link google.monitoring.v3.GetNotificationChannelVerificationCodeResponse}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  getNotificationChannelVerificationCode(
+      request: protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+          protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeResponse,
+        protosTypes.google.monitoring.v3.IGetNotificationChannelVerificationCodeRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.getNotificationChannelVerificationCode(request, options, callback);
+  }
+  verifyNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined, {}|undefined
+      ]>;
+  verifyNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined,
+          {}|undefined>): void;
+/**
+ * Verifies a `NotificationChannel` by proving receipt of the code
+ * delivered to the channel as a result of calling
+ * `SendNotificationChannelVerificationCode`.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The notification channel to verify.
+ * @param {string} request.code
+ *   Required. The verification code that was delivered to the channel as
+ *   a result of invoking the `SendNotificationChannelVerificationCode` API
+ *   method or that was retrieved from a verified channel via
+ *   `GetNotificationChannelVerificationCode`. For example, one might have
+ *   "G-123456" or "TKNZGhhd2EyN3I1MnRnMjRv" (in general, one is only
+ *   guaranteed that the code is valid UTF-8; one should not
+ *   make any assumptions regarding the structure or format of the code).
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  verifyNotificationChannel(
+      request: protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.monitoring.v3.INotificationChannel,
+          protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.monitoring.v3.INotificationChannel,
+        protosTypes.google.monitoring.v3.IVerifyNotificationChannelRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.verifyNotificationChannel(request, options, callback);
   }
 
-  listServices(
-      request: protosTypes.google.monitoring.v3.IListServicesRequest,
+  listNotificationChannelDescriptors(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IService[],
-        protosTypes.google.monitoring.v3.IListServicesRequest|null,
-        protosTypes.google.monitoring.v3.IListServicesResponse
+        protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+        protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+        protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse
       ]>;
-  listServices(
-      request: protosTypes.google.monitoring.v3.IListServicesRequest,
+  listNotificationChannelDescriptors(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IService[],
-          protosTypes.google.monitoring.v3.IListServicesRequest|null,
-          protosTypes.google.monitoring.v3.IListServicesResponse>): void;
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse>): void;
 /**
- * List `Service`s for this workspace.
+ * Lists the descriptors for supported channel types. The use of descriptors
+ * makes it possible for new channel types to be dynamically added.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Workspace`.
- *   Of the form `projects/{project_id}`.
- * @param {string} request.filter
- *   A filter specifying what `Service`s to return. The filter currently
- *   supports the following fields:
+ * @param {string} request.name
+ *   Required. The REST resource name of the parent from which to retrieve
+ *   the notification channel descriptors. The expected syntax is:
  *
- *       - `identifier_case`
- *       - `app_engine.module_id`
- *       - `cloud_endpoints.service`
- *       - `cluster_istio.location`
- *       - `cluster_istio.cluster_name`
- *       - `cluster_istio.service_namespace`
- *       - `cluster_istio.service_name`
+ *       projects/[PROJECT_ID]
  *
- *   `identifier_case` refers to which option in the identifier oneof is
- *   populated. For example, the filter `identifier_case = "CUSTOM"` would match
- *   all services with a value for the `custom` field. Valid options are
- *   "CUSTOM", "APP_ENGINE", "CLOUD_ENDPOINTS", and "CLUSTER_ISTIO".
+ *   Note that this names the parent container in which to look for the
+ *   descriptors; to retrieve a single descriptor by name, use the
+ *   [GetNotificationChannelDescriptor][google.monitoring.v3.NotificationChannelService.GetNotificationChannelDescriptor]
+ *   operation, instead.
  * @param {number} request.pageSize
- *   A non-negative number that is the maximum number of results to return.
- *   When 0, use default page size.
+ *   The maximum number of results to return in a single response. If
+ *   not set to a positive number, a reasonable value will be chosen by the
+ *   service.
  * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return additional results from the previous method call.
+ *   If non-empty, `page_token` must contain a value returned as the
+ *   `next_page_token` in a previous response to request the next set
+ *   of results.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [Service]{@link google.monitoring.v3.Service}.
+ *   The first element of the array is Array of [NotificationChannelDescriptor]{@link google.monitoring.v3.NotificationChannelDescriptor}.
  *   The client library support auto-pagination by default: it will call the API as many
  *   times as needed and will merge results from all the pages into this array.
  *
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [Service]{@link google.monitoring.v3.Service} that corresponds to
+ *   The first element is Array of [NotificationChannelDescriptor]{@link google.monitoring.v3.NotificationChannelDescriptor} that corresponds to
  *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type [ListServicesRequest]{@link google.monitoring.v3.ListServicesRequest}
+ *   If the second element is not null it contains the request object of type [ListNotificationChannelDescriptorsRequest]{@link google.monitoring.v3.ListNotificationChannelDescriptorsRequest}
  *   that can be used to obtain the next page of the results.
  *   If it is null, the next page does not exist.
  *   The third element contains the raw response received from the API server. Its type is
- *   [ListServicesResponse]{@link google.monitoring.v3.ListServicesResponse}.
+ *   [ListNotificationChannelDescriptorsResponse]{@link google.monitoring.v3.ListNotificationChannelDescriptorsResponse}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  listServices(
-      request: protosTypes.google.monitoring.v3.IListServicesRequest,
+  listNotificationChannelDescriptors(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IService[],
-          protosTypes.google.monitoring.v3.IListServicesRequest|null,
-          protosTypes.google.monitoring.v3.IListServicesResponse>,
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IService[],
-          protosTypes.google.monitoring.v3.IListServicesRequest|null,
-          protosTypes.google.monitoring.v3.IListServicesResponse>):
+          protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse>):
       Promise<[
-        protosTypes.google.monitoring.v3.IService[],
-        protosTypes.google.monitoring.v3.IListServicesRequest|null,
-        protosTypes.google.monitoring.v3.IListServicesResponse
+        protosTypes.google.monitoring.v3.INotificationChannelDescriptor[],
+        protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest|null,
+        protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -915,15 +946,15 @@ export class ServiceMonitoringServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
-    return this._innerApiCalls.listServices(request, options, callback);
+    return this._innerApiCalls.listNotificationChannelDescriptors(request, options, callback);
   }
 
 /**
- * Equivalent to {@link listServices}, but returns a NodeJS Stream object.
+ * Equivalent to {@link listNotificationChannelDescriptors}, but returns a NodeJS Stream object.
  *
- * This fetches the paged responses for {@link listServices} continuously
+ * This fetches the paged responses for {@link listNotificationChannelDescriptors} continuously
  * and invokes the callback registered for 'data' event for each element in the
  * responses.
  *
@@ -935,39 +966,31 @@ export class ServiceMonitoringServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Workspace`.
- *   Of the form `projects/{project_id}`.
- * @param {string} request.filter
- *   A filter specifying what `Service`s to return. The filter currently
- *   supports the following fields:
+ * @param {string} request.name
+ *   Required. The REST resource name of the parent from which to retrieve
+ *   the notification channel descriptors. The expected syntax is:
  *
- *       - `identifier_case`
- *       - `app_engine.module_id`
- *       - `cloud_endpoints.service`
- *       - `cluster_istio.location`
- *       - `cluster_istio.cluster_name`
- *       - `cluster_istio.service_namespace`
- *       - `cluster_istio.service_name`
+ *       projects/[PROJECT_ID]
  *
- *   `identifier_case` refers to which option in the identifier oneof is
- *   populated. For example, the filter `identifier_case = "CUSTOM"` would match
- *   all services with a value for the `custom` field. Valid options are
- *   "CUSTOM", "APP_ENGINE", "CLOUD_ENDPOINTS", and "CLUSTER_ISTIO".
+ *   Note that this names the parent container in which to look for the
+ *   descriptors; to retrieve a single descriptor by name, use the
+ *   [GetNotificationChannelDescriptor][google.monitoring.v3.NotificationChannelService.GetNotificationChannelDescriptor]
+ *   operation, instead.
  * @param {number} request.pageSize
- *   A non-negative number that is the maximum number of results to return.
- *   When 0, use default page size.
+ *   The maximum number of results to return in a single response. If
+ *   not set to a positive number, a reasonable value will be chosen by the
+ *   service.
  * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return additional results from the previous method call.
+ *   If non-empty, `page_token` must contain a value returned as the
+ *   `next_page_token` in a previous response to request the next set
+ *   of results.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [Service]{@link google.monitoring.v3.Service} on 'data' event.
+ *   An object stream which emits an object representing [NotificationChannelDescriptor]{@link google.monitoring.v3.NotificationChannelDescriptor} on 'data' event.
  */
-  listServicesStream(
-      request?: protosTypes.google.monitoring.v3.IListServicesRequest,
+  listNotificationChannelDescriptorsStream(
+      request?: protosTypes.google.monitoring.v3.IListNotificationChannelDescriptorsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -977,84 +1000,96 @@ export class ServiceMonitoringServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.listServices.createStream(
-      this._innerApiCalls.listServices as gax.GaxCall,
+    return this._descriptors.page.listNotificationChannelDescriptors.createStream(
+      this._innerApiCalls.listNotificationChannelDescriptors as gax.GaxCall,
       request,
       callSettings
     );
   }
-  listServiceLevelObjectives(
-      request: protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest,
+  listNotificationChannels(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-        protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-        protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse
+        protosTypes.google.monitoring.v3.INotificationChannel[],
+        protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+        protosTypes.google.monitoring.v3.IListNotificationChannelsResponse
       ]>;
-  listServiceLevelObjectives(
-      request: protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest,
+  listNotificationChannels(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelsRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse>): void;
+          protosTypes.google.monitoring.v3.INotificationChannel[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelsResponse>): void;
 /**
- * List the `ServiceLevelObjective`s for the given `Service`.
+ * Lists the notification channels that have been created for the project.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Service`.
- *   Of the form `projects/{project_id}/services/{service_id}`.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `projects/[PROJECT_ID]`. That is, this names the container
+ *   in which to look for the notification channels; it does not name a
+ *   specific channel. To query a specific channel by REST resource name, use
+ *   the
+ *   [`GetNotificationChannel`][google.monitoring.v3.NotificationChannelService.GetNotificationChannel]
+ *   operation.
  * @param {string} request.filter
- *   A filter specifying what `ServiceLevelObjective`s to return.
+ *   If provided, this field specifies the criteria that must be met by
+ *   notification channels to be included in the response.
+ *
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
+ * @param {string} request.orderBy
+ *   A comma-separated list of fields by which to sort the result. Supports
+ *   the same set of fields as in `filter`. Entries can be prefixed with
+ *   a minus sign to sort in descending rather than ascending order.
+ *
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
  * @param {number} request.pageSize
- *   A non-negative number that is the maximum number of results to return.
- *   When 0, use default page size.
+ *   The maximum number of results to return in a single response. If
+ *   not set to a positive number, a reasonable value will be chosen by the
+ *   service.
  * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return additional results from the previous method call.
- * @param {google.monitoring.v3.ServiceLevelObjective.View} request.view
- *   View of the `ServiceLevelObjective`s to return. If `DEFAULT`, return each
- *   `ServiceLevelObjective` as originally defined. If `EXPLICIT` and the
- *   `ServiceLevelObjective` is defined in terms of a `BasicSli`, replace the
- *   `BasicSli` with a `RequestBasedSli` spelling out how the SLI is computed.
+ *   If non-empty, `page_token` must contain a value returned as the
+ *   `next_page_token` in a previous response to request the next set
+ *   of results.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective}.
+ *   The first element of the array is Array of [NotificationChannel]{@link google.monitoring.v3.NotificationChannel}.
  *   The client library support auto-pagination by default: it will call the API as many
  *   times as needed and will merge results from all the pages into this array.
  *
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective} that corresponds to
+ *   The first element is Array of [NotificationChannel]{@link google.monitoring.v3.NotificationChannel} that corresponds to
  *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type [ListServiceLevelObjectivesRequest]{@link google.monitoring.v3.ListServiceLevelObjectivesRequest}
+ *   If the second element is not null it contains the request object of type [ListNotificationChannelsRequest]{@link google.monitoring.v3.ListNotificationChannelsRequest}
  *   that can be used to obtain the next page of the results.
  *   If it is null, the next page does not exist.
  *   The third element contains the raw response received from the API server. Its type is
- *   [ListServiceLevelObjectivesResponse]{@link google.monitoring.v3.ListServiceLevelObjectivesResponse}.
+ *   [ListNotificationChannelsResponse]{@link google.monitoring.v3.ListNotificationChannelsResponse}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  listServiceLevelObjectives(
-      request: protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest,
+  listNotificationChannels(
+      request: protosTypes.google.monitoring.v3.IListNotificationChannelsRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse>,
+          protosTypes.google.monitoring.v3.INotificationChannel[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelsResponse>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse>):
+          protosTypes.google.monitoring.v3.INotificationChannel[],
+          protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+          protosTypes.google.monitoring.v3.IListNotificationChannelsResponse>):
       Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-        protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-        protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse
+        protosTypes.google.monitoring.v3.INotificationChannel[],
+        protosTypes.google.monitoring.v3.IListNotificationChannelsRequest|null,
+        protosTypes.google.monitoring.v3.IListNotificationChannelsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -1071,15 +1106,15 @@ export class ServiceMonitoringServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
-    return this._innerApiCalls.listServiceLevelObjectives(request, options, callback);
+    return this._innerApiCalls.listNotificationChannels(request, options, callback);
   }
 
 /**
- * Equivalent to {@link listServiceLevelObjectives}, but returns a NodeJS Stream object.
+ * Equivalent to {@link listNotificationChannels}, but returns a NodeJS Stream object.
  *
- * This fetches the paged responses for {@link listServiceLevelObjectives} continuously
+ * This fetches the paged responses for {@link listNotificationChannels} continuously
  * and invokes the callback registered for 'data' event for each element in the
  * responses.
  *
@@ -1091,30 +1126,42 @@ export class ServiceMonitoringServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Service`.
- *   Of the form `projects/{project_id}/services/{service_id}`.
+ * @param {string} request.name
+ *   Required. The project on which to execute the request. The format is
+ *   `projects/[PROJECT_ID]`. That is, this names the container
+ *   in which to look for the notification channels; it does not name a
+ *   specific channel. To query a specific channel by REST resource name, use
+ *   the
+ *   [`GetNotificationChannel`][google.monitoring.v3.NotificationChannelService.GetNotificationChannel]
+ *   operation.
  * @param {string} request.filter
- *   A filter specifying what `ServiceLevelObjective`s to return.
+ *   If provided, this field specifies the criteria that must be met by
+ *   notification channels to be included in the response.
+ *
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
+ * @param {string} request.orderBy
+ *   A comma-separated list of fields by which to sort the result. Supports
+ *   the same set of fields as in `filter`. Entries can be prefixed with
+ *   a minus sign to sort in descending rather than ascending order.
+ *
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
  * @param {number} request.pageSize
- *   A non-negative number that is the maximum number of results to return.
- *   When 0, use default page size.
+ *   The maximum number of results to return in a single response. If
+ *   not set to a positive number, a reasonable value will be chosen by the
+ *   service.
  * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return additional results from the previous method call.
- * @param {google.monitoring.v3.ServiceLevelObjective.View} request.view
- *   View of the `ServiceLevelObjective`s to return. If `DEFAULT`, return each
- *   `ServiceLevelObjective` as originally defined. If `EXPLICIT` and the
- *   `ServiceLevelObjective` is defined in terms of a `BasicSli`, replace the
- *   `BasicSli` with a `RequestBasedSli` spelling out how the SLI is computed.
+ *   If non-empty, `page_token` must contain a value returned as the
+ *   `next_page_token` in a previous response to request the next set
+ *   of results.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective} on 'data' event.
+ *   An object stream which emits an object representing [NotificationChannel]{@link google.monitoring.v3.NotificationChannel} on 'data' event.
  */
-  listServiceLevelObjectivesStream(
-      request?: protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest,
+  listNotificationChannelsStream(
+      request?: protosTypes.google.monitoring.v3.IListNotificationChannelsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -1124,11 +1171,11 @@ export class ServiceMonitoringServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.listServiceLevelObjectives.createStream(
-      this._innerApiCalls.listServiceLevelObjectives as gax.GaxCall,
+    return this._descriptors.page.listNotificationChannels.createStream(
+      this._innerApiCalls.listNotificationChannels as gax.GaxCall,
       request,
       callSettings
     );
@@ -1939,7 +1986,7 @@ export class ServiceMonitoringServiceClient {
    */
   close(): Promise<void> {
     if (!this._terminated) {
-      return this.serviceMonitoringServiceStub.then(stub => {
+      return this.notificationChannelServiceStub.then(stub => {
         this._terminated = true;
         stub.close();
       });

@@ -22,28 +22,33 @@ import * as path from 'path';
 
 import { Transform } from 'stream';
 import * as protosTypes from '../../protos/protos';
-import * as gapicConfig from './service_monitoring_service_client_config.json';
+import * as gapicConfig from './alert_policy_service_client_config.json';
 
 const version = require('../../../package.json').version;
 
 /**
- *  The Stackdriver Monitoring Service-Oriented Monitoring API has endpoints for
- *  managing and querying aspects of a workspace's services. These include the
- *  `Service`'s monitored resources, its Service-Level Objectives, and a taxonomy
- *  of categorized Health Metrics.
+ *  The AlertPolicyService API is used to manage (list, create, delete,
+ *  edit) alert policies in Stackdriver Monitoring. An alerting policy is
+ *  a description of the conditions under which some aspect of your
+ *  system is considered to be "unhealthy" and the ways to notify
+ *  people or services about this state. In addition to using this API, alert
+ *  policies can also be managed through
+ *  [Stackdriver Monitoring](https://cloud.google.com/monitoring/docs/),
+ *  which can be reached by clicking the "Monitoring" tab in
+ *  [Cloud Console](https://console.cloud.google.com/).
  * @class
  * @memberof v3
  */
-export class ServiceMonitoringServiceClient {
+export class AlertPolicyServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   auth: gax.GoogleAuth;
-  serviceMonitoringServiceStub: Promise<{[name: string]: Function}>;
+  alertPolicyServiceStub: Promise<{[name: string]: Function}>;
 
   /**
-   * Construct an instance of ServiceMonitoringServiceClient.
+   * Construct an instance of AlertPolicyServiceClient.
    *
    * @param {object} [options] - The configuration object. See the subsequent
    *   parameters for more details.
@@ -72,7 +77,7 @@ export class ServiceMonitoringServiceClient {
 
   constructor(opts?: ClientOptions) {
     // Ensure that options include the service address and port.
-    const staticMembers = this.constructor as typeof ServiceMonitoringServiceClient;
+    const staticMembers = this.constructor as typeof AlertPolicyServiceClient;
     const servicePath = opts && opts.servicePath ?
         opts.servicePath :
         ((opts && opts.apiEndpoint) ? opts.apiEndpoint :
@@ -97,7 +102,7 @@ export class ServiceMonitoringServiceClient {
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
-    opts.scopes = (this.constructor as typeof ServiceMonitoringServiceClient).scopes;
+    opts.scopes = (this.constructor as typeof AlertPolicyServiceClient).scopes;
     const gaxGrpc = new gaxModule.GrpcClient(opts);
 
     // Save the auth object to the client, for use by other methods.
@@ -203,15 +208,13 @@ export class ServiceMonitoringServiceClient {
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
     this._descriptors.page = {
-      listServices:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'services'),
-      listServiceLevelObjectives:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'serviceLevelObjectives')
+      listAlertPolicies:
+          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'alertPolicies')
     };
 
     // Put together the default options sent with requests.
     const defaults = gaxGrpc.constructSettings(
-        'google.monitoring.v3.ServiceMonitoringService', gapicConfig as gax.ClientConfig,
+        'google.monitoring.v3.AlertPolicyService', gapicConfig as gax.ClientConfig,
         opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
 
     // Set up a dictionary of "inner API calls"; the core implementation
@@ -220,21 +223,21 @@ export class ServiceMonitoringServiceClient {
     this._innerApiCalls = {};
 
     // Put together the "service stub" for
-    // google.monitoring.v3.ServiceMonitoringService.
-    this.serviceMonitoringServiceStub = gaxGrpc.createStub(
+    // google.monitoring.v3.AlertPolicyService.
+    this.alertPolicyServiceStub = gaxGrpc.createStub(
         opts.fallback ?
-          (protos as protobuf.Root).lookupService('google.monitoring.v3.ServiceMonitoringService') :
+          (protos as protobuf.Root).lookupService('google.monitoring.v3.AlertPolicyService') :
           // tslint:disable-next-line no-any
-          (protos as any).google.monitoring.v3.ServiceMonitoringService,
+          (protos as any).google.monitoring.v3.AlertPolicyService,
         opts) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
-    const serviceMonitoringServiceStubMethods =
-        ['createService', 'getService', 'listServices', 'updateService', 'deleteService', 'createServiceLevelObjective', 'getServiceLevelObjective', 'listServiceLevelObjectives', 'updateServiceLevelObjective', 'deleteServiceLevelObjective'];
+    const alertPolicyServiceStubMethods =
+        ['listAlertPolicies', 'getAlertPolicy', 'createAlertPolicy', 'deleteAlertPolicy', 'updateAlertPolicy'];
 
-    for (const methodName of serviceMonitoringServiceStubMethods) {
-      const innerCallPromise = this.serviceMonitoringServiceStub.then(
+    for (const methodName of alertPolicyServiceStubMethods) {
+      const innerCallPromise = this.alertPolicyServiceStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -316,111 +319,47 @@ export class ServiceMonitoringServiceClient {
   // -------------------
   // -- Service calls --
   // -------------------
-  createService(
-      request: protosTypes.google.monitoring.v3.ICreateServiceRequest,
+  getAlertPolicy(
+      request: protosTypes.google.monitoring.v3.IGetAlertPolicyRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IAlertPolicy,
+        protosTypes.google.monitoring.v3.IGetAlertPolicyRequest|undefined, {}|undefined
       ]>;
-  createService(
-      request: protosTypes.google.monitoring.v3.ICreateServiceRequest,
+  getAlertPolicy(
+      request: protosTypes.google.monitoring.v3.IGetAlertPolicyRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.IAlertPolicy,
+          protosTypes.google.monitoring.v3.IGetAlertPolicyRequest|undefined,
           {}|undefined>): void;
 /**
- * Create a `Service`.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent workspace.
- *   Of the form `projects/{project_id}`.
- * @param {string} request.serviceId
- *   Optional. The Service id to use for this Service. If omitted, an id will be
- *   generated instead. Must match the pattern [a-z0-9\-]+
- * @param {google.monitoring.v3.Service} request.service
- *   Required. The `Service` to create.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Service]{@link google.monitoring.v3.Service}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  createService(
-      request: protosTypes.google.monitoring.v3.ICreateServiceRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.ICreateServiceRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
-    });
-    return this._innerApiCalls.createService(request, options, callback);
-  }
-  getService(
-      request: protosTypes.google.monitoring.v3.IGetServiceRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.IGetServiceRequest|undefined, {}|undefined
-      ]>;
-  getService(
-      request: protosTypes.google.monitoring.v3.IGetServiceRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IGetServiceRequest|undefined,
-          {}|undefined>): void;
-/**
- * Get the named `Service`.
+ * Gets a single alerting policy.
  *
  * @param {Object} request
  *   The request object that will be sent.
  * @param {string} request.name
- *   Required. Resource name of the `Service`.
- *   Of the form `projects/{project_id}/services/{service_id}`.
+ *   Required. The alerting policy to retrieve. The format is
+ *
+ *       projects/[PROJECT_ID]/alertPolicies/[ALERT_POLICY_ID]
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Service]{@link google.monitoring.v3.Service}.
+ *   The first element of the array is an object representing [AlertPolicy]{@link google.monitoring.v3.AlertPolicy}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  getService(
-      request: protosTypes.google.monitoring.v3.IGetServiceRequest,
+  getAlertPolicy(
+      request: protosTypes.google.monitoring.v3.IGetAlertPolicyRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IGetServiceRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.IAlertPolicy,
+          protosTypes.google.monitoring.v3.IGetAlertPolicyRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IGetServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.IAlertPolicy,
+          protosTypes.google.monitoring.v3.IGetAlertPolicyRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.IGetServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IAlertPolicy,
+        protosTypes.google.monitoring.v3.IGetAlertPolicyRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -439,50 +378,58 @@ export class ServiceMonitoringServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
-    return this._innerApiCalls.getService(request, options, callback);
+    return this._innerApiCalls.getAlertPolicy(request, options, callback);
   }
-  updateService(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceRequest,
+  createAlertPolicy(
+      request: protosTypes.google.monitoring.v3.ICreateAlertPolicyRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IAlertPolicy,
+        protosTypes.google.monitoring.v3.ICreateAlertPolicyRequest|undefined, {}|undefined
       ]>;
-  updateService(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceRequest,
+  createAlertPolicy(
+      request: protosTypes.google.monitoring.v3.ICreateAlertPolicyRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.IAlertPolicy,
+          protosTypes.google.monitoring.v3.ICreateAlertPolicyRequest|undefined,
           {}|undefined>): void;
 /**
- * Update this `Service`.
+ * Creates a new alerting policy.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {google.monitoring.v3.Service} request.service
- *   Required. The `Service` to draw updates from.
- *   The given `name` specifies the resource to update.
- * @param {google.protobuf.FieldMask} request.updateMask
- *   A set of field paths defining which fields to use for the update.
+ * @param {string} request.name
+ *   Required. The project in which to create the alerting policy. The format is
+ *   `projects/[PROJECT_ID]`.
+ *
+ *   Note that this field names the parent container in which the alerting
+ *   policy will be written, not the name of the created policy. The alerting
+ *   policy that is returned will have a name that contains a normalized
+ *   representation of this name as a prefix but adds a suffix of the form
+ *   `/alertPolicies/[POLICY_ID]`, identifying the policy in the container.
+ * @param {google.monitoring.v3.AlertPolicy} request.alertPolicy
+ *   Required. The requested alerting policy. You should omit the `name` field in this
+ *   policy. The name will be returned in the new policy, including
+ *   a new [ALERT_POLICY_ID] value.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Service]{@link google.monitoring.v3.Service}.
+ *   The first element of the array is an object representing [AlertPolicy]{@link google.monitoring.v3.AlertPolicy}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  updateService(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceRequest,
+  createAlertPolicy(
+      request: protosTypes.google.monitoring.v3.ICreateAlertPolicyRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.IAlertPolicy,
+          protosTypes.google.monitoring.v3.ICreateAlertPolicyRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IService,
-          protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.IAlertPolicy,
+          protosTypes.google.monitoring.v3.ICreateAlertPolicyRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IService,
-        protosTypes.google.monitoring.v3.IUpdateServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IAlertPolicy,
+        protosTypes.google.monitoring.v3.ICreateAlertPolicyRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -499,50 +446,53 @@ export class ServiceMonitoringServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'service.name': request.service!.name || '',
+      'name': request.name || '',
     });
-    return this._innerApiCalls.updateService(request, options, callback);
+    return this._innerApiCalls.createAlertPolicy(request, options, callback);
   }
-  deleteService(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceRequest,
+  deleteAlertPolicy(
+      request: protosTypes.google.monitoring.v3.IDeleteAlertPolicyRequest,
       options?: gax.CallOptions):
       Promise<[
         protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IDeleteAlertPolicyRequest|undefined, {}|undefined
       ]>;
-  deleteService(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceRequest,
+  deleteAlertPolicy(
+      request: protosTypes.google.monitoring.v3.IDeleteAlertPolicyRequest,
       options: gax.CallOptions,
       callback: Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.IDeleteAlertPolicyRequest|undefined,
           {}|undefined>): void;
 /**
- * Soft delete this `Service`.
+ * Deletes an alerting policy.
  *
  * @param {Object} request
  *   The request object that will be sent.
  * @param {string} request.name
- *   Required. Resource name of the `Service` to delete.
- *   Of the form `projects/{project_id}/services/{service_id}`.
+ *   Required. The alerting policy to delete. The format is:
+ *
+ *       projects/[PROJECT_ID]/alertPolicies/[ALERT_POLICY_ID]
+ *
+ *   For more information, see [AlertPolicy][google.monitoring.v3.AlertPolicy].
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  deleteService(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceRequest,
+  deleteAlertPolicy(
+      request: protosTypes.google.monitoring.v3.IDeleteAlertPolicyRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.IDeleteAlertPolicyRequest|undefined, {}|undefined>,
       callback?: Callback<
           protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined,
+          protosTypes.google.monitoring.v3.IDeleteAlertPolicyRequest|undefined,
           {}|undefined>):
       Promise<[
         protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteServiceRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IDeleteAlertPolicyRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -561,245 +511,75 @@ export class ServiceMonitoringServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
-    return this._innerApiCalls.deleteService(request, options, callback);
+    return this._innerApiCalls.deleteAlertPolicy(request, options, callback);
   }
-  createServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest,
+  updateAlertPolicy(
+      request: protosTypes.google.monitoring.v3.IUpdateAlertPolicyRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IAlertPolicy,
+        protosTypes.google.monitoring.v3.IUpdateAlertPolicyRequest|undefined, {}|undefined
       ]>;
-  createServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest,
+  updateAlertPolicy(
+      request: protosTypes.google.monitoring.v3.IUpdateAlertPolicyRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined,
+          protosTypes.google.monitoring.v3.IAlertPolicy,
+          protosTypes.google.monitoring.v3.IUpdateAlertPolicyRequest|undefined,
           {}|undefined>): void;
 /**
- * Create a `ServiceLevelObjective` for the given `Service`.
+ * Updates an alerting policy. You can either replace the entire policy with
+ * a new one or replace only certain fields in the current alerting policy by
+ * specifying the fields to be updated via `updateMask`. Returns the
+ * updated alerting policy.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Service`.
- *   Of the form `projects/{project_id}/services/{service_id}`.
- * @param {string} request.serviceLevelObjectiveId
- *   Optional. The ServiceLevelObjective id to use for this
- *   ServiceLevelObjective. If omitted, an id will be generated instead. Must
- *   match the pattern [a-z0-9\-]+
- * @param {google.monitoring.v3.ServiceLevelObjective} request.serviceLevelObjective
- *   Required. The `ServiceLevelObjective` to create.
- *   The provided `name` will be respected if no `ServiceLevelObjective` exists
- *   with this name.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  createServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.ICreateServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
-    });
-    return this._innerApiCalls.createServiceLevelObjective(request, options, callback);
-  }
-  getServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>;
-  getServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined,
-          {}|undefined>): void;
-/**
- * Get a `ServiceLevelObjective` by name.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.name
- *   Required. Resource name of the `ServiceLevelObjective` to get.
- *   Of the form
- *   `projects/{project_id}/services/{service_id}/serviceLevelObjectives/{slo_name}`.
- * @param {google.monitoring.v3.ServiceLevelObjective.View} request.view
- *   View of the `ServiceLevelObjective` to return. If `DEFAULT`, return the
- *   `ServiceLevelObjective` as originally defined. If `EXPLICIT` and the
- *   `ServiceLevelObjective` is defined in terms of a `BasicSli`, replace the
- *   `BasicSli` with a `RequestBasedSli` spelling out how the SLI is computed.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  getServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.IGetServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
-    });
-    return this._innerApiCalls.getServiceLevelObjective(request, options, callback);
-  }
-  updateServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>;
-  updateServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined,
-          {}|undefined>): void;
-/**
- * Update the given `ServiceLevelObjective`.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {google.monitoring.v3.ServiceLevelObjective} request.serviceLevelObjective
- *   Required. The `ServiceLevelObjective` to draw updates from.
- *   The given `name` specifies the resource to update.
  * @param {google.protobuf.FieldMask} request.updateMask
- *   A set of field paths defining which fields to use for the update.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  updateServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined, {}|undefined>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective,
-          protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined,
-          {}|undefined>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective,
-        protosTypes.google.monitoring.v3.IUpdateServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'service_level_objective.name': request.serviceLevelObjective!.name || '',
-    });
-    return this._innerApiCalls.updateServiceLevelObjective(request, options, callback);
-  }
-  deleteServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined, {}|undefined
-      ]>;
-  deleteServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined,
-          {}|undefined>): void;
-/**
- * Delete the given `ServiceLevelObjective`.
+ *   Optional. A list of alerting policy field names. If this field is not
+ *   empty, each listed field in the existing alerting policy is set to the
+ *   value of the corresponding field in the supplied policy (`alert_policy`),
+ *   or to the field's default value if the field is not in the supplied
+ *   alerting policy.  Fields not listed retain their previous value.
  *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.name
- *   Required. Resource name of the `ServiceLevelObjective` to delete.
- *   Of the form
- *   `projects/{project_id}/services/{service_id}/serviceLevelObjectives/{slo_name}`.
+ *   Examples of valid field masks include `display_name`, `documentation`,
+ *   `documentation.content`, `documentation.mime_type`, `user_labels`,
+ *   `user_label.nameofkey`, `enabled`, `conditions`, `combiner`, etc.
+ *
+ *   If this field is empty, then the supplied alerting policy replaces the
+ *   existing policy. It is the same as deleting the existing policy and
+ *   adding the supplied policy, except for the following:
+ *
+ *   +   The new policy will have the same `[ALERT_POLICY_ID]` as the former
+ *       policy. This gives you continuity with the former policy in your
+ *       notifications and incidents.
+ *   +   Conditions in the new policy will keep their former `[CONDITION_ID]` if
+ *       the supplied condition includes the `name` field with that
+ *       `[CONDITION_ID]`. If the supplied condition omits the `name` field,
+ *       then a new `[CONDITION_ID]` is created.
+ * @param {google.monitoring.v3.AlertPolicy} request.alertPolicy
+ *   Required. The updated alerting policy or the updated values for the
+ *   fields listed in `update_mask`.
+ *   If `update_mask` is not empty, any fields in this policy that are
+ *   not in `update_mask` are ignored.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
+ *   The first element of the array is an object representing [AlertPolicy]{@link google.monitoring.v3.AlertPolicy}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  deleteServiceLevelObjective(
-      request: protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest,
+  updateAlertPolicy(
+      request: protosTypes.google.monitoring.v3.IUpdateAlertPolicyRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined, {}|undefined>,
+          protosTypes.google.monitoring.v3.IAlertPolicy,
+          protosTypes.google.monitoring.v3.IUpdateAlertPolicyRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined,
+          protosTypes.google.monitoring.v3.IAlertPolicy,
+          protosTypes.google.monitoring.v3.IUpdateAlertPolicyRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteServiceLevelObjectiveRequest|undefined, {}|undefined
+        protosTypes.google.monitoring.v3.IAlertPolicy,
+        protosTypes.google.monitoring.v3.IUpdateAlertPolicyRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -816,89 +596,92 @@ export class ServiceMonitoringServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+      'alert_policy.name': request.alertPolicy!.name || '',
     });
-    return this._innerApiCalls.deleteServiceLevelObjective(request, options, callback);
+    return this._innerApiCalls.updateAlertPolicy(request, options, callback);
   }
 
-  listServices(
-      request: protosTypes.google.monitoring.v3.IListServicesRequest,
+  listAlertPolicies(
+      request: protosTypes.google.monitoring.v3.IListAlertPoliciesRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IService[],
-        protosTypes.google.monitoring.v3.IListServicesRequest|null,
-        protosTypes.google.monitoring.v3.IListServicesResponse
+        protosTypes.google.monitoring.v3.IAlertPolicy[],
+        protosTypes.google.monitoring.v3.IListAlertPoliciesRequest|null,
+        protosTypes.google.monitoring.v3.IListAlertPoliciesResponse
       ]>;
-  listServices(
-      request: protosTypes.google.monitoring.v3.IListServicesRequest,
+  listAlertPolicies(
+      request: protosTypes.google.monitoring.v3.IListAlertPoliciesRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IService[],
-          protosTypes.google.monitoring.v3.IListServicesRequest|null,
-          protosTypes.google.monitoring.v3.IListServicesResponse>): void;
+          protosTypes.google.monitoring.v3.IAlertPolicy[],
+          protosTypes.google.monitoring.v3.IListAlertPoliciesRequest|null,
+          protosTypes.google.monitoring.v3.IListAlertPoliciesResponse>): void;
 /**
- * List `Service`s for this workspace.
+ * Lists the existing alerting policies for the project.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Workspace`.
- *   Of the form `projects/{project_id}`.
+ * @param {string} request.name
+ *   Required. The project whose alert policies are to be listed. The format is
+ *
+ *       projects/[PROJECT_ID]
+ *
+ *   Note that this field names the parent container in which the alerting
+ *   policies to be listed are stored. To retrieve a single alerting policy
+ *   by name, use the
+ *   [GetAlertPolicy][google.monitoring.v3.AlertPolicyService.GetAlertPolicy]
+ *   operation, instead.
  * @param {string} request.filter
- *   A filter specifying what `Service`s to return. The filter currently
- *   supports the following fields:
+ *   If provided, this field specifies the criteria that must be met by
+ *   alert policies to be included in the response.
  *
- *       - `identifier_case`
- *       - `app_engine.module_id`
- *       - `cloud_endpoints.service`
- *       - `cluster_istio.location`
- *       - `cluster_istio.cluster_name`
- *       - `cluster_istio.service_namespace`
- *       - `cluster_istio.service_name`
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
+ * @param {string} request.orderBy
+ *   A comma-separated list of fields by which to sort the result. Supports
+ *   the same set of field references as the `filter` field. Entries can be
+ *   prefixed with a minus sign to sort by the field in descending order.
  *
- *   `identifier_case` refers to which option in the identifier oneof is
- *   populated. For example, the filter `identifier_case = "CUSTOM"` would match
- *   all services with a value for the `custom` field. Valid options are
- *   "CUSTOM", "APP_ENGINE", "CLOUD_ENDPOINTS", and "CLUSTER_ISTIO".
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
  * @param {number} request.pageSize
- *   A non-negative number that is the maximum number of results to return.
- *   When 0, use default page size.
+ *   The maximum number of results to return in a single response.
  * @param {string} request.pageToken
  *   If this field is not empty then it must contain the `nextPageToken` value
  *   returned by a previous call to this method.  Using this field causes the
- *   method to return additional results from the previous method call.
+ *   method to return more results from the previous method call.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [Service]{@link google.monitoring.v3.Service}.
+ *   The first element of the array is Array of [AlertPolicy]{@link google.monitoring.v3.AlertPolicy}.
  *   The client library support auto-pagination by default: it will call the API as many
  *   times as needed and will merge results from all the pages into this array.
  *
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [Service]{@link google.monitoring.v3.Service} that corresponds to
+ *   The first element is Array of [AlertPolicy]{@link google.monitoring.v3.AlertPolicy} that corresponds to
  *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type [ListServicesRequest]{@link google.monitoring.v3.ListServicesRequest}
+ *   If the second element is not null it contains the request object of type [ListAlertPoliciesRequest]{@link google.monitoring.v3.ListAlertPoliciesRequest}
  *   that can be used to obtain the next page of the results.
  *   If it is null, the next page does not exist.
  *   The third element contains the raw response received from the API server. Its type is
- *   [ListServicesResponse]{@link google.monitoring.v3.ListServicesResponse}.
+ *   [ListAlertPoliciesResponse]{@link google.monitoring.v3.ListAlertPoliciesResponse}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  listServices(
-      request: protosTypes.google.monitoring.v3.IListServicesRequest,
+  listAlertPolicies(
+      request: protosTypes.google.monitoring.v3.IListAlertPoliciesRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IService[],
-          protosTypes.google.monitoring.v3.IListServicesRequest|null,
-          protosTypes.google.monitoring.v3.IListServicesResponse>,
+          protosTypes.google.monitoring.v3.IAlertPolicy[],
+          protosTypes.google.monitoring.v3.IListAlertPoliciesRequest|null,
+          protosTypes.google.monitoring.v3.IListAlertPoliciesResponse>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IService[],
-          protosTypes.google.monitoring.v3.IListServicesRequest|null,
-          protosTypes.google.monitoring.v3.IListServicesResponse>):
+          protosTypes.google.monitoring.v3.IAlertPolicy[],
+          protosTypes.google.monitoring.v3.IListAlertPoliciesRequest|null,
+          protosTypes.google.monitoring.v3.IListAlertPoliciesResponse>):
       Promise<[
-        protosTypes.google.monitoring.v3.IService[],
-        protosTypes.google.monitoring.v3.IListServicesRequest|null,
-        protosTypes.google.monitoring.v3.IListServicesResponse
+        protosTypes.google.monitoring.v3.IAlertPolicy[],
+        protosTypes.google.monitoring.v3.IListAlertPoliciesRequest|null,
+        protosTypes.google.monitoring.v3.IListAlertPoliciesResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -915,15 +698,15 @@ export class ServiceMonitoringServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
-    return this._innerApiCalls.listServices(request, options, callback);
+    return this._innerApiCalls.listAlertPolicies(request, options, callback);
   }
 
 /**
- * Equivalent to {@link listServices}, but returns a NodeJS Stream object.
+ * Equivalent to {@link listAlertPolicies}, but returns a NodeJS Stream object.
  *
- * This fetches the paged responses for {@link listServices} continuously
+ * This fetches the paged responses for {@link listAlertPolicies} continuously
  * and invokes the callback registered for 'data' event for each element in the
  * responses.
  *
@@ -935,39 +718,42 @@ export class ServiceMonitoringServiceClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Workspace`.
- *   Of the form `projects/{project_id}`.
+ * @param {string} request.name
+ *   Required. The project whose alert policies are to be listed. The format is
+ *
+ *       projects/[PROJECT_ID]
+ *
+ *   Note that this field names the parent container in which the alerting
+ *   policies to be listed are stored. To retrieve a single alerting policy
+ *   by name, use the
+ *   [GetAlertPolicy][google.monitoring.v3.AlertPolicyService.GetAlertPolicy]
+ *   operation, instead.
  * @param {string} request.filter
- *   A filter specifying what `Service`s to return. The filter currently
- *   supports the following fields:
+ *   If provided, this field specifies the criteria that must be met by
+ *   alert policies to be included in the response.
  *
- *       - `identifier_case`
- *       - `app_engine.module_id`
- *       - `cloud_endpoints.service`
- *       - `cluster_istio.location`
- *       - `cluster_istio.cluster_name`
- *       - `cluster_istio.service_namespace`
- *       - `cluster_istio.service_name`
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
+ * @param {string} request.orderBy
+ *   A comma-separated list of fields by which to sort the result. Supports
+ *   the same set of field references as the `filter` field. Entries can be
+ *   prefixed with a minus sign to sort by the field in descending order.
  *
- *   `identifier_case` refers to which option in the identifier oneof is
- *   populated. For example, the filter `identifier_case = "CUSTOM"` would match
- *   all services with a value for the `custom` field. Valid options are
- *   "CUSTOM", "APP_ENGINE", "CLOUD_ENDPOINTS", and "CLUSTER_ISTIO".
+ *   For more details, see [sorting and
+ *   filtering](/monitoring/api/v3/sorting-and-filtering).
  * @param {number} request.pageSize
- *   A non-negative number that is the maximum number of results to return.
- *   When 0, use default page size.
+ *   The maximum number of results to return in a single response.
  * @param {string} request.pageToken
  *   If this field is not empty then it must contain the `nextPageToken` value
  *   returned by a previous call to this method.  Using this field causes the
- *   method to return additional results from the previous method call.
+ *   method to return more results from the previous method call.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [Service]{@link google.monitoring.v3.Service} on 'data' event.
+ *   An object stream which emits an object representing [AlertPolicy]{@link google.monitoring.v3.AlertPolicy} on 'data' event.
  */
-  listServicesStream(
-      request?: protosTypes.google.monitoring.v3.IListServicesRequest,
+  listAlertPoliciesStream(
+      request?: protosTypes.google.monitoring.v3.IListAlertPoliciesRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -977,158 +763,11 @@ export class ServiceMonitoringServiceClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'name': request.name || '',
     });
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.listServices.createStream(
-      this._innerApiCalls.listServices as gax.GaxCall,
-      request,
-      callSettings
-    );
-  }
-  listServiceLevelObjectives(
-      request: protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest,
-      options?: gax.CallOptions):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-        protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-        protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse
-      ]>;
-  listServiceLevelObjectives(
-      request: protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest,
-      options: gax.CallOptions,
-      callback: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse>): void;
-/**
- * List the `ServiceLevelObjective`s for the given `Service`.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Service`.
- *   Of the form `projects/{project_id}/services/{service_id}`.
- * @param {string} request.filter
- *   A filter specifying what `ServiceLevelObjective`s to return.
- * @param {number} request.pageSize
- *   A non-negative number that is the maximum number of results to return.
- *   When 0, use default page size.
- * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return additional results from the previous method call.
- * @param {google.monitoring.v3.ServiceLevelObjective.View} request.view
- *   View of the `ServiceLevelObjective`s to return. If `DEFAULT`, return each
- *   `ServiceLevelObjective` as originally defined. If `EXPLICIT` and the
- *   `ServiceLevelObjective` is defined in terms of a `BasicSli`, replace the
- *   `BasicSli` with a `RequestBasedSli` spelling out how the SLI is computed.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective}.
- *   The client library support auto-pagination by default: it will call the API as many
- *   times as needed and will merge results from all the pages into this array.
- *
- *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective} that corresponds to
- *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type [ListServiceLevelObjectivesRequest]{@link google.monitoring.v3.ListServiceLevelObjectivesRequest}
- *   that can be used to obtain the next page of the results.
- *   If it is null, the next page does not exist.
- *   The third element contains the raw response received from the API server. Its type is
- *   [ListServiceLevelObjectivesResponse]{@link google.monitoring.v3.ListServiceLevelObjectivesResponse}.
- *
- *   The promise has a method named "cancel" which cancels the ongoing API call.
- */
-  listServiceLevelObjectives(
-      request: protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest,
-      optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse>,
-      callback?: Callback<
-          protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-          protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse>):
-      Promise<[
-        protosTypes.google.monitoring.v3.IServiceLevelObjective[],
-        protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest|null,
-        protosTypes.google.monitoring.v3.IListServiceLevelObjectivesResponse
-      ]>|void {
-    request = request || {};
-    let options: gax.CallOptions;
-    if (typeof optionsOrCallback === 'function' && callback === undefined) {
-      callback = optionsOrCallback;
-      options = {};
-    }
-    else {
-      options = optionsOrCallback as gax.CallOptions;
-    }
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
-    });
-    return this._innerApiCalls.listServiceLevelObjectives(request, options, callback);
-  }
-
-/**
- * Equivalent to {@link listServiceLevelObjectives}, but returns a NodeJS Stream object.
- *
- * This fetches the paged responses for {@link listServiceLevelObjectives} continuously
- * and invokes the callback registered for 'data' event for each element in the
- * responses.
- *
- * The returned object has 'end' method when no more elements are required.
- *
- * autoPaginate option will be ignored.
- *
- * @see {@link https://nodejs.org/api/stream.html}
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. Resource name of the parent `Service`.
- *   Of the form `projects/{project_id}/services/{service_id}`.
- * @param {string} request.filter
- *   A filter specifying what `ServiceLevelObjective`s to return.
- * @param {number} request.pageSize
- *   A non-negative number that is the maximum number of results to return.
- *   When 0, use default page size.
- * @param {string} request.pageToken
- *   If this field is not empty then it must contain the `nextPageToken` value
- *   returned by a previous call to this method.  Using this field causes the
- *   method to return additional results from the previous method call.
- * @param {google.monitoring.v3.ServiceLevelObjective.View} request.view
- *   View of the `ServiceLevelObjective`s to return. If `DEFAULT`, return each
- *   `ServiceLevelObjective` as originally defined. If `EXPLICIT` and the
- *   `ServiceLevelObjective` is defined in terms of a `BasicSli`, replace the
- *   `BasicSli` with a `RequestBasedSli` spelling out how the SLI is computed.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Stream}
- *   An object stream which emits an object representing [ServiceLevelObjective]{@link google.monitoring.v3.ServiceLevelObjective} on 'data' event.
- */
-  listServiceLevelObjectivesStream(
-      request?: protosTypes.google.monitoring.v3.IListServiceLevelObjectivesRequest,
-      options?: gax.CallOptions):
-    Transform{
-    request = request || {};
-    options = options || {};
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
-    });
-    const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.listServiceLevelObjectives.createStream(
-      this._innerApiCalls.listServiceLevelObjectives as gax.GaxCall,
+    return this._descriptors.page.listAlertPolicies.createStream(
+      this._innerApiCalls.listAlertPolicies as gax.GaxCall,
       request,
       callSettings
     );
@@ -1939,7 +1578,7 @@ export class ServiceMonitoringServiceClient {
    */
   close(): Promise<void> {
     if (!this._terminated) {
-      return this.serviceMonitoringServiceStub.then(stub => {
+      return this.alertPolicyServiceStub.then(stub => {
         this._terminated = true;
         stub.close();
       });
