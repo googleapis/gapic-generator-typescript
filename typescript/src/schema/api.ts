@@ -164,27 +164,22 @@ function getResourceDatabase(
       );
     }
     const messagesStack: plugin.google.protobuf.IDescriptorProto[] = [];
-    const messages = (fd.messageType ?? [])
-      .filter(message => message.name)
-      .reduce((map, message) => {
-        map['.' + fd.package! + '.' + message.name!] = message;
-        return map;
-      }, {} as MessagesMap);
+    const messages = (fd.messageType ?? []).filter(
+      (message: plugin.google.protobuf.IDescriptorProto) => message.name
+    );
     // put first layer of messages in the stack
-    for (const property of Object.keys(messages)) {
-      messagesStack.push(messages[property]);
-    }
+    messagesStack.push(...messages);
     while (messagesStack.length !== 0) {
       const m = messagesStack.pop();
       if (!m || !m.name) continue;
-      const massgeName = '.' + fd.package + '.' + m.name!;
+      const messageName = '.' + fd.package + '.' + m.name!;
       resourceDatabase.registerResource(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
-        `file ${fd.name} message ${massgeName}`
+        `file ${fd.name} message ${messageName}`
       );
       allResourceDatabase.registerResource(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
-        `file ${fd.name} message ${massgeName}`
+        `file ${fd.name} message ${messageName}`
       );
       if (m.nestedType) {
         const nestedMessages = m.nestedType;
