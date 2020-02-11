@@ -181,10 +181,7 @@ function getResourceDatabase(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
         `file ${fd.name} message ${messageName}`
       );
-      if (m.nestedType) {
-        const nestedMessages = m.nestedType;
-        nestedMessages.map(m => messagesStack.push(m));
-      }
+      (m.nestedType ?? []).map(m => messagesStack.push(m));
     }
   }
   return [allResourceDatabase, resourceDatabase];
