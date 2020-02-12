@@ -60,7 +60,7 @@ describe('Baseline tests', () => {
   runBaselineTest({
     baselineName: 'showcase',
     outputDir: '.test-out-showcase',
-    protoPath: 'google/showcase/v1beta1/echo.proto',
+    protoPath: 'google/showcase/v1beta1/*.proto',
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
   });
