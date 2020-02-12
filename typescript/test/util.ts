@@ -124,9 +124,12 @@ function putFiletoStack(dir: string, fileStack: string[], dirStack: string[]) {
   const items = fs.readdirSync(dir);
   items.forEach(item => {
     const baselinePath = path.join(dir, item);
-    if (fs.lstatSync(baselinePath).isFile()) {
+    if (
+      fs.statSync(baselinePath).isFile() &&
+      baselinePath.match(/\.baseline$/)
+    ) {
       fileStack.push(baselinePath);
-    } else if (fs.lstatSync(baselinePath).isDirectory()) {
+    } else if (fs.statSync(baselinePath).isDirectory()) {
       dirStack.push(baselinePath);
     }
   });

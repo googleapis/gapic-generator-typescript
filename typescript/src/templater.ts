@@ -28,7 +28,7 @@ const commonParameters: { [name: string]: string } = {
 
 const readFile = util.promisify(fs.readFile);
 const readDir = util.promisify(fs.readdir);
-const lstat = util.promisify(fs.lstat);
+const fsstat = util.promisify(fs.stat);
 
 async function recursiveFileList(
   basePath: string,
@@ -41,7 +41,7 @@ async function recursiveFileList(
     const entries = await readDir(directory);
     for (const entry of entries) {
       const fullPath = path.join(directory, entry);
-      const stat = await lstat(fullPath);
+      const stat = await fsstat(fullPath);
       if (stat.isDirectory()) {
         dirQueue.push(fullPath);
       } else if (stat.isFile() && entry.match(nameRegex)) {
