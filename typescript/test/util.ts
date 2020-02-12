@@ -14,6 +14,10 @@
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { before, it } from 'mocha';
+import * as rimraf from 'rimraf';
+import { execSync } from 'child_process';
+import * as assert from 'assert';
 
 const NO_OUTPUT_FILE = 0;
 const IDENTICAL_FILE = 1;
@@ -21,10 +25,95 @@ const FILE_WITH_DIFF_CONTENT = 2;
 
 const BASELINE_EXTENSION = '.baseline';
 
-export function equalToBaseline(
-  outpurDir: string,
-  baselineDir: string
-): boolean {
+export interface BaselineOptions {
+  outputDir: string;
+  protoPath: string;
+  useCommonProto: boolean;
+  baselineName: string;
+  mainServiceName?: string;
+  grpcServiceConfig?: string;
+  packageName?: string;
+}
+
+const cwd = process.cwd();
+const googleGaxProtosDir = path.join(
+  cwd,
+  'node_modules',
+  'google-gax',
+  'protos'
+);
+const protosDirRoot = path.join(cwd, 'test-fixtures', 'protos');
+const commonProtoFilePath = path.join(
+  protosDirRoot,
+  'google',
+  'cloud',
+  'common_resources.proto'
+);
+const baselineRootDir = path.join(cwd, 'baselines');
+const srcDir = path.join(cwd, 'build', 'src');
+const cliPath = path.join(srcDir, 'cli.js');
+const pluginPath = path.join(srcDir, 'protoc-gen-typescript_gapic');
+const startScriptPath = path.join(cwd, 'build', 'src', 'start-script.js');
+
+export function initBaselineTest() {
+  before(() => {
+    if (fs.existsSync(pluginPath)) {
+      rimraf.sync(pluginPath);
+    }
+    fs.copyFileSync(cliPath, pluginPath);
+    process.env['PATH'] = srcDir + path.delimiter + process.env['PATH'];
+
+    try {
+      execSync(`chmod +x ${pluginPath} ${cliPath}`);
+    } catch (err) {
+      console.warn(`Failed to chmod +x ${pluginPath}: ${err}. Ignoring...`);
+    }
+  });
+}
+
+export function runBaselineTest(options: BaselineOptions) {
+  const outputDir = path.join(cwd, options.outputDir);
+  const protoPath = path.join(
+    protosDirRoot,
+    options.protoPath.split('/').join(path.sep)
+  );
+  const baselineDir = path.join(baselineRootDir, options.baselineName);
+  const grpcServiceConfig = options.grpcServiceConfig
+    ? path.join(
+        protosDirRoot,
+        options.grpcServiceConfig.split('/').join(path.sep)
+      )
+    : undefined;
+
+  it(options.baselineName, function() {
+    this.timeout(60000);
+    if (fs.existsSync(outputDir)) {
+      rimraf.sync(outputDir);
+    }
+    fs.mkdirSync(outputDir);
+
+    let commandLine =
+      `node ${startScriptPath} --output_dir=${outputDir} ` +
+      `-I${protosDirRoot} -I${googleGaxProtosDir} ${protoPath}`;
+    if (options.useCommonProto) {
+      commandLine += ` ${commonProtoFilePath}`;
+    }
+    if (options.mainServiceName) {
+      commandLine += ` --main-service=${options.mainServiceName}`;
+    }
+    if (grpcServiceConfig) {
+      commandLine += ` --grpc-service-config=${grpcServiceConfig}`;
+    }
+    if (options.packageName) {
+      commandLine += ` --package-name=${options.packageName}`;
+    }
+
+    execSync(commandLine);
+    assert(equalToBaseline(outputDir, baselineDir));
+  });
+}
+
+function equalToBaseline(outpurDir: string, baselineDir: string): boolean {
   let result = true;
   // put all baseline files into fileStack
   let fileStack: string[] = [];
@@ -126,7 +215,7 @@ function putFiletoStack(dir: string, fileStack: string[], dirStack: string[]) {
     const baselinePath = path.join(dir, item);
     if (
       fs.statSync(baselinePath).isFile() &&
-      baselinePath.match(/\.baseline$/)
+      baselinePath.endsWith(BASELINE_EXTENSION)
     ) {
       fileStack.push(baselinePath);
     } else if (fs.statSync(baselinePath).isDirectory()) {

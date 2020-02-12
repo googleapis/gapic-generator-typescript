@@ -17,7 +17,7 @@ import { describe, it } from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import { getHeaderRequestParams } from '../../src/schema/proto';
 
-describe('schema/proto.ts', () => {
+describe('src/schema/proto.ts', () => {
   describe('should get header parameters from http rule', () => {
     it('works with no parameter', () => {
       const httpRule: plugin.google.api.IHttpRule = {

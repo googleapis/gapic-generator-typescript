@@ -13,15 +13,10 @@
 // limitations under the License.
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import * as fs from 'fs';
-import * as path from 'path';
 
 import { Naming, Options as namingOptions } from './naming';
-import { Proto, MessagesMap } from './proto';
-import { ResourceDatabase, ResourceDescriptor } from './resourceDatabase';
-
-const googleGaxLocation = path.dirname(require.resolve('google-gax'));
-const gaxProtosLocation = path.join(googleGaxLocation, '..', '..', 'protos');
+import { Proto } from './proto';
+import { ResourceDatabase, ResourceDescriptor } from './resource-database';
 
 export interface ProtosMap {
   [filename: string]: Proto;

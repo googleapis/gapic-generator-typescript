@@ -17,7 +17,7 @@ import { describe, it } from 'mocha';
 import { commonPrefix, duration, seconds, milliseconds } from '../../src/util';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
-describe('util.ts', () => {
+describe('src/util.ts', () => {
   describe('CommonPrefix', () => {
     it('should return correct result', () => {
       assert.strictEqual(commonPrefix(['abc', 'abcd', 'ab']), 'ab');

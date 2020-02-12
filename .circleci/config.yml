@@ -3,7 +3,7 @@ jobs:
   testGenerator:
     docker:
       - image: circleci/node:10-browsers
-    working_directory: /tmp/workspace/gapic-generator-typescript
+    working_directory: /home/circleci/project/gapic-generator-typescript
     steps:
       - checkout
       - run:
@@ -31,17 +31,14 @@ jobs:
       - run:
           name: copy protos to generated client library
           command: |
-            cp -r typescript/test/protos .test-out-showcase
-            cp -r typescript/test/protos .test-out-keymanager
-            cp -r typescript/test/protos .test-out-translate
-            cp -r typescript/test/protos .test-out-monitoring
-            cp -r typescript/test/protos .test-out-texttospeech
-            cp -r typescript/test/protos .test-out-dlp
+            for dir in .test-out-* ; do
+              cp -r test-fixtures/protos $dir
+            done
       - persist_to_workspace:
-          root: /tmp
+          root: /home/circleci/project
           paths:
-            - workspace
-  showcaseTsTestApplication:
+            - gapic-generator-typescript
+  showcaseTestApplications:
     docker:
       - image: circleci/node:10-browsers
     steps: 
@@ -50,23 +47,14 @@ jobs:
           at: workspace
       - run:
           name: Run showcase test for Typescript users
-          command: |
-            cd workspace/workspace/gapic-generator-typescript
-            npm run ts-test-application
+          working_directory: /home/circleci/project/workspace/gapic-generator-typescript
+          command: npm run ts-test-application
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
-  showcaseJsTestApplication:
-    docker:
-      - image: circleci/node:10-browsers
-    steps: 
-      - checkout
-      - attach_workspace:
-          at: workspace
       - run:
           name: Run showcase test for JavaScript users
-          command: |
-            cd workspace/workspace/gapic-generator-typescript
-            npm run js-test-application
+          working_directory: /home/circleci/project/workspace/gapic-generator-typescript
+          command: npm run js-test-application
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
   showcaseLibTest:
@@ -78,15 +66,14 @@ jobs:
           at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Showcase library
-          command: |
-            cd workspace/workspace/gapic-generator-typescript/.test-out-showcase
+          working_directory: /home/circleci/project/workspace/gapic-generator-typescript/.test-out-showcase
+          command: &alltests |
             npm install
             npm test
             npm run fix
             npm run compile
             npm run system-test
             npm run docs
-            npm run docs-test
   kmsLibTest:
     docker:
       - image: circleci/node:10-browsers
@@ -96,15 +83,8 @@ jobs:
           at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated KMS library
-          command: |
-            cd workspace/workspace/gapic-generator-typescript/.test-out-keymanager
-            npm install
-            npm test
-            npm run fix
-            npm run compile
-            npm run system-test
-            npm run docs
-            npm run docs-test
+          working_directory: /home/circleci/project/workspace/gapic-generator-typescript/.test-out-kms
+          command: *alltests
   translateLibTest:
     docker:
       - image: circleci/node:10-browsers
@@ -114,15 +94,8 @@ jobs:
           at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Translate library
-          command: |
-            cd workspace/workspace/gapic-generator-typescript/.test-out-translate
-            npm install
-            npm test
-            npm run fix
-            npm run compile
-            npm run system-test
-            npm run docs
-            npm run docs-test
+          working_directory: /home/circleci/project/workspace/gapic-generator-typescript/.test-out-translate
+          command: *alltests
   monitoringLibTest:
     docker:
       - image: circleci/node:10-browsers
@@ -132,13 +105,8 @@ jobs:
           at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Monitoring library
-          command: |
-            cd workspace/workspace/gapic-generator-typescript/.test-out-monitoring
-            npm install
-            npm test
-            npm run fix
-            npm run compile
-            npm run system-test
+          working_directory: /home/circleci/project/workspace/gapic-generator-typescript/.test-out-monitoring
+          command: *alltests
   dlpLibTest:
     docker:
       - image: circleci/node:10-browsers
@@ -147,15 +115,9 @@ jobs:
       - attach_workspace:
           at: workspace
       - run:
-          name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated dlp library
-          command: |
-            cd workspace/workspace/gapic-generator-typescript/.test-out-dlp
-            npm install
-            npm test
-            npm run fix
-            npm run compile
-            npm run system-test
-            npm run docs
+          name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated DLP library
+          working_directory: /home/circleci/project/workspace/gapic-generator-typescript/.test-out-dlp
+          command: *alltests
   ttsLibTest:
     docker:
       - image: circleci/node:10-browsers
@@ -165,24 +127,14 @@ jobs:
           at: workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Text-to-Speech library
-          command: |
-            cd workspace/workspace/gapic-generator-typescript/.test-out-texttospeech
-            npm install
-            npm test
-            npm run fix
-            npm run compile
-            npm run system-test
-            npm run docs
-            npm run docs-test
+          working_directory: /home/circleci/project/workspace/gapic-generator-typescript/.test-out-texttospeech
+          command: *alltests
 workflows:
   version: 2
   tests:
     jobs:
       - testGenerator
-      - showcaseTsTestApplication:
-          requires:
-            - testGenerator
-      - showcaseJsTestApplication:
+      - showcaseTestApplications:
           requires:
             - testGenerator
       - showcaseLibTest:

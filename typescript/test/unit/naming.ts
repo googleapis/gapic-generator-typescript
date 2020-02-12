@@ -17,7 +17,7 @@ import { describe, it } from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import { Naming, Options } from '../../src/schema/naming';
 
-describe('schema/naming.ts', () => {
+describe('src/schema/naming.ts', () => {
   it('parses name correctly', () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
