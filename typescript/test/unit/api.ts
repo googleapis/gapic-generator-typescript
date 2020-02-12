@@ -17,7 +17,7 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
 
-describe('schema/api.ts', () => {
+describe('src/schema/api.ts', () => {
   it('should construct an API object and return list of protos', () => {
     const fd = new plugin.google.protobuf.FileDescriptorProto();
     fd.name = 'google/cloud/test/v1/test.proto';
