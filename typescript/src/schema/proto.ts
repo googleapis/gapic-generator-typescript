@@ -473,13 +473,12 @@ function augmentService(
       );
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
-      if(! resourceReference || !resourceReference.type) continue;
+      if (!resourceReference || !resourceReference.type) continue;
       // console.warn('all resources: ', allResourceDatabase.types);
-      const resourceByType =
-        allResourceDatabase.getResourceByType(
-          resourceReference?.type,
-          errorLocation
-        );
+      const resourceByType = allResourceDatabase.getResourceByType(
+        resourceReference?.type,
+        errorLocation
+      );
       if (!resourceByType || !resourceByType.pattern) continue;
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
       // look up pattern map for all resources.
