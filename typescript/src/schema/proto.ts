@@ -473,11 +473,9 @@ function augmentService(
       );
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
-      let resourceByType = allResourceDatabase.getResourceByType(
-        resourceReference?.type
-      );
-      resourceByType =
-        resourceByType ??
+      if(! resourceReference || !resourceReference.type) continue;
+      // console.warn('all resources: ', allResourceDatabase.types);
+      const resourceByType =
         allResourceDatabase.getResourceByType(
           resourceReference?.type,
           errorLocation
