@@ -30,7 +30,7 @@ rm -rf $DIR_NAME
 mkdir $DIR_NAME
 # Use Docker Image for generating showcase client library
 docker run --rm \
-  --mount type=bind,source=`pwd`/typescript/test/protos/google/showcase/v1beta1,destination=/in/typescript/test/protos/google/showcase/v1beta1,readonly \
+  --mount type=bind,source=`pwd`/test-fixtures/protos/google/showcase/v1beta1,destination=/in/google/showcase/v1beta1,readonly \
   --mount type=bind,source=`pwd`/$DIR_NAME,destination=/out \
   gapic-generator-typescript:latest
 # Test generated client library
