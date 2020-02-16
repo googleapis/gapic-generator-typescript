@@ -16,6 +16,8 @@ import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import { getHeaderRequestParams } from '../../src/schema/proto';
+import { Proto } from '../../src/schema/proto'
+import { ResourceDatabase } from '../../src/schema/resource-database';
 
 describe('src/schema/proto.ts', () => {
   describe('should get header parameters from http rule', () => {
@@ -90,6 +92,23 @@ describe('src/schema/proto.ts', () => {
         ],
         getHeaderRequestParams(httpRule)
       );
+    });
+  });
+  describe('special work around for talent API', () => {
+    it('The pagingFieldName should be undefined for SearchJobs & SearchProfiles rpc', () => {
+      const fd = new plugin.google.protobuf.FileDescriptorProto();
+      fd.name = 'google/cloud/talent/v4beta1/service.proto';
+      fd.package = 'google.cloud.talent.v4beta1';
+      fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [new plugin.google.protobuf.MethodDescriptorProto];
+      fd.service[0].method[0] = new plugin.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0].name = 'SearchJobs';
+      fd.service[0].method[1] = new plugin.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[1].name = 'SearchProfiles';
+      const proto = new Proto(fd, 'google.cloud.talent.v4beta1', new plugin.grpc.service_config.ServiceConfig(), new ResourceDatabase(), new ResourceDatabase());
+      assert.deepStrictEqual(proto.services['service'].method[0].pagingFieldName, undefined);
+      assert.deepStrictEqual(proto.services['service'].method[1].pagingFieldName, undefined);
     });
   });
 });
