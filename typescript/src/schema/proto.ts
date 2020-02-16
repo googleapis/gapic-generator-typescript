@@ -219,7 +219,7 @@ function pagingField(
   return repeatedFields[0];
 }
 
-export function pagingFieldName(
+function pagingFieldName(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto
