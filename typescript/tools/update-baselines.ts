@@ -36,7 +36,7 @@ const root = path.resolve(__dirname, '..', '..');
 const resultPrefix = /^\.test-out-(.*)$/;
 
 function getBaselineDirectory(library: string): string {
-  return path.join(root, 'typescript', 'test', 'testdata', library);
+  return path.join(root, 'baselines', library);
 }
 
 function getBaselineFilename(library: string, filename: string): string {
