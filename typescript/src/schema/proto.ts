@@ -150,7 +150,26 @@ function streaming(method: MethodDescriptorProto) {
   return undefined;
 }
 
-function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
+function pagingField(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  service?: ServiceDescriptorProto
+) {
+  // TODO: remove this once the next version of the Talent API is published.
+  //
+  // This is a workaround to disable auto-pagination for specifc RPCs in
+  // Talent v4beta1. The API team will make their API non-conforming in the
+  // next version.
+  //
+  // This should not be done for any other API.
+  const serviceName =
+    service && service.packageName === 'google.cloud.talent.v4beta1';
+  const methodName =
+    method.name === 'SearchProfiles' || method.name === 'SearchJobs';
+  if (serviceName && methodName) {
+    return undefined;
+  }
+
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
@@ -201,8 +220,12 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
   return repeatedFields[0];
 }
 
-function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
-  const field = pagingField(messages, method);
+function pagingFieldName(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  service?: ServiceDescriptorProto
+) {
+  const field = pagingField(messages, method, service);
   return field?.name;
 }
 
@@ -277,7 +300,7 @@ function augmentMethod(
         method
       ),
       streaming: streaming(method),
-      pagingFieldName: pagingFieldName(messages, method),
+      pagingFieldName: pagingFieldName(messages, method, service),
       pagingResponseType: pagingResponseType(messages, method),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,

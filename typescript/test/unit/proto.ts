@@ -16,6 +16,8 @@ import * as assert from 'assert';
 import { describe, it } from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import { getHeaderRequestParams } from '../../src/schema/proto';
+import { Proto } from '../../src/schema/proto';
+import { ResourceDatabase } from '../../src/schema/resource-database';
 
 describe('src/schema/proto.ts', () => {
   describe('should get header parameters from http rule', () => {
@@ -89,6 +91,69 @@ describe('src/schema/proto.ts', () => {
           ['foo1', 'foo2'],
         ],
         getHeaderRequestParams(httpRule)
+      );
+    });
+  });
+  describe('special work around for talent API', () => {
+    it('The pagingFieldName should be undefined for SearchJobs & SearchProfiles rpc', () => {
+      const fd = new plugin.google.protobuf.FileDescriptorProto();
+      fd.name = 'google/cloud/talent/v4beta1/service.proto';
+      fd.package = 'google.cloud.talent.v4beta1';
+      fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        new plugin.google.protobuf.MethodDescriptorProto(),
+      ];
+      fd.service[0].method[0] = new plugin.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[0].name = 'SearchJobs';
+      fd.service[0].method[1] = new plugin.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[1].name = 'SearchProfiles';
+      fd.service[0].method[2] = new plugin.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[2].name = 'ListJobs';
+      fd.service[0].method[2].outputType =
+        '.google.cloud.talent.v4beta1.ListJobsOutput';
+      fd.service[0].method[2].inputType =
+        '.google.cloud.talent.v4beta1.ListJobsInput';
+
+      fd.messageType = [new plugin.google.protobuf.DescriptorProto()];
+      fd.messageType[0] = new plugin.google.protobuf.DescriptorProto();
+      fd.messageType[1] = new plugin.google.protobuf.DescriptorProto();
+
+      fd.messageType[0].name = 'ListJobsOutput';
+      fd.messageType[1].name = 'ListJobsInput';
+
+      fd.messageType[0].field = [
+        new plugin.google.protobuf.FieldDescriptorProto(),
+      ];
+      fd.messageType[0].field[0] = new plugin.google.protobuf.FieldDescriptorProto();
+      fd.messageType[0].field[0].name = 'next_page_token';
+      fd.messageType[0].field[0].label =
+        plugin.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED;
+      fd.messageType[1].field = [
+        new plugin.google.protobuf.FieldDescriptorProto(),
+      ];
+      fd.messageType[1].field[0] = new plugin.google.protobuf.FieldDescriptorProto();
+      fd.messageType[1].field[0].name = 'page_size';
+      fd.messageType[1].field[1] = new plugin.google.protobuf.FieldDescriptorProto();
+      fd.messageType[1].field[1].name = 'page_token';
+      const proto = new Proto(
+        fd,
+        'google.cloud.talent.v4beta1',
+        new plugin.grpc.service_config.ServiceConfig(),
+        new ResourceDatabase(),
+        new ResourceDatabase()
+      );
+      assert.deepStrictEqual(
+        proto.services['service'].method[0].pagingFieldName,
+        undefined
+      );
+      assert.deepStrictEqual(
+        proto.services['service'].method[1].pagingFieldName,
+        undefined
+      );
+      assert.deepStrictEqual(
+        proto.services['service'].method[2].pagingFieldName,
+        'next_page_token'
       );
     });
   });
