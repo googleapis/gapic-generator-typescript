@@ -110,21 +110,28 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method[1].name = 'SearchProfiles';
       fd.service[0].method[2] = new plugin.google.protobuf.MethodDescriptorProto();
       fd.service[0].method[2].name = 'ListJobs';
-      fd.service[0].method[2].outputType = '.google.cloud.talent.v4beta1.ListJobsOutput';
-      fd.service[0].method[2].inputType = '.google.cloud.talent.v4beta1.ListJobsInput';
+      fd.service[0].method[2].outputType =
+        '.google.cloud.talent.v4beta1.ListJobsOutput';
+      fd.service[0].method[2].inputType =
+        '.google.cloud.talent.v4beta1.ListJobsInput';
 
-      fd.messageType = [new plugin.google.protobuf.DescriptorProto()]
+      fd.messageType = [new plugin.google.protobuf.DescriptorProto()];
       fd.messageType[0] = new plugin.google.protobuf.DescriptorProto();
       fd.messageType[1] = new plugin.google.protobuf.DescriptorProto();
 
       fd.messageType[0].name = 'ListJobsOutput';
       fd.messageType[1].name = 'ListJobsInput';
 
-      fd.messageType[0].field = [new plugin.google.protobuf.FieldDescriptorProto()];
+      fd.messageType[0].field = [
+        new plugin.google.protobuf.FieldDescriptorProto(),
+      ];
       fd.messageType[0].field[0] = new plugin.google.protobuf.FieldDescriptorProto();
       fd.messageType[0].field[0].name = 'next_page_token';
-      fd.messageType[0].field[0].label = plugin.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED;
-      fd.messageType[1].field = [new plugin.google.protobuf.FieldDescriptorProto()];
+      fd.messageType[0].field[0].label =
+        plugin.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED;
+      fd.messageType[1].field = [
+        new plugin.google.protobuf.FieldDescriptorProto(),
+      ];
       fd.messageType[1].field[0] = new plugin.google.protobuf.FieldDescriptorProto();
       fd.messageType[1].field[0].name = 'page_size';
       fd.messageType[1].field[1] = new plugin.google.protobuf.FieldDescriptorProto();
