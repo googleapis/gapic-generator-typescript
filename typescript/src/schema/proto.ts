@@ -164,7 +164,7 @@ function pagingField(
   // This should not be done for any other API.
   const serviceName =
     service && service.packageName === 'google.cloud.talent.v4beta1';
-  const methodName = method.name === 'SearchProfiles' || 'SearchJobs';
+  const methodName = (method.name === 'SearchProfiles' || method.name === 'SearchJobs');
   if (serviceName && methodName) {
     return undefined;
   }
