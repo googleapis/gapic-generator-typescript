@@ -18,12 +18,13 @@
 // needs to be propagated to all baselines.
 // Usage: node build/tools/update-baselines.js
 
-import { exec } from 'child_process';
+import { exec, execSync } from 'child_process';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import { promisify } from 'util';
 import { readdir, stat, mkdir, existsSync } from 'fs';
 import * as ncp from 'ncp';
+import { lib } from 'nunjucks';
 
 const rmrf = promisify(rimraf);
 const readdirp = promisify(readdir);
@@ -58,6 +59,12 @@ async function copyBaseline(library: string, root: string, directory = '.') {
       await copyBaseline(library, root, relativePath);
     } else if (stat.isFile()) {
       const baseline = getBaselineFilename(library, relativePath);
+      // In baselines/, create symlink rename `package.json.baseline` to `package.json` 
+      if(relativePath.includes('package.json')){
+        console.warn('library: ', library);
+        console.warn('got package.json: ', relativePath);
+        exec('ln -s package.json package.json.njk')
+      }
       await ncpp(absolutePath, baseline);
       console.log(`    - ${relativePath}`);
     }
