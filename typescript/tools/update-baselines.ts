@@ -22,9 +22,10 @@ import { exec, execSync } from 'child_process';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import { promisify } from 'util';
-import { readdir, stat, mkdir, existsSync } from 'fs';
+import { readdir, stat, mkdir, existsSync, rename } from 'fs';
 import * as ncp from 'ncp';
 import { lib } from 'nunjucks';
+import { release } from 'os';
 
 const rmrf = promisify(rimraf);
 const readdirp = promisify(readdir);
@@ -59,13 +60,15 @@ async function copyBaseline(library: string, root: string, directory = '.') {
       await copyBaseline(library, root, relativePath);
     } else if (stat.isFile()) {
       const baseline = getBaselineFilename(library, relativePath);
-      // In baselines/, create symlink rename `package.json.baseline` to `package.json` 
-      if(relativePath.includes('package.json')){
-        console.warn('library: ', library);
-        console.warn('got package.json: ', relativePath);
-        exec('ln -s package.json package.json.njk')
-      }
       await ncpp(absolutePath, baseline);
+      // In baselines/, create `package.json.baseline` as symlink to `package.json`
+      if (relativePath.includes('package.json')) {
+        const packageJson = baseline.substring(0, baseline.lastIndexOf('.'));
+        const renamePackage = 'mv ' + baseline + ' ' + packageJson;
+        exec(renamePackage);
+        const createSymlink = 'ln -s ' + packageJson + ' ' + baseline;
+        exec(createSymlink);
+      }
       console.log(`    - ${relativePath}`);
     }
   }
