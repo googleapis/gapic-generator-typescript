@@ -61,7 +61,7 @@ async function copyBaseline(library: string, root: string, directory = '.') {
     } else if (stat.isFile()) {
       const baseline = getBaselineFilename(library, relativePath);
       // In baselines/, update `package.json` instead of `package.json.baseline`
-      if (relativePath.includes('package.json')) {
+      if (relativePath.endsWith(`${path.sep}package.json`)) {
         const packageJson = baseline.substring(0, baseline.lastIndexOf('.'));
         await ncpp(absolutePath, packageJson);
       } else {
