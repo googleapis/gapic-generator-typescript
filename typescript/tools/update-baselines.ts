@@ -18,18 +18,18 @@
 // needs to be propagated to all baselines.
 // Usage: node build/tools/update-baselines.js
 
-import { exec, execSync } from 'child_process';
+import { exec } from 'child_process';
+import * as util from 'util';
+import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import { promisify } from 'util';
-import { readdir, stat, mkdir, existsSync, rename } from 'fs';
+import { readdir, mkdir, existsSync } from 'fs';
 import * as ncp from 'ncp';
-import { lib } from 'nunjucks';
-import { release } from 'os';
 
 const rmrf = promisify(rimraf);
 const readdirp = promisify(readdir);
-const statp = promisify(stat);
+const fsstat = util.promisify(fs.stat);
 const mkdirp = promisify(mkdir);
 const execp = promisify(exec);
 const ncpp = promisify(ncp);
@@ -55,7 +55,7 @@ async function copyBaseline(library: string, root: string, directory = '.') {
   for (const file of files) {
     const relativePath = `${directory}${path.sep}${file}`;
     const absolutePath = path.join(start, file);
-    const stat = await statp(absolutePath);
+    const stat = await fsstat(absolutePath);
     if (stat.isDirectory()) {
       await copyBaseline(library, root, relativePath);
     } else if (stat.isFile()) {
