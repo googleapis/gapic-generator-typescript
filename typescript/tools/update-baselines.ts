@@ -60,14 +60,12 @@ async function copyBaseline(library: string, root: string, directory = '.') {
       await copyBaseline(library, root, relativePath);
     } else if (stat.isFile()) {
       const baseline = getBaselineFilename(library, relativePath);
-      await ncpp(absolutePath, baseline);
-      // In baselines/, create `package.json.baseline` as symlink to `package.json`
+      // In baselines/, update `package.json` instead of `package.json.baseline`
       if (relativePath.includes('package.json')) {
         const packageJson = baseline.substring(0, baseline.lastIndexOf('.'));
-        const renamePackage = 'mv ' + baseline + ' ' + packageJson;
-        exec(renamePackage);
-        const createSymlink = 'ln -s ' + packageJson + ' ' + baseline;
-        exec(createSymlink);
+        await ncpp(absolutePath, packageJson);
+      } else {
+        await ncpp(absolutePath, baseline);
       }
       console.log(`    - ${relativePath}`);
     }
