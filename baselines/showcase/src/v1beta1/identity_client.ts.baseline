@@ -17,35 +17,30 @@
 // ** All changes to this file may be overwritten. **
 
 import * as gax from 'google-gax';
-import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback, PaginationResponse} from 'google-gax';
+import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback, PaginationResponse} from 'google-gax';
 import * as path from 'path';
 
 import { Transform } from 'stream';
 import * as protosTypes from '../../protos/protos';
-import * as gapicConfig from './echo_client_config.json';
+import * as gapicConfig from './identity_client_config.json';
 
 const version = require('../../../package.json').version;
 
 /**
- *  This service is used showcase the four main types of rpcs - unary, server
- *  side streaming, client side streaming, and bidirectional streaming. This
- *  service also exposes methods that explicitly implement server delay, and
- *  paginated calls. Set the 'showcase-trailer' metadata key on any method
- *  to have the values echoed in the response trailers.
+ *  A simple identity service.
  * @class
  * @memberof v1beta1
  */
-export class EchoClient {
+export class IdentityClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   auth: gax.GoogleAuth;
-  operationsClient: gax.OperationsClient;
-  echoStub: Promise<{[name: string]: Function}>;
+  identityStub: Promise<{[name: string]: Function}>;
 
   /**
-   * Construct an instance of EchoClient.
+   * Construct an instance of IdentityClient.
    *
    * @param {object} [options] - The configuration object. See the subsequent
    *   parameters for more details.
@@ -74,7 +69,7 @@ export class EchoClient {
 
   constructor(opts?: ClientOptions) {
     // Ensure that options include the service address and port.
-    const staticMembers = this.constructor as typeof EchoClient;
+    const staticMembers = this.constructor as typeof IdentityClient;
     const servicePath = opts && opts.servicePath ?
         opts.servicePath :
         ((opts && opts.apiEndpoint) ? opts.apiEndpoint :
@@ -99,7 +94,7 @@ export class EchoClient {
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
-    opts.scopes = (this.constructor as typeof EchoClient).scopes;
+    opts.scopes = (this.constructor as typeof IdentityClient).scopes;
     const gaxGrpc = new gaxModule.GrpcClient(opts);
 
     // Save the auth object to the client, for use by other methods.
@@ -163,44 +158,13 @@ export class EchoClient {
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
     this._descriptors.page = {
-      pagedExpand:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'responses')
-    };
-
-    // Some of the methods on this service provide streaming responses.
-    // Provide descriptors for these.
-    this._descriptors.stream = {
-      expand: new gaxModule.StreamDescriptor(gax.StreamType.SERVER_STREAMING),
-      collect: new gaxModule.StreamDescriptor(gax.StreamType.CLIENT_STREAMING),
-      chat: new gaxModule.StreamDescriptor(gax.StreamType.BIDI_STREAMING)
-    };
-
-    // This API contains "long-running operations", which return a
-    // an Operation object that allows for tracking of the operation,
-    // rather than holding a request open.
-    const protoFilesRoot = opts.fallback?
-      gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
-      gaxModule.protobuf.loadSync(nodejsProtoPath);
-
-    this.operationsClient = gaxModule.lro({
-      auth: this.auth,
-      grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
-    }).operationsClient(opts);
-    const waitResponse = protoFilesRoot.lookup(
-      '.google.showcase.v1beta1.WaitResponse') as gax.protobuf.Type;
-    const waitMetadata = protoFilesRoot.lookup(
-      '.google.showcase.v1beta1.WaitMetadata') as gax.protobuf.Type;
-
-    this._descriptors.longrunning = {
-      wait: new gaxModule.LongrunningDescriptor(
-        this.operationsClient,
-        waitResponse.decode.bind(waitResponse),
-        waitMetadata.decode.bind(waitMetadata))
+      listUsers:
+          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'users')
     };
 
     // Put together the default options sent with requests.
     const defaults = gaxGrpc.constructSettings(
-        'google.showcase.v1beta1.Echo', gapicConfig as gax.ClientConfig,
+        'google.showcase.v1beta1.Identity', gapicConfig as gax.ClientConfig,
         opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
 
     // Set up a dictionary of "inner API calls"; the core implementation
@@ -209,21 +173,21 @@ export class EchoClient {
     this._innerApiCalls = {};
 
     // Put together the "service stub" for
-    // google.showcase.v1beta1.Echo.
-    this.echoStub = gaxGrpc.createStub(
+    // google.showcase.v1beta1.Identity.
+    this.identityStub = gaxGrpc.createStub(
         opts.fallback ?
-          (protos as protobuf.Root).lookupService('google.showcase.v1beta1.Echo') :
+          (protos as protobuf.Root).lookupService('google.showcase.v1beta1.Identity') :
           // tslint:disable-next-line no-any
-          (protos as any).google.showcase.v1beta1.Echo,
+          (protos as any).google.showcase.v1beta1.Identity,
         opts) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
-    const echoStubMethods =
-        ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'wait', 'block'];
+    const identityStubMethods =
+        ['createUser', 'getUser', 'updateUser', 'deleteUser', 'listUsers'];
 
-    for (const methodName of echoStubMethods) {
-      const innerCallPromise = this.echoStub.then(
+    for (const methodName of identityStubMethods) {
+      const innerCallPromise = this.identityStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -301,45 +265,45 @@ export class EchoClient {
   // -------------------
   // -- Service calls --
   // -------------------
-  echo(
-      request: protosTypes.google.showcase.v1beta1.IEchoRequest,
+  createUser(
+      request: protosTypes.google.showcase.v1beta1.ICreateUserRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IEchoResponse,
-        protosTypes.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined
+        protosTypes.google.showcase.v1beta1.IUser,
+        protosTypes.google.showcase.v1beta1.ICreateUserRequest|undefined, {}|undefined
       ]>;
-  echo(
-      request: protosTypes.google.showcase.v1beta1.IEchoRequest,
+  createUser(
+      request: protosTypes.google.showcase.v1beta1.ICreateUserRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IEchoResponse,
-          protosTypes.google.showcase.v1beta1.IEchoRequest|undefined,
+          protosTypes.google.showcase.v1beta1.IUser,
+          protosTypes.google.showcase.v1beta1.ICreateUserRequest|undefined,
           {}|undefined>): void;
 /**
+ * Creates a user.
+ *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.content
- *   The content to be echoed by the server.
- * @param {google.rpc.Status} request.error
- *   The error to be thrown by the server.
+ * @param {google.showcase.v1beta1.User} request.user
+ *   The user to create.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [EchoResponse]{@link google.showcase.v1beta1.EchoResponse}.
+ *   The first element of the array is an object representing [User]{@link google.showcase.v1beta1.User}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  echo(
-      request: protosTypes.google.showcase.v1beta1.IEchoRequest,
+  createUser(
+      request: protosTypes.google.showcase.v1beta1.ICreateUserRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IEchoResponse,
-          protosTypes.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>,
+          protosTypes.google.showcase.v1beta1.IUser,
+          protosTypes.google.showcase.v1beta1.ICreateUserRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IEchoResponse,
-          protosTypes.google.showcase.v1beta1.IEchoRequest|undefined,
+          protosTypes.google.showcase.v1beta1.IUser,
+          protosTypes.google.showcase.v1beta1.ICreateUserRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IEchoResponse,
-        protosTypes.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined
+        protosTypes.google.showcase.v1beta1.IUser,
+        protosTypes.google.showcase.v1beta1.ICreateUserRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -351,54 +315,47 @@ export class EchoClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
-    return this._innerApiCalls.echo(request, options, callback);
+    return this._innerApiCalls.createUser(request, options, callback);
   }
-  block(
-      request: protosTypes.google.showcase.v1beta1.IBlockRequest,
+  getUser(
+      request: protosTypes.google.showcase.v1beta1.IGetUserRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlockResponse,
-        protosTypes.google.showcase.v1beta1.IBlockRequest|undefined, {}|undefined
+        protosTypes.google.showcase.v1beta1.IUser,
+        protosTypes.google.showcase.v1beta1.IGetUserRequest|undefined, {}|undefined
       ]>;
-  block(
-      request: protosTypes.google.showcase.v1beta1.IBlockRequest,
+  getUser(
+      request: protosTypes.google.showcase.v1beta1.IGetUserRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IBlockResponse,
-          protosTypes.google.showcase.v1beta1.IBlockRequest|undefined,
+          protosTypes.google.showcase.v1beta1.IUser,
+          protosTypes.google.showcase.v1beta1.IGetUserRequest|undefined,
           {}|undefined>): void;
 /**
- * This method will block (wait) for the requested amount of time
- * and then return the response or error.
- * This method showcases how a client handles delays or retries.
+ * Retrieves the User with the given uri.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {google.protobuf.Duration} request.responseDelay
- *   The amount of time to block before returning a response.
- * @param {google.rpc.Status} request.error
- *   The error that will be returned by the server. If this code is specified
- *   to be the OK rpc code, an empty response will be returned.
- * @param {google.showcase.v1beta1.BlockResponse} request.success
- *   The response to be returned that will signify successful method call.
+ * @param {string} request.name
+ *   The resource name of the requested user.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [BlockResponse]{@link google.showcase.v1beta1.BlockResponse}.
+ *   The first element of the array is an object representing [User]{@link google.showcase.v1beta1.User}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  block(
-      request: protosTypes.google.showcase.v1beta1.IBlockRequest,
+  getUser(
+      request: protosTypes.google.showcase.v1beta1.IGetUserRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IBlockResponse,
-          protosTypes.google.showcase.v1beta1.IBlockRequest|undefined, {}|undefined>,
+          protosTypes.google.showcase.v1beta1.IUser,
+          protosTypes.google.showcase.v1beta1.IGetUserRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IBlockResponse,
-          protosTypes.google.showcase.v1beta1.IBlockRequest|undefined,
+          protosTypes.google.showcase.v1beta1.IUser,
+          protosTypes.google.showcase.v1beta1.IGetUserRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlockResponse,
-        protosTypes.google.showcase.v1beta1.IBlockRequest|undefined, {}|undefined
+        protosTypes.google.showcase.v1beta1.IUser,
+        protosTypes.google.showcase.v1beta1.IGetUserRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -410,135 +367,57 @@ export class EchoClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
-    return this._innerApiCalls.block(request, options, callback);
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.getUser(request, options, callback);
   }
-
-/**
- * This method split the given content into words and will pass each word back
- * through the stream. This method showcases server-side streaming rpcs.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.content
- *   The content that will be split into words and returned on the stream.
- * @param {google.rpc.Status} request.error
- *   The error that is thrown after all words are sent on the stream.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Stream}
- *   An object stream which emits [EchoResponse]{@link google.showcase.v1beta1.EchoResponse} on 'data' event.
- */
-  expand(
-      request?: protosTypes.google.showcase.v1beta1.IExpandRequest,
-      options?: gax.CallOptions):
-    gax.CancellableStream{
-    request = request || {};
-    options = options || {};
-    return this._innerApiCalls.expand(request, options);
-  }
-
-  collect(
-      options?: gax.CallOptions,
-      callback?: Callback<
-        protosTypes.google.showcase.v1beta1.IEchoResponse,
-        protosTypes.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>):
-    gax.CancellableStream;
-  collect(
-      callback?: Callback<
-        protosTypes.google.showcase.v1beta1.IEchoResponse,
-        protosTypes.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>):
-    gax.CancellableStream;
-/**
- * This method will collect the words given to it. When the stream is closed
- * by the client, this method will return the a concatenation of the strings
- * passed to it. This method showcases client-side streaming rpcs.
- *
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Stream} - A writable stream which accepts objects representing
- * [EchoRequest]{@link google.showcase.v1beta1.EchoRequest}.
- */
-  collect(
-      optionsOrCallback?: gax.CallOptions|Callback<
-        protosTypes.google.showcase.v1beta1.IEchoResponse,
-        protosTypes.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>,
-      callback?: Callback<
-        protosTypes.google.showcase.v1beta1.IEchoResponse,
-        protosTypes.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>):
-    gax.CancellableStream {
-    if (optionsOrCallback instanceof Function && callback === undefined) {
-        callback = optionsOrCallback;
-        optionsOrCallback = {};
-    }
-    const options = optionsOrCallback as gax.CallOptions;
-    return this._innerApiCalls.collect(null, options, callback);
-  }
-
-/**
- * This method, upon receiving a request on the stream, the same content will
- * be passed  back on the stream. This method showcases bidirectional
- * streaming rpcs.
- *
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Stream}
- *   An object stream which is both readable and writable. It accepts objects
- *   representing [EchoRequest]{@link google.showcase.v1beta1.EchoRequest} for write() method, and
- *   will emit objects representing [EchoResponse]{@link google.showcase.v1beta1.EchoResponse} on 'data' event asynchronously.
- */
-  chat(
-      options?: gax.CallOptions):
-    gax.CancellableStream{
-    return this._innerApiCalls.chat(options);
-  }
-
-  wait(
-      request: protosTypes.google.showcase.v1beta1.IWaitRequest,
+  updateUser(
+      request: protosTypes.google.showcase.v1beta1.IUpdateUserRequest,
       options?: gax.CallOptions):
       Promise<[
-        LROperation<protosTypes.google.showcase.v1beta1.IWaitResponse, protosTypes.google.showcase.v1beta1.IWaitMetadata>,
-        protosTypes.google.longrunning.IOperation|undefined, {}|undefined
+        protosTypes.google.showcase.v1beta1.IUser,
+        protosTypes.google.showcase.v1beta1.IUpdateUserRequest|undefined, {}|undefined
       ]>;
-  wait(
-      request: protosTypes.google.showcase.v1beta1.IWaitRequest,
+  updateUser(
+      request: protosTypes.google.showcase.v1beta1.IUpdateUserRequest,
       options: gax.CallOptions,
       callback: Callback<
-          LROperation<protosTypes.google.showcase.v1beta1.IWaitResponse, protosTypes.google.showcase.v1beta1.IWaitMetadata>,
-          protosTypes.google.longrunning.IOperation|undefined,
+          protosTypes.google.showcase.v1beta1.IUser,
+          protosTypes.google.showcase.v1beta1.IUpdateUserRequest|undefined,
           {}|undefined>): void;
 /**
- * This method will wait the requested amount of and then return.
- * This method showcases how a client handles a request timing out.
+ * Updates a user.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {google.protobuf.Timestamp} request.endTime
- *   The time that this operation will complete.
- * @param {google.protobuf.Duration} request.ttl
- *   The duration of this operation.
- * @param {google.rpc.Status} request.error
- *   The error that will be returned by the server. If this code is specified
- *   to be the OK rpc code, an empty response will be returned.
- * @param {google.showcase.v1beta1.WaitResponse} request.success
- *   The response to be returned on operation completion.
+ * @param {google.showcase.v1beta1.User} request.user
+ *   The user to update.
+ * @param {google.protobuf.FieldMask} request.updateMask
+ *   The field mask to determine wich fields are to be updated. If empty, the
+ *   server will assume all fields are to be updated.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Operation]{@link google.longrunning.Operation}.
+ *   The first element of the array is an object representing [User]{@link google.showcase.v1beta1.User}.
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  wait(
-      request: protosTypes.google.showcase.v1beta1.IWaitRequest,
+  updateUser(
+      request: protosTypes.google.showcase.v1beta1.IUpdateUserRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          LROperation<protosTypes.google.showcase.v1beta1.IWaitResponse, protosTypes.google.showcase.v1beta1.IWaitMetadata>,
-          protosTypes.google.longrunning.IOperation|undefined, {}|undefined>,
+          protosTypes.google.showcase.v1beta1.IUser,
+          protosTypes.google.showcase.v1beta1.IUpdateUserRequest|undefined, {}|undefined>,
       callback?: Callback<
-          LROperation<protosTypes.google.showcase.v1beta1.IWaitResponse, protosTypes.google.showcase.v1beta1.IWaitMetadata>,
-          protosTypes.google.longrunning.IOperation|undefined,
+          protosTypes.google.showcase.v1beta1.IUser,
+          protosTypes.google.showcase.v1beta1.IUpdateUserRequest|undefined,
           {}|undefined>):
       Promise<[
-        LROperation<protosTypes.google.showcase.v1beta1.IWaitResponse, protosTypes.google.showcase.v1beta1.IWaitMetadata>,
-        protosTypes.google.longrunning.IOperation|undefined, {}|undefined
+        protosTypes.google.showcase.v1beta1.IUser,
+        protosTypes.google.showcase.v1beta1.IUpdateUserRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -550,67 +429,134 @@ export class EchoClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
-    return this._innerApiCalls.wait(request, options, callback);
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'user.name': request.user!.name || '',
+    });
+    return this._innerApiCalls.updateUser(request, options, callback);
   }
-  pagedExpand(
-      request: protosTypes.google.showcase.v1beta1.IPagedExpandRequest,
+  deleteUser(
+      request: protosTypes.google.showcase.v1beta1.IDeleteUserRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IEchoResponse[],
-        protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null,
-        protosTypes.google.showcase.v1beta1.IPagedExpandResponse
+        protosTypes.google.protobuf.IEmpty,
+        protosTypes.google.showcase.v1beta1.IDeleteUserRequest|undefined, {}|undefined
       ]>;
-  pagedExpand(
-      request: protosTypes.google.showcase.v1beta1.IPagedExpandRequest,
+  deleteUser(
+      request: protosTypes.google.showcase.v1beta1.IDeleteUserRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IEchoResponse[],
-          protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null,
-          protosTypes.google.showcase.v1beta1.IPagedExpandResponse>): void;
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.showcase.v1beta1.IDeleteUserRequest|undefined,
+          {}|undefined>): void;
 /**
- * This is similar to the Expand method but instead of returning a stream of
- * expanded words, this method returns a paged list of expanded words.
+ * Deletes a user, their profile, and all of their authored messages.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.content
- *   The string to expand.
+ * @param {string} request.name
+ *   The resource name of the user to delete.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
+ *   The promise has a method named "cancel" which cancels the ongoing API call.
+ */
+  deleteUser(
+      request: protosTypes.google.showcase.v1beta1.IDeleteUserRequest,
+      optionsOrCallback?: gax.CallOptions|Callback<
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.showcase.v1beta1.IDeleteUserRequest|undefined, {}|undefined>,
+      callback?: Callback<
+          protosTypes.google.protobuf.IEmpty,
+          protosTypes.google.showcase.v1beta1.IDeleteUserRequest|undefined,
+          {}|undefined>):
+      Promise<[
+        protosTypes.google.protobuf.IEmpty,
+        protosTypes.google.showcase.v1beta1.IDeleteUserRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: gax.CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as gax.CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'name': request.name || '',
+    });
+    return this._innerApiCalls.deleteUser(request, options, callback);
+  }
+
+  listUsers(
+      request: protosTypes.google.showcase.v1beta1.IListUsersRequest,
+      options?: gax.CallOptions):
+      Promise<[
+        protosTypes.google.showcase.v1beta1.IUser[],
+        protosTypes.google.showcase.v1beta1.IListUsersRequest|null,
+        protosTypes.google.showcase.v1beta1.IListUsersResponse
+      ]>;
+  listUsers(
+      request: protosTypes.google.showcase.v1beta1.IListUsersRequest,
+      options: gax.CallOptions,
+      callback: Callback<
+          protosTypes.google.showcase.v1beta1.IUser[],
+          protosTypes.google.showcase.v1beta1.IListUsersRequest|null,
+          protosTypes.google.showcase.v1beta1.IListUsersResponse>): void;
+/**
+ * Lists all users.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
  * @param {number} request.pageSize
- *   The amount of words to returned in each page.
+ *   The maximum number of users to return. Server may return fewer users
+ *   than requested. If unspecified, server will pick an appropriate default.
  * @param {string} request.pageToken
- *   The position of the page to be returned.
+ *   The value of google.showcase.v1beta1.ListUsersResponse.next_page_token
+ *   returned from the previous call to
+ *   `google.showcase.v1beta1.Identity\ListUsers` method.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [EchoResponse]{@link google.showcase.v1beta1.EchoResponse}.
+ *   The first element of the array is Array of [User]{@link google.showcase.v1beta1.User}.
  *   The client library support auto-pagination by default: it will call the API as many
  *   times as needed and will merge results from all the pages into this array.
  *
  *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of [EchoResponse]{@link google.showcase.v1beta1.EchoResponse} that corresponds to
+ *   The first element is Array of [User]{@link google.showcase.v1beta1.User} that corresponds to
  *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type [PagedExpandRequest]{@link google.showcase.v1beta1.PagedExpandRequest}
+ *   If the second element is not null it contains the request object of type [ListUsersRequest]{@link google.showcase.v1beta1.ListUsersRequest}
  *   that can be used to obtain the next page of the results.
  *   If it is null, the next page does not exist.
  *   The third element contains the raw response received from the API server. Its type is
- *   [PagedExpandResponse]{@link google.showcase.v1beta1.PagedExpandResponse}.
+ *   [ListUsersResponse]{@link google.showcase.v1beta1.ListUsersResponse}.
  *
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
-  pagedExpand(
-      request: protosTypes.google.showcase.v1beta1.IPagedExpandRequest,
+  listUsers(
+      request: protosTypes.google.showcase.v1beta1.IListUsersRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IEchoResponse[],
-          protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null,
-          protosTypes.google.showcase.v1beta1.IPagedExpandResponse>,
+          protosTypes.google.showcase.v1beta1.IUser[],
+          protosTypes.google.showcase.v1beta1.IListUsersRequest|null,
+          protosTypes.google.showcase.v1beta1.IListUsersResponse>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IEchoResponse[],
-          protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null,
-          protosTypes.google.showcase.v1beta1.IPagedExpandResponse>):
+          protosTypes.google.showcase.v1beta1.IUser[],
+          protosTypes.google.showcase.v1beta1.IListUsersRequest|null,
+          protosTypes.google.showcase.v1beta1.IListUsersResponse>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IEchoResponse[],
-        protosTypes.google.showcase.v1beta1.IPagedExpandRequest|null,
-        protosTypes.google.showcase.v1beta1.IPagedExpandResponse
+        protosTypes.google.showcase.v1beta1.IUser[],
+        protosTypes.google.showcase.v1beta1.IListUsersRequest|null,
+        protosTypes.google.showcase.v1beta1.IListUsersResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -622,13 +568,13 @@ export class EchoClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
-    return this._innerApiCalls.pagedExpand(request, options, callback);
+    return this._innerApiCalls.listUsers(request, options, callback);
   }
 
 /**
- * Equivalent to {@link pagedExpand}, but returns a NodeJS Stream object.
+ * Equivalent to {@link listUsers}, but returns a NodeJS Stream object.
  *
- * This fetches the paged responses for {@link pagedExpand} continuously
+ * This fetches the paged responses for {@link listUsers} continuously
  * and invokes the callback registered for 'data' event for each element in the
  * responses.
  *
@@ -640,26 +586,27 @@ export class EchoClient {
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.content
- *   The string to expand.
  * @param {number} request.pageSize
- *   The amount of words to returned in each page.
+ *   The maximum number of users to return. Server may return fewer users
+ *   than requested. If unspecified, server will pick an appropriate default.
  * @param {string} request.pageToken
- *   The position of the page to be returned.
+ *   The value of google.showcase.v1beta1.ListUsersResponse.next_page_token
+ *   returned from the previous call to
+ *   `google.showcase.v1beta1.Identity\ListUsers` method.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [EchoResponse]{@link google.showcase.v1beta1.EchoResponse} on 'data' event.
+ *   An object stream which emits an object representing [User]{@link google.showcase.v1beta1.User} on 'data' event.
  */
-  pagedExpandStream(
-      request?: protosTypes.google.showcase.v1beta1.IPagedExpandRequest,
+  listUsersStream(
+      request?: protosTypes.google.showcase.v1beta1.IListUsersRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
-    return this._descriptors.page.pagedExpand.createStream(
-      this._innerApiCalls.pagedExpand as gax.GaxCall,
+    return this._descriptors.page.listUsers.createStream(
+      this._innerApiCalls.listUsers as gax.GaxCall,
       request,
       callSettings
     );
@@ -901,7 +848,7 @@ export class EchoClient {
    */
   close(): Promise<void> {
     if (!this._terminated) {
-      return this.echoStub.then(stub => {
+      return this.identityStub.then(stub => {
         this._terminated = true;
         stub.close();
       });

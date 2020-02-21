@@ -31,7 +31,8 @@ option java_multiple_files = true;
 // This service is used showcase the four main types of rpcs - unary, server
 // side streaming, client side streaming, and bidirectional streaming. This
 // service also exposes methods that explicitly implement server delay, and
-// paginated calls.
+// paginated calls. Set the 'showcase-trailer' metadata key on any method
+// to have the values echoed in the response trailers.
 service Echo {
   // This service is meant to only run locally on the port 7469 (keypad digits
   // for "show").
@@ -93,10 +94,20 @@ service Echo {
       metadata_type: "WaitMetadata"
     };
   }
+
+  // This method will block (wait) for the requested amount of time 
+  // and then return the response or error.
+  // This method showcases how a client handles delays or retries.
+  rpc Block(BlockRequest) returns (BlockResponse) {
+    option (google.api.http) = {
+      post: "/v1beta1/echo:block"
+      body: "*"
+    };
+  };
 }
 
 // The request message used for the Echo, Collect and Chat methods. If content
-// is set in this message then the request will succeed. If status is set in
+// is set in this message then the request will succeed. If status is set in 
 // this message then the status will be returned as an error.
 message EchoRequest {
   oneof response {
@@ -174,4 +185,26 @@ message WaitResponse {
 message WaitMetadata {
   // The time that this operation will complete.
   google.protobuf.Timestamp end_time =1;
+}
+
+// The request for Block method.
+message BlockRequest {
+  // The amount of time to block before returning a response.
+  google.protobuf.Duration response_delay = 1;
+
+  oneof response {
+    // The error that will be returned by the server. If this code is specified
+    // to be the OK rpc code, an empty response will be returned.
+    google.rpc.Status error = 2;
+
+    // The response to be returned that will signify successful method call.
+    BlockResponse success = 3;
+  }
+}
+
+// The response for Block method.
+message BlockResponse {
+  // This content can contain anything, the server will not depend on a value
+  // here.
+  string content = 1;
 }
