@@ -30,6 +30,7 @@ import * as ncp from 'ncp';
 const rmrf = promisify(rimraf);
 const readdirp = promisify(readdir);
 const fsstat = util.promisify(fs.stat);
+const fssymlink = util.promisify(fs.symlink);
 const mkdirp = promisify(mkdir);
 const execp = promisify(exec);
 const ncpp = promisify(ncp);
@@ -61,9 +62,11 @@ async function copyBaseline(library: string, root: string, directory = '.') {
     } else if (stat.isFile()) {
       const baseline = getBaselineFilename(library, relativePath);
       // In baselines/, update `package.json` instead of `package.json.baseline`
+      // (package.json.baseline is a symlink to package.json to make renovate bot happy)
       if (relativePath.endsWith(`${path.sep}package.json`)) {
         const packageJson = baseline.substring(0, baseline.lastIndexOf('.'));
         await ncpp(absolutePath, packageJson);
+        await fssymlink(packageJson, baseline);
       } else {
         await ncpp(absolutePath, baseline);
       }
