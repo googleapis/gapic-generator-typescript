@@ -18,6 +18,7 @@
 
 module.exports = {
   opts: {
+    readme: './README.md',
     package: './package.json',
     template: './node_modules/jsdoc-fresh',
     recurse: true,
@@ -29,6 +30,7 @@ module.exports = {
     'jsdoc-region-tag'
   ],
   source: {
+    excludePattern: '(^|\\/|\\\\)[._]',
     include: [
       'build/src',
       'protos'
