@@ -71,4 +71,11 @@ describe('Baseline tests', () => {
     protoPath: 'google/cloud/translate/v3beta1/*.proto',
     useCommonProto: true,
   });
+
+  runBaselineTest({
+    baselineName: 'bigquery-storage',
+    outputDir: '.test-out-bigquery-storage',
+    protoPath: 'google/cloud/bigquery/storage/v1beta1/*.proto',
+    useCommonProto: false,
+  });
 });
