@@ -47,6 +47,7 @@ function getBaselineFilename(library: string, filename: string): string {
 }
 
 async function copyBaseline(library: string, root: string, directory = '.') {
+  const cwd = process.cwd();
   const start = path.join(root, directory);
   const targetDirectory = path.join(getBaselineDirectory(library), directory);
   if (!existsSync(targetDirectory)) {
@@ -66,7 +67,10 @@ async function copyBaseline(library: string, root: string, directory = '.') {
       if (relativePath.endsWith(`${path.sep}package.json`)) {
         const packageJson = baseline.substring(0, baseline.lastIndexOf('.'));
         await ncpp(absolutePath, packageJson);
-        await fssymlink(packageJson, baseline);
+        const dirname = path.dirname(packageJson);
+        process.chdir(dirname);
+        await fssymlink('package.json', 'package.json.baseline');
+        process.chdir(cwd);
       } else {
         await ncpp(absolutePath, baseline);
       }
