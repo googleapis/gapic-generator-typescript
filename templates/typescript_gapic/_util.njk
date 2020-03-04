@@ -16,6 +16,8 @@ limitations under the License.
 
 -#}
 
+{% set regExp = r/\[([^\]]+)\]\[([^\]]+)\]/ %}
+
 {%- macro printComments(method, service) -%}
   {{- printCommentsForMethod(method) }}
   {{- printRequest(method) -}}
@@ -37,7 +39,7 @@ limitations under the License.
 {% for line in lines %}
 {%- set trimmed = line.replace(r/\s+$/, '') -%}
 {%- if trimmed.length > 0 %}
- * {{ trimmed.replaceAll('*/', '* /') | safe}}
+ * {{ trimmed.replaceAll('*/', '* /') | safe | replace(regExp, '{@link $2|$1}')}}
 {%- else %}
  *
 {%- endif %}
@@ -47,7 +49,7 @@ limitations under the License.
 {%- macro printCommentsForMethod(method) -%}
 {%- set lines = method.comments -%}
 {% for line in lines %}
- *{{ line.replaceAll('*/', '* /').replace(r/\s+$/, '') | safe}}
+    *{{ line.replaceAll('*/', '* /').replace(r/\s+$/, '') | safe | replace(regExp, '{@link $2|$1}')}}
 {%- endfor %}
 {%- endmacro -%}
 
@@ -87,7 +89,7 @@ limitations under the License.
 {%- for line in lines %}
 {%- set trimmed = line.replace(r/\s+$/, '') -%}
 {%- if trimmed.length > 0 %}
- *  {{ trimmed.replaceAll('*/', '* /') | safe}}
+ *  {{ trimmed.replaceAll('*/', '* /') | safe | replace(regExp, '{@link $2|$1}')}}
 {%- else %}
  *
 {%- endif -%}
