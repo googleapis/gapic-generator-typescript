@@ -36,8 +36,13 @@ export class IdentityClient {
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
+  private _opts: ClientOptions;
+  private _gaxModule: typeof gax | typeof gax.fallback;
+  private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
+  private _protos: {};
+  private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
-  identityStub: Promise<{[name: string]: Function}>;
+  identityStub?: Promise<{[name: string]: Function}>;
 
   /**
    * Construct an instance of IdentityClient.
@@ -88,28 +93,31 @@ export class IdentityClient {
     // If we are in browser, we are already using fallback because of the
     // "browser" field in package.json.
     // But if we were explicitly requested to use fallback, let's do it now.
-    const gaxModule = !isBrowser && opts.fallback ? gax.fallback : gax;
+    this._gaxModule = !isBrowser && opts.fallback ? gax.fallback : gax;
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
     opts.scopes = (this.constructor as typeof IdentityClient).scopes;
-    const gaxGrpc = new gaxModule.GrpcClient(opts);
+    this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
+
+    // Save options to use in initialize() method.
+    this._opts = opts;
 
     // Save the auth object to the client, for use by other methods.
-    this.auth = (gaxGrpc.auth as gax.GoogleAuth);
+    this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
 
     // Determine the client header string.
     const clientHeader = [
-      `gax/${gaxModule.version}`,
+      `gax/${this._gaxModule.version}`,
       `gapic/${version}`,
     ];
     if (typeof process !== 'undefined' && 'versions' in process) {
       clientHeader.push(`gl-node/${process.versions.node}`);
     } else {
-      clientHeader.push(`gl-web/${gaxModule.version}`);
+      clientHeader.push(`gl-web/${this._gaxModule.version}`);
     }
     if (!opts.fallback) {
-      clientHeader.push(`grpc/${gaxGrpc.grpcVersion}`);
+      clientHeader.push(`grpc/${this._gaxGrpc.grpcVersion}`);
     }
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
@@ -119,7 +127,7 @@ export class IdentityClient {
     // For browsers, pass the JSON content.
 
     const nodejsProtoPath = path.join(__dirname, '..', '..', 'protos', 'protos.json');
-    const protos = gaxGrpc.loadProto(
+    this._protos = this._gaxGrpc.loadProto(
       opts.fallback ?
         require("../../protos/protos.json") :
         nodejsProtoPath
@@ -129,25 +137,25 @@ export class IdentityClient {
     // identifiers to uniquely identify resources within the API.
     // Create useful helper objects for these.
     this._pathTemplates = {
-      blueprintPathTemplate: new gaxModule.PathTemplate(
+      blueprintPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}/tests/{test}/blueprints/{blueprint}'
       ),
-      roomPathTemplate: new gaxModule.PathTemplate(
+      roomPathTemplate: new this._gaxModule.PathTemplate(
         'rooms/{room_id}'
       ),
-      roomIdBlurbIdPathTemplate: new gaxModule.PathTemplate(
+      roomIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
         'rooms/{room_id}/blurbs/{blurb_id}'
       ),
-      sessionPathTemplate: new gaxModule.PathTemplate(
+      sessionPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}'
       ),
-      testPathTemplate: new gaxModule.PathTemplate(
+      testPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}/tests/{test}'
       ),
-      userPathTemplate: new gaxModule.PathTemplate(
+      userPathTemplate: new this._gaxModule.PathTemplate(
         'users/{user_id}'
       ),
-      userIdBlurbIdPathTemplate: new gaxModule.PathTemplate(
+      userIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
         'user/{user_id}/profile/blurbs/{blurb_id}'
       ),
     };
@@ -157,11 +165,11 @@ export class IdentityClient {
     // pages). Denote the keys used for pagination and results.
     this._descriptors.page = {
       listUsers:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'users')
+          new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'users')
     };
 
     // Put together the default options sent with requests.
-    const defaults = gaxGrpc.constructSettings(
+    this._defaults = this._gaxGrpc.constructSettings(
         'google.showcase.v1beta1.Identity', gapicConfig as gax.ClientConfig,
         opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
 
@@ -169,15 +177,33 @@ export class IdentityClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this._innerApiCalls = {};
+  }
+
+  /**
+   * Initialize the client.
+   * Performs asynchronous operations (such as authentication) and prepares the client.
+   * This function will be called automatically when any class method is called for the
+   * first time, but if you need to initialize it before calling an actual method,
+   * feel free to call initialize() directly.
+   *
+   * You can await on this method if you want to make sure the client is initialized.
+   *
+   * @returns {Promise} A promise that resolves to an authenticated service stub.
+   */
+  initialize() {
+    // If the client stub promise is already initialized, return immediately.
+    if (this.identityStub) {
+      return this.identityStub;
+    }
 
     // Put together the "service stub" for
     // google.showcase.v1beta1.Identity.
-    this.identityStub = gaxGrpc.createStub(
-        opts.fallback ?
-          (protos as protobuf.Root).lookupService('google.showcase.v1beta1.Identity') :
+    this.identityStub = this._gaxGrpc.createStub(
+        this._opts.fallback ?
+          (this._protos as protobuf.Root).lookupService('google.showcase.v1beta1.Identity') :
           // tslint:disable-next-line no-any
-          (protos as any).google.showcase.v1beta1.Identity,
-        opts) as Promise<{[method: string]: Function}>;
+          (this._protos as any).google.showcase.v1beta1.Identity,
+        this._opts) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
@@ -196,9 +222,9 @@ export class IdentityClient {
           throw err;
         });
 
-      const apiCall = gaxModule.createApiCall(
+      const apiCall = this._gaxModule.createApiCall(
         innerCallPromise,
-        defaults[methodName],
+        this._defaults[methodName],
         this._descriptors.page[methodName] ||
             this._descriptors.stream[methodName] ||
             this._descriptors.longrunning[methodName]
@@ -212,6 +238,8 @@ export class IdentityClient {
         return apiCall(argument, callOptions, callback);
       };
     }
+
+    return this.identityStub;
   }
 
   /**
@@ -313,6 +341,7 @@ export class IdentityClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
+    this.initialize();
     return this._innerApiCalls.createUser(request, options, callback);
   }
   getUser(
@@ -372,6 +401,7 @@ export class IdentityClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.getUser(request, options, callback);
   }
   updateUser(
@@ -434,6 +464,7 @@ export class IdentityClient {
     ] = gax.routingHeader.fromParams({
       'user.name': request.user!.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.updateUser(request, options, callback);
   }
   deleteUser(
@@ -493,6 +524,7 @@ export class IdentityClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.deleteUser(request, options, callback);
   }
 
@@ -566,6 +598,7 @@ export class IdentityClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
+    this.initialize();
     return this._innerApiCalls.listUsers(request, options, callback);
   }
 
@@ -603,6 +636,7 @@ export class IdentityClient {
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this._descriptors.page.listUsers.createStream(
       this._innerApiCalls.listUsers as gax.GaxCall,
       request,
@@ -845,8 +879,9 @@ export class IdentityClient {
    * The client will no longer be usable and all future behavior is undefined.
    */
   close(): Promise<void> {
+    this.initialize();
     if (!this._terminated) {
-      return this.identityStub.then(stub => {
+      return this.identityStub!.then(stub => {
         this._terminated = true;
         stub.close();
       });

@@ -45,8 +45,13 @@ export class KeyManagementServiceClient {
   private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
   private _innerApiCalls: {[name: string]: Function};
   private _terminated = false;
+  private _opts: ClientOptions;
+  private _gaxModule: typeof gax | typeof gax.fallback;
+  private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
+  private _protos: {};
+  private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
-  keyManagementServiceStub: Promise<{[name: string]: Function}>;
+  keyManagementServiceStub?: Promise<{[name: string]: Function}>;
 
   /**
    * Construct an instance of KeyManagementServiceClient.
@@ -97,28 +102,31 @@ export class KeyManagementServiceClient {
     // If we are in browser, we are already using fallback because of the
     // "browser" field in package.json.
     // But if we were explicitly requested to use fallback, let's do it now.
-    const gaxModule = !isBrowser && opts.fallback ? gax.fallback : gax;
+    this._gaxModule = !isBrowser && opts.fallback ? gax.fallback : gax;
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
     opts.scopes = (this.constructor as typeof KeyManagementServiceClient).scopes;
-    const gaxGrpc = new gaxModule.GrpcClient(opts);
+    this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
+
+    // Save options to use in initialize() method.
+    this._opts = opts;
 
     // Save the auth object to the client, for use by other methods.
-    this.auth = (gaxGrpc.auth as gax.GoogleAuth);
+    this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
 
     // Determine the client header string.
     const clientHeader = [
-      `gax/${gaxModule.version}`,
+      `gax/${this._gaxModule.version}`,
       `gapic/${version}`,
     ];
     if (typeof process !== 'undefined' && 'versions' in process) {
       clientHeader.push(`gl-node/${process.versions.node}`);
     } else {
-      clientHeader.push(`gl-web/${gaxModule.version}`);
+      clientHeader.push(`gl-web/${this._gaxModule.version}`);
     }
     if (!opts.fallback) {
-      clientHeader.push(`grpc/${gaxGrpc.grpcVersion}`);
+      clientHeader.push(`grpc/${this._gaxGrpc.grpcVersion}`);
     }
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
@@ -128,7 +136,7 @@ export class KeyManagementServiceClient {
     // For browsers, pass the JSON content.
 
     const nodejsProtoPath = path.join(__dirname, '..', '..', 'protos', 'protos.json');
-    const protos = gaxGrpc.loadProto(
+    this._protos = this._gaxGrpc.loadProto(
       opts.fallback ?
         require("../../protos/protos.json") :
         nodejsProtoPath
@@ -139,17 +147,17 @@ export class KeyManagementServiceClient {
     // pages). Denote the keys used for pagination and results.
     this._descriptors.page = {
       listKeyRings:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'keyRings'),
+          new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'keyRings'),
       listCryptoKeys:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'cryptoKeys'),
+          new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'cryptoKeys'),
       listCryptoKeyVersions:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'cryptoKeyVersions'),
+          new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'cryptoKeyVersions'),
       listImportJobs:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'importJobs')
+          new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'importJobs')
     };
 
     // Put together the default options sent with requests.
-    const defaults = gaxGrpc.constructSettings(
+    this._defaults = this._gaxGrpc.constructSettings(
         'google.cloud.kms.v1.KeyManagementService', gapicConfig as gax.ClientConfig,
         opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
 
@@ -157,15 +165,33 @@ export class KeyManagementServiceClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this._innerApiCalls = {};
+  }
+
+  /**
+   * Initialize the client.
+   * Performs asynchronous operations (such as authentication) and prepares the client.
+   * This function will be called automatically when any class method is called for the
+   * first time, but if you need to initialize it before calling an actual method,
+   * feel free to call initialize() directly.
+   *
+   * You can await on this method if you want to make sure the client is initialized.
+   *
+   * @returns {Promise} A promise that resolves to an authenticated service stub.
+   */
+  initialize() {
+    // If the client stub promise is already initialized, return immediately.
+    if (this.keyManagementServiceStub) {
+      return this.keyManagementServiceStub;
+    }
 
     // Put together the "service stub" for
     // google.cloud.kms.v1.KeyManagementService.
-    this.keyManagementServiceStub = gaxGrpc.createStub(
-        opts.fallback ?
-          (protos as protobuf.Root).lookupService('google.cloud.kms.v1.KeyManagementService') :
+    this.keyManagementServiceStub = this._gaxGrpc.createStub(
+        this._opts.fallback ?
+          (this._protos as protobuf.Root).lookupService('google.cloud.kms.v1.KeyManagementService') :
           // tslint:disable-next-line no-any
-          (protos as any).google.cloud.kms.v1.KeyManagementService,
-        opts) as Promise<{[method: string]: Function}>;
+          (this._protos as any).google.cloud.kms.v1.KeyManagementService,
+        this._opts) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
@@ -184,9 +210,9 @@ export class KeyManagementServiceClient {
           throw err;
         });
 
-      const apiCall = gaxModule.createApiCall(
+      const apiCall = this._gaxModule.createApiCall(
         innerCallPromise,
-        defaults[methodName],
+        this._defaults[methodName],
         this._descriptors.page[methodName] ||
             this._descriptors.stream[methodName] ||
             this._descriptors.longrunning[methodName]
@@ -200,6 +226,8 @@ export class KeyManagementServiceClient {
         return apiCall(argument, callOptions, callback);
       };
     }
+
+    return this.keyManagementServiceStub;
   }
 
   /**
@@ -311,6 +339,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.getKeyRing(request, options, callback);
   }
   getCryptoKey(
@@ -371,6 +400,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.getCryptoKey(request, options, callback);
   }
   getCryptoKeyVersion(
@@ -430,6 +460,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.getCryptoKeyVersion(request, options, callback);
   }
   getPublicKey(
@@ -493,6 +524,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.getPublicKey(request, options, callback);
   }
   getImportJob(
@@ -552,6 +584,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.getImportJob(request, options, callback);
   }
   createKeyRing(
@@ -617,6 +650,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.createKeyRing(request, options, callback);
   }
   createCryptoKey(
@@ -692,6 +726,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.createCryptoKey(request, options, callback);
   }
   createCryptoKeyVersion(
@@ -758,6 +793,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.createCryptoKeyVersion(request, options, callback);
   }
   importCryptoKeyVersion(
@@ -849,6 +885,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.importCryptoKeyVersion(request, options, callback);
   }
   createImportJob(
@@ -916,6 +953,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.createImportJob(request, options, callback);
   }
   updateCryptoKey(
@@ -977,6 +1015,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'crypto_key.name': request.cryptoKey!.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.updateCryptoKey(request, options, callback);
   }
   updateCryptoKeyVersion(
@@ -1044,6 +1083,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'crypto_key_version.name': request.cryptoKeyVersion!.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.updateCryptoKeyVersion(request, options, callback);
   }
   encrypt(
@@ -1128,6 +1168,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.encrypt(request, options, callback);
   }
   decrypt(
@@ -1195,6 +1236,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.decrypt(request, options, callback);
   }
   asymmetricSign(
@@ -1260,6 +1302,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.asymmetricSign(request, options, callback);
   }
   asymmetricDecrypt(
@@ -1325,6 +1368,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.asymmetricDecrypt(request, options, callback);
   }
   updateCryptoKeyPrimaryVersion(
@@ -1388,6 +1432,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.updateCryptoKeyPrimaryVersion(request, options, callback);
   }
   destroyCryptoKeyVersion(
@@ -1458,6 +1503,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.destroyCryptoKeyVersion(request, options, callback);
   }
   restoreCryptoKeyVersion(
@@ -1523,6 +1569,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.restoreCryptoKeyVersion(request, options, callback);
   }
 
@@ -1612,6 +1659,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.listKeyRings(request, options, callback);
   }
 
@@ -1665,6 +1713,7 @@ export class KeyManagementServiceClient {
       'parent': request.parent || '',
     });
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this._descriptors.page.listKeyRings.createStream(
       this._innerApiCalls.listKeyRings as gax.GaxCall,
       request,
@@ -1759,6 +1808,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.listCryptoKeys(request, options, callback);
   }
 
@@ -1814,6 +1864,7 @@ export class KeyManagementServiceClient {
       'parent': request.parent || '',
     });
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this._descriptors.page.listCryptoKeys.createStream(
       this._innerApiCalls.listCryptoKeys as gax.GaxCall,
       request,
@@ -1909,6 +1960,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.listCryptoKeyVersions(request, options, callback);
   }
 
@@ -1965,6 +2017,7 @@ export class KeyManagementServiceClient {
       'parent': request.parent || '',
     });
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this._descriptors.page.listCryptoKeyVersions.createStream(
       this._innerApiCalls.listCryptoKeyVersions as gax.GaxCall,
       request,
@@ -2057,6 +2110,7 @@ export class KeyManagementServiceClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.listImportJobs(request, options, callback);
   }
 
@@ -2110,6 +2164,7 @@ export class KeyManagementServiceClient {
       'parent': request.parent || '',
     });
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this._descriptors.page.listImportJobs.createStream(
       this._innerApiCalls.listImportJobs as gax.GaxCall,
       request,
@@ -2123,8 +2178,9 @@ export class KeyManagementServiceClient {
    * The client will no longer be usable and all future behavior is undefined.
    */
   close(): Promise<void> {
+    this.initialize();
     if (!this._terminated) {
-      return this.keyManagementServiceStub.then(stub => {
+      return this.keyManagementServiceStub!.then(stub => {
         this._terminated = true;
         stub.close();
       });

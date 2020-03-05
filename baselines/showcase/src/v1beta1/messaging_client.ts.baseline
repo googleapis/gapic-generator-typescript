@@ -39,9 +39,14 @@ export class MessagingClient {
   private _innerApiCalls: {[name: string]: Function};
   private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
+  private _opts: ClientOptions;
+  private _gaxModule: typeof gax | typeof gax.fallback;
+  private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
+  private _protos: {};
+  private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
   operationsClient: gax.OperationsClient;
-  messagingStub: Promise<{[name: string]: Function}>;
+  messagingStub?: Promise<{[name: string]: Function}>;
 
   /**
    * Construct an instance of MessagingClient.
@@ -92,28 +97,31 @@ export class MessagingClient {
     // If we are in browser, we are already using fallback because of the
     // "browser" field in package.json.
     // But if we were explicitly requested to use fallback, let's do it now.
-    const gaxModule = !isBrowser && opts.fallback ? gax.fallback : gax;
+    this._gaxModule = !isBrowser && opts.fallback ? gax.fallback : gax;
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
     opts.scopes = (this.constructor as typeof MessagingClient).scopes;
-    const gaxGrpc = new gaxModule.GrpcClient(opts);
+    this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
+
+    // Save options to use in initialize() method.
+    this._opts = opts;
 
     // Save the auth object to the client, for use by other methods.
-    this.auth = (gaxGrpc.auth as gax.GoogleAuth);
+    this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
 
     // Determine the client header string.
     const clientHeader = [
-      `gax/${gaxModule.version}`,
+      `gax/${this._gaxModule.version}`,
       `gapic/${version}`,
     ];
     if (typeof process !== 'undefined' && 'versions' in process) {
       clientHeader.push(`gl-node/${process.versions.node}`);
     } else {
-      clientHeader.push(`gl-web/${gaxModule.version}`);
+      clientHeader.push(`gl-web/${this._gaxModule.version}`);
     }
     if (!opts.fallback) {
-      clientHeader.push(`grpc/${gaxGrpc.grpcVersion}`);
+      clientHeader.push(`grpc/${this._gaxGrpc.grpcVersion}`);
     }
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
@@ -123,7 +131,7 @@ export class MessagingClient {
     // For browsers, pass the JSON content.
 
     const nodejsProtoPath = path.join(__dirname, '..', '..', 'protos', 'protos.json');
-    const protos = gaxGrpc.loadProto(
+    this._protos = this._gaxGrpc.loadProto(
       opts.fallback ?
         require("../../protos/protos.json") :
         nodejsProtoPath
@@ -133,25 +141,25 @@ export class MessagingClient {
     // identifiers to uniquely identify resources within the API.
     // Create useful helper objects for these.
     this._pathTemplates = {
-      blueprintPathTemplate: new gaxModule.PathTemplate(
+      blueprintPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}/tests/{test}/blueprints/{blueprint}'
       ),
-      roomPathTemplate: new gaxModule.PathTemplate(
+      roomPathTemplate: new this._gaxModule.PathTemplate(
         'rooms/{room_id}'
       ),
-      roomIdBlurbIdPathTemplate: new gaxModule.PathTemplate(
+      roomIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
         'rooms/{room_id}/blurbs/{blurb_id}'
       ),
-      sessionPathTemplate: new gaxModule.PathTemplate(
+      sessionPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}'
       ),
-      testPathTemplate: new gaxModule.PathTemplate(
+      testPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}/tests/{test}'
       ),
-      userPathTemplate: new gaxModule.PathTemplate(
+      userPathTemplate: new this._gaxModule.PathTemplate(
         'users/{user_id}'
       ),
-      userIdBlurbIdPathTemplate: new gaxModule.PathTemplate(
+      userIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
         'user/{user_id}/profile/blurbs/{blurb_id}'
       ),
     };
@@ -161,29 +169,29 @@ export class MessagingClient {
     // pages). Denote the keys used for pagination and results.
     this._descriptors.page = {
       listRooms:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'rooms'),
+          new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'rooms'),
       listBlurbs:
-          new gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'blurbs')
+          new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'blurbs')
     };
 
     // Some of the methods on this service provide streaming responses.
     // Provide descriptors for these.
     this._descriptors.stream = {
-      streamBlurbs: new gaxModule.StreamDescriptor(gax.StreamType.SERVER_STREAMING),
-      sendBlurbs: new gaxModule.StreamDescriptor(gax.StreamType.CLIENT_STREAMING),
-      connect: new gaxModule.StreamDescriptor(gax.StreamType.BIDI_STREAMING)
+      streamBlurbs: new this._gaxModule.StreamDescriptor(gax.StreamType.SERVER_STREAMING),
+      sendBlurbs: new this._gaxModule.StreamDescriptor(gax.StreamType.CLIENT_STREAMING),
+      connect: new this._gaxModule.StreamDescriptor(gax.StreamType.BIDI_STREAMING)
     };
 
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
     const protoFilesRoot = opts.fallback?
-      gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
-      gaxModule.protobuf.loadSync(nodejsProtoPath);
+      this._gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
+      this._gaxModule.protobuf.loadSync(nodejsProtoPath);
 
-    this.operationsClient = gaxModule.lro({
+    this.operationsClient = this._gaxModule.lro({
       auth: this.auth,
-      grpc: 'grpc' in gaxGrpc ? gaxGrpc.grpc : undefined
+      grpc: 'grpc' in this._gaxGrpc ? this._gaxGrpc.grpc : undefined
     }).operationsClient(opts);
     const searchBlurbsResponse = protoFilesRoot.lookup(
       '.google.showcase.v1beta1.SearchBlurbsResponse') as gax.protobuf.Type;
@@ -191,14 +199,14 @@ export class MessagingClient {
       '.google.showcase.v1beta1.SearchBlurbsMetadata') as gax.protobuf.Type;
 
     this._descriptors.longrunning = {
-      searchBlurbs: new gaxModule.LongrunningDescriptor(
+      searchBlurbs: new this._gaxModule.LongrunningDescriptor(
         this.operationsClient,
         searchBlurbsResponse.decode.bind(searchBlurbsResponse),
         searchBlurbsMetadata.decode.bind(searchBlurbsMetadata))
     };
 
     // Put together the default options sent with requests.
-    const defaults = gaxGrpc.constructSettings(
+    this._defaults = this._gaxGrpc.constructSettings(
         'google.showcase.v1beta1.Messaging', gapicConfig as gax.ClientConfig,
         opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
 
@@ -206,15 +214,33 @@ export class MessagingClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this._innerApiCalls = {};
+  }
+
+  /**
+   * Initialize the client.
+   * Performs asynchronous operations (such as authentication) and prepares the client.
+   * This function will be called automatically when any class method is called for the
+   * first time, but if you need to initialize it before calling an actual method,
+   * feel free to call initialize() directly.
+   *
+   * You can await on this method if you want to make sure the client is initialized.
+   *
+   * @returns {Promise} A promise that resolves to an authenticated service stub.
+   */
+  initialize() {
+    // If the client stub promise is already initialized, return immediately.
+    if (this.messagingStub) {
+      return this.messagingStub;
+    }
 
     // Put together the "service stub" for
     // google.showcase.v1beta1.Messaging.
-    this.messagingStub = gaxGrpc.createStub(
-        opts.fallback ?
-          (protos as protobuf.Root).lookupService('google.showcase.v1beta1.Messaging') :
+    this.messagingStub = this._gaxGrpc.createStub(
+        this._opts.fallback ?
+          (this._protos as protobuf.Root).lookupService('google.showcase.v1beta1.Messaging') :
           // tslint:disable-next-line no-any
-          (protos as any).google.showcase.v1beta1.Messaging,
-        opts) as Promise<{[method: string]: Function}>;
+          (this._protos as any).google.showcase.v1beta1.Messaging,
+        this._opts) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
@@ -233,9 +259,9 @@ export class MessagingClient {
           throw err;
         });
 
-      const apiCall = gaxModule.createApiCall(
+      const apiCall = this._gaxModule.createApiCall(
         innerCallPromise,
-        defaults[methodName],
+        this._defaults[methodName],
         this._descriptors.page[methodName] ||
             this._descriptors.stream[methodName] ||
             this._descriptors.longrunning[methodName]
@@ -249,6 +275,8 @@ export class MessagingClient {
         return apiCall(argument, callOptions, callback);
       };
     }
+
+    return this.messagingStub;
   }
 
   /**
@@ -350,6 +378,7 @@ export class MessagingClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
+    this.initialize();
     return this._innerApiCalls.createRoom(request, options, callback);
   }
   getRoom(
@@ -409,6 +438,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.getRoom(request, options, callback);
   }
   updateRoom(
@@ -471,6 +501,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'room.name': request.room!.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.updateRoom(request, options, callback);
   }
   deleteRoom(
@@ -530,6 +561,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.deleteRoom(request, options, callback);
   }
   createBlurb(
@@ -594,6 +626,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.createBlurb(request, options, callback);
   }
   getBlurb(
@@ -653,6 +686,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.getBlurb(request, options, callback);
   }
   updateBlurb(
@@ -715,6 +749,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'blurb.name': request.blurb!.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.updateBlurb(request, options, callback);
   }
   deleteBlurb(
@@ -774,6 +809,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.deleteBlurb(request, options, callback);
   }
 
@@ -805,6 +841,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'name': request.name || '',
     });
+    this.initialize();
     return this._innerApiCalls.streamBlurbs(request, options);
   }
 
@@ -841,6 +878,7 @@ export class MessagingClient {
         optionsOrCallback = {};
     }
     const options = optionsOrCallback as gax.CallOptions;
+    this.initialize();
     return this._innerApiCalls.sendBlurbs(null, options, callback);
   }
 
@@ -859,7 +897,8 @@ export class MessagingClient {
  */
   connect(
       options?: gax.CallOptions):
-    gax.CancellableStream{
+    gax.CancellableStream {
+    this.initialize();
     return this._innerApiCalls.connect(options);
   }
 
@@ -935,6 +974,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.searchBlurbs(request, options, callback);
   }
   listRooms(
@@ -1007,6 +1047,7 @@ export class MessagingClient {
       options = optionsOrCallback as gax.CallOptions;
     }
     options = options || {};
+    this.initialize();
     return this._innerApiCalls.listRooms(request, options, callback);
   }
 
@@ -1044,6 +1085,7 @@ export class MessagingClient {
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this._descriptors.page.listRooms.createStream(
       this._innerApiCalls.listRooms as gax.GaxCall,
       request,
@@ -1131,6 +1173,7 @@ export class MessagingClient {
     ] = gax.routingHeader.fromParams({
       'parent': request.parent || '',
     });
+    this.initialize();
     return this._innerApiCalls.listBlurbs(request, options, callback);
   }
 
@@ -1178,6 +1221,7 @@ export class MessagingClient {
       'parent': request.parent || '',
     });
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this._descriptors.page.listBlurbs.createStream(
       this._innerApiCalls.listBlurbs as gax.GaxCall,
       request,
@@ -1420,8 +1464,9 @@ export class MessagingClient {
    * The client will no longer be usable and all future behavior is undefined.
    */
   close(): Promise<void> {
+    this.initialize();
     if (!this._terminated) {
-      return this.messagingStub.then(stub => {
+      return this.messagingStub!.then(stub => {
         this._terminated = true;
         stub.close();
       });
