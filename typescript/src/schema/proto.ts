@@ -48,6 +48,7 @@ interface MethodDescriptorProto
   // into x-goog-request-params header, the array will contain
   // [ ['request', 'foo'], ['request', 'bar']]
   headerRequestParams: string[][];
+  toJSON: Function | undefined;
 }
 
 export interface ServiceDescriptorProto
@@ -69,6 +70,7 @@ export interface ServiceDescriptorProto
   commentsMap: CommentsMap;
   retryableCodeMap: RetryableCodeMap;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  toJSON: Function | undefined;
 }
 
 export interface ServicesMap {
@@ -373,6 +375,9 @@ function augmentMethod(
   method.headerRequestParams = getHeaderRequestParams(
     method.options?.['.google.api.http']
   );
+  // protobuf.js redefines .toJSON to serialize only known fields,
+  // but we need to serialize the whole augmented object.
+  method.toJSON = undefined;
   return method;
 }
 
@@ -528,6 +533,9 @@ function augmentService(
       return 0;
     }
   );
+  // protobuf.js redefines .toJSON to serialize only known fields,
+  // but we need to serialize the whole augmented object.
+  augmentedService.toJSON = undefined;
   return augmentedService;
 }
 

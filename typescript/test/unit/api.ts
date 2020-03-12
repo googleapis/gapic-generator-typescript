@@ -156,4 +156,21 @@ describe('src/schema/api.ts', () => {
       });
     });
   });
+
+  it('dump should contain valid JSON with a list of services', () => {
+    const fd = new plugin.google.protobuf.FileDescriptorProto();
+    fd.name = 'google/cloud/test/v1/test.proto';
+    fd.package = 'google.cloud.test.v1';
+    fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    fd.service[0].name = 'ZService';
+    fd.service[0].options = {
+      '.google.api.defaultHost': 'hostname.example.com:443',
+    };
+    const api = new API([fd], 'google.cloud.test.v1', {
+      grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+    });
+    const dump = api.dump;
+    const object = JSON.parse(dump);
+    assert(object['services']);
+  });
 });

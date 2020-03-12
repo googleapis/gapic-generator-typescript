@@ -15,7 +15,7 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
 import { Naming, Options as namingOptions } from './naming';
-import { Proto } from './proto';
+import { Proto, ServiceDescriptorProto } from './proto';
 import { ResourceDatabase, ResourceDescriptor } from './resource-database';
 
 export interface ProtosMap {
@@ -119,7 +119,7 @@ export class API {
           ...Object.keys(proto.services).map(name => proto.services[name])
         );
         return retval;
-      }, [] as plugin.google.protobuf.IServiceDescriptorProto[])
+      }, [] as ServiceDescriptorProto[])
       .sort((service1, service2) =>
         service1.name!.localeCompare(service2.name!)
       );
@@ -141,6 +141,16 @@ export class API {
       null,
       '  '
     );
+  }
+
+  get dump() {
+    return JSON.stringify({
+      publishName: this.publishName,
+      naming: this.naming,
+      hostname: this.hostName,
+      port: this.port,
+      services: this.services,
+    });
   }
 }
 
