@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@
 // needs to be propagated to all baselines.
 // Usage: node build/tools/update-baselines.js
 
-import { exec } from 'child_process';
+import {exec} from 'child_process';
 import * as util from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
-import { promisify } from 'util';
-import { readdir, mkdir, existsSync } from 'fs';
+import {promisify} from 'util';
+import {readdir, mkdir, existsSync} from 'fs';
 import * as ncp from 'ncp';
 
 const rmrf = promisify(rimraf);

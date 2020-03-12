@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ import * as util from 'util';
 import * as child_process from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 const exec = util.promisify(child_process.exec);
 const SHOWCASE_LIB = path.join(
   __dirname,
@@ -51,7 +51,7 @@ const TS_TEST_APPLICATION = path.join(
   'test-application-ts'
 );
 describe('Test application for TypeScript users', () => {
-  it('npm install showcase', async function() {
+  it('npm install showcase', async function () {
     this.timeout(60000);
     // copy protos to generated client library and copy test application to local.
     if (!fs.existsSync(path.join(SHOWCASE_LIB, 'protos'))) {
@@ -63,21 +63,21 @@ describe('Test application for TypeScript users', () => {
     process.chdir(SHOWCASE_LIB);
     await exec(`npm install`);
   });
-  it('npm pack showcase library and copy it to test application', async function() {
+  it('npm pack showcase library and copy it to test application', async function () {
     this.timeout(60000);
     await exec(`npm pack`);
     process.chdir(LOCAL_TS_APPLICATION);
     fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_TS_APPLICATION, PACKED_LIB));
   });
-  it('npm install showcase library in test application', async function() {
+  it('npm install showcase library in test application', async function () {
     this.timeout(60000);
     await exec(`npm install`);
   });
-  it('run integration in test application', async function() {
+  it('run integration in test application', async function () {
     this.timeout(120000);
     await exec(`npm test`);
   });
-  it('run browser test in application', async function() {
+  it('run browser test in application', async function () {
     this.timeout(120000);
     await exec(`npm run browser-test`);
   });

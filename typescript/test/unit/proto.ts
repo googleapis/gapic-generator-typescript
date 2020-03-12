@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import * as assert from 'assert';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { getHeaderRequestParams } from '../../src/schema/proto';
-import { Proto } from '../../src/schema/proto';
-import { ResourceDatabase } from '../../src/schema/resource-database';
+import {getHeaderRequestParams} from '../../src/schema/proto';
+import {Proto} from '../../src/schema/proto';
+import {ResourceDatabase} from '../../src/schema/resource-database';
 
 describe('src/schema/proto.ts', () => {
   describe('should get header parameters from http rule', () => {

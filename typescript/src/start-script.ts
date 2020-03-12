@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { execFileSync } from 'child_process';
+import {execFileSync} from 'child_process';
 import * as path from 'path';
 import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
@@ -90,7 +90,7 @@ protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 protocCommand.push(`-I${commonProtoPath}`);
 try {
-  execFileSync(`protoc`, protocCommand, { stdio: 'inherit' });
+  execFileSync(`protoc`, protocCommand, {stdio: 'inherit'});
 } catch (err) {
   console.error(err.toString());
   process.exit(1);

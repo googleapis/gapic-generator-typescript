@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import * as yargs from 'yargs';
-import { Generator } from './generator';
+import {Generator} from './generator';
 
 async function main() {
   const argv = yargs.argv;

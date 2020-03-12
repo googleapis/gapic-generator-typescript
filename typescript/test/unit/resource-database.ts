@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { ResourceDatabase } from '../../src/schema/resource-database';
-import { describe, it, beforeEach, afterEach } from 'mocha';
+import {ResourceDatabase} from '../../src/schema/resource-database';
+import {describe, it, beforeEach, afterEach} from 'mocha';
 import * as assert from 'assert';
 
 describe('src/schema/resource-database.ts', () => {

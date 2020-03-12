@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { before, it } from 'mocha';
+import {before, it} from 'mocha';
 import * as rimraf from 'rimraf';
-import { execSync } from 'child_process';
+import {execSync} from 'child_process';
 import * as assert from 'assert';
 
 const NO_OUTPUT_FILE = 0;
@@ -80,12 +80,12 @@ export function runBaselineTest(options: BaselineOptions) {
   const baselineDir = path.join(baselineRootDir, options.baselineName);
   const grpcServiceConfig = options.grpcServiceConfig
     ? path.join(
-        protosDirRoot,
-        options.grpcServiceConfig.split('/').join(path.sep)
-      )
+      protosDirRoot,
+      options.grpcServiceConfig.split('/').join(path.sep)
+    )
     : undefined;
 
-  it(options.baselineName, function() {
+  it(options.baselineName, function () {
     this.timeout(60000);
     if (fs.existsSync(outputDir)) {
       rimraf.sync(outputDir);
@@ -178,14 +178,14 @@ function checkIdenticalFile(
   if (readOutputLines.length !== baselineOutputLines.length) {
     console.warn(
       `Line count for ${outputFullPath} was ${readOutputLines.length}, ` +
-        `but expected ${baselineOutputLines.length}.`
+      `but expected ${baselineOutputLines.length}.`
     );
   } else {
     for (let i = 0; i < readOutputLines.length; ++i) {
       if (readOutputLines[i] !== baselineOutputLines[i]) {
         console.warn(
           `Line ${i + 1} of ${outputFullPath} was \n\t"${
-            readOutputLines[i]
+          readOutputLines[i]
           }"\nbut expected\n\t"${baselineOutputLines[i]}"`
         );
       }

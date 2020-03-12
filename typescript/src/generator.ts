@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ import * as util from 'util';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
 
-import { API } from './schema/api';
-import { processTemplates } from './templater';
-import { commonPrefix, duration } from './util';
+import {API} from './schema/api';
+import {processTemplates} from './templater';
+import {commonPrefix, duration} from './util';
 
 export interface OptionsMap {
   [name: string]: string;
@@ -60,7 +60,7 @@ export class Generator {
   // Fixes gRPC service config to replace string google.protobuf.Duration
   // to a proper Duration message, since protobufjs does not support
   // string Durations such as "30s".
-  private static updateDuration(obj: { [key: string]: {} }) {
+  private static updateDuration(obj: {[key: string]: {}}) {
     const fieldNames = [
       'timeout',
       'initialBackoff',

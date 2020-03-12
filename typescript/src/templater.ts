@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ import * as util from 'util';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
 
-import { API } from './schema/api';
-import { commonPrefix } from './util';
+import {API} from './schema/api';
+import {commonPrefix} from './util';
 
-const commonParameters: { [name: string]: string } = {
+const commonParameters: {[name: string]: string} = {
   copyrightYear: new Date().getFullYear().toString(),
 };
 
@@ -97,7 +97,7 @@ function processOneTemplate(
         renderFile(
           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
           relativeTemplateName,
-          { api, commonParameters, service }
+          {api, commonParameters, service}
         )
       );
     }

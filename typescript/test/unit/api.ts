@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { API } from '../../src/schema/api';
+import {API} from '../../src/schema/api';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import * as assert from 'assert';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 
 describe('src/schema/api.ts', () => {
   it('should construct an API object and return list of protos', () => {
