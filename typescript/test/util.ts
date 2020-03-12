@@ -33,6 +33,7 @@ export interface BaselineOptions {
   mainServiceName?: string;
   grpcServiceConfig?: string;
   packageName?: string;
+  template?: string;
 }
 
 const cwd = process.cwd();
@@ -106,6 +107,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (options.packageName) {
       commandLine += ` --package-name=${options.packageName}`;
+    }
+    if (options.template) {
+      commandLine += ` --template="${options.template}"`;
     }
 
     execSync(commandLine);

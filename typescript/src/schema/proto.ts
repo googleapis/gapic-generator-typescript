@@ -50,7 +50,7 @@ interface MethodDescriptorProto
   headerRequestParams: string[][];
 }
 
-interface ServiceDescriptorProto
+export interface ServiceDescriptorProto
   extends plugin.google.protobuf.IServiceDescriptorProto {
   packageName: string;
   method: MethodDescriptorProto[];
