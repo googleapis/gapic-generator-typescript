@@ -20,13 +20,11 @@ import * as util from 'util';
 import * as plugin from '../../pbjs-genfiles/plugin';
 
 import { API } from './schema/api';
-import { commonPrefix } from './util';
 
 const commonParameters: { [name: string]: string } = {
   copyrightYear: new Date().getFullYear().toString(),
 };
 
-const readFile = util.promisify(fs.readFile);
 const readDir = util.promisify(fs.readdir);
 const fsstat = util.promisify(fs.stat);
 
