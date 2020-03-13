@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ export interface BaselineOptions {
   mainServiceName?: string;
   grpcServiceConfig?: string;
   packageName?: string;
+  template?: string;
 }
 
 const cwd = process.cwd();
@@ -106,6 +107,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (options.packageName) {
       commandLine += ` --package-name=${options.packageName}`;
+    }
+    if (options.template) {
+      commandLine += ` --template="${options.template}"`;
     }
 
     execSync(commandLine);

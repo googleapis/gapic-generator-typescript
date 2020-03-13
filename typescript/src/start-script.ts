@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@ import * as fs from 'fs-extra';
 const fileSystem = require('file-system');
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
-const GOOGLE_GAX_PROTOS_DIR = path.join(googleGaxPath, '..', '..', 'protos');
+const googleGaxProtosDir = path.join(googleGaxPath, '..', '..', 'protos');
+const allTemplates = fs.readdirSync(
+  path.join(__dirname, '..', '..', 'templates')
+);
 
 const argv = yargs
   .array('I')
@@ -47,6 +50,11 @@ const argv = yargs
   .describe(
     'common_proto_path',
     'Path to API common protos to use (if unset, will use protos shipped with google-gax)'
+  )
+  .describe(
+    'template',
+    'Semicolon-separated list of templates to use. Allowed values: ' +
+      `"${allTemplates.join(';')}"`
   ).usage(`Usage: $0 -I /path/to/googleapis \\
   --output_dir /path/to/output_directory \\
   google/example/api/v1/api.proto`).argv;
@@ -55,6 +63,7 @@ const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 const bundleConfig = argv.bundleConfig as string | undefined;
 const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
+const template = argv.template as string | undefined;
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
@@ -68,7 +77,7 @@ if (Array.isArray(argv._)) {
   protoFiles.push(argv._);
 }
 
-const commonProtoPath = argv.commonProtoPath || GOOGLE_GAX_PROTOS_DIR;
+const commonProtoPath = argv.commonProtoPath || googleGaxProtosDir;
 
 // run protoc command to generate client library
 const cliPath = path.join(__dirname, 'cli.js');
@@ -93,6 +102,9 @@ if (mainServiceName) {
   protocCommand.push(
     `--typescript_gapic_opt="main-service=${mainServiceName}"`
   );
+}
+if (template) {
+  protocCommand.push(`--typescript_gapic_opt="template=${template}"`);
 }
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
@@ -121,7 +133,7 @@ try {
         const protoFile = path.join(dir, proto);
         if (
           (protoFilesSet.has(protoFile) ||
-            !fs.existsSync(path.join(GOOGLE_GAX_PROTOS_DIR, proto))) &&
+            !fs.existsSync(path.join(googleGaxProtosDir, proto))) &&
           fs.existsSync(protoFile)
         ) {
           fileSystem.copyFileSync(protoFile, path.join(copyProtoDir, proto));

@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,16 +30,8 @@ export interface OptionsMap {
 }
 const readFile = util.promisify(fs.readFile);
 
-const templateDirectory = path.join(
-  __dirname,
-  '..',
-  '..',
-  'templates',
-  'typescript_gapic'
-);
-
-// If needed, we can make it possible to load templates from different locations
-// to generate code for other languages.
+const templatesDirectory = path.join(__dirname, '..', '..', 'templates');
+const defaultTemplate = 'typescript_gapic';
 
 export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
@@ -52,12 +44,14 @@ export class Generator {
   // For historical reasons, Webpack library name matches "the main" service of the client library.
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName?: string;
+  templates: string[];
 
   constructor() {
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
     this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
     this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.create();
     this.paramMap = {};
+    this.templates = [defaultTemplate];
   }
 
   // Fixes gRPC service config to replace string google.protobuf.Duration
@@ -80,7 +74,7 @@ export class Generator {
   }
 
   private getParamMap(parameter: string) {
-    // Example: "grpc-service-config=texamplejson","package-name=packageName"
+    // Example: "grpc-service-config=path/to/grpc-service-config.json","package-name=packageName"
     const parameters = parameter.split(',');
     for (let param of parameters) {
       // remove double quote
@@ -90,9 +84,9 @@ export class Generator {
     }
   }
 
-  private async readGrpcServiceConfig(map: OptionsMap) {
-    if (map?.['grpc-service-config']) {
-      const filename = map['grpc-service-config'];
+  private async readGrpcServiceConfig() {
+    if (this.paramMap?.['grpc-service-config']) {
+      const filename = this.paramMap['grpc-service-config'];
       if (!fs.existsSync(filename)) {
         throw new Error(`File ${filename} cannot be opened.`);
       }
@@ -105,6 +99,7 @@ export class Generator {
     }
   }
 
+<<<<<<< HEAD
   private readBundleConfig(map: OptionsMap) {
     if (map?.['bundle-config']) {
       const filename = map['bundle-config'];
@@ -121,10 +116,21 @@ export class Generator {
 
   private readPublishPackageName(map: OptionsMap) {
     this.publishName = map['package-name'];
+=======
+  private readPublishPackageName() {
+    this.publishName = this.paramMap['package-name'];
   }
 
-  private readMainServiceName(map: OptionsMap) {
-    this.mainServiceName = map['main-service'];
+  private readMainServiceName() {
+    this.mainServiceName = this.paramMap['main-service'];
+>>>>>>> ba7793fd43c93eaa1965c90202aeedbc1a22d45a
+  }
+
+  private readTemplates() {
+    if (!this.paramMap['template']) {
+      return;
+    }
+    this.templates = this.paramMap['template'].split(';');
   }
 
   async initializeFromStdin() {
@@ -134,10 +140,17 @@ export class Generator {
     );
     if (this.request.parameter) {
       this.getParamMap(this.request.parameter);
+<<<<<<< HEAD
       await this.readGrpcServiceConfig(this.paramMap);
       await this.readBundleConfig(this.paramMap);
       this.readPublishPackageName(this.paramMap);
       this.readMainServiceName(this.paramMap);
+=======
+      await this.readGrpcServiceConfig();
+      this.readPublishPackageName();
+      this.readMainServiceName();
+      this.readTemplates();
+>>>>>>> ba7793fd43c93eaa1965c90202aeedbc1a22d45a
     }
   }
 
@@ -178,8 +191,14 @@ export class Generator {
   }
 
   async processTemplates(api: API) {
-    const fileList = await processTemplates(templateDirectory, api);
-    this.response.file.push(...fileList);
+    for (const template of this.templates) {
+      const location = path.join(templatesDirectory, template);
+      if (!fs.existsSync(location)) {
+        throw new Error(`Template directory ${location} does not exist.`);
+      }
+      const fileList = await processTemplates(location, api);
+      this.response.file.push(...fileList);
+    }
   }
 
   async generate() {
