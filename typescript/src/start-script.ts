@@ -51,7 +51,7 @@ const argv = yargs
   )
   .describe(
     'template',
-    'Semicolon-separated list of templates to use. Allowed values: ' +
+    'Semicolon-separated list of templates to disable. Allowed values: ' +
       `"${allTemplates.join(';')}"`
   ).usage(`Usage: $0 -I /path/to/googleapis \\
   --output_dir /path/to/output_directory \\

@@ -29,7 +29,7 @@ export interface OptionsMap {
 const readFile = util.promisify(fs.readFile);
 
 const templatesDirectory = path.join(__dirname, '..', '..', 'templates');
-const defaultTemplate = 'typescript_gapic';
+const defaultTemplates = ['typescript_gapic', 'typescript_packing_test'];
 
 export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
@@ -48,7 +48,7 @@ export class Generator {
     this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
     this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.create();
     this.paramMap = {};
-    this.templates = [defaultTemplate];
+    this.templates = defaultTemplates;
   }
 
   // Fixes gRPC service config to replace string google.protobuf.Duration
@@ -105,10 +105,12 @@ export class Generator {
   }
 
   private readTemplates() {
+    console.warn('_________________________');
     if (!this.paramMap['template']) {
       return;
     }
     this.templates = this.paramMap['template'].split(';');
+    console.warn('___________this.templates_________', this.templates);
   }
 
   async initializeFromStdin() {
