@@ -63,7 +63,7 @@ describe('Baseline tests', () => {
     protoPath: 'google/showcase/v1beta1/*.proto',
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
-    template: 'typescript_gapic',
+    template: 'typescript_gapic;typescript_packing_test',
   });
 
   runBaselineTest({
@@ -78,5 +78,14 @@ describe('Baseline tests', () => {
     outputDir: '.test-out-bigquery-storage',
     protoPath: 'google/cloud/bigquery/storage/v1beta1/*.proto',
     useCommonProto: false,
+  });
+
+  runBaselineTest({
+    baselineName: 'disable-packing-test',
+    outputDir: '.test-out-disable-packing-test',
+    protoPath: 'google/showcase/v1beta1/*.proto',
+    useCommonProto: false,
+    mainServiceName: 'ShowcaseService',
+    template: 'typescript_gapic',
   });
 });
