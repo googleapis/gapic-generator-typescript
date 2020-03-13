@@ -91,9 +91,7 @@ if (grpcServiceConfig) {
   );
 }
 if (bundleConfig) {
-  protocCommand.push(
-    `--typescript_gapic_opt="bundle-config=${bundleConfig}"`
-  );
+  protocCommand.push(`--typescript_gapic_opt="bundle-config=${bundleConfig}"`);
 }
 if (packageName) {
   protocCommand.push(`--typescript_gapic_opt="package-name=${packageName}"`);

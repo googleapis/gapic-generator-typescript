@@ -70,7 +70,7 @@ export interface ServiceDescriptorProto
   commentsMap: CommentsMap;
   retryableCodeMap: RetryableCodeMap;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
-  bundleConfigs?: BundleConfig[]
+  bundleConfigs?: BundleConfig[];
 }
 
 export interface ServicesMap {
@@ -426,7 +426,9 @@ function augmentService(
   augmentedService.commentsMap = commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
   augmentedService.grpcServiceConfig = grpcServiceConfig;
-  augmentedService.bundleConfigs = bundleConfigs?.filter(bc => bc.serviceName === service.name)
+  augmentedService.bundleConfigs = bundleConfigs?.filter(
+    bc => bc.serviceName === service.name
+  );
   augmentedService.method = augmentedService.method.map(method =>
     augmentMethod(messages, augmentedService, method)
   );
@@ -551,7 +553,7 @@ export class Proto {
     grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
     allResourceDatabase: ResourceDatabase,
     resourceDatabase: ResourceDatabase,
-    bundleConfigs?: BundleConfig[],
+    bundleConfigs?: BundleConfig[]
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];

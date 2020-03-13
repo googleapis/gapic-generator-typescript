@@ -19,7 +19,7 @@ import { BundleConfig } from 'src/bundle';
 
 export interface Options {
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
-  bundleConfigs?: BundleConfig[], 
+  bundleConfigs?: BundleConfig[];
   publishName?: string;
   mainServiceName?: string;
 }

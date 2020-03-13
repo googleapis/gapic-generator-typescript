@@ -74,7 +74,7 @@ export class API {
           options.grpcServiceConfig,
           allResourceDatabase,
           resourceDatabase,
-          options.bundleConfigs,
+          options.bundleConfigs
         );
         return map;
       }, {} as ProtosMap);
