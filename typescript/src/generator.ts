@@ -99,7 +99,6 @@ export class Generator {
     }
   }
 
-<<<<<<< HEAD
   private readBundleConfig(map: OptionsMap) {
     if (map?.['bundle-config']) {
       const filename = map['bundle-config'];
@@ -114,16 +113,12 @@ export class Generator {
     }
   }
 
-  private readPublishPackageName(map: OptionsMap) {
-    this.publishName = map['package-name'];
-=======
   private readPublishPackageName() {
     this.publishName = this.paramMap['package-name'];
   }
 
   private readMainServiceName() {
     this.mainServiceName = this.paramMap['main-service'];
->>>>>>> ba7793fd43c93eaa1965c90202aeedbc1a22d45a
   }
 
   private readTemplates() {
@@ -140,17 +135,11 @@ export class Generator {
     );
     if (this.request.parameter) {
       this.getParamMap(this.request.parameter);
-<<<<<<< HEAD
-      await this.readGrpcServiceConfig(this.paramMap);
-      await this.readBundleConfig(this.paramMap);
-      this.readPublishPackageName(this.paramMap);
-      this.readMainServiceName(this.paramMap);
-=======
       await this.readGrpcServiceConfig();
+      this.readBundleConfig(this.paramMap);
       this.readPublishPackageName();
       this.readMainServiceName();
       this.readTemplates();
->>>>>>> ba7793fd43c93eaa1965c90202aeedbc1a22d45a
     }
   }
 
