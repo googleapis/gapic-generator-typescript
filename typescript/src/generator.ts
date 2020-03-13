@@ -16,11 +16,13 @@ import * as getStdin from 'get-stdin';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as util from 'util';
+import * as yaml from 'js-yaml';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
 
 import { API } from './schema/api';
 import { processTemplates } from './templater';
+import { BundleConfigClient, BundleConfig } from './bundle';
 import { commonPrefix, duration } from './util';
 
 export interface OptionsMap {
@@ -43,6 +45,7 @@ export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
   response: plugin.google.protobuf.compiler.CodeGeneratorResponse;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  bundleConfigs: BundleConfig[] = [];
   paramMap: OptionsMap;
   // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
   publishName?: string;
@@ -102,6 +105,20 @@ export class Generator {
     }
   }
 
+  private readBundleConfig(map: OptionsMap) {
+    if (map?.['bundle-config']) {
+      const filename = map['bundle-config'];
+      if (!fs.existsSync(filename)) {
+        throw new Error(`File ${filename} cannot be opened.`);
+      }
+      const content = fs.readFileSync(filename, 'utf8');
+      const info = yaml.safeLoad(content);
+      // check fields: batched_field, discriminator_fields, subresponseField[optional], element_count_threshold, request_byte_threshold, delay_threshold_millis
+      // TODO: confirm w/Alex they are all required? do we allow default value?
+      this.bundleConfigs = new BundleConfigClient().fromObject(info);
+    }
+  }
+
   private readPublishPackageName(map: OptionsMap) {
     this.publishName = map['package-name'];
   }
@@ -118,6 +135,7 @@ export class Generator {
     if (this.request.parameter) {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig(this.paramMap);
+      await this.readBundleConfig(this.paramMap);
       this.readPublishPackageName(this.paramMap);
       this.readMainServiceName(this.paramMap);
     }
@@ -152,6 +170,7 @@ export class Generator {
     }
     const api = new API(this.request.protoFile, packageName, {
       grpcServiceConfig: this.grpcServiceConfig,
+      bundleConfigs: this.bundleConfigs,
       publishName: this.publishName,
       mainServiceName: this.mainServiceName,
     });

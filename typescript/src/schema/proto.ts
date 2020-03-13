@@ -22,6 +22,7 @@ import {
   defaultNonIdempotentRetryCodesName,
   defaultParameters,
 } from './retryable-code-map';
+import { BundleConfig } from 'src/bundle';
 
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
@@ -69,6 +70,7 @@ interface ServiceDescriptorProto
   commentsMap: CommentsMap;
   retryableCodeMap: RetryableCodeMap;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  bundleConfigs?: BundleConfig[]
 }
 
 export interface ServicesMap {
@@ -415,7 +417,8 @@ function augmentService(
   commentsMap: CommentsMap,
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
   allResourceDatabase: ResourceDatabase,
-  resourceDatabase: ResourceDatabase
+  resourceDatabase: ResourceDatabase,
+  bundleConfigs?: BundleConfig[]
 ) {
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.packageName = packageName;
@@ -423,6 +426,7 @@ function augmentService(
   augmentedService.commentsMap = commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
   augmentedService.grpcServiceConfig = grpcServiceConfig;
+  augmentedService.bundleConfigs = bundleConfigs?.filter(bc => bc.serviceName === service.name)
   augmentedService.method = augmentedService.method.map(method =>
     augmentMethod(messages, augmentedService, method)
   );
@@ -546,7 +550,8 @@ export class Proto {
     packageName: string,
     grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
     allResourceDatabase: ResourceDatabase,
-    resourceDatabase: ResourceDatabase
+    resourceDatabase: ResourceDatabase,
+    bundleConfigs?: BundleConfig[],
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
@@ -581,7 +586,8 @@ export class Proto {
           commentsMap,
           grpcServiceConfig,
           allResourceDatabase,
-          resourceDatabase
+          resourceDatabase,
+          bundleConfigs
         )
       )
       .reduce((map, service) => {

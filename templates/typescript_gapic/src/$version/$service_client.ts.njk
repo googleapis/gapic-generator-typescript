@@ -173,6 +173,24 @@ export class {{ service.name }}Client {
     };
 {%- endif %}
 
+{%- if (service.bundleConfigs.length > 0) %}
+    // Some methods on this API support automatically batching
+    // requests; denote this.
+    this._descriptors.batching = {
+{%- for bundle in service.bundleConfigs %}
+      {{ bundle.methodName }}: new gaxModule.BundleDescriptor(
+        {{ bundle.batchDescriptor.batched_field }},
+        {{ bundle.batchDescriptor.discriminator_fields}},
+        {{ bundle.batchDescriptor.subresponse_field }},
+        // d/Alex best way to get the repeated field?
+        gax.createByteLengthFunction(
+          protoFilesRoot.lookup('google.logging.v2.LogEntry')
+        )
+      ),
+    };
+{%- endfor %}
+{%- endif %}
+
 {%- if (service.streaming.length > 0) %}
 
     // Some of the methods on this service provide streaming responses.
