@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2019 Google LLC
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ cd ..   # now in the package.json directory
 DIR_NAME=.showcase-typescript
 # Remove test directory if it already exists
 rm -rf $DIR_NAME
-# Create new directory showcase-typescript. 
+# Create new directory showcase-typescript.
 mkdir $DIR_NAME
 # Use Docker Image for generating showcase client library
 docker run --rm \
