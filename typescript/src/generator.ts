@@ -105,12 +105,10 @@ export class Generator {
   }
 
   private readTemplates() {
-    console.warn('_________________________');
     if (!this.paramMap['template']) {
       return;
     }
     this.templates = this.paramMap['template'].split(';');
-    console.warn('___________this.templates_________', this.templates);
   }
 
   async initializeFromStdin() {

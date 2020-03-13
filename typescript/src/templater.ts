@@ -55,7 +55,6 @@ function renderFile(
   templateName: string,
   renderParameters: {}
 ) {
-  console.warn('+++++++++++++++templateName:: ', templateName);
   let processed = nunjucks.render(templateName, renderParameters);
   // Pretty-print generated JSON files
   if (targetFilename.match(/\.json$/i)) {
@@ -89,7 +88,6 @@ function processOneTemplate(
   // $version is unique (defined in api.naming), but there can be multiple
   // services.
   outputFilename = outputFilename.replace(/\$version/, api.naming.version);
-  console.warn('##############outputFilename: ', outputFilename);
   // {api, commonParameters}
   if (outputFilename.match(/\$service/)) {
     for (const service of api.services) {
@@ -114,12 +112,10 @@ function processOneTemplate(
 }
 
 export async function processTemplates(basePath: string, api: API) {
-  console.warn('------------basepath::', basePath);
   nunjucks.configure(basePath);
   basePath = basePath.replace(/\/*$/, '');
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: plugin.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
-  console.warn('^^^^^^^^^^templateFiles::', templateFiles);
   for (const templateFilename of templateFiles) {
     const generatedFiles = processOneTemplate(basePath, templateFilename, api);
     result.push(...generatedFiles);
