@@ -6,7 +6,7 @@ export interface Thresholds {
 export interface BatchDescriptor {
   batched_field: string;
   discriminator_fields: string[];
-  subresponse_field?: string;
+  subresponse_field: string | null;
 }
 export interface BundleConfig {
   serviceName: string;
@@ -25,7 +25,7 @@ export class BundleConfigClient {
       // service name: google.logging.v2.LoggingServiceV2
       const serviceName: string = oneInterface['name'];
       const shortenedServiceName = serviceName.substring(
-        serviceName.lastIndexOf('.')
+        serviceName.lastIndexOf('.') + 1
       );
       if (!oneInterface['methods']) {
         continue;
@@ -36,15 +36,16 @@ export class BundleConfigClient {
           continue;
         }
         const name = method['name'];
+        const config = method['batching'];
         const elementCountThreshold =
-          method['thresholds']['element_count_threshold'];
+          config['thresholds']['element_count_threshold'];
         const requestByteThreshold =
-          method['thresholds']['request_byte_threshold'];
+          config['thresholds']['request_byte_threshold'];
         const delayThresholdMillis =
-          method['thresholds']['delay_threshold_millis'];
-        const batchedField = method['batch_descriptor']['batched_field'];
+          config['thresholds']['delay_threshold_millis'];
+        const batchedField = config['batch_descriptor']['batched_field'];
         const discriminatorFields =
-          method['batch_descriptor']['discriminator_fields'];
+          config['batch_descriptor']['discriminator_fields'];
         const oneBundleConfig: BundleConfig = {
           serviceName: shortenedServiceName,
           methodName: name,
@@ -56,11 +57,14 @@ export class BundleConfigClient {
           batchDescriptor: {
             batched_field: batchedField,
             discriminator_fields: discriminatorFields,
+            subresponse_field: null,
           },
         };
-        if (method['batch_descriptor']['subresponse_field']) {
-          const subresponseField =
-            method['batch_descriptor']['subresponse_field'];
+        if (config['batch_descriptor']['subresponse_field']) {
+          let subresponseField =
+            config['batch_descriptor']['subresponse_field'];
+          subresponseField =
+            subresponseField.length > 0 ? subresponseField : null;
           Object.assign(oneBundleConfig, {
             batchDescriptor: {
               batched_field: batchedField,

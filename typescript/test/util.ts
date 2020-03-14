@@ -34,6 +34,7 @@ export interface BaselineOptions {
   grpcServiceConfig?: string;
   packageName?: string;
   template?: string;
+  bundleConfig?: string;
 }
 
 const cwd = process.cwd();
@@ -85,7 +86,9 @@ export function runBaselineTest(options: BaselineOptions) {
         options.grpcServiceConfig.split('/').join(path.sep)
       )
     : undefined;
-
+  const bundleConfig = options.bundleConfig
+    ? path.join(protosDirRoot, options.bundleConfig.split('/').join(path.sep))
+    : undefined;
   it(options.baselineName, function() {
     this.timeout(60000);
     if (fs.existsSync(outputDir)) {
@@ -110,6 +113,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (options.template) {
       commandLine += ` --template="${options.template}"`;
+    }
+    if (options.bundleConfig) {
+      commandLine += ` --bundle-config="${bundleConfig}"`;
     }
 
     execSync(commandLine);

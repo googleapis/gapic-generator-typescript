@@ -79,4 +79,13 @@ describe('Baseline tests', () => {
     protoPath: 'google/cloud/bigquery/storage/v1beta1/*.proto',
     useCommonProto: false,
   });
+
+  runBaselineTest({
+    baselineName: 'logging',
+    outputDir: '.test-out-logging',
+    protoPath: 'google/logging/v2/*.proto',
+    useCommonProto: true,
+    bundleConfig: 'google/logging/v2/logging_gapic.yaml',
+    mainServiceName: 'LoggingService',
+  });
 });

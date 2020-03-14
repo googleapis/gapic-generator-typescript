@@ -99,9 +99,9 @@ export class Generator {
     }
   }
 
-  private readBundleConfig(map: OptionsMap) {
-    if (map?.['bundle-config']) {
-      const filename = map['bundle-config'];
+  private readBundleConfig() {
+    if (this.paramMap?.['bundle-config']) {
+      const filename = this.paramMap['bundle-config'];
       if (!fs.existsSync(filename)) {
         throw new Error(`File ${filename} cannot be opened.`);
       }
@@ -110,6 +110,7 @@ export class Generator {
       // check fields: batched_field, discriminator_fields, subresponseField[optional], element_count_threshold, request_byte_threshold, delay_threshold_millis
       // TODO: confirm w/Alex they are all required? do we allow default value?
       this.bundleConfigs = new BundleConfigClient().fromObject(info);
+      console.warn('bundle config from file: ', this.bundleConfigs);
     }
   }
 
@@ -136,7 +137,7 @@ export class Generator {
     if (this.request.parameter) {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig();
-      this.readBundleConfig(this.paramMap);
+      this.readBundleConfig();
       this.readPublishPackageName();
       this.readMainServiceName();
       this.readTemplates();
