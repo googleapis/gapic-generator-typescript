@@ -187,20 +187,18 @@ export class ResourceDatabase {
 
   private getName(pattern: string): string {
     const elements = pattern.split('/');
-    let name = [];
-    while(elements.length > 0){
+    const name = [];
+    while (elements.length > 0) {
       const eleName = elements.shift();
-      if(elements.length === 0) {
+      if (elements.length === 0) {
         name.push(eleName);
         break;
-      }
-      else {
+      } else {
         const nextEle = elements[0];
-        if(nextEle.match('{[a-zA-Z_]+}')){
+        if (nextEle.match('{[a-zA-Z_]+}')) {
           elements.shift();
           name.push(nextEle.substring(1, nextEle.length - 1));
-        }
-        else{
+        } else {
           name.push(eleName);
         }
       }

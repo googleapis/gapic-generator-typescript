@@ -106,14 +106,22 @@ describe('src/schema/resource-database.ts', () => {
       pattern: [resourcePatternSpecial1, resourcePatternSpecial2],
     };
     rdb.registerResource(resource, errorLocation);
-    const registeredResource = rdb.getResourceByType('examples.googleapis.com/Case');
+    const registeredResource = rdb.getResourceByType(
+      'examples.googleapis.com/Case'
+    );
     assert(registeredResource);
-    assert.strictEqual(registeredResource!.type, 'examples.googleapis.com/Case');
+    assert.strictEqual(
+      registeredResource!.type,
+      'examples.googleapis.com/Case'
+    );
     const registeredResourceByPattern = rdb.getResourceByPattern(
       resourcePatternSpecial1
     );
     assert(registeredResourceByPattern);
-    assert.strictEqual(registeredResourceByPattern!.name, 'location_profile_case_id');
+    assert.strictEqual(
+      registeredResourceByPattern!.name,
+      'location_profile_case_id'
+    );
     const registeredResourceByPattern2 = rdb.getResourceByPattern(
       resourcePatternSpecial2
     );
