@@ -188,6 +188,11 @@ export class ResourceDatabase {
   private getName(pattern: string): string {
     const elements = pattern.split('/');
     const name = [];
+    // Multi pattern like: `projects/{project}/cmekSettings`, we need to append `cmekSettings` to the name.
+    // Or it will be duplicate with `project/{project}`
+    // Iterate the elements, if it comes in pairs: user/{userId}, we take `userId` as part of the name.
+    // if it comes as `profile` with no following `/{profile_id}`, we take `profile` as part of the name.
+    // So for pattern: `user/{user_id}/profile/blurbs/{blurb_id}`, name will be `userId_profile_blurbId`
     while (elements.length > 0) {
       const eleName = elements.shift();
       if (elements.length === 0) {
@@ -203,9 +208,6 @@ export class ResourceDatabase {
         }
       }
     }
-    // Multi pattern like: `projects/{project}/cmekSettings`, we need to append `cmekSettings` to the name.
-    // Or it will be duplicate with `project/{project}`
-    // While for `user/{user_id}/profile/blurbs/{blurb_id}`, name `userIdBlurbId` is clear and unique.
     return name.join('_');
   }
 
