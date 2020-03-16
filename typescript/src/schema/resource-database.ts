@@ -190,7 +190,7 @@ export class ResourceDatabase {
     const patternEleNum = pattern.split('/').length;
     // Multi pattern like: `projects/{project}/cmekSettings`, we need to append `cmekSettings` to the name.
     // Or it will be duplicate with `project/{project}`
-    if((params.length * 2) !== patternEleNum){
+    if (params.length * 2 !== patternEleNum) {
       params.push(typeName);
     }
     return params.join('_');

@@ -116,11 +116,15 @@ describe('src/schema/resource-database.ts', () => {
     assert(registeredResource);
     assert.strictEqual(registeredResource!.type, parentResourceType);
     assert.strictEqual(registeredResource!.name, parentResourceName);
-    const registeredResource2 = rdb.getResourceByPattern(resourcePatternSpecial1);
+    const registeredResource2 = rdb.getResourceByPattern(
+      resourcePatternSpecial1
+    );
     assert(registeredResource2);
     assert.strictEqual(registeredResource2!.type, resourceTypeSpecial);
     assert.strictEqual(registeredResource2!.name, 'location_case');
-    const registeredResource3 = rdb.getResourceByPattern(resourcePatternSpecial2);
+    const registeredResource3 = rdb.getResourceByPattern(
+      resourcePatternSpecial2
+    );
     assert(registeredResource3);
     assert.strictEqual(registeredResource3!.type, resourceTypeSpecial);
     assert.strictEqual(registeredResource3!.name, 'organization_case');
