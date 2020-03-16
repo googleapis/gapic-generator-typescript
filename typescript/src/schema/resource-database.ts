@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import {getResourceNameByPattern} from '../util';
+import { getResourceNameByPattern } from '../util';
 
 export interface ResourceDescriptor
   extends plugin.google.api.IResourceDescriptor {
