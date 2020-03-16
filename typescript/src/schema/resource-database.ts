@@ -90,7 +90,7 @@ export class ResourceDatabase {
         if (params.length === 0) {
           continue;
         }
-        const name = params.join('_');
+        const name = this.getName(params, pattern, resource.type);
         let resourceDescriptor: ResourceDescriptor = {
           name,
           params,
@@ -183,6 +183,17 @@ export class ResourceDatabase {
     let params = pattern.match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
     params = params.map(p => p.replace(/{([a-zA-Z_]+).*/, '$1'));
     return params;
+  }
+
+  private getName(params: string[], pattern: string, type: string): string {
+    const typeName = type.substring(type.lastIndexOf('/') + 1).toCamelCase();
+    const patternEleNum = pattern.split('/').length;
+    // Multi pattern like: `projects/{project}/cmekSettings`, we need to append `cmekSettings` to the name.
+    // Or it will be duplicate with `project/{project}`
+    if((params.length * 2) !== patternEleNum){
+      params.push(typeName);
+    }
+    return params.join('_');
   }
 
   private getResourceDescriptor(
