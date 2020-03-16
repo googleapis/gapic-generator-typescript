@@ -90,7 +90,7 @@ export class ResourceDatabase {
         if (params.length === 0) {
           continue;
         }
-        const name = this.getName(params, pattern, resource.type);
+        const name = this.getName(pattern);
         let resourceDescriptor: ResourceDescriptor = {
           name,
           params,
@@ -185,17 +185,30 @@ export class ResourceDatabase {
     return params;
   }
 
-  private getName(params: string[], pattern: string, type: string): string {
-    const typeName = type.substring(type.lastIndexOf('/') + 1).toCamelCase();
-    const patternEleNum = pattern.split('/').length;
-    const patternName = pattern.substring(pattern.lastIndexOf('/') + 2, pattern.length - 1);
+  private getName(pattern: string): string {
+    const elements = pattern.split('/');
+    let name = [];
+    while(elements.length > 0){
+      const eleName = elements.shift();
+      if(elements.length === 0) {
+        name.push(eleName);
+        break;
+      }
+      else {
+        const nextEle = elements[0];
+        if(nextEle.match('{[a-zA-Z_]+}')){
+          elements.shift();
+          name.push(nextEle.substring(1, nextEle.length - 1));
+        }
+        else{
+          name.push(eleName);
+        }
+      }
+    }
     // Multi pattern like: `projects/{project}/cmekSettings`, we need to append `cmekSettings` to the name.
     // Or it will be duplicate with `project/{project}`
     // While for `user/{user_id}/profile/blurbs/{blurb_id}`, name `userIdBlurbId` is clear and unique.
-    if (params.length * 2 !== patternEleNum && !params.includes(patternName)) {
-      params.push(typeName);
-    }
-    return params.join('_');
+    return name.join('_');
   }
 
   private getResourceDescriptor(
