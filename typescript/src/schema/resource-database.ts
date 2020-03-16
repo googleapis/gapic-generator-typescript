@@ -200,7 +200,7 @@ export class ResourceDatabase {
         break;
       } else {
         const nextEle = elements[0];
-        if (nextEle.match('{[a-zA-Z_]+}')) {
+        if (nextEle.match(/{[a-zA-Z_]+(?:=.*?)?}/g)) {
           elements.shift();
           name.push(nextEle.substring(1, nextEle.length - 1));
         } else {

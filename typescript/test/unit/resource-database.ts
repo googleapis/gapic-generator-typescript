@@ -26,7 +26,7 @@ describe('src/schema/resource-database.ts', () => {
   const resourcePattern = 'locations/{location}/examples/{example}';
   const resourcePattern2 = 'project/{project}/examples/{example}';
   const resourcePatternSpecial1 = 'location/{location}/profile/case/{case_id}';
-  const resourcePatternSpecial2 = 'organization/{organization}/case';
+  const resourcePatternSpecial2 = 'organization/{organization=**}/case';
   const resourceParameters = ['location', 'example'];
   const parentResourceName = 'Location';
   const parentResourceType = 'locations.googleapis.com/Location';
