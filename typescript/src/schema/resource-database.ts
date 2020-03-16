@@ -188,9 +188,11 @@ export class ResourceDatabase {
   private getName(params: string[], pattern: string, type: string): string {
     const typeName = type.substring(type.lastIndexOf('/') + 1).toCamelCase();
     const patternEleNum = pattern.split('/').length;
+    const patternName = pattern.substring(pattern.lastIndexOf('/') + 2, pattern.length - 1);
     // Multi pattern like: `projects/{project}/cmekSettings`, we need to append `cmekSettings` to the name.
     // Or it will be duplicate with `project/{project}`
-    if (params.length * 2 !== patternEleNum) {
+    // While for `user/{user_id}/profile/blurbs/{blurb_id}`, name `userIdBlurbId` is clear and unique.
+    if (params.length * 2 !== patternEleNum && !params.includes(patternName)) {
       params.push(typeName);
     }
     return params.join('_');
