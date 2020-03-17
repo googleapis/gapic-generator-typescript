@@ -49,6 +49,7 @@ interface MethodDescriptorProto
   // into x-goog-request-params header, the array will contain
   // [ ['request', 'foo'], ['request', 'bar']]
   headerRequestParams: string[][];
+  bundleConfig?: BundleConfig;
 }
 
 export interface ServiceDescriptorProto
@@ -70,6 +71,7 @@ export interface ServiceDescriptorProto
   commentsMap: CommentsMap;
   retryableCodeMap: RetryableCodeMap;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  bundleConfigsMethods: MethodDescriptorProto[];
   bundleConfigs?: BundleConfig[];
 }
 
@@ -320,6 +322,21 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+  const bundleConfigs = service.bundleConfigs;
+  if(bundleConfigs){
+    for(const bc of bundleConfigs){
+      if(bc.methodName === method.name){
+        const inputType = messages[method.inputType!];
+        const repeatedFields = inputType.field!.filter(
+          field =>
+            field.label ===
+            plugin.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED && field.name === bc.batchDescriptor.batched_field
+        );
+        bc.repeatedField  = repeatedFields[0].typeName?.substring(1)!;
+        method.bundleConfig = bc;
+      }
+    }
+  }
   if (method.inputType && messages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
     const inputType = messages[method.inputType!];
@@ -432,6 +449,7 @@ function augmentService(
   augmentedService.method = augmentedService.method.map(method =>
     augmentMethod(messages, augmentedService, method)
   );
+  augmentedService.bundleConfigsMethods = augmentedService.method.filter(method => method.bundleConfig);
   augmentedService.simpleMethods = augmentedService.method.filter(
     method =>
       !method.longRunning && !method.streaming && !method.pagingFieldName
@@ -503,7 +521,6 @@ function augmentService(
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
       if (!resourceReference || !resourceReference.type) continue;
-      // console.warn('all resources: ', allResourceDatabase.types);
       const resourceByType = allResourceDatabase.getResourceByType(
         resourceReference?.type,
         errorLocation

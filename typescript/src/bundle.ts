@@ -13,6 +13,7 @@ export interface BundleConfig {
   methodName: string;
   thresholds: Thresholds;
   batchDescriptor: BatchDescriptor;
+  repeatedField?: string;
 }
 
 export class BundleConfigClient {
