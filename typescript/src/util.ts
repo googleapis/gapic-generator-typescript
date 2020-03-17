@@ -141,3 +141,38 @@ Array.prototype.toSnakeCaseString = function(
 ): string {
   return this.map(part => part.toSnakeCase()).join(joiner);
 };
+
+export function getResourceNameByPattern(pattern: string): string {
+  const elements = pattern.split('/');
+  const name = [];
+  // Multi pattern like: `projects/{project}/cmekSettings`, we need to append `cmekSettings` to the name.
+  // Or it will be duplicate with `project/{project}`
+  // Iterate the elements, if it comes in pairs: user/{userId}, we take `userId` as part of the name.
+  // if it comes as `profile` with no following `/{profile_id}`, we take `profile` as part of the name.
+  // So for pattern: `user/{user_id}/profile/blurbs/{blurb_id}`, name will be `userId_profile_blurbId`
+  while (elements.length > 0) {
+    const eleName = elements.shift();
+    if (elements.length === 0) {
+      name.push(eleName);
+      break;
+    } else {
+      const nextEle = elements[0];
+      if (nextEle.match(/{[a-zA-Z_]+(?:=.*?)?}/g)) {
+        elements.shift();
+        name.push(
+          nextEle.substring(
+            1,
+            nextEle.includes('=') ? nextEle.indexOf('=') : nextEle.length - 1
+          )
+        );
+      } else {
+        if (eleName!.match(/{[a-zA-Z_]+(?:=.*?)?}/g)) {
+          continue;
+        } else {
+          name.push(eleName);
+        }
+      }
+    }
+  }
+  return name.join('_');
+}
