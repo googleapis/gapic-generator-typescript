@@ -323,16 +323,18 @@ function augmentMethod(
     method
   ) as MethodDescriptorProto;
   const bundleConfigs = service.bundleConfigs;
-  if(bundleConfigs){
-    for(const bc of bundleConfigs){
-      if(bc.methodName === method.name){
+  if (bundleConfigs) {
+    for (const bc of bundleConfigs) {
+      if (bc.methodName === method.name) {
         const inputType = messages[method.inputType!];
         const repeatedFields = inputType.field!.filter(
           field =>
             field.label ===
-            plugin.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED && field.name === bc.batchDescriptor.batched_field
+              plugin.google.protobuf.FieldDescriptorProto.Label
+                .LABEL_REPEATED &&
+            field.name === bc.batchDescriptor.batched_field
         );
-        bc.repeatedField  = repeatedFields[0].typeName?.substring(1)!;
+        bc.repeatedField = repeatedFields[0].typeName?.substring(1)!;
         method.bundleConfig = bc;
       }
     }
@@ -449,7 +451,9 @@ function augmentService(
   augmentedService.method = augmentedService.method.map(method =>
     augmentMethod(messages, augmentedService, method)
   );
-  augmentedService.bundleConfigsMethods = augmentedService.method.filter(method => method.bundleConfig);
+  augmentedService.bundleConfigsMethods = augmentedService.method.filter(
+    method => method.bundleConfig
+  );
   augmentedService.simpleMethods = augmentedService.method.filter(
     method =>
       !method.longRunning && !method.streaming && !method.pagingFieldName
