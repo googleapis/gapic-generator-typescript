@@ -173,32 +173,6 @@ export class {{ service.name }}Client {
     };
 {%- endif %}
 
-{%- if (service.bundleConfigs.length > 0) %}
-    // Some methods on this API support automatically batching
-    // requests; denote this.
-    this._descriptors.batching = {
-{%- for method in service.bundleConfigsMethods %}
-      {{ method.name }}: new this._gaxModule.BundleDescriptor(
-        '{{ method.bundleConfig.batchDescriptor.batched_field }}',
-        [
-{%- set pagingJoiner = joiner() -%}
-{%- for field in method.bundleConfig.batchDescriptor.discriminator_fields -%}
-        {{- pagingJoiner() -}}
-        '{{ field }}'
-{%- endfor -%}
-        ],
-        {{- method.bundleConfig.batchDescriptor.subresponse_field }},
-        gax.createByteLengthFunction(
-          this._opts.fallback ?
-          (this._protos as protobuf.Root).lookupType('{{ method.bundleConfig.repeatedField }}') :
-          // tslint:disable-next-line no-any
-          (this._protos as any).{{ method.bundleConfig.repeatedField }}
-        )
-      ),
-    };
-{%- endfor %}
-{%- endif %}
-
 {%- if (service.streaming.length > 0) %}
 
     // Some of the methods on this service provide streaming responses.
@@ -242,6 +216,38 @@ export class {{ service.name }}Client {
         {{ method.name.toCamelCase() }}Metadata.decode.bind({{ method.name.toCamelCase() }}Metadata))
 {%- endfor %}
     };
+{%- endif %}
+
+{%- if (service.bundleConfigs.length > 0) %}
+    // Some methods on this API support automatically batching
+    // requests; denote this.
+{%- if (service.longRunning.length === 0) %}
+    const protoFilesRoot = opts.fallback?
+      this._gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
+      this._gaxModule.protobuf.loadSync(nodejsProtoPath);
+{%- endif %}
+
+    this._descriptors.batching = {
+{%- for method in service.bundleConfigsMethods %}
+      {{ method.name }}: new this._gaxModule.BundleDescriptor(
+        '{{ method.bundleConfig.batchDescriptor.batched_field }}',
+        [
+{%- set pagingJoiner = joiner() -%}
+{%- for field in method.bundleConfig.batchDescriptor.discriminator_fields -%}
+        {{- pagingJoiner() -}}
+        '{{ field }}'
+{%- endfor -%}
+        ],
+        {{- method.bundleConfig.batchDescriptor.subresponse_field }},
+        gax.createByteLengthFunction(
+          this._opts.fallback ?
+          (this._protos as protobuf.Root).lookupType('{{ method.bundleConfig.repeatedField }}') :
+          // tslint:disable-next-line no-any
+          (this._protos as any).{{ method.bundleConfig.repeatedField }}
+        )
+      ),
+    };
+{%- endfor %}
 {%- endif %}
 
     // Put together the default options sent with requests.
