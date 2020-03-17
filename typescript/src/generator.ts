@@ -107,10 +107,7 @@ export class Generator {
       }
       const content = fs.readFileSync(filename, 'utf8');
       const info = yaml.safeLoad(content);
-      // check fields: batched_field, discriminator_fields, subresponseField[optional], element_count_threshold, request_byte_threshold, delay_threshold_millis
-      // TODO: confirm w/Alex they are all required? do we allow default value?
       this.bundleConfigs = new BundleConfigClient().fromObject(info);
-      console.warn('bundle config from file: ', this.bundleConfigs);
     }
   }
 

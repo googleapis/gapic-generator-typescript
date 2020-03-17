@@ -190,7 +190,10 @@ export class {{ service.name }}Client {
         {{- method.bundleConfig.batchDescriptor.subresponse_field }},
         // d/Alex best way to get the repeated field?
         gax.createByteLengthFunction(
-          protoFilesRoot.lookup('{{ method.bundleConfig.repeatedField }}')
+          this._opts.fallback ?
+          (this._protos as protobuf.Root).lookupType('{{ method.bundleConfig.repeatedField }}') :
+          // tslint:disable-next-line no-any
+          (this._protos as any).{{ method.bundleConfig.repeatedField }}
         )
       ),
     };

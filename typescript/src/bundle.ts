@@ -6,7 +6,7 @@ export interface Thresholds {
 export interface BatchDescriptor {
   batched_field: string;
   discriminator_fields: string[];
-  subresponse_field: string | null;
+  subresponse_field: string;
 }
 export interface BundleConfig {
   serviceName: string;
@@ -58,7 +58,7 @@ export class BundleConfigClient {
           batchDescriptor: {
             batched_field: batchedField,
             discriminator_fields: discriminatorFields,
-            subresponse_field: null,
+            subresponse_field: 'null',
           },
         };
         if (config['batch_descriptor']['subresponse_field']) {
