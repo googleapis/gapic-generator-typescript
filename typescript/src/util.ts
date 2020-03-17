@@ -166,7 +166,11 @@ export function getResourceNameByPattern(pattern: string): string {
           )
         );
       } else {
-        name.push(eleName);
+        if (eleName!.match(/{[a-zA-Z_]+(?:=.*?)?}/g)) {
+          continue;
+        } else {
+          name.push(eleName);
+        }
       }
     }
   }

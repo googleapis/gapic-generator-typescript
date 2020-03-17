@@ -27,6 +27,7 @@ describe('src/schema/resource-database.ts', () => {
   const resourcePattern2 = 'project/{project}/examples/{example}';
   const resourcePatternSpecial1 = 'location/{location}/profile/case/{case_id}';
   const resourcePatternSpecial2 = 'organization/{organization=**}/case';
+  const resourcePatternSpecial3 = '{organization=**}/tasks/{task}/result';
   const resourceParameters = ['location', 'example'];
   const parentResourceName = 'Location';
   const parentResourceType = 'locations.googleapis.com/Location';
@@ -103,7 +104,11 @@ describe('src/schema/resource-database.ts', () => {
     const rdb = new ResourceDatabase();
     const resource: plugin.google.api.IResourceDescriptor = {
       type: 'examples.googleapis.com/Case',
-      pattern: [resourcePatternSpecial1, resourcePatternSpecial2],
+      pattern: [
+        resourcePatternSpecial1,
+        resourcePatternSpecial2,
+        resourcePatternSpecial3,
+      ],
     };
     rdb.registerResource(resource, errorLocation);
     const registeredResource = rdb.getResourceByType(
@@ -127,6 +132,12 @@ describe('src/schema/resource-database.ts', () => {
     );
     assert(registeredResourceByPattern2);
     assert.strictEqual(registeredResourceByPattern2!.name, 'organization_case');
+
+    const registeredResourceByPattern3 = rdb.getResourceByPattern(
+      resourcePatternSpecial3
+    );
+    assert(registeredResourceByPattern3);
+    assert.strictEqual(registeredResourceByPattern3!.name, 'task_result');
   });
 
   it('can get registered resource by type', () => {
