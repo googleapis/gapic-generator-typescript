@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
+import { getResourceNameByPattern } from '../util';
 
 export interface ResourceDescriptor
   extends plugin.google.api.IResourceDescriptor {
@@ -90,7 +91,7 @@ export class ResourceDatabase {
         if (params.length === 0) {
           continue;
         }
-        const name = params.join('_');
+        const name = getResourceNameByPattern(pattern);
         let resourceDescriptor: ResourceDescriptor = {
           name,
           params,

@@ -25,6 +25,9 @@ describe('src/schema/resource-database.ts', () => {
   const resourceType = 'examples.googleapis.com/Example';
   const resourcePattern = 'locations/{location}/examples/{example}';
   const resourcePattern2 = 'project/{project}/examples/{example}';
+  const resourcePatternSpecial1 = 'location/{location}/profile/case/{case_id}';
+  const resourcePatternSpecial2 = 'organization/{organization=**}/case';
+  const resourcePatternSpecial3 = '{organization=**}/tasks/{task}/result';
   const resourceParameters = ['location', 'example'];
   const parentResourceName = 'Location';
   const parentResourceType = 'locations.googleapis.com/Location';
@@ -80,7 +83,6 @@ describe('src/schema/resource-database.ts', () => {
       type: resourceType,
       pattern: [resourcePattern, resourcePattern2],
     };
-
     rdb.registerResource(resource, errorLocation);
     const resourceByType = rdb.getResourceByType(resourceType);
     assert.deepStrictEqual(resourceByType!.pattern, [
@@ -96,6 +98,46 @@ describe('src/schema/resource-database.ts', () => {
     assert.strictEqual(registeredResource1!.name, 'location_example');
     assert.strictEqual(registeredResource2!.name, 'project_example');
     assert.strictEqual(warnings.length, 0);
+  });
+
+  it('get correct resource name for special patterns', () => {
+    const rdb = new ResourceDatabase();
+    const resource: plugin.google.api.IResourceDescriptor = {
+      type: 'examples.googleapis.com/Case',
+      pattern: [
+        resourcePatternSpecial1,
+        resourcePatternSpecial2,
+        resourcePatternSpecial3,
+      ],
+    };
+    rdb.registerResource(resource, errorLocation);
+    const registeredResource = rdb.getResourceByType(
+      'examples.googleapis.com/Case'
+    );
+    assert(registeredResource);
+    assert.strictEqual(
+      registeredResource!.type,
+      'examples.googleapis.com/Case'
+    );
+    const registeredResourceByPattern = rdb.getResourceByPattern(
+      resourcePatternSpecial1
+    );
+    assert(registeredResourceByPattern);
+    assert.strictEqual(
+      registeredResourceByPattern!.name,
+      'location_profile_case_id'
+    );
+    const registeredResourceByPattern2 = rdb.getResourceByPattern(
+      resourcePatternSpecial2
+    );
+    assert(registeredResourceByPattern2);
+    assert.strictEqual(registeredResourceByPattern2!.name, 'organization_case');
+
+    const registeredResourceByPattern3 = rdb.getResourceByPattern(
+      resourcePatternSpecial3
+    );
+    assert(registeredResourceByPattern3);
+    assert.strictEqual(registeredResourceByPattern3!.name, 'task_result');
   });
 
   it('can get registered resource by type', () => {
