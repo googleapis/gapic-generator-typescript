@@ -185,7 +185,7 @@ export class {{ service.name }}Client {
 {%- endfor %}
     };
 {%- endif %}
-{%- if (service.longRunning.length > 0) %}
+{%- if (service.longRunning.length > 0) or (service.bundleConfigs.length > 0) %}
 
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
@@ -193,7 +193,8 @@ export class {{ service.name }}Client {
     const protoFilesRoot = opts.fallback?
       this._gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
       this._gaxModule.protobuf.loadSync(nodejsProtoPath);
-
+{% endif %}
+{%- if service.longRunning.length > 0 %}
     this.operationsClient = this._gaxModule.lro({
       auth: this.auth,
       grpc: 'grpc' in this._gaxGrpc ? this._gaxGrpc.grpc : undefined
@@ -221,11 +222,6 @@ export class {{ service.name }}Client {
 {%- if (service.bundleConfigs.length > 0) %}
     // Some methods on this API support automatically batching
     // requests; denote this.
-{%- if (service.longRunning.length === 0) %}
-    const protoFilesRoot = opts.fallback?
-      this._gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
-      this._gaxModule.protobuf.loadSync(nodejsProtoPath);
-{%- endif %}
 
     this._descriptors.batching = {
 {%- for method in service.bundleConfigsMethods %}
