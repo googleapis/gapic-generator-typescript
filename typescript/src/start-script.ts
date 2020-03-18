@@ -37,6 +37,8 @@ const argv = yargs
   .describe('output_dir', 'Path to a directory for the generated code')
   .alias('grpc-service-config', 'grpc_service_config')
   .describe('grpc-service-config', 'Path to gRPC service config JSON')
+  .alias('bundle-config', 'bundle_config')
+  .describe('bundle-config', 'Path to bundle request config JSON')
   .alias('package-name', 'package_name')
   .describe('package-name', 'Publish package name')
   .alias('main-service', 'main_service')
@@ -58,6 +60,7 @@ const argv = yargs
   google/example/api/v1/api.proto`).argv;
 const outputDir = argv.outputDir as string;
 const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
+const bundleConfig = argv.bundleConfig as string | undefined;
 const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
@@ -86,6 +89,9 @@ if (grpcServiceConfig) {
   protocCommand.push(
     `--typescript_gapic_opt="grpc-service-config=${grpcServiceConfig}"`
   );
+}
+if (bundleConfig) {
+  protocCommand.push(`--typescript_gapic_opt="bundle-config=${bundleConfig}"`);
 }
 if (packageName) {
   protocCommand.push(`--typescript_gapic_opt="package-name=${packageName}"`);

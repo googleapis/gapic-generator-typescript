@@ -39,7 +39,7 @@ const version = require('../../../package.json').version;
  * @memberof {{ api.naming.version }}
  */
 export class {{ service.name }}Client {
-  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}};
+  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
   private _innerApiCalls: {[name: string]: Function};
   {%- if (service.pathTemplates.length > 0) %}
   private _pathTemplates: {[name: string]: gax.PathTemplate};
@@ -185,7 +185,7 @@ export class {{ service.name }}Client {
 {%- endfor %}
     };
 {%- endif %}
-{%- if (service.longRunning.length > 0) %}
+{%- if (service.longRunning.length > 0) or (service.bundleConfigs.length > 0) %}
 
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
@@ -193,7 +193,8 @@ export class {{ service.name }}Client {
     const protoFilesRoot = opts.fallback?
       this._gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
       this._gaxModule.protobuf.loadSync(nodejsProtoPath);
-
+{% endif %}
+{%- if service.longRunning.length > 0 %}
     this.operationsClient = this._gaxModule.lro({
       auth: this.auth,
       grpc: 'grpc' in this._gaxGrpc ? this._gaxGrpc.grpc : undefined
@@ -216,6 +217,31 @@ export class {{ service.name }}Client {
         {{ method.name.toCamelCase() }}Metadata.decode.bind({{ method.name.toCamelCase() }}Metadata))
 {%- endfor %}
     };
+{%- endif %}
+
+{%- if (service.bundleConfigs.length > 0) %}
+    // Some methods on this API support automatically batching
+    // requests; denote this.
+
+    this._descriptors.batching = {
+{%- for method in service.bundleConfigsMethods %}
+      {{ method.name }}: new this._gaxModule.BundleDescriptor(
+        '{{ method.bundleConfig.batchDescriptor.batched_field }}',
+        [
+{%- set pagingJoiner = joiner() -%}
+{%- for field in method.bundleConfig.batchDescriptor.discriminator_fields -%}
+        {{- pagingJoiner() -}}
+        '{{ field }}'
+{%- endfor -%}
+        ],
+        {{- method.bundleConfig.batchDescriptor.subresponse_field }},
+        gax.createByteLengthFunction(
+          // tslint:disable-next-line no-any
+          protoFilesRoot.lookupType('{{ method.bundleConfig.repeatedField }}') as any
+        )
+      ),
+    };
+{%- endfor %}
 {%- endif %}
 
     // Put together the default options sent with requests.

@@ -81,6 +81,14 @@ describe('Baseline tests', () => {
   });
 
   runBaselineTest({
+    baselineName: 'logging',
+    outputDir: '.test-out-logging',
+    protoPath: 'google/logging/v2/*.proto',
+    useCommonProto: true,
+    bundleConfig: 'google/logging/v2/logging_gapic.yaml',
+    mainServiceName: 'LoggingService',
+  });
+  runBaselineTest({
     baselineName: 'disable-packing-test',
     outputDir: '.test-out-disable-packing-test',
     protoPath: 'google/showcase/v1beta1/*.proto',

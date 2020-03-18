@@ -15,9 +15,11 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import { commonPrefix } from '../util';
 import { API } from './api';
+import { BundleConfig } from 'src/bundle';
 
 export interface Options {
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  bundleConfigs?: BundleConfig[];
   publishName?: string;
   mainServiceName?: string;
 }

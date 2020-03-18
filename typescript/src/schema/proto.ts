@@ -22,6 +22,7 @@ import {
   defaultNonIdempotentRetryCodesName,
   defaultParameters,
 } from './retryable-code-map';
+import { BundleConfig } from 'src/bundle';
 
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
@@ -48,6 +49,7 @@ interface MethodDescriptorProto
   // into x-goog-request-params header, the array will contain
   // [ ['request', 'foo'], ['request', 'bar']]
   headerRequestParams: string[][];
+  bundleConfig?: BundleConfig;
 }
 
 export interface ServiceDescriptorProto
@@ -69,6 +71,8 @@ export interface ServiceDescriptorProto
   commentsMap: CommentsMap;
   retryableCodeMap: RetryableCodeMap;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  bundleConfigsMethods: MethodDescriptorProto[];
+  bundleConfigs?: BundleConfig[];
 }
 
 export interface ServicesMap {
@@ -318,6 +322,23 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+  const bundleConfigs = service.bundleConfigs;
+  if (bundleConfigs) {
+    for (const bc of bundleConfigs) {
+      if (bc.methodName === method.name) {
+        const inputType = messages[method.inputType!];
+        const repeatedFields = inputType.field!.filter(
+          field =>
+            field.label ===
+              plugin.google.protobuf.FieldDescriptorProto.Label
+                .LABEL_REPEATED &&
+            field.name === bc.batchDescriptor.batched_field
+        );
+        bc.repeatedField = repeatedFields[0].typeName?.substring(1)!;
+        method.bundleConfig = bc;
+      }
+    }
+  }
   if (method.inputType && messages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
     const inputType = messages[method.inputType!];
@@ -415,7 +436,8 @@ function augmentService(
   commentsMap: CommentsMap,
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
   allResourceDatabase: ResourceDatabase,
-  resourceDatabase: ResourceDatabase
+  resourceDatabase: ResourceDatabase,
+  bundleConfigs?: BundleConfig[]
 ) {
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.packageName = packageName;
@@ -423,8 +445,14 @@ function augmentService(
   augmentedService.commentsMap = commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
   augmentedService.grpcServiceConfig = grpcServiceConfig;
+  augmentedService.bundleConfigs = bundleConfigs?.filter(
+    bc => bc.serviceName === service.name
+  );
   augmentedService.method = augmentedService.method.map(method =>
     augmentMethod(messages, augmentedService, method)
+  );
+  augmentedService.bundleConfigsMethods = augmentedService.method.filter(
+    method => method.bundleConfig
   );
   augmentedService.simpleMethods = augmentedService.method.filter(
     method =>
@@ -497,7 +525,6 @@ function augmentService(
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
       if (!resourceReference || !resourceReference.type) continue;
-      // console.warn('all resources: ', allResourceDatabase.types);
       const resourceByType = allResourceDatabase.getResourceByType(
         resourceReference?.type,
         errorLocation
@@ -546,7 +573,8 @@ export class Proto {
     packageName: string,
     grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
     allResourceDatabase: ResourceDatabase,
-    resourceDatabase: ResourceDatabase
+    resourceDatabase: ResourceDatabase,
+    bundleConfigs?: BundleConfig[]
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
@@ -581,7 +609,8 @@ export class Proto {
           commentsMap,
           grpcServiceConfig,
           allResourceDatabase,
-          resourceDatabase
+          resourceDatabase,
+          bundleConfigs
         )
       )
       .reduce((map, service) => {
