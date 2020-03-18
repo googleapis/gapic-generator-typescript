@@ -2,6 +2,7 @@ export interface Thresholds {
   element_count_threshold: number;
   request_byte_threshold: number;
   delay_threshold_millis: number;
+  element_count_limit?: number;
 }
 export interface BatchDescriptor {
   batched_field: string;
@@ -44,6 +45,8 @@ export class BundleConfigClient {
           config['thresholds']['request_byte_threshold'];
         const delayThresholdMillis =
           config['thresholds']['delay_threshold_millis'];
+        const elementCountLimit =
+          config['thresholds']['element_count_limit'] ?? 1000000;
         const batchedField = config['batch_descriptor']['batched_field'];
         const discriminatorFields =
           config['batch_descriptor']['discriminator_fields'];
@@ -54,6 +57,7 @@ export class BundleConfigClient {
             element_count_threshold: elementCountThreshold,
             request_byte_threshold: requestByteThreshold,
             delay_threshold_millis: delayThresholdMillis,
+            element_count_limit: elementCountLimit,
           },
           batchDescriptor: {
             batched_field: batchedField,
