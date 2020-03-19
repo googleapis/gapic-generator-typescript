@@ -18,12 +18,12 @@ import * as showcase from 'showcase';
 import * as grpc from '@grpc/grpc-js'; // to create credentials for local Showcase server
 
 interface ClientOptions {
-  [name: string]: Record<string, any>;
+  [name: string]: Object;
   servicePath: string;
   port: number;
 }
 interface Options {
-  [name: string]: Record<string, any>;
+  [name: string]: Object;
 }
 // Fake auth client for fallback
 const authStub = {

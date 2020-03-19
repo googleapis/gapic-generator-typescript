@@ -23,7 +23,7 @@ const SHOWCASE_SERVER = path.join(
 );
 
 export class Server {
-  pid = -1;
+  pid: number = -1;
   constrcutor() {}
   run() {
     if (!fs.existsSync(SHOWCASE_SERVER)) {
