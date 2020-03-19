@@ -17,42 +17,42 @@ import * as showcase from 'showcase';
 
 import * as grpc from '@grpc/grpc-js'; // to create credentials for local Showcase server
 
-interface ClientOptions {
+interface ClientOptions{
   [name: string]: Object;
   servicePath: string;
   port: number;
 }
-interface Options {
+interface Option {
   [name: string]: Object;
 }
 // Fake auth client for fallback
 const authStub = {
   getRequestHeaders() {
-    return { Authorization: 'Bearer SOME_TOKEN' };
+    return {Authorization: 'Bearer SOME_TOKEN'};
   },
 };
 // Finally, using mocha!
 describe('Showcase tests', () => {
   if (typeof window !== 'undefined') {
     describe('browser library works', () => {
-      testShowcase({ browser: true });
+      testShowcase({browser: true});
     });
   } else {
     describe('grpc-fallback works', () => {
-      testShowcase({ fallback: true });
+      testShowcase({fallback: true});
     });
     describe('@grpc/grpc-js works', () => {
-      testShowcase({ grpcJs: true });
+      testShowcase({grpcJs: true});
     });
     describe('grpc works', () => {
-      testShowcase({ grpc: true });
+      testShowcase({grpc: true});
     });
   }
 });
 
 async function testShowcase(opts: Options) {
   opts = opts || {};
-  const clientOptions: ClientOptions = { servicePath: 'localhost', port: 7469 };
+  const clientOptions: ClientOptions = {servicePath: 'localhost', port: 7469};
   let hasStreaming = true;
   clientOptions.servicePath = 'localhost';
   clientOptions.port = 7469;
@@ -81,7 +81,7 @@ async function testShowcase(opts: Options) {
     throw new Error('Wrong options passed!');
   }
   const client = new showcase.v1beta1.EchoClient(clientOptions);
-  runTest(client, { hasStreaming });
+  runTest(client, {hasStreaming});
 }
 
 function runTest(client: showcase.v1beta1.EchoClient, opts: Options) {
@@ -153,12 +153,12 @@ function testCollect(client: showcase.v1beta1.EchoClient) {
         resolve(result);
       });
       for (const word of words) {
-        const request = { content: word };
+        const request = {content: word};
         stream.write(request);
       }
       stream.end();
     });
-    const expectedResult = { content: words.join(' ') };
+    const expectedResult = {content: words.join(' ')};
     assert.deepStrictEqual(result, expectedResult);
   });
 }
@@ -186,7 +186,7 @@ function testChat(client: showcase.v1beta1.EchoClient) {
       });
       stream.on('error', reject);
       for (const word of words) {
-        stream.write({ content: word });
+        stream.write({content: word});
       }
       stream.end();
     });

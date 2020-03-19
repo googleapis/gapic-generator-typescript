@@ -14,7 +14,7 @@
 
 import * as child_process from 'child_process';
 import * as util from 'util';
-import { Server } from './server';
+import {Server} from './server';
 const exec = util.promisify(child_process.exec);
 
 describe('BrowserTest for showcase library', () => {
