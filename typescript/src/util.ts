@@ -34,7 +34,7 @@ export function commonPrefix(strings: string[]): string {
 // Convert a string Duration, e.g. "600s", to a proper protobuf type since
 // protobufjs does not support it at this moment.
 export function duration(text: string): plugin.google.protobuf.Duration {
-  const multipliers: { [suffix: string]: number } = {
+  const multipliers: {[suffix: string]: number} = {
     s: 1,
     m: 60,
     h: 60 * 60,

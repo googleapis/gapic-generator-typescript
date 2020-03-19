@@ -14,9 +14,9 @@
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { before, it } from 'mocha';
+import {before, it} from 'mocha';
 import * as rimraf from 'rimraf';
-import { execSync } from 'child_process';
+import {execSync} from 'child_process';
 import * as assert from 'assert';
 
 const NO_OUTPUT_FILE = 0;

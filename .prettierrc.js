@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,21 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as yargs from 'yargs';
-import {Generator} from './generator';
-
-async function main() {
-  const argv = yargs.argv;
-
-  if (argv.descriptor) {
-    throw new Error('Descriptor option is not yet supported.');
+module.exports = {
+    ...require('gts/.prettierrc.json')
   }
-
-  const generator = new Generator();
-  await generator.initializeFromStdin();
-  await generator.generate();
-}
-
-main().catch(err => {
-  throw new Error(err);
-});

@@ -14,11 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { execFileSync } from 'child_process';
+import {execFileSync} from 'child_process';
 import * as path from 'path';
 import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
-const fileSystem = require('file-system');
+const fileSystem = require('file-system'); ; // eslint-disable-line
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
 const googleGaxProtosDir = path.join(googleGaxPath, '..', '..', 'protos');
@@ -108,10 +108,9 @@ protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 protocCommand.push(`-I${commonProtoPath}`);
 try {
-  execFileSync(`protoc`, protocCommand, { stdio: 'inherit' });
+  execFileSync(`protoc`, protocCommand, {stdio: 'inherit'});
 } catch (err) {
-  console.error(err.toString());
-  process.exit(1);
+  throw new Error(err.toString());
 }
 
 try {
@@ -139,6 +138,5 @@ try {
       });
     });
 } catch (err) {
-  console.error(err.toString());
-  process.exit(1);
+  throw new Error(err.toString());
 }

@@ -1,5 +1,5 @@
 const assert = require('assert');
-const {describe, it} = require('mocha');
+const { describe, it } = require('mocha');
 const showcase = require('showcase');
 
 // Fake auth client for fallback

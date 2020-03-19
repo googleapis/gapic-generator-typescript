@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { commonPrefix } from '../util';
-import { API } from './api';
-import { BundleConfig } from 'src/bundle';
+import {commonPrefix} from '../util';
+import {API} from './api';
+import {BundleConfig} from 'src/bundle';
 
 export interface Options {
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;

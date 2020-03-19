@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/*eslint no-warning-comments: [0, { "terms": ["todo"], "location": "anywhere" }]*/
+
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { CommentsMap, Comment } from './comments';
-import { milliseconds } from '../util';
-import { ResourceDescriptor, ResourceDatabase } from './resource-database';
+import {CommentsMap, Comment} from './comments';
+import {milliseconds} from '../util';
+import {ResourceDescriptor, ResourceDatabase} from './resource-database';
 import {
   RetryableCodeMap,
   defaultParametersName,
   defaultNonIdempotentRetryCodesName,
   defaultParameters,
 } from './retryable-code-map';
-import { BundleConfig } from 'src/bundle';
+import {BundleConfig} from 'src/bundle';
 
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
@@ -359,7 +361,7 @@ function augmentMethod(
   }
   if (method.methodConfig.retryPolicy) {
     // converting retry parameters to the syntax google-gax supports
-    const retryParams: { [key: string]: number } = {};
+    const retryParams: {[key: string]: number} = {};
     if (method.methodConfig.retryPolicy.initialBackoff) {
       retryParams.initial_retry_delay_millis = milliseconds(
         method.methodConfig.retryPolicy.initialBackoff
@@ -499,7 +501,7 @@ function augmentService(
 
   // allResourceDatabase: resources that defined by `google.api.resource`
   // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
-  const uniqueResources: { [name: string]: ResourceDescriptor } = {};
+  const uniqueResources: {[name: string]: ResourceDescriptor} = {};
   // Copy all resources in resourceDatabase to uniqueResources
   const allPatterns = resourceDatabase.patterns;
   for (const pattern of Object.keys(allPatterns)) {

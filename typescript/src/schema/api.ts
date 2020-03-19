@@ -14,9 +14,9 @@
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
-import { Naming, Options as namingOptions } from './naming';
-import { Proto } from './proto';
-import { ResourceDatabase, ResourceDescriptor } from './resource-database';
+import {Naming, Options as namingOptions} from './naming';
+import {Proto} from './proto';
+import {ResourceDatabase, ResourceDescriptor} from './resource-database';
 
 export interface ProtosMap {
   [filename: string]: Proto;
