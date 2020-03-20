@@ -22,7 +22,7 @@ interface ClientOptions{
   servicePath: string;
   port: number;
 }
-interface Option {
+interface Options {
   [name: string]: Object;
 }
 // Fake auth client for fallback
