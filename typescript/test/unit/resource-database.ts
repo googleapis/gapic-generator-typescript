@@ -52,7 +52,7 @@ describe('src/schema/resource-database.ts', () => {
     };
 
     rdb.registerResource(resource, errorLocation);
-    assert(warnings.filter((w) => w.includes(errorLocation)).length > 0);
+    assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
   it('warns when registering resource with malformed type', () => {
@@ -63,7 +63,7 @@ describe('src/schema/resource-database.ts', () => {
     };
 
     rdb.registerResource(resource, errorLocation);
-    assert(warnings.filter((w) => w.includes(errorLocation)).length > 0);
+    assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
   it('warns when registering resource with no pattern', () => {
@@ -74,7 +74,7 @@ describe('src/schema/resource-database.ts', () => {
     };
 
     rdb.registerResource(resource, errorLocation);
-    assert(warnings.filter((w) => w.includes(errorLocation)).length > 0);
+    assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
   it('can register multi-pattern resource properly', () => {
@@ -191,7 +191,7 @@ describe('src/schema/resource-database.ts', () => {
 
     const notFoundResource = rdb.getResourceByType(resourceType, errorLocation);
     assert.strictEqual(notFoundResource, undefined);
-    assert(warnings.filter((w) => w.includes(errorLocation)).length > 0);
+    assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
   it('warns if cannot find resource by type', () => {
@@ -199,7 +199,7 @@ describe('src/schema/resource-database.ts', () => {
 
     const notFoundResource = rdb.getResourceByType(resourceType, errorLocation);
     assert.strictEqual(notFoundResource, undefined);
-    assert(warnings.filter((w) => w.includes(errorLocation)).length > 0);
+    assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
   it('warns if cannot find resource by pattern', () => {
@@ -210,7 +210,7 @@ describe('src/schema/resource-database.ts', () => {
       errorLocation
     );
     assert.strictEqual(notFoundResource, undefined);
-    assert(warnings.filter((w) => w.includes(errorLocation)).length > 0);
+    assert(warnings.filter(w => w.includes(errorLocation)).length > 0);
   });
 
   it('returns known parent resources', () => {

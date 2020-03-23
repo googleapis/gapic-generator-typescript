@@ -85,7 +85,7 @@ export class RetryableCodeMap {
       (a, b) => Number(a) - Number(b)
     );
     const uniqueName = sortedCodes
-      .map((code) => this.codeEnumMapping[code])
+      .map(code => this.codeEnumMapping[code])
       .join('_')
       // toSnakeCase() splits on uppercase and we only want to split on
       // underscores since all enum codes are uppercase.
@@ -107,7 +107,7 @@ export class RetryableCodeMap {
     if (!this.uniqueCodesNamesMap[uniqueName]) {
       this.uniqueCodesNamesMap[uniqueName] = prettyName;
       this.prettyCodesNamesMap[prettyName] = retryableStatusCodes.map(
-        (code) => this.codeEnumMapping[code]
+        code => this.codeEnumMapping[code]
       );
     }
     return prettyName;

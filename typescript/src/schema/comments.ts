@@ -38,7 +38,7 @@ export class CommentsMap {
     const commentsMap: Comments = {};
     if (fd && fd.sourceCodeInfo && fd.sourceCodeInfo.location) {
       const locations = fd.sourceCodeInfo.location;
-      locations.forEach((location) => {
+      locations.forEach(location => {
         if (location.leadingComments !== null) {
           // p is an array with format [f1, i1, f2, i2, ...]
           // - f1 refers to the protobuf field tag

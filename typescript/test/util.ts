@@ -150,7 +150,7 @@ function equalToBaseline(outpurDir: string, baselineDir: string): boolean {
         compareResult === NO_OUTPUT_FILE
       ) {
         fileStack = fileStack.filter(
-          (file) => file !== item.baselinePath + BASELINE_EXTENSION
+          file => file !== item.baselinePath + BASELINE_EXTENSION
         );
       }
     } else if (fs.lstatSync(item.outputPath).isDirectory()) {
@@ -159,7 +159,7 @@ function equalToBaseline(outpurDir: string, baselineDir: string): boolean {
     }
   }
   if (fileStack.length !== 0) {
-    fileStack.forEach((file) => {
+    fileStack.forEach(file => {
       console.warn(file + ' is not identical with the generated file. ');
     });
     result = false;
@@ -212,7 +212,7 @@ function putItemToStack(
 ) {
   const outputFiles = fs.readdirSync(outputDir);
 
-  outputFiles.forEach((file) => {
+  outputFiles.forEach(file => {
     const fileFullPath = path.join(outputDir, file);
     const baselinePath = path.join(baselinDir, file);
     protoItemStack.push(new Item(file, fileFullPath, baselinePath));
@@ -221,7 +221,7 @@ function putItemToStack(
 
 function putFiletoStack(dir: string, fileStack: string[], dirStack: string[]) {
   const items = fs.readdirSync(dir);
-  items.forEach((item) => {
+  items.forEach(item => {
     const baselinePath = path.join(dir, item);
     if (
       fs.statSync(baselinePath).isFile() &&

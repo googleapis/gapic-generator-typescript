@@ -182,7 +182,7 @@ export class ResourceDatabase {
 
   private getParams(pattern: string): string[] {
     let params = pattern.match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
-    params = params.map((p) => p.replace(/{([a-zA-Z_]+).*/, '$1'));
+    params = params.map(p => p.replace(/{([a-zA-Z_]+).*/, '$1'));
     return params;
   }
 

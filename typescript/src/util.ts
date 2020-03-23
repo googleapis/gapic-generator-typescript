@@ -22,7 +22,7 @@ export function commonPrefix(strings: string[]): string {
   while (result.length < strings[0].length) {
     // try one more character
     const next = result + strings[0][result.length];
-    if (strings.every((str) => str.startsWith(next))) {
+    if (strings.every(str => str.startsWith(next))) {
       result = next;
     } else {
       break;
@@ -81,8 +81,8 @@ String.prototype.capitalize = function (this: string): string {
 String.prototype.words = function (this: string): string[] {
   // split on spaces, non-alphanumeric, or capital letters
   return this.split(/(?=[A-Z])|[\s\W_]+/)
-    .filter((w) => w.length > 0)
-    .map((w) => w.toLowerCase());
+    .filter(w => w.length > 0)
+    .map(w => w.toLowerCase());
 };
 
 String.prototype.toCamelCase = function (this: string): string {
@@ -91,7 +91,7 @@ String.prototype.toCamelCase = function (this: string): string {
     return this;
   }
   const result = [words[0]];
-  result.push(...words.slice(1).map((w) => w.capitalize()));
+  result.push(...words.slice(1).map(w => w.capitalize()));
   return result.join('');
 };
 
@@ -100,7 +100,7 @@ String.prototype.toPascalCase = function (this: string): string {
   if (words.length === 0) {
     return this;
   }
-  const result = words.map((w) => w.capitalize());
+  const result = words.map(w => w.capitalize());
   return result.join('');
 };
 
@@ -132,14 +132,14 @@ Array.prototype.toCamelCaseString = function (
   this: string[],
   joiner: string
 ): string {
-  return this.map((part) => part.toCamelCase()).join(joiner);
+  return this.map(part => part.toCamelCase()).join(joiner);
 };
 
 Array.prototype.toSnakeCaseString = function (
   this: string[],
   joiner: string
 ): string {
-  return this.map((part) => part.toSnakeCase()).join(joiner);
+  return this.map(part => part.toSnakeCase()).join(joiner);
 };
 
 export function getResourceNameByPattern(pattern: string): string {
