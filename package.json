@@ -12,15 +12,15 @@
   },
   "license": "Apache-2.0",
   "author": "Google LLC",
+  "bin": {
+    "gapic-generator-typescript": "build/src/start-script.js",
+    "protoc-gen-typescript_gapic": "build/src/cli.js"
+  },
   "files": [
     "build/src",
     "pbjs-genfiles",
     "templates"
   ],
-  "bin": {
-    "gapic-generator-typescript": "build/src/start-script.js",
-    "protoc-gen-typescript_gapic": "build/src/cli.js"
-  },
   "scripts": {
     "baseline": "node build/tools/update-baselines.js",
     "clean": "gts clean",
@@ -28,23 +28,23 @@
     "compile": "tsc -p .",
     "compile-protos": "pbjs -p protos -p node_modules/google-gax/protos -t static-module -o pbjs-genfiles/plugin.js google/protobuf/compiler/plugin.proto google/api/annotations.proto google/api/field_behavior.proto google/api/resource.proto google/api/client.proto google/longrunning/operations.proto service_config.proto && pbts pbjs-genfiles/plugin.js -o pbjs-genfiles/plugin.d.ts",
     "docker-test": "sh docker/test.sh",
-    "ts-test-application": "mocha build/test/test-application/test-ts --timeout 600000",
-    "js-test-application": "mocha build/test/test-application/test-js --timeout 600000",
     "fix": "gts fix",
+    "js-test-application": "mocha build/test/test-application/test-js --timeout 600000",
     "lint": "gts check",
+    "prepack": "cd templates/typescript_gapic && rm -f package.json.njk && mv package.json package.json.njk",
+    "postpack": "cd templates/typescript_gapic && mv package.json.njk package.json && ln -s package.json package.json.njk",
     "prepare": "npm run compile-protos && npm run compile",
     "pretest": "npm run compile-protos && npm run compile",
     "test": "c8 --reporter=lcov mocha build/test/unit",
-    "prepack": "cd templates/typescript_gapic && rm -f package.json.njk && mv package.json package.json.njk",
-    "postpack": "cd templates/typescript_gapic && mv package.json.njk package.json && ln -s package.json package.json.njk"
+    "ts-test-application": "mocha build/test/test-application/test-ts --timeout 600000"
   },
   "dependencies": {
     "@types/js-yaml": "^3.12.2",
     "file-system": "^2.2.2",
     "fs-extra": "^9.0.0",
     "get-stdin": "^7.0.0",
-    "js-yaml": "^3.13.1",
     "google-gax": "^1.15.1",
+    "js-yaml": "^3.13.1",
     "nunjucks": "^3.2.1",
     "object-hash": "^2.0.3",
     "protobufjs": "^6.8.9",
