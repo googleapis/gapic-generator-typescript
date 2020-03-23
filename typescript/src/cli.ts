@@ -29,6 +29,6 @@ async function main() {
   await generator.generate();
 }
 
-main().catch(err => {
+main().catch((err) => {
   throw new Error(err);
 });

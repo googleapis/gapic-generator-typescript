@@ -22,7 +22,7 @@ export function commonPrefix(strings: string[]): string {
   while (result.length < strings[0].length) {
     // try one more character
     const next = result + strings[0][result.length];
-    if (strings.every(str => str.startsWith(next))) {
+    if (strings.every((str) => str.startsWith(next))) {
       result = next;
     } else {
       break;
@@ -71,40 +71,40 @@ export function milliseconds(
   );
 }
 
-String.prototype.capitalize = function(this: string): string {
+String.prototype.capitalize = function (this: string): string {
   if (this.length === 0) {
     return this;
   }
   return this[0].toUpperCase() + this.slice(1);
 };
 
-String.prototype.words = function(this: string): string[] {
+String.prototype.words = function (this: string): string[] {
   // split on spaces, non-alphanumeric, or capital letters
   return this.split(/(?=[A-Z])|[\s\W_]+/)
-    .filter(w => w.length > 0)
-    .map(w => w.toLowerCase());
+    .filter((w) => w.length > 0)
+    .map((w) => w.toLowerCase());
 };
 
-String.prototype.toCamelCase = function(this: string): string {
+String.prototype.toCamelCase = function (this: string): string {
   const words = this.words();
   if (words.length === 0) {
     return this;
   }
   const result = [words[0]];
-  result.push(...words.slice(1).map(w => w.capitalize()));
+  result.push(...words.slice(1).map((w) => w.capitalize()));
   return result.join('');
 };
 
-String.prototype.toPascalCase = function(this: string): string {
+String.prototype.toPascalCase = function (this: string): string {
   const words = this.words();
   if (words.length === 0) {
     return this;
   }
-  const result = words.map(w => w.capitalize());
+  const result = words.map((w) => w.capitalize());
   return result.join('');
 };
 
-String.prototype.toKebabCase = function(this: string): string {
+String.prototype.toKebabCase = function (this: string): string {
   const words = this.words();
   if (words.length === 0) {
     return this;
@@ -112,7 +112,7 @@ String.prototype.toKebabCase = function(this: string): string {
   return words.join('-');
 };
 
-String.prototype.toSnakeCase = function(this: string): string {
+String.prototype.toSnakeCase = function (this: string): string {
   const words = this.words();
   if (words.length === 0) {
     return this;
@@ -120,7 +120,7 @@ String.prototype.toSnakeCase = function(this: string): string {
   return words.join('_');
 };
 
-String.prototype.replaceAll = function(
+String.prototype.replaceAll = function (
   this: string,
   search: string,
   replacement: string
@@ -128,18 +128,18 @@ String.prototype.replaceAll = function(
   return this.split(search).join(replacement);
 };
 
-Array.prototype.toCamelCaseString = function(
+Array.prototype.toCamelCaseString = function (
   this: string[],
   joiner: string
 ): string {
-  return this.map(part => part.toCamelCase()).join(joiner);
+  return this.map((part) => part.toCamelCase()).join(joiner);
 };
 
-Array.prototype.toSnakeCaseString = function(
+Array.prototype.toSnakeCaseString = function (
   this: string[],
   joiner: string
 ): string {
-  return this.map(part => part.toSnakeCase()).join(joiner);
+  return this.map((part) => part.toSnakeCase()).join(joiner);
 };
 
 export function getResourceNameByPattern(pattern: string): string {

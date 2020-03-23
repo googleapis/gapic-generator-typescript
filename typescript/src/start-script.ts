@@ -68,7 +68,7 @@ const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
 }
-const protoDirsArg = protoDirs.map(dir => `-I${dir}`);
+const protoDirsArg = protoDirs.map((dir) => `-I${dir}`);
 
 const protoFiles = [];
 if (Array.isArray(argv._)) {
@@ -125,8 +125,8 @@ try {
   fs.readFileSync(protoList)
     .toString()
     .split('\n')
-    .forEach(proto => {
-      protoDirs.forEach(dir => {
+    .forEach((proto) => {
+      protoDirs.forEach((dir) => {
         const protoFile = path.join(dir, proto);
         if (
           (protoFilesSet.has(protoFile) ||

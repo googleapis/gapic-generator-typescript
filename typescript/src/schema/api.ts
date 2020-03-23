@@ -52,7 +52,7 @@ export class API {
   ) {
     this.naming = new Naming(
       fileDescriptors.filter(
-        fd => fd.package && fd.package.startsWith(packageName)
+        (fd) => fd.package && fd.package.startsWith(packageName)
       ),
       options
     );
@@ -65,8 +65,8 @@ export class API {
     );
     // parse resource map to Proto constructor
     this.protos = fileDescriptors
-      .filter(fd => fd.name)
-      .filter(fd => !API.isIgnoredService(fd))
+      .filter((fd) => fd.name)
+      .filter((fd) => !API.isIgnoredService(fd))
       .reduce((map, fd) => {
         map[fd.name!] = new Proto(
           fd,
@@ -81,17 +81,17 @@ export class API {
 
     const serviceNamesList: string[] = [];
     fileDescriptors
-      .filter(fd => !API.isIgnoredService(fd))
-      .filter(fd => fd.service)
+      .filter((fd) => !API.isIgnoredService(fd))
+      .filter((fd) => fd.service)
       .reduce((servicesList, fd) => {
         servicesList.push(...fd.service!);
         return servicesList;
       }, [] as plugin.google.protobuf.IServiceDescriptorProto[])
-      .filter(service => service?.options?.['.google.api.defaultHost'])
+      .filter((service) => service?.options?.['.google.api.defaultHost'])
       .sort((service1, service2) =>
         service1.name!.localeCompare(service2.name!)
       )
-      .forEach(service => {
+      .forEach((service) => {
         const defaultHost = service!.options!['.google.api.defaultHost']!;
         const [hostname, port] = defaultHost.split(':');
         if (hostname && this.hostName && hostname !== this.hostName) {
@@ -113,11 +113,11 @@ export class API {
 
   get services() {
     return Object.keys(this.protos)
-      .map(filename => this.protos[filename])
-      .filter(proto => proto.fileToGenerate)
+      .map((filename) => this.protos[filename])
+      .filter((proto) => proto.fileToGenerate)
       .reduce((retval, proto) => {
         retval.push(
-          ...Object.keys(proto.services).map(name => proto.services[name])
+          ...Object.keys(proto.services).map((name) => proto.services[name])
         );
         return retval;
       }, [] as plugin.google.protobuf.IServiceDescriptorProto[])
@@ -128,14 +128,14 @@ export class API {
 
   get filesToGenerate() {
     return Object.keys(this.protos).filter(
-      proto => this.protos[proto].fileToGenerate
+      (proto) => this.protos[proto].fileToGenerate
     );
   }
 
   get protoFilesToGenerateJSON() {
     return JSON.stringify(
       this.filesToGenerate
-        .map(file => {
+        .map((file) => {
           return `../../protos/${file}`;
         })
         .sort(),
@@ -150,7 +150,7 @@ function getResourceDatabase(
 ): ResourceDatabase[] {
   const resourceDatabase = new ResourceDatabase(); // resources that defined by `google.api.resource`
   const allResourceDatabase = new ResourceDatabase(); // all resources defined by `google.api.resource` or `google.api.resource_definition`
-  for (const fd of fileDescriptors.filter(fd => fd)) {
+  for (const fd of fileDescriptors.filter((fd) => fd)) {
     // process file-level options
     for (const resource of fd.options?.['.google.api.resourceDefinition'] ??
       []) {
@@ -177,7 +177,7 @@ function getResourceDatabase(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
         `file ${fd.name} message ${messageName}`
       );
-      (m.nestedType ?? []).map(m => messagesStack.push(m));
+      (m.nestedType ?? []).map((m) => messagesStack.push(m));
     }
   }
   return [allResourceDatabase, resourceDatabase];

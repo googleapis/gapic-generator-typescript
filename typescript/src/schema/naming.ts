@@ -38,14 +38,14 @@ export class Naming {
     let rootPackage = '';
     const mainServiceName = options ? options.mainServiceName : '';
     const protoPackages = fileDescriptors
-      .filter(fd => fd.service && fd.service.length > 0)
-      .filter(fd => !API.isIgnoredService(fd))
-      .map(fd => fd.package || '');
+      .filter((fd) => fd.service && fd.service.length > 0)
+      .filter((fd) => !API.isIgnoredService(fd))
+      .map((fd) => fd.package || '');
     const prefix = commonPrefix(protoPackages);
     // common prefix must either end with `.`, or be equal to at least one of
     // the packages' prefix
     const invalidPrefix =
-      !prefix.endsWith('.') && !protoPackages.some(pkg => pkg === prefix);
+      !prefix.endsWith('.') && !protoPackages.some((pkg) => pkg === prefix);
     if (invalidPrefix && mainServiceName) {
       rootPackage = this.checkServiceInPackage(protoPackages, mainServiceName);
     }

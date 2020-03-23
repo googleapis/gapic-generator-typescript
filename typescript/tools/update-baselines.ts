@@ -92,7 +92,7 @@ async function main() {
 
   // get a list of baselines
   const files = await readdirp(root);
-  const outDirs = files.filter(file => file.match(resultPrefix));
+  const outDirs = files.filter((file) => file.match(resultPrefix));
 
   // update baselines for all libraries
   for (const dir of outDirs) {

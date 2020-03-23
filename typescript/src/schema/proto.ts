@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*eslint no-warning-comments: [0, { "terms": ["todo"], "location": "anywhere" }]*/
-
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import {CommentsMap, Comment} from './comments';
 import {milliseconds} from '../util';
@@ -179,17 +177,17 @@ function pagingField(
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
-    inputType && inputType.field!.some(field => field.name === 'page_token');
+    inputType && inputType.field!.some((field) => field.name === 'page_token');
   const hasPageSize =
-    inputType && inputType.field!.some(field => field.name === 'page_size');
+    inputType && inputType.field!.some((field) => field.name === 'page_size');
   const hasNextPageToken =
     outputType &&
-    outputType.field!.some(field => field.name === 'next_page_token');
+    outputType.field!.some((field) => field.name === 'next_page_token');
   if (!hasPageToken || !hasPageSize || !hasNextPageToken) {
     return undefined;
   }
   const repeatedFields = outputType.field!.filter(
-    field =>
+    (field) =>
       field.label ===
       plugin.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED
   );
@@ -218,7 +216,9 @@ function pagingField(
     );
     console.warn('Fields considered for pagination:');
     console.warn(
-      repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n')
+      repeatedFields
+        .map((field) => `${field.name} = ${field.number}`)
+        .join('\n')
     );
     // TODO: an option to ignore errors
     throw new Error(`Bad pagination settings for ${method.name}`);
@@ -330,7 +330,7 @@ function augmentMethod(
       if (bc.methodName === method.name) {
         const inputType = messages[method.inputType!];
         const repeatedFields = inputType.field!.filter(
-          field =>
+          (field) =>
             field.label ===
               plugin.google.protobuf.FieldDescriptorProto.Label
                 .LABEL_REPEATED &&
@@ -410,7 +410,9 @@ export function getHeaderRequestParams(
 
   httpRule.additionalBindings = httpRule.additionalBindings ?? [];
   params.push(
-    ...httpRule.additionalBindings.map(binding => getSingleHeaderParam(binding))
+    ...httpRule.additionalBindings.map((binding) =>
+      getSingleHeaderParam(binding)
+    )
   );
 
   // de-dup result array
@@ -448,35 +450,35 @@ function augmentService(
   augmentedService.retryableCodeMap = new RetryableCodeMap();
   augmentedService.grpcServiceConfig = grpcServiceConfig;
   augmentedService.bundleConfigs = bundleConfigs?.filter(
-    bc => bc.serviceName === service.name
+    (bc) => bc.serviceName === service.name
   );
-  augmentedService.method = augmentedService.method.map(method =>
+  augmentedService.method = augmentedService.method.map((method) =>
     augmentMethod(messages, augmentedService, method)
   );
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
-    method => method.bundleConfig
+    (method) => method.bundleConfig
   );
   augmentedService.simpleMethods = augmentedService.method.filter(
-    method =>
+    (method) =>
       !method.longRunning && !method.streaming && !method.pagingFieldName
   );
   augmentedService.longRunning = augmentedService.method.filter(
-    method => method.longRunning
+    (method) => method.longRunning
   );
   augmentedService.streaming = augmentedService.method.filter(
-    method => method.streaming
+    (method) => method.streaming
   );
   augmentedService.clientStreaming = augmentedService.method.filter(
-    method => method.streaming === 'CLIENT_STREAMING'
+    (method) => method.streaming === 'CLIENT_STREAMING'
   );
   augmentedService.serverStreaming = augmentedService.method.filter(
-    method => method.streaming === 'SERVER_STREAMING'
+    (method) => method.streaming === 'SERVER_STREAMING'
   );
   augmentedService.bidiStreaming = augmentedService.method.filter(
-    method => method.streaming === 'BIDI_STREAMING'
+    (method) => method.streaming === 'BIDI_STREAMING'
   );
   augmentedService.paging = augmentedService.method.filter(
-    method => method.pagingFieldName
+    (method) => method.pagingFieldName
   );
 
   augmentedService.hostname = '';
@@ -522,7 +524,7 @@ function augmentService(
         errorLocation
       );
       parentResources.map(
-        resource => (uniqueResources[resource.name] = resource)
+        (resource) => (uniqueResources[resource.name] = resource)
       );
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
@@ -585,14 +587,14 @@ export class Proto {
     this.filePB2 = fd;
 
     this.messages = fd.messageType
-      .filter(message => message.name)
+      .filter((message) => message.name)
       .reduce((map, message) => {
         map['.' + fd.package! + '.' + message.name!] = message;
         return map;
       }, {} as MessagesMap);
 
     this.enums = fd.enumType
-      .filter(enum_ => enum_.name)
+      .filter((enum_) => enum_.name)
       .reduce((map, enum_) => {
         map[enum_.name!] = enum_;
         return map;
@@ -602,8 +604,8 @@ export class Proto {
       : false;
     const commentsMap = new CommentsMap(fd);
     this.services = fd.service
-      .filter(service => service.name)
-      .map(service =>
+      .filter((service) => service.name)
+      .map((service) =>
         augmentService(
           this.messages,
           packageName,

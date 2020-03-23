@@ -156,13 +156,13 @@ export class Generator {
 
   private buildAPIObject(): API {
     const protoFilesToGenerate = this.request.protoFile.filter(
-      pf =>
+      (pf) =>
         pf.name &&
         this.request.fileToGenerate.includes(pf.name) &&
         !API.isIgnoredService(pf)
     );
     const packageNamesToGenerate = protoFilesToGenerate.map(
-      pf => pf.package || ''
+      (pf) => pf.package || ''
     );
     const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
     if (packageName === '') {
