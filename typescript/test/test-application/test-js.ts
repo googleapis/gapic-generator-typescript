@@ -16,7 +16,7 @@ import * as util from 'util';
 import * as child_process from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 const exec = util.promisify(child_process.exec);
 const SHOWCASE_LIB = path.join(
   __dirname,
@@ -51,7 +51,7 @@ const JS_TEST_APPLICATION = path.join(
   'test-application-js'
 );
 describe('Test application for JavaScript users', () => {
-  it('npm install showcase', async function() {
+  it('npm install showcase', async function () {
     this.timeout(60000);
     // copy protos to generated client library and copy test application to local.
     fs.copySync(PROTOS, path.join(SHOWCASE_LIB, 'protos'));
@@ -59,21 +59,21 @@ describe('Test application for JavaScript users', () => {
     process.chdir(SHOWCASE_LIB);
     await exec(`npm install`);
   });
-  it('npm pack showcase library and copy it to test application', async function() {
+  it('npm pack showcase library and copy it to test application', async function () {
     this.timeout(60000);
     await exec(`npm pack`);
     process.chdir(LOCAL_JS_APPLICATION);
     fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_JS_APPLICATION, PACKED_LIB));
   });
-  it('npm install showcase library in test application', async function() {
+  it('npm install showcase library in test application', async function () {
     this.timeout(60000);
     await exec(`npm install`);
   });
-  it('run integration in test application', async function() {
+  it('run integration in test application', async function () {
     this.timeout(60000);
     await exec(`npm test`);
   });
-  it('run browser test in application', async function() {
+  it('run browser test in application', async function () {
     this.timeout(120000);
     await exec(`npm run browser-test`);
   });

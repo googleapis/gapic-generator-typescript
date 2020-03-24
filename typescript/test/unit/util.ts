@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import * as assert from 'assert';
-import { describe, it } from 'mocha';
-import { commonPrefix, duration, seconds, milliseconds } from '../../src/util';
+import {describe, it} from 'mocha';
+import {commonPrefix, duration, seconds, milliseconds} from '../../src/util';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
 describe('src/util.ts', () => {

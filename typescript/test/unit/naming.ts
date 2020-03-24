@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import * as assert from 'assert';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { Naming, Options } from '../../src/schema/naming';
+import {Naming, Options} from '../../src/schema/naming';
 
 describe('src/schema/naming.ts', () => {
   it('parses name correctly', () => {
@@ -92,6 +92,7 @@ describe('src/schema/naming.ts', () => {
     descriptor.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor]);
+      assert(naming);
     });
   });
 
@@ -101,6 +102,7 @@ describe('src/schema/naming.ts', () => {
     descriptor.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor]);
+      assert(naming);
     });
   });
 
@@ -110,6 +112,7 @@ describe('src/schema/naming.ts', () => {
     descriptor.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor]);
+      assert(naming);
     });
   });
 
@@ -122,6 +125,7 @@ describe('src/schema/naming.ts', () => {
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor1, descriptor2]);
+      assert(naming);
     });
   });
 
@@ -156,6 +160,7 @@ describe('src/schema/naming.ts', () => {
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor1, descriptor2]);
+      assert(naming);
     });
   });
 
@@ -168,6 +173,7 @@ describe('src/schema/naming.ts', () => {
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor1, descriptor2]);
+      assert(naming);
     });
   });
 });
