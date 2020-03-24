@@ -51,7 +51,7 @@ const TS_TEST_APPLICATION = path.join(
   'test-application-ts'
 );
 describe('Test application for TypeScript users', () => {
-  it('npm install showcase', async function () {
+  it('npm install showcase', async function() {
     this.timeout(120000);
     // copy protos to generated client library and copy test application to local.
     if (!fs.existsSync(path.join(SHOWCASE_LIB, 'protos'))) {
