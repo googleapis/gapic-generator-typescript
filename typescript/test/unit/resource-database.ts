@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { ResourceDatabase } from '../../src/schema/resource-database';
-import { describe, it, beforeEach, afterEach } from 'mocha';
+import {ResourceDatabase} from '../../src/schema/resource-database';
+import {describe, it, beforeEach, afterEach} from 'mocha';
 import * as assert from 'assert';
 
 describe('src/schema/resource-database.ts', () => {

@@ -157,6 +157,6 @@ export class CommentsMap {
   }
   getParamComments(messageName: string, fieldName: string): Comment {
     const key = messageName + ':' + fieldName;
-    return this.comments[key] ?? { paramName: '', paramType: '', comments: [] };
+    return this.comments[key] ?? {paramName: '', paramType: '', comments: []};
   }
 }

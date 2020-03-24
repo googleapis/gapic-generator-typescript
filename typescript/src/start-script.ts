@@ -14,11 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { execFileSync } from 'child_process';
+import {execFileSync} from 'child_process';
 import * as path from 'path';
 import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
-const fileSystem = require('file-system');
+const fileSystem = require('file-system'); // eslint-disable-line
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
 const googleGaxProtosDir = path.join(googleGaxPath, '..', '..', 'protos');
@@ -107,38 +107,28 @@ if (template) {
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 protocCommand.push(`-I${commonProtoPath}`);
-try {
-  execFileSync(`protoc`, protocCommand, { stdio: 'inherit' });
-} catch (err) {
-  console.error(err.toString());
-  process.exit(1);
-}
+execFileSync(`protoc`, protocCommand, {stdio: 'inherit'});
 
-try {
-  // create protos folder to copy proto file
-  const copyProtoDir = path.join(outputDir, 'protos');
-  if (!fs.existsSync(copyProtoDir)) {
-    fs.mkdirSync(copyProtoDir);
-  }
-  // copy proto file to generated folder
-  const protoList = path.join(outputDir, 'proto.list');
-  const protoFilesSet = new Set(protoFiles);
-  fs.readFileSync(protoList)
-    .toString()
-    .split('\n')
-    .forEach(proto => {
-      protoDirs.forEach(dir => {
-        const protoFile = path.join(dir, proto);
-        if (
-          (protoFilesSet.has(protoFile) ||
-            !fs.existsSync(path.join(googleGaxProtosDir, proto))) &&
-          fs.existsSync(protoFile)
-        ) {
-          fileSystem.copyFileSync(protoFile, path.join(copyProtoDir, proto));
-        }
-      });
-    });
-} catch (err) {
-  console.error(err.toString());
-  process.exit(1);
+// create protos folder to copy proto file
+const copyProtoDir = path.join(outputDir, 'protos');
+if (!fs.existsSync(copyProtoDir)) {
+  fs.mkdirSync(copyProtoDir);
 }
+// copy proto file to generated folder
+const protoList = path.join(outputDir, 'proto.list');
+const protoFilesSet = new Set(protoFiles);
+fs.readFileSync(protoList)
+  .toString()
+  .split('\n')
+  .forEach(proto => {
+    protoDirs.forEach(dir => {
+      const protoFile = path.join(dir, proto);
+      if (
+        (protoFilesSet.has(protoFile) ||
+          !fs.existsSync(path.join(googleGaxProtosDir, proto))) &&
+        fs.existsSync(protoFile)
+      ) {
+        fileSystem.copyFileSync(protoFile, path.join(copyProtoDir, proto));
+      }
+    });
+  });

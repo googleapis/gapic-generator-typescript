@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { RetryableCodeMap } from '../../src/schema/retryable-code-map';
+import {RetryableCodeMap} from '../../src/schema/retryable-code-map';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import * as assert from 'assert';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 
 const Code = plugin.google.rpc.Code;
 
@@ -126,8 +126,8 @@ describe('src/schema/retryable-code-map.ts', () => {
 
     it('generates the same name for the same set of options', () => {
       const map = new RetryableCodeMap();
-      const name1 = map.getParamsName({ a: 10, b: 20 });
-      const name2 = map.getParamsName({ b: 20.0, a: 10.0 });
+      const name1 = map.getParamsName({a: 10, b: 20});
+      const name2 = map.getParamsName({b: 20.0, a: 10.0});
       assert.strictEqual(name1, name2);
       assert.notStrictEqual(name1, 'default');
       assert.notStrictEqual(name2, 'default');
@@ -135,8 +135,8 @@ describe('src/schema/retryable-code-map.ts', () => {
 
     it('generates different names for different sets of parameters', () => {
       const map = new RetryableCodeMap();
-      const name1 = map.getParamsName({ a: 1 });
-      const name2 = map.getParamsName({ a: 2 });
+      const name1 = map.getParamsName({a: 1});
+      const name2 = map.getParamsName({a: 2});
       assert.notStrictEqual(name1, name2);
       assert.notStrictEqual(name1, 'default');
       assert.notStrictEqual(name2, 'default');
@@ -144,8 +144,8 @@ describe('src/schema/retryable-code-map.ts', () => {
 
     it('returns list of all names', () => {
       const map = new RetryableCodeMap();
-      const name1 = map.getParamsName({ a: 1 });
-      const name2 = map.getParamsName({ a: 2 });
+      const name1 = map.getParamsName({a: 1});
+      const name2 = map.getParamsName({a: 2});
       const names = map.getPrettyParamsNames();
       assert.strictEqual(names.length, 3);
       assert.notStrictEqual(name1, name2);
@@ -158,13 +158,13 @@ describe('src/schema/retryable-code-map.ts', () => {
 
     it('allows to suggest a name', () => {
       const map = new RetryableCodeMap();
-      const name = map.getParamsName({ a: 1 }, 'suggested_name');
+      const name = map.getParamsName({a: 1}, 'suggested_name');
       assert.strictEqual(name, 'suggested_name');
     });
 
     it('returns valid JSON object of parameters by name', () => {
       const map = new RetryableCodeMap();
-      const param = { a: 1, b: 2 };
+      const param = {a: 1, b: 2};
       const name = map.getParamsName(param);
       const jsonString = map.getParamsJSON(name);
       const json = JSON.parse(jsonString);

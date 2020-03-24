@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { describe } from 'mocha';
-import { runBaselineTest, initBaselineTest } from '../util';
+import {describe} from 'mocha';
+import {runBaselineTest, initBaselineTest} from '../util';
 
 describe('Baseline tests', () => {
   initBaselineTest();

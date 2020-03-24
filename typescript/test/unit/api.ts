@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { API } from '../../src/schema/api';
+import {API} from '../../src/schema/api';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import * as assert from 'assert';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 
 describe('src/schema/api.ts', () => {
   it('should construct an API object and return list of protos', () => {
@@ -154,6 +154,7 @@ describe('src/schema/api.ts', () => {
       const api = new API([fd], 'google.cloud.test.v1', {
         grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
       });
+      assert(api);
     });
   });
 });

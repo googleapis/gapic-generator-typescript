@@ -19,7 +19,7 @@ export interface BundleConfig {
 
 export class BundleConfigClient {
   bundleConfigs: BundleConfig[] = [];
-  // tslint:disable-next-line no-any
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
   fromObject(yaml: any) {
     // construct meaning Object from GAPIC v2 file.
     const interfaces = yaml['interfaces'];

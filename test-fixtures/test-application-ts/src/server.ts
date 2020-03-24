@@ -22,10 +22,10 @@ const SHOWCASE_SERVER = path.join(
   'gapic-showcase'
 );
 
-export class Server{
+export class Server {
   pid: number = -1;
   constrcutor() {}
-  run(){
+  run() {
     if (!fs.existsSync(SHOWCASE_SERVER)) {
       console.warn(
         'gapic showcase server does not exist, please download it first.'
@@ -36,4 +36,4 @@ export class Server{
   kill() {
     process.kill(this.pid);
   }
-};
+}

@@ -18,12 +18,12 @@ import * as showcase from 'showcase';
 import * as grpc from '@grpc/grpc-js'; // to create credentials for local Showcase server
 
 interface ClientOptions{
-  [name: string] : Object,
-  servicePath: string,
-  port: number
+  [name: string]: Object;
+  servicePath: string;
+  port: number;
 }
-interface Options{
-  [name: string] : Object
+interface Options {
+  [name: string]: Object;
 }
 // Fake auth client for fallback
 const authStub = {
@@ -115,7 +115,7 @@ function testExpand(client: showcase.v1beta1.EchoClient) {
     };
     const result = await new Promise((resolve, reject) => {
       const stream = client.expand(request);
-      const result:string[] = [];
+      const result: string[] = [];
       stream.on('data', response => {
         result.push(response.content);
       });
@@ -211,4 +211,3 @@ function testWait(client: showcase.v1beta1.EchoClient) {
     assert.deepStrictEqual(response.content, request.success.content);
   });
 }
-

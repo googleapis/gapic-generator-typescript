@@ -18,7 +18,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import {Server} from './server';
 const exec = util.promisify(child_process.exec);
-const SHOWCASE_SERVER = path.join(__dirname,'..', '..', 'showcase-server');
+const SHOWCASE_SERVER = path.join(__dirname, '..', '..', 'showcase-server');
 const SHOWCASE_SERVER_TAR = path.join(
   SHOWCASE_SERVER,
   'gapic-showcase-server.tar.gz'
