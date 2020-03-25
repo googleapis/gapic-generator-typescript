@@ -35,34 +35,35 @@ jobs:
               cp -r test-fixtures/protos $dir
             done
       - run: 
-          name: move testout folders to out/
+          name: move test out folders to a separate folder
           command: |
-            mkdir /home/circleci/project/out && mv .test-out-* /home/circleci/project/out
+            mkdir /home/circleci/project/baselines
+            mv .test-out-* /home/circleci/project/baselines
             pwd
-            cd /home/circleci/project/out
+            cd /home/circleci/project/baselines
             pwd
             ls
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
             - gapic-generator-typescript
-            - out
+            - baselines
   showcaseTestApplications:
     docker:
       - image: circleci/node:10-browsers
     steps: 
       - checkout
       - attach_workspace:
-          at: workspace
+          at: /home/circleci/workspace
       - run:
           name: Run showcase test for Typescript users
-          working_directory: /home/circleci/project/workspace/gapic-generator-typescript
+          working_directory: /home/circleci/workspace/gapic-generator-typescript
           command: npm run ts-test-application
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
       - run:
           name: Run showcase test for JavaScript users
-          working_directory: /home/circleci/project/workspace/gapic-generator-typescript
+          working_directory: /home/circleci/workspace/gapic-generator-typescript
           command: npm run js-test-application
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
@@ -72,10 +73,10 @@ jobs:
     steps: 
       - checkout
       - attach_workspace:
-          at: workspace
+          at: /home/circleci/workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Showcase library
-          working_directory: /home/circleci/project/workspace/out/.test-out-showcase
+          working_directory: /home/circleci/workspace/baselines/.test-out-showcase
           command: &alltests |
             pwd
             npm install
@@ -90,10 +91,10 @@ jobs:
     steps: 
       - checkout
       - attach_workspace:
-          at: workspace
+          at: /home/circleci/workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated KMS library
-          working_directory: /home/circleci/project/workspace/out/.test-out-kms
+          working_directory: /home/circleci/workspace/baselines/.test-out-kms
           command: *alltests
   translateLibTest:
     docker:
@@ -101,10 +102,10 @@ jobs:
     steps: 
       - checkout
       - attach_workspace:
-          at: workspace
+          at: /home/circleci/workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Translate library
-          working_directory: /home/circleci/project/workspace/out/.test-out-translate
+          working_directory: /home/circleci/workspace/baselines/.test-out-translate
           command: *alltests
   monitoringLibTest:
     docker:
@@ -112,10 +113,10 @@ jobs:
     steps: 
       - checkout
       - attach_workspace:
-          at: workspace
+          at: /home/circleci/workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Monitoring library
-          working_directory: /home/circleci/project/workspace/out/.test-out-monitoring
+          working_directory: /home/circleci/workspace/baselines/.test-out-monitoring
           command: *alltests
   dlpLibTest:
     docker:
@@ -123,10 +124,10 @@ jobs:
     steps: 
       - checkout
       - attach_workspace:
-          at: workspace
+          at: /home/circleci/workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated DLP library
-          working_directory: /home/circleci/project/workspace/out/.test-out-dlp
+          working_directory: /home/circleci/workspace/baselines/.test-out-dlp
           command: *alltests
   ttsLibTest:
     docker:
@@ -134,10 +135,10 @@ jobs:
     steps: 
       - checkout
       - attach_workspace:
-          at: workspace
+          at: /home/circleci/workspace
       - run:
           name: Run unit tests, system tests, jsdoc generation, and gts fix of the generated Text-to-Speech library
-          working_directory: /home/circleci/project/workspace/out/.test-out-texttospeech
+          working_directory: /home/circleci/workspace/baselines/.test-out-texttospeech
           command: *alltests
 workflows:
   version: 2
