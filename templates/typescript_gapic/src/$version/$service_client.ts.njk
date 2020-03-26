@@ -22,7 +22,7 @@ limitations under the License.
 import * as gax from 'google-gax';
 import {APICallback, Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.longRunning.length > 0 %}, LROperation{%- endif -%}
-{%- if service.paging.length > 0 %}, PaginationCallback, PaginationResponse{%- endif -%}
+{%- if service.paging.length > 0 %}, PaginationCallback{%- endif -%}
 } from 'google-gax';
 import * as path from 'path';
 {% if (service.paging.length > 0) %}
@@ -191,6 +191,7 @@ export class {{ service.name }}Client {
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
     const protoFilesRoot = opts.fallback?
+      /* eslint-disable @typescript-eslint/no-var-requires */
       this._gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
       this._gaxModule.protobuf.loadSync(nodejsProtoPath);
 {% endif %}
@@ -281,7 +282,7 @@ export class {{ service.name }}Client {
     this.{{ service.name.toCamelCase() }}Stub = this._gaxGrpc.createStub(
         this._opts.fallback ?
           (this._protos as protobuf.Root).lookupService('{{api.naming.protoPackage}}.{{ service.name }}') :
-          // tslint:disable-next-line no-any
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           (this._protos as any).{{api.naming.protoPackage}}.{{ service.name }},
         this._opts) as Promise<{[method: string]: Function}>;
 
@@ -548,7 +549,7 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
       options: gax.CallOptions,
-      callback: Callback<
+      callback: PaginationCallback<
           {{ util.toInterface(method.pagingResponseType) }}[],
           {{ util.toInterface(method.inputInterface) }}|null,
           {{ util.toInterface(method.outputInterface) }}>): void;
@@ -557,11 +558,11 @@ export class {{ service.name }}Client {
  */
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      optionsOrCallback?: gax.CallOptions|Callback<
+      optionsOrCallback?: gax.CallOptions|PaginationCallback<
           {{ util.toInterface(method.pagingResponseType) }}[],
           {{ util.toInterface(method.inputInterface) }}|null,
           {{ util.toInterface(method.outputInterface) }}>,
-      callback?: Callback<
+      callback?: PaginationCallback<
           {{ util.toInterface(method.pagingResponseType) }}[],
           {{ util.toInterface(method.inputInterface) }}|null,
           {{ util.toInterface(method.outputInterface) }}>):
