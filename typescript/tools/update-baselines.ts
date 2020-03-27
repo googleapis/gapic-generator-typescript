@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,16 +18,19 @@
 // needs to be propagated to all baselines.
 // Usage: node build/tools/update-baselines.js
 
-import { exec } from 'child_process';
+import {exec} from 'child_process';
+import * as util from 'util';
+import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
-import { promisify } from 'util';
-import { readdir, stat, mkdir, existsSync } from 'fs';
+import {promisify} from 'util';
+import {readdir, mkdir, existsSync} from 'fs';
 import * as ncp from 'ncp';
 
 const rmrf = promisify(rimraf);
 const readdirp = promisify(readdir);
-const statp = promisify(stat);
+const fsstat = util.promisify(fs.stat);
+const fssymlink = util.promisify(fs.symlink);
 const mkdirp = promisify(mkdir);
 const execp = promisify(exec);
 const ncpp = promisify(ncp);
@@ -36,7 +39,7 @@ const root = path.resolve(__dirname, '..', '..');
 const resultPrefix = /^\.test-out-(.*)$/;
 
 function getBaselineDirectory(library: string): string {
-  return path.join(root, 'typescript', 'test', 'testdata', library);
+  return path.join(root, 'baselines', library);
 }
 
 function getBaselineFilename(library: string, filename: string): string {
@@ -44,6 +47,7 @@ function getBaselineFilename(library: string, filename: string): string {
 }
 
 async function copyBaseline(library: string, root: string, directory = '.') {
+  const cwd = process.cwd();
   const start = path.join(root, directory);
   const targetDirectory = path.join(getBaselineDirectory(library), directory);
   if (!existsSync(targetDirectory)) {
@@ -53,12 +57,23 @@ async function copyBaseline(library: string, root: string, directory = '.') {
   for (const file of files) {
     const relativePath = `${directory}${path.sep}${file}`;
     const absolutePath = path.join(start, file);
-    const stat = await statp(absolutePath);
+    const stat = await fsstat(absolutePath);
     if (stat.isDirectory()) {
       await copyBaseline(library, root, relativePath);
     } else if (stat.isFile()) {
       const baseline = getBaselineFilename(library, relativePath);
-      await ncpp(absolutePath, baseline);
+      // In baselines/, update `package.json` instead of `package.json.baseline`
+      // (package.json.baseline is a symlink to package.json to make renovate bot happy)
+      if (relativePath.endsWith(`${path.sep}package.json`)) {
+        const packageJson = baseline.substring(0, baseline.lastIndexOf('.'));
+        await ncpp(absolutePath, packageJson);
+        const dirname = path.dirname(packageJson);
+        process.chdir(dirname);
+        await fssymlink('package.json', 'package.json.baseline');
+        process.chdir(cwd);
+      } else {
+        await ncpp(absolutePath, baseline);
+      }
       console.log(`    - ${relativePath}`);
     }
   }

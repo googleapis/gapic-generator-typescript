@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,15 +13,10 @@
 // limitations under the License.
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import * as fs from 'fs';
-import * as path from 'path';
 
-import { Naming } from './naming';
-import { Proto, MessagesMap } from './proto';
-import { ResourceDatabase, ResourceDescriptor } from './resourceDatabase';
-
-const googleGaxLocation = path.dirname(require.resolve('google-gax'));
-const gaxProtosLocation = path.join(googleGaxLocation, '..', '..', 'protos');
+import {Naming, Options as namingOptions} from './naming';
+import {Proto} from './proto';
+import {ResourceDatabase, ResourceDescriptor} from './resource-database';
 
 export interface ProtosMap {
   [filename: string]: Proto;
@@ -38,41 +33,55 @@ export class API {
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName: string;
 
+  static isIgnoredService(
+    fd: plugin.google.protobuf.IFileDescriptorProto
+  ): boolean {
+    // Some common proto files define common services which we don't want to generate.
+    // List them here.
+    return (
+      fd.package === 'google.longrunning' ||
+      fd.package === 'google.iam.v1' ||
+      fd.package === 'google.cloud'
+    );
+  }
+
   constructor(
     fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[],
     packageName: string,
-    options: {
-      grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
-      publishName?: string;
-      mainServiceName?: string;
-    }
+    options: namingOptions
   ) {
     this.naming = new Naming(
       fileDescriptors.filter(
         fd => fd.package && fd.package.startsWith(packageName)
-      )
+      ),
+      options
     );
     // users specify the actual package name, if not, set it to product name.
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
     // construct resource map
-    const resourceMap = getResourceDatabase(fileDescriptors);
+    const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
+      fileDescriptors
+    );
     // parse resource map to Proto constructor
     this.protos = fileDescriptors
       .filter(fd => fd.name)
-      .filter(fd => !fs.existsSync(path.join(gaxProtosLocation, fd.name!)))
+      .filter(fd => !API.isIgnoredService(fd))
       .reduce((map, fd) => {
         map[fd.name!] = new Proto(
           fd,
           packageName,
           options.grpcServiceConfig,
-          resourceMap
+          allResourceDatabase,
+          resourceDatabase,
+          options.bundleConfigs
         );
         return map;
       }, {} as ProtosMap);
 
     const serviceNamesList: string[] = [];
     fileDescriptors
+      .filter(fd => !API.isIgnoredService(fd))
       .filter(fd => fd.service)
       .reduce((servicesList, fd) => {
         servicesList.push(...fd.service!);
@@ -94,6 +103,11 @@ export class API {
         this.port = port ?? this.port ?? '443';
         serviceNamesList.push(service.name || this.naming.name);
       });
+    if (serviceNamesList.length === 0) {
+      throw new Error(
+        `Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
+      );
+    }
     this.mainServiceName = options.mainServiceName || serviceNamesList[0];
   }
 
@@ -120,9 +134,11 @@ export class API {
 
   get protoFilesToGenerateJSON() {
     return JSON.stringify(
-      this.filesToGenerate.map(file => {
-        return `../../protos/${file}`;
-      }),
+      this.filesToGenerate
+        .map(file => {
+          return `../../protos/${file}`;
+        })
+        .sort(),
       null,
       '  '
     );
@@ -131,32 +147,38 @@ export class API {
 
 function getResourceDatabase(
   fileDescriptors: plugin.google.protobuf.IFileDescriptorProto[]
-): ResourceDatabase {
-  const resourceDatabase = new ResourceDatabase();
+): ResourceDatabase[] {
+  const resourceDatabase = new ResourceDatabase(); // resources that defined by `google.api.resource`
+  const allResourceDatabase = new ResourceDatabase(); // all resources defined by `google.api.resource` or `google.api.resource_definition`
   for (const fd of fileDescriptors.filter(fd => fd)) {
     // process file-level options
     for (const resource of fd.options?.['.google.api.resourceDefinition'] ??
       []) {
-      resourceDatabase.registerResource(
+      allResourceDatabase.registerResource(
         resource as ResourceDescriptor,
         `file ${fd.name} resource_definition option`
       );
     }
-
-    const messages = (fd.messageType ?? [])
-      .filter(message => message.name)
-      .reduce((map, message) => {
-        map['.' + fd.package! + '.' + message.name!] = message;
-        return map;
-      }, {} as MessagesMap);
-
-    for (const property of Object.keys(messages)) {
-      const m = messages[property];
+    const messagesStack: plugin.google.protobuf.IDescriptorProto[] = [];
+    const messages = (fd.messageType ?? []).filter(
+      (message: plugin.google.protobuf.IDescriptorProto) => message.name
+    );
+    // put first layer of messages in the stack
+    messagesStack.push(...messages);
+    while (messagesStack.length !== 0) {
+      const m = messagesStack.pop();
+      if (!m || !m.name) continue;
+      const messageName = '.' + fd.package + '.' + m.name!;
       resourceDatabase.registerResource(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
-        `file ${fd.name} message ${property}`
+        `file ${fd.name} message ${messageName}`
       );
+      allResourceDatabase.registerResource(
+        m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
+        `file ${fd.name} message ${messageName}`
+      );
+      (m.nestedType ?? []).map(m => messagesStack.push(m));
     }
   }
-  return resourceDatabase;
+  return [allResourceDatabase, resourceDatabase];
 }

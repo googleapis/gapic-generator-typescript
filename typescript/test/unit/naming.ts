@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import * as assert from 'assert';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { Naming } from '../../src/schema/naming';
+import {Naming, Options} from '../../src/schema/naming';
 
-describe('schema/naming.ts', () => {
+describe('src/schema/naming.ts', () => {
   it('parses name correctly', () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
@@ -92,6 +92,7 @@ describe('schema/naming.ts', () => {
     descriptor.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor]);
+      assert(naming);
     });
   });
 
@@ -101,6 +102,7 @@ describe('schema/naming.ts', () => {
     descriptor.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor]);
+      assert(naming);
     });
   });
 
@@ -110,10 +112,11 @@ describe('schema/naming.ts', () => {
     descriptor.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor]);
+      assert(naming);
     });
   });
 
-  it('fails if no common package', () => {
+  it('fails if no common package, no service-name', () => {
     const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
     const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
     descriptor1.package = 'namespace1.service.v1beta1';
@@ -122,6 +125,29 @@ describe('schema/naming.ts', () => {
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor1, descriptor2]);
+      assert(naming);
+    });
+  });
+
+  it('parse name correctly if no common package, but service-name specified', () => {
+    const descriptor1 = new plugin.google.protobuf.FileDescriptorProto();
+    const descriptor2 = new plugin.google.protobuf.FileDescriptorProto();
+    descriptor1.package = 'namespace1.service1.v1beta1';
+    descriptor1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    descriptor2.package = 'namespace2.service2.v1beta1';
+    descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    const serviceConfig = new plugin.grpc.service_config.ServiceConfig();
+    const options: Options = {
+      grpcServiceConfig: serviceConfig,
+      mainServiceName: 'service1',
+    };
+    assert.throws(() => {
+      const naming = new Naming([descriptor1, descriptor2], options);
+      assert.strictEqual(naming.name, 'service1');
+      assert.strictEqual(naming.productName, 'service1');
+      assert.strictEqual(naming.version, 'v1beta1');
+      assert.strictEqual(naming.namespace, 'namespace1');
+      assert.strictEqual(naming.protoPackage, 'namespace1.service1.v1beta1');
     });
   });
 
@@ -134,6 +160,7 @@ describe('schema/naming.ts', () => {
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor1, descriptor2]);
+      assert(naming);
     });
   });
 
@@ -146,6 +173,7 @@ describe('schema/naming.ts', () => {
     descriptor2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     assert.throws(() => {
       const naming = new Naming([descriptor1, descriptor2]);
+      assert(naming);
     });
   });
 });

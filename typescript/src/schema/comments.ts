@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -106,7 +106,6 @@ export class CommentsMap {
             ) {
               const messageType = fd.messageType[p[1]].name;
               const field = fd.messageType[p[1]].field![p[3]];
-              // console.warn(field);
               if (field) {
                 //Type Enum: TYPE_STRING, TYPE_BOOL, etc.
                 let paramType =
@@ -158,6 +157,6 @@ export class CommentsMap {
   }
   getParamComments(messageName: string, fieldName: string): Comment {
     const key = messageName + ':' + fieldName;
-    return this.comments[key] ?? { paramName: '', paramType: '', comments: [] };
+    return this.comments[key] ?? {paramName: '', paramType: '', comments: []};
   }
 }

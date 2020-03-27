@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,30 +13,16 @@
 // limitations under the License.
 
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import { CommentsMap, Comment } from './comments';
-import * as objectHash from 'object-hash';
-import { milliseconds } from '../util';
-import { ResourceDescriptor, ResourceDatabase } from './resourceDatabase';
-
-const defaultNonIdempotentRetryCodesName = 'non_idempotent';
-const defaultNonIdempotentCodes: plugin.google.rpc.Code[] = [];
-const defaultIdempotentRetryCodesName = 'idempotent';
-const defaultIdempotentCodes = [
-  plugin.google.rpc.Code.DEADLINE_EXCEEDED,
-  plugin.google.rpc.Code.UNAVAILABLE,
-];
-const defaultParametersName = 'default';
-const defaultParameters = {
-  initial_retry_delay_millis: 100,
-  retry_delay_multiplier: 1.3,
-  max_retry_delay_millis: 60000,
-  // note: the following four parameters are unused but currently required by google-gax.
-  // setting them to some big safe default values.
-  initial_rpc_timeout_millis: 60000,
-  rpc_timeout_multiplier: 1.0,
-  max_rpc_timeout_millis: 60000,
-  total_timeout_millis: 600000,
-};
+import {CommentsMap, Comment} from './comments';
+import {milliseconds} from '../util';
+import {ResourceDescriptor, ResourceDatabase} from './resource-database';
+import {
+  RetryableCodeMap,
+  defaultParametersName,
+  defaultNonIdempotentRetryCodesName,
+  defaultParameters,
+} from './retryable-code-map';
+import {BundleConfig} from 'src/bundle';
 
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
@@ -59,112 +45,14 @@ interface MethodDescriptorProto
   retryableCodesName: string;
   retryParamsName: string;
   timeoutMillis?: number;
-  headerRequestParams: string[];
+  // headerRequestParams: if we need to pass "request.foo" and "request.bar"
+  // into x-goog-request-params header, the array will contain
+  // [ ['request', 'foo'], ['request', 'bar']]
+  headerRequestParams: string[][];
+  bundleConfig?: BundleConfig;
 }
 
-export class RetryableCodeMap {
-  codeEnumMapping: { [index: string]: string };
-  uniqueCodesNamesMap: { [uniqueName: string]: string };
-  prettyCodesNamesMap: { [prettyName: string]: string[] };
-  uniqueParamsNamesMap: { [uniqueName: string]: string };
-  prettyParamNamesMap: { [prettyName: string]: {} };
-
-  constructor() {
-    this.uniqueCodesNamesMap = {};
-    this.prettyCodesNamesMap = {};
-    this.uniqueParamsNamesMap = {};
-    this.prettyParamNamesMap = {};
-
-    // build reverse mapping for enum: 0 => OK, 1 => CANCELLED, etc.
-    this.codeEnumMapping = {};
-    const allCodes = Object.keys(plugin.google.rpc.Code);
-    for (const code of allCodes) {
-      this.codeEnumMapping[
-        ((plugin.google.rpc.Code as unknown) as {
-          [key: string]: plugin.google.rpc.Code;
-        })[code].toString()
-      ] = code;
-    }
-
-    // generate some pre-defined code sets for compatibility with existing configs
-    this.getRetryableCodesName(
-      defaultNonIdempotentCodes,
-      defaultNonIdempotentRetryCodesName
-    );
-    this.getRetryableCodesName(
-      defaultIdempotentCodes,
-      defaultIdempotentRetryCodesName
-    );
-    this.getParamsName(defaultParameters, 'default');
-  }
-
-  private buildUniqueCodesName(
-    retryableStatusCodes: plugin.google.rpc.Code[]
-  ): string {
-    // generate an unique readable name for the given retryable set of codes
-    const sortedCodes = retryableStatusCodes.sort(
-      (a, b) => Number(a) - Number(b)
-    );
-    const uniqueName = sortedCodes
-      .map(code => this.codeEnumMapping[code])
-      .join('_')
-      // toSnakeCase() splits on uppercase and we only want to split on
-      // underscores since all enum codes are uppercase.
-      .toLowerCase()
-      .toSnakeCase();
-    return uniqueName;
-  }
-
-  private buildUniqueParamsName(params: {}): string {
-    // generate an unique not so readable name for the given set of parameters
-    return objectHash(params);
-  }
-
-  getRetryableCodesName(
-    retryableStatusCodes: plugin.google.rpc.Code[],
-    suggestedName?: string
-  ): string {
-    const uniqueName = this.buildUniqueCodesName(retryableStatusCodes);
-    const prettyName =
-      this.uniqueCodesNamesMap[uniqueName] || suggestedName || uniqueName;
-    if (!this.uniqueCodesNamesMap[uniqueName]) {
-      this.uniqueCodesNamesMap[uniqueName] = prettyName;
-      this.prettyCodesNamesMap[prettyName] = retryableStatusCodes.map(
-        code => this.codeEnumMapping[code]
-      );
-    }
-    return prettyName;
-  }
-
-  getParamsName(params: {}, suggestedName?: string): string {
-    const uniqueName = this.buildUniqueParamsName(params);
-    const prettyName =
-      this.uniqueParamsNamesMap[uniqueName] || suggestedName || uniqueName;
-    if (!this.uniqueParamsNamesMap[uniqueName]) {
-      this.uniqueParamsNamesMap[uniqueName] = prettyName;
-      this.prettyParamNamesMap[prettyName] = params;
-    }
-    return prettyName;
-  }
-
-  getPrettyCodesNames(): string[] {
-    return Object.keys(this.prettyCodesNamesMap);
-  }
-
-  getCodesJSON(prettyName: string): string {
-    return JSON.stringify(this.prettyCodesNamesMap[prettyName]);
-  }
-
-  getPrettyParamsNames(): string[] {
-    return Object.keys(this.prettyParamNamesMap);
-  }
-
-  getParamsJSON(prettyName: string): string {
-    return JSON.stringify(this.prettyParamNamesMap[prettyName]);
-  }
-}
-
-interface ServiceDescriptorProto
+export interface ServiceDescriptorProto
   extends plugin.google.protobuf.IServiceDescriptorProto {
   packageName: string;
   method: MethodDescriptorProto[];
@@ -183,6 +71,8 @@ interface ServiceDescriptorProto
   commentsMap: CommentsMap;
   retryableCodeMap: RetryableCodeMap;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  bundleConfigsMethods: MethodDescriptorProto[];
+  bundleConfigs?: BundleConfig[];
 }
 
 export interface ServicesMap {
@@ -264,7 +154,26 @@ function streaming(method: MethodDescriptorProto) {
   return undefined;
 }
 
-function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
+function pagingField(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  service?: ServiceDescriptorProto
+) {
+  // TODO: remove this once the next version of the Talent API is published.
+  //
+  // This is a workaround to disable auto-pagination for specifc RPCs in
+  // Talent v4beta1. The API team will make their API non-conforming in the
+  // next version.
+  //
+  // This should not be done for any other API.
+  const serviceName =
+    service && service.packageName === 'google.cloud.talent.v4beta1';
+  const methodName =
+    method.name === 'SearchProfiles' || method.name === 'SearchJobs';
+  if (serviceName && methodName) {
+    return undefined;
+  }
+
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
@@ -315,8 +224,12 @@ function pagingField(messages: MessagesMap, method: MethodDescriptorProto) {
   return repeatedFields[0];
 }
 
-function pagingFieldName(messages: MessagesMap, method: MethodDescriptorProto) {
-  const field = pagingField(messages, method);
+function pagingFieldName(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  service?: ServiceDescriptorProto
+) {
+  const field = pagingField(messages, method, service);
   return field?.name;
 }
 
@@ -336,7 +249,9 @@ function pagingResponseType(
   return plugin.google.protobuf.FieldDescriptorProto.Type[field.type];
 }
 
-export function getHeaderParams(rule: plugin.google.api.IHttpRule): string[] {
+export function getSingleHeaderParam(
+  rule: plugin.google.api.IHttpRule
+): string[] {
   const message =
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
   if (message) {
@@ -389,7 +304,7 @@ function augmentMethod(
         method
       ),
       streaming: streaming(method),
-      pagingFieldName: pagingFieldName(messages, method),
+      pagingFieldName: pagingFieldName(messages, method, service),
       pagingResponseType: pagingResponseType(messages, method),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
@@ -407,6 +322,23 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+  const bundleConfigs = service.bundleConfigs;
+  if (bundleConfigs) {
+    for (const bc of bundleConfigs) {
+      if (bc.methodName === method.name) {
+        const inputType = messages[method.inputType!];
+        const repeatedFields = inputType.field!.filter(
+          field =>
+            field.label ===
+              plugin.google.protobuf.FieldDescriptorProto.Label
+                .LABEL_REPEATED &&
+            field.name === bc.batchDescriptor.batched_field
+        );
+        bc.repeatedField = repeatedFields[0].typeName?.substring(1)!;
+        method.bundleConfig = bc;
+      }
+    }
+  }
   if (method.inputType && messages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
     const inputType = messages[method.inputType!];
@@ -427,7 +359,7 @@ function augmentMethod(
   }
   if (method.methodConfig.retryPolicy) {
     // converting retry parameters to the syntax google-gax supports
-    const retryParams: { [key: string]: number } = {};
+    const retryParams: {[key: string]: number} = {};
     if (method.methodConfig.retryPolicy.initialBackoff) {
       retryParams.initial_retry_delay_millis = milliseconds(
         method.methodConfig.retryPolicy.initialBackoff
@@ -459,11 +391,42 @@ function augmentMethod(
   if (method.methodConfig.timeout) {
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
   }
-  if (method.options?.['.google.api.http']) {
-    const httpRule = method.options['.google.api.http'];
-    method.headerRequestParams = getHeaderParams(httpRule);
-  } else method.headerRequestParams = [];
+  method.headerRequestParams = getHeaderRequestParams(
+    method.options?.['.google.api.http']
+  );
   return method;
+}
+
+export function getHeaderRequestParams(
+  httpRule: plugin.google.api.IHttpRule | null | undefined
+) {
+  if (!httpRule) {
+    return [];
+  }
+  const params: string[][] = [];
+  params.push(getSingleHeaderParam(httpRule));
+
+  httpRule.additionalBindings = httpRule.additionalBindings ?? [];
+  params.push(
+    ...httpRule.additionalBindings.map(binding => getSingleHeaderParam(binding))
+  );
+
+  // de-dup result array
+  const used = new Set();
+  const result: string[][] = [];
+  for (const param of params) {
+    if (param.length === 0) {
+      continue;
+    }
+    const joined = param.join('.');
+    if (used.has(joined)) {
+      continue;
+    }
+    used.add(joined);
+    result.push(param);
+  }
+
+  return result;
 }
 
 function augmentService(
@@ -472,7 +435,9 @@ function augmentService(
   service: plugin.google.protobuf.IServiceDescriptorProto,
   commentsMap: CommentsMap,
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-  resourceDatabase: ResourceDatabase
+  allResourceDatabase: ResourceDatabase,
+  resourceDatabase: ResourceDatabase,
+  bundleConfigs?: BundleConfig[]
 ) {
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.packageName = packageName;
@@ -480,8 +445,14 @@ function augmentService(
   augmentedService.commentsMap = commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
   augmentedService.grpcServiceConfig = grpcServiceConfig;
+  augmentedService.bundleConfigs = bundleConfigs?.filter(
+    bc => bc.serviceName === service.name
+  );
   augmentedService.method = augmentedService.method.map(method =>
     augmentMethod(messages, augmentedService, method)
+  );
+  augmentedService.bundleConfigsMethods = augmentedService.method.filter(
+    method => method.bundleConfig
   );
   augmentedService.simpleMethods = augmentedService.method.filter(
     method =>
@@ -525,16 +496,26 @@ function augmentService(
   }
 
   // Build a list of resources referenced by this service
-  const uniqueResources: { [name: string]: ResourceDescriptor } = {};
+
+  // allResourceDatabase: resources that defined by `google.api.resource`
+  // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
+  const uniqueResources: {[name: string]: ResourceDescriptor} = {};
+  // Copy all resources in resourceDatabase to uniqueResources
+  const allPatterns = resourceDatabase.patterns;
+  for (const pattern of Object.keys(allPatterns)) {
+    const resource = allPatterns[pattern];
+    uniqueResources[resource.name] = resource;
+  }
+
+  // Copy all resources definination which are referenced into unique resources map.
   for (const property of Object.keys(messages)) {
     const errorLocation = `service ${service.name} message ${property}`;
     for (const fieldDescriptor of messages[property].field ?? []) {
       // note: ResourceDatabase can accept `undefined` values, so we happily use optional chaining here.
       const resourceReference =
         fieldDescriptor.options?.['.google.api.resourceReference'];
-
       // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
-      const parentResources = resourceDatabase.getParentResourcesByChildType(
+      const parentResources = allResourceDatabase.getParentResourcesByChildType(
         resourceReference?.childType,
         errorLocation
       );
@@ -542,17 +523,38 @@ function augmentService(
         resource => (uniqueResources[resource.name] = resource)
       );
 
-      // 2. If this resource reference has .type, we should have a known resource with this type.
-      const resource = resourceDatabase.getResourceByType(
+      // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
+      if (!resourceReference || !resourceReference.type) continue;
+      const resourceByType = allResourceDatabase.getResourceByType(
         resourceReference?.type,
         errorLocation
       );
-      if (resource) {
-        uniqueResources[resource.name] = resource;
+      if (!resourceByType || !resourceByType.pattern) continue;
+      // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
+      // look up pattern map for all resources.
+      for (const pattern of resourceByType!.pattern!) {
+        const resourceByPattern = allResourceDatabase.getResourceByPattern(
+          pattern
+        );
+        if (!resourceByPattern) continue;
+        uniqueResources[resourceByPattern.name] = resourceByPattern;
       }
     }
   }
-  augmentedService.pathTemplates = Object.values(uniqueResources);
+  augmentedService.pathTemplates = Object.values(uniqueResources).sort(
+    (resourceA, resourceB) => {
+      // Path templates names can be cased differently
+      // (e.g. 'Project' and 'project_deidentify_template'),
+      // so we use camel case for comparison.
+      if (resourceA.name.toCamelCase() < resourceB.name.toCamelCase()) {
+        return -1;
+      }
+      if (resourceA.name.toCamelCase() > resourceB.name.toCamelCase()) {
+        return 1;
+      }
+      return 0;
+    }
+  );
   return augmentedService;
 }
 
@@ -564,11 +566,15 @@ export class Proto {
   fileToGenerate: boolean;
   // TODO: need to store metadata? address?
 
+  // allResourceDatabase: resources that defined by `google.api.resource`
+  // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
   constructor(
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
     grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
-    resourceDatabase: ResourceDatabase
+    allResourceDatabase: ResourceDatabase,
+    resourceDatabase: ResourceDatabase,
+    bundleConfigs?: BundleConfig[]
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
@@ -602,7 +608,9 @@ export class Proto {
           service,
           commentsMap,
           grpcServiceConfig,
-          resourceDatabase
+          allResourceDatabase,
+          resourceDatabase,
+          bundleConfigs
         )
       )
       .reduce((map, service) => {

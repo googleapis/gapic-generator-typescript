@@ -87,6 +87,7 @@ After you edited the files, make the generator available globally:
 
 ```sh
 # in gapic-generator-typescript folder
+$ npm install  # install dependencies
 $ npm install -g .
 # make sure gapic-generator-typescript launch script in PATH
 ```

@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,16 +19,14 @@ import * as util from 'util';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
 
-import { API } from './schema/api';
-import { commonPrefix } from './util';
+import {API} from './schema/api';
 
-const commonParameters: { [name: string]: string } = {
+const commonParameters: {[name: string]: string} = {
   copyrightYear: new Date().getFullYear().toString(),
 };
 
-const readFile = util.promisify(fs.readFile);
 const readDir = util.promisify(fs.readdir);
-const lstat = util.promisify(fs.lstat);
+const fsstat = util.promisify(fs.stat);
 
 async function recursiveFileList(
   basePath: string,
@@ -41,7 +39,7 @@ async function recursiveFileList(
     const entries = await readDir(directory);
     for (const entry of entries) {
       const fullPath = path.join(directory, entry);
-      const stat = await lstat(fullPath);
+      const stat = await fsstat(fullPath);
       if (stat.isDirectory()) {
         dirQueue.push(fullPath);
       } else if (stat.isFile() && entry.match(nameRegex)) {
@@ -97,7 +95,7 @@ function processOneTemplate(
         renderFile(
           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
           relativeTemplateName,
-          { api, commonParameters, service }
+          {api, commonParameters, service}
         )
       );
     }

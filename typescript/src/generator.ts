@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,51 +16,48 @@ import * as getStdin from 'get-stdin';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as util from 'util';
+import * as yaml from 'js-yaml';
 
 import * as plugin from '../../pbjs-genfiles/plugin';
 
-import { API } from './schema/api';
-import { processTemplates } from './templater';
-import { commonPrefix, duration } from './util';
+import {API} from './schema/api';
+import {processTemplates} from './templater';
+import {BundleConfigClient, BundleConfig} from './bundle';
+import {commonPrefix, duration} from './util';
 
 export interface OptionsMap {
   [name: string]: string;
 }
 const readFile = util.promisify(fs.readFile);
 
-const templateDirectory = path.join(
-  __dirname,
-  '..',
-  '..',
-  'templates',
-  'typescript_gapic'
-);
-
-// If needed, we can make it possible to load templates from different locations
-// to generate code for other languages.
+const templatesDirectory = path.join(__dirname, '..', '..', 'templates');
+const defaultTemplates = ['typescript_gapic', 'typescript_packing_test'];
 
 export class Generator {
   request: plugin.google.protobuf.compiler.CodeGeneratorRequest;
   response: plugin.google.protobuf.compiler.CodeGeneratorResponse;
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
+  bundleConfigs: BundleConfig[] = [];
   paramMap: OptionsMap;
   // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
   publishName?: string;
   // For historical reasons, Webpack library name matches "the main" service of the client library.
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName?: string;
+  templates: string[];
 
   constructor() {
     this.request = plugin.google.protobuf.compiler.CodeGeneratorRequest.create();
     this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
     this.grpcServiceConfig = plugin.grpc.service_config.ServiceConfig.create();
     this.paramMap = {};
+    this.templates = defaultTemplates;
   }
 
   // Fixes gRPC service config to replace string google.protobuf.Duration
   // to a proper Duration message, since protobufjs does not support
   // string Durations such as "30s".
-  private static updateDuration(obj: { [key: string]: {} }) {
+  private static updateDuration(obj: {[key: string]: {}}) {
     const fieldNames = [
       'timeout',
       'initialBackoff',
@@ -77,7 +74,7 @@ export class Generator {
   }
 
   private getParamMap(parameter: string) {
-    // Example: "grpc-service-config=texamplejson","package-name=packageName"
+    // Example: "grpc-service-config=path/to/grpc-service-config.json","package-name=packageName"
     const parameters = parameter.split(',');
     for (let param of parameters) {
       // remove double quote
@@ -87,9 +84,9 @@ export class Generator {
     }
   }
 
-  private async readGrpcServiceConfig(map: OptionsMap) {
-    if (map?.['grpc-service-config']) {
-      const filename = map['grpc-service-config'];
+  private async readGrpcServiceConfig() {
+    if (this.paramMap?.['grpc-service-config']) {
+      const filename = this.paramMap['grpc-service-config'];
       if (!fs.existsSync(filename)) {
         throw new Error(`File ${filename} cannot be opened.`);
       }
@@ -102,12 +99,31 @@ export class Generator {
     }
   }
 
-  private readPublishPackageName(map: OptionsMap) {
-    this.publishName = map['package-name'];
+  private readBundleConfig() {
+    if (this.paramMap?.['bundle-config']) {
+      const filename = this.paramMap['bundle-config'];
+      if (!fs.existsSync(filename)) {
+        throw new Error(`File ${filename} cannot be opened.`);
+      }
+      const content = fs.readFileSync(filename, 'utf8');
+      const info = yaml.safeLoad(content);
+      this.bundleConfigs = new BundleConfigClient().fromObject(info);
+    }
   }
 
-  private readMainServiceName(map: OptionsMap) {
-    this.mainServiceName = map['main-service'];
+  private readPublishPackageName() {
+    this.publishName = this.paramMap['package-name'];
+  }
+
+  private readMainServiceName() {
+    this.mainServiceName = this.paramMap['main-service'];
+  }
+
+  private readTemplates() {
+    if (!this.paramMap['template']) {
+      return;
+    }
+    this.templates = this.paramMap['template'].split(';');
   }
 
   async initializeFromStdin() {
@@ -117,9 +133,11 @@ export class Generator {
     );
     if (this.request.parameter) {
       this.getParamMap(this.request.parameter);
-      await this.readGrpcServiceConfig(this.paramMap);
-      this.readPublishPackageName(this.paramMap);
-      this.readMainServiceName(this.paramMap);
+      await this.readGrpcServiceConfig();
+      this.readBundleConfig();
+      this.readPublishPackageName();
+      this.readMainServiceName();
+      this.readTemplates();
     }
   }
 
@@ -141,9 +159,7 @@ export class Generator {
       pf =>
         pf.name &&
         this.request.fileToGenerate.includes(pf.name) &&
-        // ignoring some common package names
-        pf.package !== 'google.longrunning' &&
-        pf.package !== 'google.cloud'
+        !API.isIgnoredService(pf)
     );
     const packageNamesToGenerate = protoFilesToGenerate.map(
       pf => pf.package || ''
@@ -154,6 +170,7 @@ export class Generator {
     }
     const api = new API(this.request.protoFile, packageName, {
       grpcServiceConfig: this.grpcServiceConfig,
+      bundleConfigs: this.bundleConfigs,
       publishName: this.publishName,
       mainServiceName: this.mainServiceName,
     });
@@ -161,8 +178,14 @@ export class Generator {
   }
 
   async processTemplates(api: API) {
-    const fileList = await processTemplates(templateDirectory, api);
-    this.response.file.push(...fileList);
+    for (const template of this.templates) {
+      const location = path.join(templatesDirectory, template);
+      if (!fs.existsSync(location)) {
+        throw new Error(`Template directory ${location} does not exist.`);
+      }
+      const fileList = await processTemplates(location, api);
+      this.response.file.push(...fileList);
+    }
   }
 
   async generate() {

@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import * as assert from 'assert';
-import { describe, it } from 'mocha';
-import { commonPrefix, duration, seconds, milliseconds } from '../../src/util';
+import {describe, it} from 'mocha';
+import {commonPrefix, duration, seconds, milliseconds} from '../../src/util';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
-describe('util.ts', () => {
+describe('src/util.ts', () => {
   describe('CommonPrefix', () => {
     it('should return correct result', () => {
       assert.strictEqual(commonPrefix(['abc', 'abcd', 'ab']), 'ab');
