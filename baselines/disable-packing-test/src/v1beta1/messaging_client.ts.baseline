@@ -21,7 +21,7 @@ import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, LROperat
 import * as path from 'path';
 
 import { Transform } from 'stream';
-import * as protosTypes from '../../protos/protos';
+import * as protos from '../../protos/protos';
 import * as gapicConfig from './messaging_client_config.json';
 
 const version = require('../../../package.json').version;
@@ -35,9 +35,6 @@ const version = require('../../../package.json').version;
  * @memberof v1beta1
  */
 export class MessagingClient {
-  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
-  private _innerApiCalls: {[name: string]: Function};
-  private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   private _opts: ClientOptions;
   private _gaxModule: typeof gax | typeof gax.fallback;
@@ -45,6 +42,9 @@ export class MessagingClient {
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
+  descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
+  innerApiCalls: {[name: string]: Function};
+  pathTemplates: {[name: string]: gax.PathTemplate};
   operationsClient: gax.OperationsClient;
   messagingStub?: Promise<{[name: string]: Function}>;
 
@@ -133,6 +133,7 @@ export class MessagingClient {
     const nodejsProtoPath = path.join(__dirname, '..', '..', 'protos', 'protos.json');
     this._protos = this._gaxGrpc.loadProto(
       opts.fallback ?
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require("../../protos/protos.json") :
         nodejsProtoPath
     );
@@ -140,7 +141,7 @@ export class MessagingClient {
     // This API contains "path templates"; forward-slash-separated
     // identifiers to uniquely identify resources within the API.
     // Create useful helper objects for these.
-    this._pathTemplates = {
+    this.pathTemplates = {
       blueprintPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}/tests/{test}/blueprints/{blueprint}'
       ),
@@ -167,7 +168,7 @@ export class MessagingClient {
     // Some of the methods on this service return "paged" results,
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
-    this._descriptors.page = {
+    this.descriptors.page = {
       listRooms:
           new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'rooms'),
       listBlurbs:
@@ -176,7 +177,7 @@ export class MessagingClient {
 
     // Some of the methods on this service provide streaming responses.
     // Provide descriptors for these.
-    this._descriptors.stream = {
+    this.descriptors.stream = {
       streamBlurbs: new this._gaxModule.StreamDescriptor(gax.StreamType.SERVER_STREAMING),
       sendBlurbs: new this._gaxModule.StreamDescriptor(gax.StreamType.CLIENT_STREAMING),
       connect: new this._gaxModule.StreamDescriptor(gax.StreamType.BIDI_STREAMING)
@@ -185,9 +186,10 @@ export class MessagingClient {
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
-    const protoFilesRoot = opts.fallback?
-      /* eslint-disable @typescript-eslint/no-var-requires */
-      this._gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
+    const protoFilesRoot = opts.fallback ?
+      this._gaxModule.protobuf.Root.fromJSON(
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require("../../protos/protos.json")) :
       this._gaxModule.protobuf.loadSync(nodejsProtoPath);
 
     this.operationsClient = this._gaxModule.lro({
@@ -199,7 +201,7 @@ export class MessagingClient {
     const searchBlurbsMetadata = protoFilesRoot.lookup(
       '.google.showcase.v1beta1.SearchBlurbsMetadata') as gax.protobuf.Type;
 
-    this._descriptors.longrunning = {
+    this.descriptors.longrunning = {
       searchBlurbs: new this._gaxModule.LongrunningDescriptor(
         this.operationsClient,
         searchBlurbsResponse.decode.bind(searchBlurbsResponse),
@@ -214,7 +216,7 @@ export class MessagingClient {
     // Set up a dictionary of "inner API calls"; the core implementation
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
-    this._innerApiCalls = {};
+    this.innerApiCalls = {};
   }
 
   /**
@@ -239,7 +241,7 @@ export class MessagingClient {
     this.messagingStub = this._gaxGrpc.createStub(
         this._opts.fallback ?
           (this._protos as protobuf.Root).lookupService('google.showcase.v1beta1.Messaging') :
-          /* eslint-disable @typescript-eslint/no-explicit-any */
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).google.showcase.v1beta1.Messaging,
         this._opts) as Promise<{[method: string]: Function}>;
 
@@ -264,12 +266,12 @@ export class MessagingClient {
       const apiCall = this._gaxModule.createApiCall(
         innerCallPromise,
         this._defaults[methodName],
-        this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] ||
-            this._descriptors.longrunning[methodName]
+        this.descriptors.page[methodName] ||
+            this.descriptors.stream[methodName] ||
+            this.descriptors.longrunning[methodName]
       );
 
-      this._innerApiCalls[methodName] = (
+      this.innerApiCalls[methodName] = (
         argument: {},
         callOptions?: CallOptions,
         callback?: APICallback
@@ -331,18 +333,24 @@ export class MessagingClient {
   // -- Service calls --
   // -------------------
   createRoom(
-      request: protosTypes.google.showcase.v1beta1.ICreateRoomRequest,
+      request: protos.google.showcase.v1beta1.ICreateRoomRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IRoom,
-        protosTypes.google.showcase.v1beta1.ICreateRoomRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IRoom,
+        protos.google.showcase.v1beta1.ICreateRoomRequest|undefined, {}|undefined
       ]>;
   createRoom(
-      request: protosTypes.google.showcase.v1beta1.ICreateRoomRequest,
+      request: protos.google.showcase.v1beta1.ICreateRoomRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IRoom,
-          protosTypes.google.showcase.v1beta1.ICreateRoomRequest|undefined,
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.ICreateRoomRequest|undefined,
+          {}|undefined>): void;
+  createRoom(
+      request: protos.google.showcase.v1beta1.ICreateRoomRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.ICreateRoomRequest|undefined,
           {}|undefined>): void;
 /**
  * Creates a room.
@@ -358,17 +366,17 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   createRoom(
-      request: protosTypes.google.showcase.v1beta1.ICreateRoomRequest,
+      request: protos.google.showcase.v1beta1.ICreateRoomRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IRoom,
-          protosTypes.google.showcase.v1beta1.ICreateRoomRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.ICreateRoomRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IRoom,
-          protosTypes.google.showcase.v1beta1.ICreateRoomRequest|undefined,
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.ICreateRoomRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IRoom,
-        protosTypes.google.showcase.v1beta1.ICreateRoomRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IRoom,
+        protos.google.showcase.v1beta1.ICreateRoomRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -381,21 +389,27 @@ export class MessagingClient {
     }
     options = options || {};
     this.initialize();
-    return this._innerApiCalls.createRoom(request, options, callback);
+    return this.innerApiCalls.createRoom(request, options, callback);
   }
   getRoom(
-      request: protosTypes.google.showcase.v1beta1.IGetRoomRequest,
+      request: protos.google.showcase.v1beta1.IGetRoomRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IRoom,
-        protosTypes.google.showcase.v1beta1.IGetRoomRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IRoom,
+        protos.google.showcase.v1beta1.IGetRoomRequest|undefined, {}|undefined
       ]>;
   getRoom(
-      request: protosTypes.google.showcase.v1beta1.IGetRoomRequest,
+      request: protos.google.showcase.v1beta1.IGetRoomRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IRoom,
-          protosTypes.google.showcase.v1beta1.IGetRoomRequest|undefined,
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IGetRoomRequest|undefined,
+          {}|undefined>): void;
+  getRoom(
+      request: protos.google.showcase.v1beta1.IGetRoomRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IGetRoomRequest|undefined,
           {}|undefined>): void;
 /**
  * Retrieves the Room with the given resource name.
@@ -411,17 +425,17 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   getRoom(
-      request: protosTypes.google.showcase.v1beta1.IGetRoomRequest,
+      request: protos.google.showcase.v1beta1.IGetRoomRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IRoom,
-          protosTypes.google.showcase.v1beta1.IGetRoomRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IGetRoomRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IRoom,
-          protosTypes.google.showcase.v1beta1.IGetRoomRequest|undefined,
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IGetRoomRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IRoom,
-        protosTypes.google.showcase.v1beta1.IGetRoomRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IRoom,
+        protos.google.showcase.v1beta1.IGetRoomRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -441,21 +455,27 @@ export class MessagingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.getRoom(request, options, callback);
+    return this.innerApiCalls.getRoom(request, options, callback);
   }
   updateRoom(
-      request: protosTypes.google.showcase.v1beta1.IUpdateRoomRequest,
+      request: protos.google.showcase.v1beta1.IUpdateRoomRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IRoom,
-        protosTypes.google.showcase.v1beta1.IUpdateRoomRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IRoom,
+        protos.google.showcase.v1beta1.IUpdateRoomRequest|undefined, {}|undefined
       ]>;
   updateRoom(
-      request: protosTypes.google.showcase.v1beta1.IUpdateRoomRequest,
+      request: protos.google.showcase.v1beta1.IUpdateRoomRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IRoom,
-          protosTypes.google.showcase.v1beta1.IUpdateRoomRequest|undefined,
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IUpdateRoomRequest|undefined,
+          {}|undefined>): void;
+  updateRoom(
+      request: protos.google.showcase.v1beta1.IUpdateRoomRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IUpdateRoomRequest|undefined,
           {}|undefined>): void;
 /**
  * Updates a room.
@@ -474,17 +494,17 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   updateRoom(
-      request: protosTypes.google.showcase.v1beta1.IUpdateRoomRequest,
+      request: protos.google.showcase.v1beta1.IUpdateRoomRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IRoom,
-          protosTypes.google.showcase.v1beta1.IUpdateRoomRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IUpdateRoomRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IRoom,
-          protosTypes.google.showcase.v1beta1.IUpdateRoomRequest|undefined,
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IUpdateRoomRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IRoom,
-        protosTypes.google.showcase.v1beta1.IUpdateRoomRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IRoom,
+        protos.google.showcase.v1beta1.IUpdateRoomRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -504,21 +524,27 @@ export class MessagingClient {
       'room.name': request.room!.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.updateRoom(request, options, callback);
+    return this.innerApiCalls.updateRoom(request, options, callback);
   }
   deleteRoom(
-      request: protosTypes.google.showcase.v1beta1.IDeleteRoomRequest,
+      request: protos.google.showcase.v1beta1.IDeleteRoomRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.showcase.v1beta1.IDeleteRoomRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteRoomRequest|undefined, {}|undefined
       ]>;
   deleteRoom(
-      request: protosTypes.google.showcase.v1beta1.IDeleteRoomRequest,
+      request: protos.google.showcase.v1beta1.IDeleteRoomRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteRoomRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteRoomRequest|undefined,
+          {}|undefined>): void;
+  deleteRoom(
+      request: protos.google.showcase.v1beta1.IDeleteRoomRequest,
+      callback: Callback<
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteRoomRequest|undefined,
           {}|undefined>): void;
 /**
  * Deletes a room and all of its blurbs.
@@ -534,17 +560,17 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   deleteRoom(
-      request: protosTypes.google.showcase.v1beta1.IDeleteRoomRequest,
+      request: protos.google.showcase.v1beta1.IDeleteRoomRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteRoomRequest|undefined, {}|undefined>,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteRoomRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteRoomRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteRoomRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.showcase.v1beta1.IDeleteRoomRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteRoomRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -564,21 +590,27 @@ export class MessagingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.deleteRoom(request, options, callback);
+    return this.innerApiCalls.deleteRoom(request, options, callback);
   }
   createBlurb(
-      request: protosTypes.google.showcase.v1beta1.ICreateBlurbRequest,
+      request: protos.google.showcase.v1beta1.ICreateBlurbRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlurb,
-        protosTypes.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IBlurb,
+        protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined
       ]>;
   createBlurb(
-      request: protosTypes.google.showcase.v1beta1.ICreateBlurbRequest,
+      request: protos.google.showcase.v1beta1.ICreateBlurbRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IBlurb,
-          protosTypes.google.showcase.v1beta1.ICreateBlurbRequest|undefined,
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined,
+          {}|undefined>): void;
+  createBlurb(
+      request: protos.google.showcase.v1beta1.ICreateBlurbRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined,
           {}|undefined>): void;
 /**
  * Creates a blurb. If the parent is a room, the blurb is understood to be a
@@ -599,17 +631,17 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   createBlurb(
-      request: protosTypes.google.showcase.v1beta1.ICreateBlurbRequest,
+      request: protos.google.showcase.v1beta1.ICreateBlurbRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IBlurb,
-          protosTypes.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IBlurb,
-          protosTypes.google.showcase.v1beta1.ICreateBlurbRequest|undefined,
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlurb,
-        protosTypes.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IBlurb,
+        protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -629,21 +661,27 @@ export class MessagingClient {
       'parent': request.parent || '',
     });
     this.initialize();
-    return this._innerApiCalls.createBlurb(request, options, callback);
+    return this.innerApiCalls.createBlurb(request, options, callback);
   }
   getBlurb(
-      request: protosTypes.google.showcase.v1beta1.IGetBlurbRequest,
+      request: protos.google.showcase.v1beta1.IGetBlurbRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlurb,
-        protosTypes.google.showcase.v1beta1.IGetBlurbRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IBlurb,
+        protos.google.showcase.v1beta1.IGetBlurbRequest|undefined, {}|undefined
       ]>;
   getBlurb(
-      request: protosTypes.google.showcase.v1beta1.IGetBlurbRequest,
+      request: protos.google.showcase.v1beta1.IGetBlurbRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IBlurb,
-          protosTypes.google.showcase.v1beta1.IGetBlurbRequest|undefined,
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IGetBlurbRequest|undefined,
+          {}|undefined>): void;
+  getBlurb(
+      request: protos.google.showcase.v1beta1.IGetBlurbRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IGetBlurbRequest|undefined,
           {}|undefined>): void;
 /**
  * Retrieves the Blurb with the given resource name.
@@ -659,17 +697,17 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   getBlurb(
-      request: protosTypes.google.showcase.v1beta1.IGetBlurbRequest,
+      request: protos.google.showcase.v1beta1.IGetBlurbRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IBlurb,
-          protosTypes.google.showcase.v1beta1.IGetBlurbRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IGetBlurbRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IBlurb,
-          protosTypes.google.showcase.v1beta1.IGetBlurbRequest|undefined,
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IGetBlurbRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlurb,
-        protosTypes.google.showcase.v1beta1.IGetBlurbRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IBlurb,
+        protos.google.showcase.v1beta1.IGetBlurbRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -689,21 +727,27 @@ export class MessagingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.getBlurb(request, options, callback);
+    return this.innerApiCalls.getBlurb(request, options, callback);
   }
   updateBlurb(
-      request: protosTypes.google.showcase.v1beta1.IUpdateBlurbRequest,
+      request: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlurb,
-        protosTypes.google.showcase.v1beta1.IUpdateBlurbRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IBlurb,
+        protos.google.showcase.v1beta1.IUpdateBlurbRequest|undefined, {}|undefined
       ]>;
   updateBlurb(
-      request: protosTypes.google.showcase.v1beta1.IUpdateBlurbRequest,
+      request: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IBlurb,
-          protosTypes.google.showcase.v1beta1.IUpdateBlurbRequest|undefined,
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IUpdateBlurbRequest|undefined,
+          {}|undefined>): void;
+  updateBlurb(
+      request: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IUpdateBlurbRequest|undefined,
           {}|undefined>): void;
 /**
  * Updates a blurb.
@@ -722,17 +766,17 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   updateBlurb(
-      request: protosTypes.google.showcase.v1beta1.IUpdateBlurbRequest,
+      request: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IBlurb,
-          protosTypes.google.showcase.v1beta1.IUpdateBlurbRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IUpdateBlurbRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IBlurb,
-          protosTypes.google.showcase.v1beta1.IUpdateBlurbRequest|undefined,
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IUpdateBlurbRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlurb,
-        protosTypes.google.showcase.v1beta1.IUpdateBlurbRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IBlurb,
+        protos.google.showcase.v1beta1.IUpdateBlurbRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -752,21 +796,27 @@ export class MessagingClient {
       'blurb.name': request.blurb!.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.updateBlurb(request, options, callback);
+    return this.innerApiCalls.updateBlurb(request, options, callback);
   }
   deleteBlurb(
-      request: protosTypes.google.showcase.v1beta1.IDeleteBlurbRequest,
+      request: protos.google.showcase.v1beta1.IDeleteBlurbRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.showcase.v1beta1.IDeleteBlurbRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteBlurbRequest|undefined, {}|undefined
       ]>;
   deleteBlurb(
-      request: protosTypes.google.showcase.v1beta1.IDeleteBlurbRequest,
+      request: protos.google.showcase.v1beta1.IDeleteBlurbRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteBlurbRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteBlurbRequest|undefined,
+          {}|undefined>): void;
+  deleteBlurb(
+      request: protos.google.showcase.v1beta1.IDeleteBlurbRequest,
+      callback: Callback<
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteBlurbRequest|undefined,
           {}|undefined>): void;
 /**
  * Deletes a blurb.
@@ -782,17 +832,17 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   deleteBlurb(
-      request: protosTypes.google.showcase.v1beta1.IDeleteBlurbRequest,
+      request: protos.google.showcase.v1beta1.IDeleteBlurbRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteBlurbRequest|undefined, {}|undefined>,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteBlurbRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteBlurbRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteBlurbRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.showcase.v1beta1.IDeleteBlurbRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteBlurbRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -812,7 +862,7 @@ export class MessagingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.deleteBlurb(request, options, callback);
+    return this.innerApiCalls.deleteBlurb(request, options, callback);
   }
 
 /**
@@ -831,7 +881,7 @@ export class MessagingClient {
  *   An object stream which emits [StreamBlurbsResponse]{@link google.showcase.v1beta1.StreamBlurbsResponse} on 'data' event.
  */
   streamBlurbs(
-      request?: protosTypes.google.showcase.v1beta1.IStreamBlurbsRequest,
+      request?: protos.google.showcase.v1beta1.IStreamBlurbsRequest,
       options?: gax.CallOptions):
     gax.CancellableStream{
     request = request || {};
@@ -844,19 +894,19 @@ export class MessagingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.streamBlurbs(request, options);
+    return this.innerApiCalls.streamBlurbs(request, options);
   }
 
   sendBlurbs(
       options?: gax.CallOptions,
       callback?: Callback<
-        protosTypes.google.showcase.v1beta1.ISendBlurbsResponse,
-        protosTypes.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>):
+        protos.google.showcase.v1beta1.ISendBlurbsResponse,
+        protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>):
     gax.CancellableStream;
   sendBlurbs(
       callback?: Callback<
-        protosTypes.google.showcase.v1beta1.ISendBlurbsResponse,
-        protosTypes.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>):
+        protos.google.showcase.v1beta1.ISendBlurbsResponse,
+        protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>):
     gax.CancellableStream;
 /**
  * This is a stream to create multiple blurbs. If an invalid blurb is
@@ -869,11 +919,11 @@ export class MessagingClient {
  */
   sendBlurbs(
       optionsOrCallback?: gax.CallOptions|Callback<
-        protosTypes.google.showcase.v1beta1.ISendBlurbsResponse,
-        protosTypes.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>,
+        protos.google.showcase.v1beta1.ISendBlurbsResponse,
+        protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>,
       callback?: Callback<
-        protosTypes.google.showcase.v1beta1.ISendBlurbsResponse,
-        protosTypes.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>):
+        protos.google.showcase.v1beta1.ISendBlurbsResponse,
+        protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined>):
     gax.CancellableStream {
     if (optionsOrCallback instanceof Function && callback === undefined) {
         callback = optionsOrCallback;
@@ -881,7 +931,7 @@ export class MessagingClient {
     }
     const options = optionsOrCallback as gax.CallOptions;
     this.initialize();
-    return this._innerApiCalls.sendBlurbs(null, options, callback);
+    return this.innerApiCalls.sendBlurbs(null, options, callback);
   }
 
 /**
@@ -901,22 +951,28 @@ export class MessagingClient {
       options?: gax.CallOptions):
     gax.CancellableStream {
     this.initialize();
-    return this._innerApiCalls.connect(options);
+    return this.innerApiCalls.connect(options);
   }
 
   searchBlurbs(
-      request: protosTypes.google.showcase.v1beta1.ISearchBlurbsRequest,
+      request: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
       options?: gax.CallOptions):
       Promise<[
-        LROperation<protosTypes.google.showcase.v1beta1.ISearchBlurbsResponse, protosTypes.google.showcase.v1beta1.ISearchBlurbsMetadata>,
-        protosTypes.google.longrunning.IOperation|undefined, {}|undefined
+        LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
+        protos.google.longrunning.IOperation|undefined, {}|undefined
       ]>;
   searchBlurbs(
-      request: protosTypes.google.showcase.v1beta1.ISearchBlurbsRequest,
+      request: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
       options: gax.CallOptions,
       callback: Callback<
-          LROperation<protosTypes.google.showcase.v1beta1.ISearchBlurbsResponse, protosTypes.google.showcase.v1beta1.ISearchBlurbsMetadata>,
-          protosTypes.google.longrunning.IOperation|undefined,
+          LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
+          protos.google.longrunning.IOperation|undefined,
+          {}|undefined>): void;
+  searchBlurbs(
+      request: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
+      callback: Callback<
+          LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
+          protos.google.longrunning.IOperation|undefined,
           {}|undefined>): void;
 /**
  * This method searches through all blurbs across all rooms and profiles
@@ -947,17 +1003,17 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   searchBlurbs(
-      request: protosTypes.google.showcase.v1beta1.ISearchBlurbsRequest,
+      request: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          LROperation<protosTypes.google.showcase.v1beta1.ISearchBlurbsResponse, protosTypes.google.showcase.v1beta1.ISearchBlurbsMetadata>,
-          protosTypes.google.longrunning.IOperation|undefined, {}|undefined>,
+          LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
+          protos.google.longrunning.IOperation|undefined, {}|undefined>,
       callback?: Callback<
-          LROperation<protosTypes.google.showcase.v1beta1.ISearchBlurbsResponse, protosTypes.google.showcase.v1beta1.ISearchBlurbsMetadata>,
-          protosTypes.google.longrunning.IOperation|undefined,
+          LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
+          protos.google.longrunning.IOperation|undefined,
           {}|undefined>):
       Promise<[
-        LROperation<protosTypes.google.showcase.v1beta1.ISearchBlurbsResponse, protosTypes.google.showcase.v1beta1.ISearchBlurbsMetadata>,
-        protosTypes.google.longrunning.IOperation|undefined, {}|undefined
+        LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
+        protos.google.longrunning.IOperation|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -977,23 +1033,29 @@ export class MessagingClient {
       'parent': request.parent || '',
     });
     this.initialize();
-    return this._innerApiCalls.searchBlurbs(request, options, callback);
+    return this.innerApiCalls.searchBlurbs(request, options, callback);
   }
   listRooms(
-      request: protosTypes.google.showcase.v1beta1.IListRoomsRequest,
+      request: protos.google.showcase.v1beta1.IListRoomsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IRoom[],
-        protosTypes.google.showcase.v1beta1.IListRoomsRequest|null,
-        protosTypes.google.showcase.v1beta1.IListRoomsResponse
+        protos.google.showcase.v1beta1.IRoom[],
+        protos.google.showcase.v1beta1.IListRoomsRequest|null,
+        protos.google.showcase.v1beta1.IListRoomsResponse
       ]>;
   listRooms(
-      request: protosTypes.google.showcase.v1beta1.IListRoomsRequest,
+      request: protos.google.showcase.v1beta1.IListRoomsRequest,
       options: gax.CallOptions,
       callback: PaginationCallback<
-          protosTypes.google.showcase.v1beta1.IRoom[],
-          protosTypes.google.showcase.v1beta1.IListRoomsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListRoomsResponse>): void;
+          protos.google.showcase.v1beta1.IListRoomsRequest,
+          protos.google.showcase.v1beta1.IListRoomsResponse|null,
+          protos.google.showcase.v1beta1.IRoom>): void;
+  listRooms(
+      request: protos.google.showcase.v1beta1.IListRoomsRequest,
+      callback: PaginationCallback<
+          protos.google.showcase.v1beta1.IListRoomsRequest,
+          protos.google.showcase.v1beta1.IListRoomsResponse|null,
+          protos.google.showcase.v1beta1.IRoom>): void;
 /**
  * Lists all chat rooms.
  *
@@ -1025,19 +1087,19 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   listRooms(
-      request: protosTypes.google.showcase.v1beta1.IListRoomsRequest,
+      request: protos.google.showcase.v1beta1.IListRoomsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          protosTypes.google.showcase.v1beta1.IRoom[],
-          protosTypes.google.showcase.v1beta1.IListRoomsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListRoomsResponse>,
+          protos.google.showcase.v1beta1.IListRoomsRequest,
+          protos.google.showcase.v1beta1.IListRoomsResponse|null,
+          protos.google.showcase.v1beta1.IRoom>,
       callback?: PaginationCallback<
-          protosTypes.google.showcase.v1beta1.IRoom[],
-          protosTypes.google.showcase.v1beta1.IListRoomsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListRoomsResponse>):
+          protos.google.showcase.v1beta1.IListRoomsRequest,
+          protos.google.showcase.v1beta1.IListRoomsResponse|null,
+          protos.google.showcase.v1beta1.IRoom>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IRoom[],
-        protosTypes.google.showcase.v1beta1.IListRoomsRequest|null,
-        protosTypes.google.showcase.v1beta1.IListRoomsResponse
+        protos.google.showcase.v1beta1.IRoom[],
+        protos.google.showcase.v1beta1.IListRoomsRequest|null,
+        protos.google.showcase.v1beta1.IListRoomsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -1050,7 +1112,7 @@ export class MessagingClient {
     }
     options = options || {};
     this.initialize();
-    return this._innerApiCalls.listRooms(request, options, callback);
+    return this.innerApiCalls.listRooms(request, options, callback);
   }
 
 /**
@@ -1081,34 +1143,40 @@ export class MessagingClient {
  *   An object stream which emits an object representing [Room]{@link google.showcase.v1beta1.Room} on 'data' event.
  */
   listRoomsStream(
-      request?: protosTypes.google.showcase.v1beta1.IListRoomsRequest,
+      request?: protos.google.showcase.v1beta1.IListRoomsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.listRooms.createStream(
-      this._innerApiCalls.listRooms as gax.GaxCall,
+    return this.descriptors.page.listRooms.createStream(
+      this.innerApiCalls.listRooms as gax.GaxCall,
       request,
       callSettings
     );
   }
   listBlurbs(
-      request: protosTypes.google.showcase.v1beta1.IListBlurbsRequest,
+      request: protos.google.showcase.v1beta1.IListBlurbsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlurb[],
-        protosTypes.google.showcase.v1beta1.IListBlurbsRequest|null,
-        protosTypes.google.showcase.v1beta1.IListBlurbsResponse
+        protos.google.showcase.v1beta1.IBlurb[],
+        protos.google.showcase.v1beta1.IListBlurbsRequest|null,
+        protos.google.showcase.v1beta1.IListBlurbsResponse
       ]>;
   listBlurbs(
-      request: protosTypes.google.showcase.v1beta1.IListBlurbsRequest,
+      request: protos.google.showcase.v1beta1.IListBlurbsRequest,
       options: gax.CallOptions,
       callback: PaginationCallback<
-          protosTypes.google.showcase.v1beta1.IBlurb[],
-          protosTypes.google.showcase.v1beta1.IListBlurbsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListBlurbsResponse>): void;
+          protos.google.showcase.v1beta1.IListBlurbsRequest,
+          protos.google.showcase.v1beta1.IListBlurbsResponse|null,
+          protos.google.showcase.v1beta1.IBlurb>): void;
+  listBlurbs(
+      request: protos.google.showcase.v1beta1.IListBlurbsRequest,
+      callback: PaginationCallback<
+          protos.google.showcase.v1beta1.IListBlurbsRequest,
+          protos.google.showcase.v1beta1.IListBlurbsResponse|null,
+          protos.google.showcase.v1beta1.IBlurb>): void;
 /**
  * Lists blurbs for a specific chat room or user profile depending on the
  * parent resource name.
@@ -1144,19 +1212,19 @@ export class MessagingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   listBlurbs(
-      request: protosTypes.google.showcase.v1beta1.IListBlurbsRequest,
+      request: protos.google.showcase.v1beta1.IListBlurbsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          protosTypes.google.showcase.v1beta1.IBlurb[],
-          protosTypes.google.showcase.v1beta1.IListBlurbsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListBlurbsResponse>,
+          protos.google.showcase.v1beta1.IListBlurbsRequest,
+          protos.google.showcase.v1beta1.IListBlurbsResponse|null,
+          protos.google.showcase.v1beta1.IBlurb>,
       callback?: PaginationCallback<
-          protosTypes.google.showcase.v1beta1.IBlurb[],
-          protosTypes.google.showcase.v1beta1.IListBlurbsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListBlurbsResponse>):
+          protos.google.showcase.v1beta1.IListBlurbsRequest,
+          protos.google.showcase.v1beta1.IListBlurbsResponse|null,
+          protos.google.showcase.v1beta1.IBlurb>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IBlurb[],
-        protosTypes.google.showcase.v1beta1.IListBlurbsRequest|null,
-        protosTypes.google.showcase.v1beta1.IListBlurbsResponse
+        protos.google.showcase.v1beta1.IBlurb[],
+        protos.google.showcase.v1beta1.IListBlurbsRequest|null,
+        protos.google.showcase.v1beta1.IListBlurbsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -1176,7 +1244,7 @@ export class MessagingClient {
       'parent': request.parent || '',
     });
     this.initialize();
-    return this._innerApiCalls.listBlurbs(request, options, callback);
+    return this.innerApiCalls.listBlurbs(request, options, callback);
   }
 
 /**
@@ -1210,7 +1278,7 @@ export class MessagingClient {
  *   An object stream which emits an object representing [Blurb]{@link google.showcase.v1beta1.Blurb} on 'data' event.
  */
   listBlurbsStream(
-      request?: protosTypes.google.showcase.v1beta1.IListBlurbsRequest,
+      request?: protos.google.showcase.v1beta1.IListBlurbsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -1224,8 +1292,8 @@ export class MessagingClient {
     });
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.listBlurbs.createStream(
-      this._innerApiCalls.listBlurbs as gax.GaxCall,
+    return this.descriptors.page.listBlurbs.createStream(
+      this.innerApiCalls.listBlurbs as gax.GaxCall,
       request,
       callSettings
     );
@@ -1243,7 +1311,7 @@ export class MessagingClient {
    * @returns {string} Resource name string.
    */
   blueprintPath(session:string,test:string,blueprint:string) {
-    return this._pathTemplates.blueprintPathTemplate.render({
+    return this.pathTemplates.blueprintPathTemplate.render({
       session: session,
       test: test,
       blueprint: blueprint,
@@ -1258,7 +1326,7 @@ export class MessagingClient {
    * @returns {string} A string representing the session.
    */
   matchSessionFromBlueprintName(blueprintName: string) {
-    return this._pathTemplates.blueprintPathTemplate.match(blueprintName).session;
+    return this.pathTemplates.blueprintPathTemplate.match(blueprintName).session;
   }
 
   /**
@@ -1269,7 +1337,7 @@ export class MessagingClient {
    * @returns {string} A string representing the test.
    */
   matchTestFromBlueprintName(blueprintName: string) {
-    return this._pathTemplates.blueprintPathTemplate.match(blueprintName).test;
+    return this.pathTemplates.blueprintPathTemplate.match(blueprintName).test;
   }
 
   /**
@@ -1280,7 +1348,7 @@ export class MessagingClient {
    * @returns {string} A string representing the blueprint.
    */
   matchBlueprintFromBlueprintName(blueprintName: string) {
-    return this._pathTemplates.blueprintPathTemplate.match(blueprintName).blueprint;
+    return this.pathTemplates.blueprintPathTemplate.match(blueprintName).blueprint;
   }
 
   /**
@@ -1290,7 +1358,7 @@ export class MessagingClient {
    * @returns {string} Resource name string.
    */
   roomPath(roomId:string) {
-    return this._pathTemplates.roomPathTemplate.render({
+    return this.pathTemplates.roomPathTemplate.render({
       room_id: roomId,
     });
   }
@@ -1303,7 +1371,7 @@ export class MessagingClient {
    * @returns {string} A string representing the room_id.
    */
   matchRoomIdFromRoomName(roomName: string) {
-    return this._pathTemplates.roomPathTemplate.match(roomName).room_id;
+    return this.pathTemplates.roomPathTemplate.match(roomName).room_id;
   }
 
   /**
@@ -1314,7 +1382,7 @@ export class MessagingClient {
    * @returns {string} Resource name string.
    */
   roomIdBlurbIdPath(roomId:string,blurbId:string) {
-    return this._pathTemplates.roomIdBlurbIdPathTemplate.render({
+    return this.pathTemplates.roomIdBlurbIdPathTemplate.render({
       room_id: roomId,
       blurb_id: blurbId,
     });
@@ -1328,7 +1396,7 @@ export class MessagingClient {
    * @returns {string} A string representing the room_id.
    */
   matchRoomIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this._pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).room_id;
+    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).room_id;
   }
 
   /**
@@ -1339,7 +1407,7 @@ export class MessagingClient {
    * @returns {string} A string representing the blurb_id.
    */
   matchBlurbIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this._pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).blurb_id;
+    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).blurb_id;
   }
 
   /**
@@ -1349,7 +1417,7 @@ export class MessagingClient {
    * @returns {string} Resource name string.
    */
   sessionPath(session:string) {
-    return this._pathTemplates.sessionPathTemplate.render({
+    return this.pathTemplates.sessionPathTemplate.render({
       session: session,
     });
   }
@@ -1362,7 +1430,7 @@ export class MessagingClient {
    * @returns {string} A string representing the session.
    */
   matchSessionFromSessionName(sessionName: string) {
-    return this._pathTemplates.sessionPathTemplate.match(sessionName).session;
+    return this.pathTemplates.sessionPathTemplate.match(sessionName).session;
   }
 
   /**
@@ -1373,7 +1441,7 @@ export class MessagingClient {
    * @returns {string} Resource name string.
    */
   testPath(session:string,test:string) {
-    return this._pathTemplates.testPathTemplate.render({
+    return this.pathTemplates.testPathTemplate.render({
       session: session,
       test: test,
     });
@@ -1387,7 +1455,7 @@ export class MessagingClient {
    * @returns {string} A string representing the session.
    */
   matchSessionFromTestName(testName: string) {
-    return this._pathTemplates.testPathTemplate.match(testName).session;
+    return this.pathTemplates.testPathTemplate.match(testName).session;
   }
 
   /**
@@ -1398,7 +1466,7 @@ export class MessagingClient {
    * @returns {string} A string representing the test.
    */
   matchTestFromTestName(testName: string) {
-    return this._pathTemplates.testPathTemplate.match(testName).test;
+    return this.pathTemplates.testPathTemplate.match(testName).test;
   }
 
   /**
@@ -1408,7 +1476,7 @@ export class MessagingClient {
    * @returns {string} Resource name string.
    */
   userPath(userId:string) {
-    return this._pathTemplates.userPathTemplate.render({
+    return this.pathTemplates.userPathTemplate.render({
       user_id: userId,
     });
   }
@@ -1421,7 +1489,7 @@ export class MessagingClient {
    * @returns {string} A string representing the user_id.
    */
   matchUserIdFromUserName(userName: string) {
-    return this._pathTemplates.userPathTemplate.match(userName).user_id;
+    return this.pathTemplates.userPathTemplate.match(userName).user_id;
   }
 
   /**
@@ -1432,7 +1500,7 @@ export class MessagingClient {
    * @returns {string} Resource name string.
    */
   userIdProfileBlurbIdPath(userId:string,blurbId:string) {
-    return this._pathTemplates.userIdProfileBlurbIdPathTemplate.render({
+    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.render({
       user_id: userId,
       blurb_id: blurbId,
     });
@@ -1446,7 +1514,7 @@ export class MessagingClient {
    * @returns {string} A string representing the user_id.
    */
   matchUserIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this._pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).user_id;
+    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).user_id;
   }
 
   /**
@@ -1457,7 +1525,7 @@ export class MessagingClient {
    * @returns {string} A string representing the blurb_id.
    */
   matchBlurbIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this._pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).blurb_id;
+    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).blurb_id;
   }
 
   /**

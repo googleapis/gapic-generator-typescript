@@ -21,7 +21,7 @@ import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, Paginati
 import * as path from 'path';
 
 import { Transform } from 'stream';
-import * as protosTypes from '../../protos/protos';
+import * as protos from '../../protos/protos';
 import * as gapicConfig from './uptime_check_service_client_config.json';
 
 const version = require('../../../package.json').version;
@@ -39,9 +39,6 @@ const version = require('../../../package.json').version;
  * @memberof v3
  */
 export class UptimeCheckServiceClient {
-  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
-  private _innerApiCalls: {[name: string]: Function};
-  private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   private _opts: ClientOptions;
   private _gaxModule: typeof gax | typeof gax.fallback;
@@ -49,6 +46,9 @@ export class UptimeCheckServiceClient {
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
+  descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
+  innerApiCalls: {[name: string]: Function};
+  pathTemplates: {[name: string]: gax.PathTemplate};
   uptimeCheckServiceStub?: Promise<{[name: string]: Function}>;
 
   /**
@@ -136,6 +136,7 @@ export class UptimeCheckServiceClient {
     const nodejsProtoPath = path.join(__dirname, '..', '..', 'protos', 'protos.json');
     this._protos = this._gaxGrpc.loadProto(
       opts.fallback ?
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require("../../protos/protos.json") :
         nodejsProtoPath
     );
@@ -143,7 +144,7 @@ export class UptimeCheckServiceClient {
     // This API contains "path templates"; forward-slash-separated
     // identifiers to uniquely identify resources within the API.
     // Create useful helper objects for these.
-    this._pathTemplates = {
+    this.pathTemplates = {
       folderAlertPolicyPathTemplate: new this._gaxModule.PathTemplate(
         'folders/{folder}/alertPolicies/{alert_policy}'
       ),
@@ -221,7 +222,7 @@ export class UptimeCheckServiceClient {
     // Some of the methods on this service return "paged" results,
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
-    this._descriptors.page = {
+    this.descriptors.page = {
       listUptimeCheckConfigs:
           new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'uptimeCheckConfigs'),
       listUptimeCheckIps:
@@ -236,7 +237,7 @@ export class UptimeCheckServiceClient {
     // Set up a dictionary of "inner API calls"; the core implementation
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
-    this._innerApiCalls = {};
+    this.innerApiCalls = {};
   }
 
   /**
@@ -261,7 +262,7 @@ export class UptimeCheckServiceClient {
     this.uptimeCheckServiceStub = this._gaxGrpc.createStub(
         this._opts.fallback ?
           (this._protos as protobuf.Root).lookupService('google.monitoring.v3.UptimeCheckService') :
-          /* eslint-disable @typescript-eslint/no-explicit-any */
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).google.monitoring.v3.UptimeCheckService,
         this._opts) as Promise<{[method: string]: Function}>;
 
@@ -286,12 +287,12 @@ export class UptimeCheckServiceClient {
       const apiCall = this._gaxModule.createApiCall(
         innerCallPromise,
         this._defaults[methodName],
-        this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] ||
-            this._descriptors.longrunning[methodName]
+        this.descriptors.page[methodName] ||
+            this.descriptors.stream[methodName] ||
+            this.descriptors.longrunning[methodName]
       );
 
-      this._innerApiCalls[methodName] = (
+      this.innerApiCalls[methodName] = (
         argument: {},
         callOptions?: CallOptions,
         callback?: APICallback
@@ -357,18 +358,24 @@ export class UptimeCheckServiceClient {
   // -- Service calls --
   // -------------------
   getUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.IGetUptimeCheckConfigRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined
+        protos.google.monitoring.v3.IUptimeCheckConfig,
+        protos.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined
       ]>;
   getUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.IGetUptimeCheckConfigRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined,
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined,
+          {}|undefined>): void;
+  getUptimeCheckConfig(
+      request: protos.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+      callback: Callback<
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined,
           {}|undefined>): void;
 /**
  * Gets a single Uptime check configuration.
@@ -385,17 +392,17 @@ export class UptimeCheckServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   getUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.IGetUptimeCheckConfigRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined,
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined
+        protos.google.monitoring.v3.IUptimeCheckConfig,
+        protos.google.monitoring.v3.IGetUptimeCheckConfigRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -415,21 +422,27 @@ export class UptimeCheckServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.getUptimeCheckConfig(request, options, callback);
+    return this.innerApiCalls.getUptimeCheckConfig(request, options, callback);
   }
   createUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined
+        protos.google.monitoring.v3.IUptimeCheckConfig,
+        protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined
       ]>;
   createUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined,
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined,
+          {}|undefined>): void;
+  createUptimeCheckConfig(
+      request: protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
+      callback: Callback<
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined,
           {}|undefined>): void;
 /**
  * Creates a new Uptime check configuration.
@@ -448,17 +461,17 @@ export class UptimeCheckServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   createUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined,
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined
+        protos.google.monitoring.v3.IUptimeCheckConfig,
+        protos.google.monitoring.v3.ICreateUptimeCheckConfigRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -478,21 +491,27 @@ export class UptimeCheckServiceClient {
       'parent': request.parent || '',
     });
     this.initialize();
-    return this._innerApiCalls.createUptimeCheckConfig(request, options, callback);
+    return this.innerApiCalls.createUptimeCheckConfig(request, options, callback);
   }
   updateUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined
+        protos.google.monitoring.v3.IUptimeCheckConfig,
+        protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined
       ]>;
   updateUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined,
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined,
+          {}|undefined>): void;
+  updateUptimeCheckConfig(
+      request: protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
+      callback: Callback<
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined,
           {}|undefined>): void;
 /**
  * Updates an Uptime check configuration. You can either replace the entire
@@ -526,17 +545,17 @@ export class UptimeCheckServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   updateUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-          protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined,
+          protos.google.monitoring.v3.IUptimeCheckConfig,
+          protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig,
-        protosTypes.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined
+        protos.google.monitoring.v3.IUptimeCheckConfig,
+        protos.google.monitoring.v3.IUpdateUptimeCheckConfigRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -556,21 +575,27 @@ export class UptimeCheckServiceClient {
       'uptime_check_config.name': request.uptimeCheckConfig!.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.updateUptimeCheckConfig(request, options, callback);
+    return this.innerApiCalls.updateUptimeCheckConfig(request, options, callback);
   }
   deleteUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined
       ]>;
   deleteUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined,
+          {}|undefined>): void;
+  deleteUptimeCheckConfig(
+      request: protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
+      callback: Callback<
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined,
           {}|undefined>): void;
 /**
  * Deletes an Uptime check configuration. Note that this method will fail
@@ -589,17 +614,17 @@ export class UptimeCheckServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   deleteUptimeCheckConfig(
-      request: protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
+      request: protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined>,
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.IDeleteUptimeCheckConfigRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -619,24 +644,30 @@ export class UptimeCheckServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.deleteUptimeCheckConfig(request, options, callback);
+    return this.innerApiCalls.deleteUptimeCheckConfig(request, options, callback);
   }
 
   listUptimeCheckConfigs(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+      request: protos.google.monitoring.v3.IListUptimeCheckConfigsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse
+        protos.google.monitoring.v3.IUptimeCheckConfig[],
+        protos.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
+        protos.google.monitoring.v3.IListUptimeCheckConfigsResponse
       ]>;
   listUptimeCheckConfigs(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+      request: protos.google.monitoring.v3.IListUptimeCheckConfigsRequest,
       options: gax.CallOptions,
       callback: PaginationCallback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse>): void;
+          protos.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+          protos.google.monitoring.v3.IListUptimeCheckConfigsResponse|null,
+          protos.google.monitoring.v3.IUptimeCheckConfig>): void;
+  listUptimeCheckConfigs(
+      request: protos.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+      callback: PaginationCallback<
+          protos.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+          protos.google.monitoring.v3.IListUptimeCheckConfigsResponse|null,
+          protos.google.monitoring.v3.IUptimeCheckConfig>): void;
 /**
  * Lists the existing valid Uptime check configurations for the project
  * (leaving out any invalid configurations).
@@ -674,19 +705,19 @@ export class UptimeCheckServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   listUptimeCheckConfigs(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+      request: protos.google.monitoring.v3.IListUptimeCheckConfigsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse>,
+          protos.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+          protos.google.monitoring.v3.IListUptimeCheckConfigsResponse|null,
+          protos.google.monitoring.v3.IUptimeCheckConfig>,
       callback?: PaginationCallback<
-          protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse>):
+          protos.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+          protos.google.monitoring.v3.IListUptimeCheckConfigsResponse|null,
+          protos.google.monitoring.v3.IUptimeCheckConfig>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckConfig[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckConfigsResponse
+        protos.google.monitoring.v3.IUptimeCheckConfig[],
+        protos.google.monitoring.v3.IListUptimeCheckConfigsRequest|null,
+        protos.google.monitoring.v3.IListUptimeCheckConfigsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -706,7 +737,7 @@ export class UptimeCheckServiceClient {
       'parent': request.parent || '',
     });
     this.initialize();
-    return this._innerApiCalls.listUptimeCheckConfigs(request, options, callback);
+    return this.innerApiCalls.listUptimeCheckConfigs(request, options, callback);
   }
 
 /**
@@ -742,7 +773,7 @@ export class UptimeCheckServiceClient {
  *   An object stream which emits an object representing [UptimeCheckConfig]{@link google.monitoring.v3.UptimeCheckConfig} on 'data' event.
  */
   listUptimeCheckConfigsStream(
-      request?: protosTypes.google.monitoring.v3.IListUptimeCheckConfigsRequest,
+      request?: protos.google.monitoring.v3.IListUptimeCheckConfigsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -756,27 +787,33 @@ export class UptimeCheckServiceClient {
     });
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.listUptimeCheckConfigs.createStream(
-      this._innerApiCalls.listUptimeCheckConfigs as gax.GaxCall,
+    return this.descriptors.page.listUptimeCheckConfigs.createStream(
+      this.innerApiCalls.listUptimeCheckConfigs as gax.GaxCall,
       request,
       callSettings
     );
   }
   listUptimeCheckIps(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+      request: protos.google.monitoring.v3.IListUptimeCheckIpsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse
+        protos.google.monitoring.v3.IUptimeCheckIp[],
+        protos.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
+        protos.google.monitoring.v3.IListUptimeCheckIpsResponse
       ]>;
   listUptimeCheckIps(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+      request: protos.google.monitoring.v3.IListUptimeCheckIpsRequest,
       options: gax.CallOptions,
       callback: PaginationCallback<
-          protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse>): void;
+          protos.google.monitoring.v3.IListUptimeCheckIpsRequest,
+          protos.google.monitoring.v3.IListUptimeCheckIpsResponse|null,
+          protos.google.monitoring.v3.IUptimeCheckIp>): void;
+  listUptimeCheckIps(
+      request: protos.google.monitoring.v3.IListUptimeCheckIpsRequest,
+      callback: PaginationCallback<
+          protos.google.monitoring.v3.IListUptimeCheckIpsRequest,
+          protos.google.monitoring.v3.IListUptimeCheckIpsResponse|null,
+          protos.google.monitoring.v3.IUptimeCheckIp>): void;
 /**
  * Returns the list of IP addresses that checkers run from
  *
@@ -812,19 +849,19 @@ export class UptimeCheckServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   listUptimeCheckIps(
-      request: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+      request: protos.google.monitoring.v3.IListUptimeCheckIpsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse>,
+          protos.google.monitoring.v3.IListUptimeCheckIpsRequest,
+          protos.google.monitoring.v3.IListUptimeCheckIpsResponse|null,
+          protos.google.monitoring.v3.IUptimeCheckIp>,
       callback?: PaginationCallback<
-          protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-          protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse>):
+          protos.google.monitoring.v3.IListUptimeCheckIpsRequest,
+          protos.google.monitoring.v3.IListUptimeCheckIpsResponse|null,
+          protos.google.monitoring.v3.IUptimeCheckIp>):
       Promise<[
-        protosTypes.google.monitoring.v3.IUptimeCheckIp[],
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
-        protosTypes.google.monitoring.v3.IListUptimeCheckIpsResponse
+        protos.google.monitoring.v3.IUptimeCheckIp[],
+        protos.google.monitoring.v3.IListUptimeCheckIpsRequest|null,
+        protos.google.monitoring.v3.IListUptimeCheckIpsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -837,7 +874,7 @@ export class UptimeCheckServiceClient {
     }
     options = options || {};
     this.initialize();
-    return this._innerApiCalls.listUptimeCheckIps(request, options, callback);
+    return this.innerApiCalls.listUptimeCheckIps(request, options, callback);
   }
 
 /**
@@ -872,15 +909,15 @@ export class UptimeCheckServiceClient {
  *   An object stream which emits an object representing [UptimeCheckIp]{@link google.monitoring.v3.UptimeCheckIp} on 'data' event.
  */
   listUptimeCheckIpsStream(
-      request?: protosTypes.google.monitoring.v3.IListUptimeCheckIpsRequest,
+      request?: protos.google.monitoring.v3.IListUptimeCheckIpsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.listUptimeCheckIps.createStream(
-      this._innerApiCalls.listUptimeCheckIps as gax.GaxCall,
+    return this.descriptors.page.listUptimeCheckIps.createStream(
+      this.innerApiCalls.listUptimeCheckIps as gax.GaxCall,
       request,
       callSettings
     );
@@ -897,7 +934,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   folderAlertPolicyPath(folder:string,alertPolicy:string) {
-    return this._pathTemplates.folderAlertPolicyPathTemplate.render({
+    return this.pathTemplates.folderAlertPolicyPathTemplate.render({
       folder: folder,
       alert_policy: alertPolicy,
     });
@@ -911,7 +948,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderAlertPolicyName(folderAlertPolicyName: string) {
-    return this._pathTemplates.folderAlertPolicyPathTemplate.match(folderAlertPolicyName).folder;
+    return this.pathTemplates.folderAlertPolicyPathTemplate.match(folderAlertPolicyName).folder;
   }
 
   /**
@@ -922,7 +959,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromFolderAlertPolicyName(folderAlertPolicyName: string) {
-    return this._pathTemplates.folderAlertPolicyPathTemplate.match(folderAlertPolicyName).alert_policy;
+    return this.pathTemplates.folderAlertPolicyPathTemplate.match(folderAlertPolicyName).alert_policy;
   }
 
   /**
@@ -934,7 +971,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   folderAlertPolicyConditionPath(folder:string,alertPolicy:string,condition:string) {
-    return this._pathTemplates.folderAlertPolicyConditionPathTemplate.render({
+    return this.pathTemplates.folderAlertPolicyConditionPathTemplate.render({
       folder: folder,
       alert_policy: alertPolicy,
       condition: condition,
@@ -949,7 +986,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderAlertPolicyConditionName(folderAlertPolicyConditionName: string) {
-    return this._pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).folder;
+    return this.pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).folder;
   }
 
   /**
@@ -960,7 +997,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromFolderAlertPolicyConditionName(folderAlertPolicyConditionName: string) {
-    return this._pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).alert_policy;
+    return this.pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).alert_policy;
   }
 
   /**
@@ -971,7 +1008,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the condition.
    */
   matchConditionFromFolderAlertPolicyConditionName(folderAlertPolicyConditionName: string) {
-    return this._pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).condition;
+    return this.pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).condition;
   }
 
   /**
@@ -982,7 +1019,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   folderChannelDescriptorPath(folder:string,channelDescriptor:string) {
-    return this._pathTemplates.folderChannelDescriptorPathTemplate.render({
+    return this.pathTemplates.folderChannelDescriptorPathTemplate.render({
       folder: folder,
       channel_descriptor: channelDescriptor,
     });
@@ -996,7 +1033,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderChannelDescriptorName(folderChannelDescriptorName: string) {
-    return this._pathTemplates.folderChannelDescriptorPathTemplate.match(folderChannelDescriptorName).folder;
+    return this.pathTemplates.folderChannelDescriptorPathTemplate.match(folderChannelDescriptorName).folder;
   }
 
   /**
@@ -1007,7 +1044,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the channel_descriptor.
    */
   matchChannelDescriptorFromFolderChannelDescriptorName(folderChannelDescriptorName: string) {
-    return this._pathTemplates.folderChannelDescriptorPathTemplate.match(folderChannelDescriptorName).channel_descriptor;
+    return this.pathTemplates.folderChannelDescriptorPathTemplate.match(folderChannelDescriptorName).channel_descriptor;
   }
 
   /**
@@ -1018,7 +1055,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   folderGroupPath(folder:string,group:string) {
-    return this._pathTemplates.folderGroupPathTemplate.render({
+    return this.pathTemplates.folderGroupPathTemplate.render({
       folder: folder,
       group: group,
     });
@@ -1032,7 +1069,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderGroupName(folderGroupName: string) {
-    return this._pathTemplates.folderGroupPathTemplate.match(folderGroupName).folder;
+    return this.pathTemplates.folderGroupPathTemplate.match(folderGroupName).folder;
   }
 
   /**
@@ -1043,7 +1080,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the group.
    */
   matchGroupFromFolderGroupName(folderGroupName: string) {
-    return this._pathTemplates.folderGroupPathTemplate.match(folderGroupName).group;
+    return this.pathTemplates.folderGroupPathTemplate.match(folderGroupName).group;
   }
 
   /**
@@ -1054,7 +1091,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   folderNotificationChannelPath(folder:string,notificationChannel:string) {
-    return this._pathTemplates.folderNotificationChannelPathTemplate.render({
+    return this.pathTemplates.folderNotificationChannelPathTemplate.render({
       folder: folder,
       notification_channel: notificationChannel,
     });
@@ -1068,7 +1105,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderNotificationChannelName(folderNotificationChannelName: string) {
-    return this._pathTemplates.folderNotificationChannelPathTemplate.match(folderNotificationChannelName).folder;
+    return this.pathTemplates.folderNotificationChannelPathTemplate.match(folderNotificationChannelName).folder;
   }
 
   /**
@@ -1079,7 +1116,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the notification_channel.
    */
   matchNotificationChannelFromFolderNotificationChannelName(folderNotificationChannelName: string) {
-    return this._pathTemplates.folderNotificationChannelPathTemplate.match(folderNotificationChannelName).notification_channel;
+    return this.pathTemplates.folderNotificationChannelPathTemplate.match(folderNotificationChannelName).notification_channel;
   }
 
   /**
@@ -1090,7 +1127,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   folderServicePath(folder:string,service:string) {
-    return this._pathTemplates.folderServicePathTemplate.render({
+    return this.pathTemplates.folderServicePathTemplate.render({
       folder: folder,
       service: service,
     });
@@ -1104,7 +1141,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderServiceName(folderServiceName: string) {
-    return this._pathTemplates.folderServicePathTemplate.match(folderServiceName).folder;
+    return this.pathTemplates.folderServicePathTemplate.match(folderServiceName).folder;
   }
 
   /**
@@ -1115,7 +1152,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromFolderServiceName(folderServiceName: string) {
-    return this._pathTemplates.folderServicePathTemplate.match(folderServiceName).service;
+    return this.pathTemplates.folderServicePathTemplate.match(folderServiceName).service;
   }
 
   /**
@@ -1127,7 +1164,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   folderServiceServiceLevelObjectivePath(folder:string,service:string,serviceLevelObjective:string) {
-    return this._pathTemplates.folderServiceServiceLevelObjectivePathTemplate.render({
+    return this.pathTemplates.folderServiceServiceLevelObjectivePathTemplate.render({
       folder: folder,
       service: service,
       service_level_objective: serviceLevelObjective,
@@ -1142,7 +1179,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderServiceServiceLevelObjectiveName(folderServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).folder;
+    return this.pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).folder;
   }
 
   /**
@@ -1153,7 +1190,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromFolderServiceServiceLevelObjectiveName(folderServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).service;
+    return this.pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).service;
   }
 
   /**
@@ -1164,7 +1201,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the service_level_objective.
    */
   matchServiceLevelObjectiveFromFolderServiceServiceLevelObjectiveName(folderServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).service_level_objective;
+    return this.pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).service_level_objective;
   }
 
   /**
@@ -1175,7 +1212,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   folderUptimeCheckConfigPath(folder:string,uptimeCheckConfig:string) {
-    return this._pathTemplates.folderUptimeCheckConfigPathTemplate.render({
+    return this.pathTemplates.folderUptimeCheckConfigPathTemplate.render({
       folder: folder,
       uptime_check_config: uptimeCheckConfig,
     });
@@ -1189,7 +1226,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderUptimeCheckConfigName(folderUptimeCheckConfigName: string) {
-    return this._pathTemplates.folderUptimeCheckConfigPathTemplate.match(folderUptimeCheckConfigName).folder;
+    return this.pathTemplates.folderUptimeCheckConfigPathTemplate.match(folderUptimeCheckConfigName).folder;
   }
 
   /**
@@ -1200,7 +1237,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the uptime_check_config.
    */
   matchUptimeCheckConfigFromFolderUptimeCheckConfigName(folderUptimeCheckConfigName: string) {
-    return this._pathTemplates.folderUptimeCheckConfigPathTemplate.match(folderUptimeCheckConfigName).uptime_check_config;
+    return this.pathTemplates.folderUptimeCheckConfigPathTemplate.match(folderUptimeCheckConfigName).uptime_check_config;
   }
 
   /**
@@ -1211,7 +1248,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   organizationAlertPolicyPath(organization:string,alertPolicy:string) {
-    return this._pathTemplates.organizationAlertPolicyPathTemplate.render({
+    return this.pathTemplates.organizationAlertPolicyPathTemplate.render({
       organization: organization,
       alert_policy: alertPolicy,
     });
@@ -1225,7 +1262,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationAlertPolicyName(organizationAlertPolicyName: string) {
-    return this._pathTemplates.organizationAlertPolicyPathTemplate.match(organizationAlertPolicyName).organization;
+    return this.pathTemplates.organizationAlertPolicyPathTemplate.match(organizationAlertPolicyName).organization;
   }
 
   /**
@@ -1236,7 +1273,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromOrganizationAlertPolicyName(organizationAlertPolicyName: string) {
-    return this._pathTemplates.organizationAlertPolicyPathTemplate.match(organizationAlertPolicyName).alert_policy;
+    return this.pathTemplates.organizationAlertPolicyPathTemplate.match(organizationAlertPolicyName).alert_policy;
   }
 
   /**
@@ -1248,7 +1285,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   organizationAlertPolicyConditionPath(organization:string,alertPolicy:string,condition:string) {
-    return this._pathTemplates.organizationAlertPolicyConditionPathTemplate.render({
+    return this.pathTemplates.organizationAlertPolicyConditionPathTemplate.render({
       organization: organization,
       alert_policy: alertPolicy,
       condition: condition,
@@ -1263,7 +1300,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationAlertPolicyConditionName(organizationAlertPolicyConditionName: string) {
-    return this._pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).organization;
+    return this.pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).organization;
   }
 
   /**
@@ -1274,7 +1311,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromOrganizationAlertPolicyConditionName(organizationAlertPolicyConditionName: string) {
-    return this._pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).alert_policy;
+    return this.pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).alert_policy;
   }
 
   /**
@@ -1285,7 +1322,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the condition.
    */
   matchConditionFromOrganizationAlertPolicyConditionName(organizationAlertPolicyConditionName: string) {
-    return this._pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).condition;
+    return this.pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).condition;
   }
 
   /**
@@ -1296,7 +1333,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   organizationChannelDescriptorPath(organization:string,channelDescriptor:string) {
-    return this._pathTemplates.organizationChannelDescriptorPathTemplate.render({
+    return this.pathTemplates.organizationChannelDescriptorPathTemplate.render({
       organization: organization,
       channel_descriptor: channelDescriptor,
     });
@@ -1310,7 +1347,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationChannelDescriptorName(organizationChannelDescriptorName: string) {
-    return this._pathTemplates.organizationChannelDescriptorPathTemplate.match(organizationChannelDescriptorName).organization;
+    return this.pathTemplates.organizationChannelDescriptorPathTemplate.match(organizationChannelDescriptorName).organization;
   }
 
   /**
@@ -1321,7 +1358,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the channel_descriptor.
    */
   matchChannelDescriptorFromOrganizationChannelDescriptorName(organizationChannelDescriptorName: string) {
-    return this._pathTemplates.organizationChannelDescriptorPathTemplate.match(organizationChannelDescriptorName).channel_descriptor;
+    return this.pathTemplates.organizationChannelDescriptorPathTemplate.match(organizationChannelDescriptorName).channel_descriptor;
   }
 
   /**
@@ -1332,7 +1369,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   organizationGroupPath(organization:string,group:string) {
-    return this._pathTemplates.organizationGroupPathTemplate.render({
+    return this.pathTemplates.organizationGroupPathTemplate.render({
       organization: organization,
       group: group,
     });
@@ -1346,7 +1383,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationGroupName(organizationGroupName: string) {
-    return this._pathTemplates.organizationGroupPathTemplate.match(organizationGroupName).organization;
+    return this.pathTemplates.organizationGroupPathTemplate.match(organizationGroupName).organization;
   }
 
   /**
@@ -1357,7 +1394,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the group.
    */
   matchGroupFromOrganizationGroupName(organizationGroupName: string) {
-    return this._pathTemplates.organizationGroupPathTemplate.match(organizationGroupName).group;
+    return this.pathTemplates.organizationGroupPathTemplate.match(organizationGroupName).group;
   }
 
   /**
@@ -1368,7 +1405,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   organizationNotificationChannelPath(organization:string,notificationChannel:string) {
-    return this._pathTemplates.organizationNotificationChannelPathTemplate.render({
+    return this.pathTemplates.organizationNotificationChannelPathTemplate.render({
       organization: organization,
       notification_channel: notificationChannel,
     });
@@ -1382,7 +1419,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationNotificationChannelName(organizationNotificationChannelName: string) {
-    return this._pathTemplates.organizationNotificationChannelPathTemplate.match(organizationNotificationChannelName).organization;
+    return this.pathTemplates.organizationNotificationChannelPathTemplate.match(organizationNotificationChannelName).organization;
   }
 
   /**
@@ -1393,7 +1430,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the notification_channel.
    */
   matchNotificationChannelFromOrganizationNotificationChannelName(organizationNotificationChannelName: string) {
-    return this._pathTemplates.organizationNotificationChannelPathTemplate.match(organizationNotificationChannelName).notification_channel;
+    return this.pathTemplates.organizationNotificationChannelPathTemplate.match(organizationNotificationChannelName).notification_channel;
   }
 
   /**
@@ -1404,7 +1441,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   organizationServicePath(organization:string,service:string) {
-    return this._pathTemplates.organizationServicePathTemplate.render({
+    return this.pathTemplates.organizationServicePathTemplate.render({
       organization: organization,
       service: service,
     });
@@ -1418,7 +1455,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationServiceName(organizationServiceName: string) {
-    return this._pathTemplates.organizationServicePathTemplate.match(organizationServiceName).organization;
+    return this.pathTemplates.organizationServicePathTemplate.match(organizationServiceName).organization;
   }
 
   /**
@@ -1429,7 +1466,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromOrganizationServiceName(organizationServiceName: string) {
-    return this._pathTemplates.organizationServicePathTemplate.match(organizationServiceName).service;
+    return this.pathTemplates.organizationServicePathTemplate.match(organizationServiceName).service;
   }
 
   /**
@@ -1441,7 +1478,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   organizationServiceServiceLevelObjectivePath(organization:string,service:string,serviceLevelObjective:string) {
-    return this._pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.render({
+    return this.pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.render({
       organization: organization,
       service: service,
       service_level_objective: serviceLevelObjective,
@@ -1456,7 +1493,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationServiceServiceLevelObjectiveName(organizationServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).organization;
+    return this.pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).organization;
   }
 
   /**
@@ -1467,7 +1504,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromOrganizationServiceServiceLevelObjectiveName(organizationServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).service;
+    return this.pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).service;
   }
 
   /**
@@ -1478,7 +1515,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the service_level_objective.
    */
   matchServiceLevelObjectiveFromOrganizationServiceServiceLevelObjectiveName(organizationServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).service_level_objective;
+    return this.pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).service_level_objective;
   }
 
   /**
@@ -1489,7 +1526,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   organizationUptimeCheckConfigPath(organization:string,uptimeCheckConfig:string) {
-    return this._pathTemplates.organizationUptimeCheckConfigPathTemplate.render({
+    return this.pathTemplates.organizationUptimeCheckConfigPathTemplate.render({
       organization: organization,
       uptime_check_config: uptimeCheckConfig,
     });
@@ -1503,7 +1540,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationUptimeCheckConfigName(organizationUptimeCheckConfigName: string) {
-    return this._pathTemplates.organizationUptimeCheckConfigPathTemplate.match(organizationUptimeCheckConfigName).organization;
+    return this.pathTemplates.organizationUptimeCheckConfigPathTemplate.match(organizationUptimeCheckConfigName).organization;
   }
 
   /**
@@ -1514,7 +1551,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the uptime_check_config.
    */
   matchUptimeCheckConfigFromOrganizationUptimeCheckConfigName(organizationUptimeCheckConfigName: string) {
-    return this._pathTemplates.organizationUptimeCheckConfigPathTemplate.match(organizationUptimeCheckConfigName).uptime_check_config;
+    return this.pathTemplates.organizationUptimeCheckConfigPathTemplate.match(organizationUptimeCheckConfigName).uptime_check_config;
   }
 
   /**
@@ -1525,7 +1562,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   projectAlertPolicyPath(project:string,alertPolicy:string) {
-    return this._pathTemplates.projectAlertPolicyPathTemplate.render({
+    return this.pathTemplates.projectAlertPolicyPathTemplate.render({
       project: project,
       alert_policy: alertPolicy,
     });
@@ -1539,7 +1576,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectAlertPolicyName(projectAlertPolicyName: string) {
-    return this._pathTemplates.projectAlertPolicyPathTemplate.match(projectAlertPolicyName).project;
+    return this.pathTemplates.projectAlertPolicyPathTemplate.match(projectAlertPolicyName).project;
   }
 
   /**
@@ -1550,7 +1587,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromProjectAlertPolicyName(projectAlertPolicyName: string) {
-    return this._pathTemplates.projectAlertPolicyPathTemplate.match(projectAlertPolicyName).alert_policy;
+    return this.pathTemplates.projectAlertPolicyPathTemplate.match(projectAlertPolicyName).alert_policy;
   }
 
   /**
@@ -1562,7 +1599,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   projectAlertPolicyConditionPath(project:string,alertPolicy:string,condition:string) {
-    return this._pathTemplates.projectAlertPolicyConditionPathTemplate.render({
+    return this.pathTemplates.projectAlertPolicyConditionPathTemplate.render({
       project: project,
       alert_policy: alertPolicy,
       condition: condition,
@@ -1577,7 +1614,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectAlertPolicyConditionName(projectAlertPolicyConditionName: string) {
-    return this._pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).project;
+    return this.pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).project;
   }
 
   /**
@@ -1588,7 +1625,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromProjectAlertPolicyConditionName(projectAlertPolicyConditionName: string) {
-    return this._pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).alert_policy;
+    return this.pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).alert_policy;
   }
 
   /**
@@ -1599,7 +1636,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the condition.
    */
   matchConditionFromProjectAlertPolicyConditionName(projectAlertPolicyConditionName: string) {
-    return this._pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).condition;
+    return this.pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).condition;
   }
 
   /**
@@ -1610,7 +1647,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   projectChannelDescriptorPath(project:string,channelDescriptor:string) {
-    return this._pathTemplates.projectChannelDescriptorPathTemplate.render({
+    return this.pathTemplates.projectChannelDescriptorPathTemplate.render({
       project: project,
       channel_descriptor: channelDescriptor,
     });
@@ -1624,7 +1661,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectChannelDescriptorName(projectChannelDescriptorName: string) {
-    return this._pathTemplates.projectChannelDescriptorPathTemplate.match(projectChannelDescriptorName).project;
+    return this.pathTemplates.projectChannelDescriptorPathTemplate.match(projectChannelDescriptorName).project;
   }
 
   /**
@@ -1635,7 +1672,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the channel_descriptor.
    */
   matchChannelDescriptorFromProjectChannelDescriptorName(projectChannelDescriptorName: string) {
-    return this._pathTemplates.projectChannelDescriptorPathTemplate.match(projectChannelDescriptorName).channel_descriptor;
+    return this.pathTemplates.projectChannelDescriptorPathTemplate.match(projectChannelDescriptorName).channel_descriptor;
   }
 
   /**
@@ -1646,7 +1683,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   projectGroupPath(project:string,group:string) {
-    return this._pathTemplates.projectGroupPathTemplate.render({
+    return this.pathTemplates.projectGroupPathTemplate.render({
       project: project,
       group: group,
     });
@@ -1660,7 +1697,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectGroupName(projectGroupName: string) {
-    return this._pathTemplates.projectGroupPathTemplate.match(projectGroupName).project;
+    return this.pathTemplates.projectGroupPathTemplate.match(projectGroupName).project;
   }
 
   /**
@@ -1671,7 +1708,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the group.
    */
   matchGroupFromProjectGroupName(projectGroupName: string) {
-    return this._pathTemplates.projectGroupPathTemplate.match(projectGroupName).group;
+    return this.pathTemplates.projectGroupPathTemplate.match(projectGroupName).group;
   }
 
   /**
@@ -1682,7 +1719,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   projectNotificationChannelPath(project:string,notificationChannel:string) {
-    return this._pathTemplates.projectNotificationChannelPathTemplate.render({
+    return this.pathTemplates.projectNotificationChannelPathTemplate.render({
       project: project,
       notification_channel: notificationChannel,
     });
@@ -1696,7 +1733,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectNotificationChannelName(projectNotificationChannelName: string) {
-    return this._pathTemplates.projectNotificationChannelPathTemplate.match(projectNotificationChannelName).project;
+    return this.pathTemplates.projectNotificationChannelPathTemplate.match(projectNotificationChannelName).project;
   }
 
   /**
@@ -1707,7 +1744,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the notification_channel.
    */
   matchNotificationChannelFromProjectNotificationChannelName(projectNotificationChannelName: string) {
-    return this._pathTemplates.projectNotificationChannelPathTemplate.match(projectNotificationChannelName).notification_channel;
+    return this.pathTemplates.projectNotificationChannelPathTemplate.match(projectNotificationChannelName).notification_channel;
   }
 
   /**
@@ -1718,7 +1755,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   projectServicePath(project:string,service:string) {
-    return this._pathTemplates.projectServicePathTemplate.render({
+    return this.pathTemplates.projectServicePathTemplate.render({
       project: project,
       service: service,
     });
@@ -1732,7 +1769,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectServiceName(projectServiceName: string) {
-    return this._pathTemplates.projectServicePathTemplate.match(projectServiceName).project;
+    return this.pathTemplates.projectServicePathTemplate.match(projectServiceName).project;
   }
 
   /**
@@ -1743,7 +1780,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromProjectServiceName(projectServiceName: string) {
-    return this._pathTemplates.projectServicePathTemplate.match(projectServiceName).service;
+    return this.pathTemplates.projectServicePathTemplate.match(projectServiceName).service;
   }
 
   /**
@@ -1755,7 +1792,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   projectServiceServiceLevelObjectivePath(project:string,service:string,serviceLevelObjective:string) {
-    return this._pathTemplates.projectServiceServiceLevelObjectivePathTemplate.render({
+    return this.pathTemplates.projectServiceServiceLevelObjectivePathTemplate.render({
       project: project,
       service: service,
       service_level_objective: serviceLevelObjective,
@@ -1770,7 +1807,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectServiceServiceLevelObjectiveName(projectServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).project;
+    return this.pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).project;
   }
 
   /**
@@ -1781,7 +1818,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromProjectServiceServiceLevelObjectiveName(projectServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).service;
+    return this.pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).service;
   }
 
   /**
@@ -1792,7 +1829,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the service_level_objective.
    */
   matchServiceLevelObjectiveFromProjectServiceServiceLevelObjectiveName(projectServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).service_level_objective;
+    return this.pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).service_level_objective;
   }
 
   /**
@@ -1803,7 +1840,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} Resource name string.
    */
   projectUptimeCheckConfigPath(project:string,uptimeCheckConfig:string) {
-    return this._pathTemplates.projectUptimeCheckConfigPathTemplate.render({
+    return this.pathTemplates.projectUptimeCheckConfigPathTemplate.render({
       project: project,
       uptime_check_config: uptimeCheckConfig,
     });
@@ -1817,7 +1854,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectUptimeCheckConfigName(projectUptimeCheckConfigName: string) {
-    return this._pathTemplates.projectUptimeCheckConfigPathTemplate.match(projectUptimeCheckConfigName).project;
+    return this.pathTemplates.projectUptimeCheckConfigPathTemplate.match(projectUptimeCheckConfigName).project;
   }
 
   /**
@@ -1828,7 +1865,7 @@ export class UptimeCheckServiceClient {
    * @returns {string} A string representing the uptime_check_config.
    */
   matchUptimeCheckConfigFromProjectUptimeCheckConfigName(projectUptimeCheckConfigName: string) {
-    return this._pathTemplates.projectUptimeCheckConfigPathTemplate.match(projectUptimeCheckConfigName).uptime_check_config;
+    return this.pathTemplates.projectUptimeCheckConfigPathTemplate.match(projectUptimeCheckConfigName).uptime_check_config;
   }
 
   /**
