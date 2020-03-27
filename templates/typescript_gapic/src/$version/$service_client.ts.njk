@@ -28,7 +28,7 @@ import * as path from 'path';
 {% if (service.paging.length > 0) %}
 import { Transform } from 'stream';
 {%- endif %}
-import * as protosTypes from '../../protos/protos';
+import * as protos from '../../protos/protos';
 import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json';
 
 const version = require('../../../package.json').version;
@@ -39,11 +39,6 @@ const version = require('../../../package.json').version;
  * @memberof {{ api.naming.version }}
  */
 export class {{ service.name }}Client {
-  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
-  private _innerApiCalls: {[name: string]: Function};
-  {%- if (service.pathTemplates.length > 0) %}
-  private _pathTemplates: {[name: string]: gax.PathTemplate};
-  {%- endif %}
   private _terminated = false;
   private _opts: ClientOptions;
   private _gaxModule: typeof gax | typeof gax.fallback;
@@ -51,6 +46,11 @@ export class {{ service.name }}Client {
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
+  descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
+  innerApiCalls: {[name: string]: Function};
+  {%- if (service.pathTemplates.length > 0) %}
+  pathTemplates: {[name: string]: gax.PathTemplate};
+  {%- endif %}
 {%- if (service.longRunning.length > 0) %}
   operationsClient: gax.OperationsClient;
 {%- endif %}
@@ -141,6 +141,7 @@ export class {{ service.name }}Client {
     const nodejsProtoPath = path.join(__dirname, '..', '..', 'protos', 'protos.json');
     this._protos = this._gaxGrpc.loadProto(
       opts.fallback ?
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require("../../protos/protos.json") :
         nodejsProtoPath
     );
@@ -149,7 +150,7 @@ export class {{ service.name }}Client {
     // This API contains "path templates"; forward-slash-separated
     // identifiers to uniquely identify resources within the API.
     // Create useful helper objects for these.
-    this._pathTemplates = {
+    this.pathTemplates = {
 {%- for template in service.pathTemplates %}
       {{ template.name.toCamelCase() }}PathTemplate: new this._gaxModule.PathTemplate(
         '{{ template.pattern }}'
@@ -163,7 +164,7 @@ export class {{ service.name }}Client {
     // Some of the methods on this service return "paged" results,
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
-    this._descriptors.page = {
+    this.descriptors.page = {
 {%- set pagingJoiner = joiner() %}
 {%- for method in service.paging %}
       {{- pagingJoiner() }}
@@ -177,7 +178,7 @@ export class {{ service.name }}Client {
 
     // Some of the methods on this service provide streaming responses.
     // Provide descriptors for these.
-    this._descriptors.stream = {
+    this.descriptors.stream = {
 {%- set streamingJoiner = joiner() %}
 {%- for method in service.streaming %}
       {{- streamingJoiner() }}
@@ -190,9 +191,10 @@ export class {{ service.name }}Client {
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
-    const protoFilesRoot = opts.fallback?
-      /* eslint-disable @typescript-eslint/no-var-requires */
-      this._gaxModule.protobuf.Root.fromJSON(require("../../protos/protos.json")) :
+    const protoFilesRoot = opts.fallback ?
+      this._gaxModule.protobuf.Root.fromJSON(
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require("../../protos/protos.json")) :
       this._gaxModule.protobuf.loadSync(nodejsProtoPath);
 {% endif %}
 {%- if service.longRunning.length > 0 %}
@@ -208,7 +210,7 @@ export class {{ service.name }}Client {
       '{{ method.longRunningMetadataType }}') as gax.protobuf.Type;
 {%- endfor %}
 
-    this._descriptors.longrunning = {
+    this.descriptors.longrunning = {
 {%- set longRunningJoiner = joiner() %}
 {%- for method in service.longRunning %}
       {{- longRunningJoiner() }}
@@ -224,7 +226,7 @@ export class {{ service.name }}Client {
     // Some methods on this API support automatically batching
     // requests; denote this.
 
-    this._descriptors.batching = {
+    this.descriptors.batching = {
 {%- for method in service.bundleConfigsMethods %}
       {{ method.name }}: new this._gaxModule.BundleDescriptor(
         '{{ method.bundleConfig.batchDescriptor.batched_field }}',
@@ -241,7 +243,7 @@ export class {{ service.name }}Client {
         '{{- method.bundleConfig.batchDescriptor.subresponse_field }}',
 {%- endif %}
         gax.createByteLengthFunction(
-          // tslint:disable-next-line no-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           protoFilesRoot.lookupType('{{ method.bundleConfig.repeatedField }}') as any
         )
       ),
@@ -257,7 +259,7 @@ export class {{ service.name }}Client {
     // Set up a dictionary of "inner API calls"; the core implementation
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
-    this._innerApiCalls = {};
+    this.innerApiCalls = {};
   }
 
   /**
@@ -282,7 +284,7 @@ export class {{ service.name }}Client {
     this.{{ service.name.toCamelCase() }}Stub = this._gaxGrpc.createStub(
         this._opts.fallback ?
           (this._protos as protobuf.Root).lookupService('{{api.naming.protoPackage}}.{{ service.name }}') :
-          /* eslint-disable @typescript-eslint/no-explicit-any */
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).{{api.naming.protoPackage}}.{{ service.name }},
         this._opts) as Promise<{[method: string]: Function}>;
 
@@ -313,12 +315,12 @@ export class {{ service.name }}Client {
       const apiCall = this._gaxModule.createApiCall(
         innerCallPromise,
         this._defaults[methodName],
-        this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] ||
-            this._descriptors.longrunning[methodName]
+        this.descriptors.page[methodName] ||
+            this.descriptors.stream[methodName] ||
+            this.descriptors.longrunning[methodName]
       );
 
-      this._innerApiCalls[methodName] = (
+      this.innerApiCalls[methodName] = (
         argument: {},
         callOptions?: CallOptions,
         callback?: APICallback
@@ -405,6 +407,12 @@ export class {{ service.name }}Client {
           {{ util.toInterface(method.outputInterface) }},
           {{ util.toInterface(method.inputInterface) }}|undefined,
           {}|undefined>): void;
+  {{ method.name.toCamelCase() }}(
+      request: {{ util.toInterface(method.inputInterface) }},
+      callback: Callback<
+          {{ util.toInterface(method.outputInterface) }},
+          {{ util.toInterface(method.inputInterface) }}|undefined,
+          {}|undefined>): void;
 /**
 {{- util.printComments(method, service) }}
  */
@@ -432,7 +440,7 @@ export class {{ service.name }}Client {
     }
     {{ util.buildHeaderRequestParam(method) }}
     this.initialize();
-    return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
 {%- endfor %}
 {% for method in service.streaming %}
@@ -444,7 +452,7 @@ export class {{ service.name }}Client {
       options?: gax.CallOptions):
     gax.CancellableStream {
     this.initialize();
-    return this._innerApiCalls.{{ method.name.toCamelCase() }}(options);
+    return this.innerApiCalls.{{ method.name.toCamelCase() }}(options);
   }
 {%- elif method.serverStreaming %}
 /**
@@ -457,7 +465,7 @@ export class {{ service.name }}Client {
     request = request || {};
     {{ util.buildHeaderRequestParam(method) }}
     this.initialize();
-    return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options);
+    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options);
   }
 {%- elif method.clientStreaming %}
   {{ method.name.toCamelCase() }}(
@@ -488,7 +496,7 @@ export class {{ service.name }}Client {
     }
     const options = optionsOrCallback as gax.CallOptions;
     this.initialize();
-    return this._innerApiCalls.{{ method.name.toCamelCase() }}(null, options, callback);
+    return this.innerApiCalls.{{ method.name.toCamelCase() }}(null, options, callback);
   }
 {%- endif %}
 {% endfor %}
@@ -503,6 +511,12 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
       options: gax.CallOptions,
+      callback: Callback<
+          LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
+          {{ util.toInterface(method.outputInterface) }}|undefined,
+          {}|undefined>): void;
+  {{ method.name.toCamelCase() }}(
+      request: {{ util.toInterface(method.inputInterface) }},
       callback: Callback<
           LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
           {{ util.toInterface(method.outputInterface) }}|undefined,
@@ -534,7 +548,7 @@ export class {{ service.name }}Client {
     }
     {{ util.buildHeaderRequestParam(method) }}
     this.initialize();
-    return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
 {%- endfor %}
 {%- for method in service.paging %}
@@ -550,22 +564,28 @@ export class {{ service.name }}Client {
       request: {{ util.toInterface(method.inputInterface) }},
       options: gax.CallOptions,
       callback: PaginationCallback<
-          {{ util.toInterface(method.pagingResponseType) }}[],
-          {{ util.toInterface(method.inputInterface) }}|null,
-          {{ util.toInterface(method.outputInterface) }}>): void;
+          {{ util.toInterface(method.inputInterface) }},
+          {{ util.toInterface(method.outputInterface) }}|null,
+          {{ util.toInterface(method.pagingResponseType) }}>): void;
+  {{ method.name.toCamelCase() }}(
+      request: {{ util.toInterface(method.inputInterface) }},
+      callback: PaginationCallback<
+          {{ util.toInterface(method.inputInterface) }},
+          {{ util.toInterface(method.outputInterface) }}|null,
+          {{ util.toInterface(method.pagingResponseType) }}>): void;
 /**
 {{- util.printComments(method, service) }}
  */
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          {{ util.toInterface(method.pagingResponseType) }}[],
-          {{ util.toInterface(method.inputInterface) }}|null,
-          {{ util.toInterface(method.outputInterface) }}>,
+          {{ util.toInterface(method.inputInterface) }},
+          {{ util.toInterface(method.outputInterface) }}|null,
+          {{ util.toInterface(method.pagingResponseType) }}>,
       callback?: PaginationCallback<
-          {{ util.toInterface(method.pagingResponseType) }}[],
-          {{ util.toInterface(method.inputInterface) }}|null,
-          {{ util.toInterface(method.outputInterface) }}>):
+          {{ util.toInterface(method.inputInterface) }},
+          {{ util.toInterface(method.outputInterface) }}|null,
+          {{ util.toInterface(method.pagingResponseType) }}>):
       Promise<[
         {{ util.toInterface(method.pagingResponseType) }}[],
         {{ util.toInterface(method.inputInterface) }}|null,
@@ -582,7 +602,7 @@ export class {{ service.name }}Client {
     }
     {{ util.buildHeaderRequestParam(method) }}
     this.initialize();
-    return this._innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
 
 /**
@@ -596,8 +616,8 @@ export class {{ service.name }}Client {
     {{ util.buildHeaderRequestParam(method) }}
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.{{ method.name.toCamelCase() }}.createStream(
-      this._innerApiCalls.{{ method.name.toCamelCase() }} as gax.GaxCall,
+    return this.descriptors.page.{{ method.name.toCamelCase() }}.createStream(
+      this.innerApiCalls.{{ method.name.toCamelCase() }} as gax.GaxCall,
       request,
       callSettings
     );
@@ -623,7 +643,7 @@ export class {{ service.name }}Client {
 {{-paramJoiner()-}}{{ param.toCamelCase() }}:string
 {%- endfor -%}
   ) {
-    return this._pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.render({
+    return this.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.render({
 {%- for param in template.params %}
       {{ param }}: {{ param.toCamelCase() }},
 {%- endfor %}
@@ -639,7 +659,7 @@ export class {{ service.name }}Client {
    * @returns {string} A string representing the {{ param }}.
    */
   match{{ param.toPascalCase() }}From{{ template.name.toPascalCase() }}Name({{ template.name.toCamelCase() }}Name: string) {
-    return this._pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match({{ template.name.toCamelCase() }}Name).{{ param }};
+    return this.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match({{ template.name.toCamelCase() }}Name).{{ param }};
   }
 {%- endfor %}
 {%- endfor %}

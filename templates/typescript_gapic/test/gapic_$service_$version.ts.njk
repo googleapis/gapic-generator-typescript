@@ -1,0 +1,706 @@
+{#-
+
+Copyright 2019 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-#}
+{% import "../_license.njk" as license -%}
+{% import "../_util.njk" as util -%}
+{{license.license(commonParameters.copyrightYear)}}
+import * as protos from '../protos/protos';
+import * as assert from 'assert';
+import * as sinon from 'sinon';
+import {SinonStub} from 'sinon';
+import { describe, it } from 'mocha';
+import * as {{ service.name.toLowerCase() }}Module from '../src';
+{% if (service.streaming.length + service.paging.length > 0) %}
+import {PassThrough} from 'stream';
+{% endif %}
+import {protobuf
+{%- if (service.longRunning.length > 0) -%}
+, LROperation
+{%- endif -%}
+} from 'google-gax';
+
+function generateSampleMessage<T extends object>(instance: T) {
+    const filledObject = (instance.constructor as typeof protobuf.Message)
+        .toObject(instance as protobuf.Message<T>, {defaults: true});
+    return (instance.constructor as typeof protobuf.Message).fromObject(filledObject) as T;
+}
+{%- if (service.simpleMethods.length + service.paging.length > 0) %}
+
+function stubSimpleCall<ResponseType>(response?: ResponseType, error?: Error) {
+    return error ? sinon.stub().rejects(error) : sinon.stub().resolves([response]);
+}
+
+function stubSimpleCallWithCallback<ResponseType>(response?: ResponseType, error?: Error) {
+    return error ? sinon.stub().callsArgWith(2, error) : sinon.stub().callsArgWith(2, null, response);
+}
+{%- endif %}
+{%- if (service.serverStreaming.length > 0) %}
+
+function stubServerStreamingCall<ResponseType>(response?: ResponseType, error?: Error) {
+    const transformStub = error ? sinon.stub().callsArgWith(2, error) : sinon.stub().callsArgWith(2, null, response);
+    const mockStream = new PassThrough({
+        objectMode: true,
+        transform: transformStub,
+    });
+    // write something to the stream to trigger transformStub and send the response back to the client
+    setImmediate(() => { mockStream.write({}); });
+    setImmediate(() => { mockStream.end(); });
+    return sinon.stub().returns(mockStream);
+}
+{%- endif %}
+{%- if (service.bidiStreaming.length > 0) %}
+
+function stubBidiStreamingCall<ResponseType>(response?: ResponseType, error?: Error) {
+    const transformStub = error ? sinon.stub().callsArgWith(2, error) : sinon.stub().callsArgWith(2, null, response);
+    const mockStream = new PassThrough({
+        objectMode: true,
+        transform: transformStub,
+    });
+    return sinon.stub().returns(mockStream);
+}
+{%- endif %}
+{%- if (service.clientStreaming.length > 0) %}
+
+function stubClientStreamingCall<ResponseType>(response?: ResponseType, error?: Error) {
+    if (error) {
+        return sinon.stub().callsArgWith(2, error);
+    }
+    const transformStub = sinon.stub();
+    const mockStream = new PassThrough({
+        objectMode: true,
+        transform: transformStub,
+    });
+    return sinon.stub().returns(mockStream).callsArgWith(2, null, response);
+}
+{%- endif %}
+{%- if (service.longRunning.length > 0) %}
+
+function stubLongRunningCall<ResponseType>(response?: ResponseType, callError?: Error, lroError?: Error) {
+    const innerStub = lroError ? sinon.stub().rejects(lroError) : sinon.stub().resolves([response]);
+    const mockOperation = {
+        promise: innerStub,
+    };
+    return callError ? sinon.stub().rejects(callError) : sinon.stub().resolves([mockOperation]);
+}
+
+function stubLongRunningCallWithCallback<ResponseType>(response?: ResponseType, callError?: Error, lroError?: Error) {
+    const innerStub = lroError ? sinon.stub().rejects(lroError) : sinon.stub().resolves([response]);
+    const mockOperation = {
+        promise: innerStub,
+    };
+    return callError ? sinon.stub().callsArgWith(2, callError) : sinon.stub().callsArgWith(2, null, mockOperation);
+}
+{%- endif %}
+{%- if (service.paging.length > 0) %}
+
+function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    const pagingStub = sinon.stub();
+    if (responses) {
+        for (let i = 0; i < responses.length; ++i) {
+            pagingStub.onCall(i).callsArgWith(2, null, responses[i]);
+        }
+    }
+    const transformStub = error ? sinon.stub().callsArgWith(2, error) : pagingStub;
+    const mockStream = new PassThrough({
+        objectMode: true,
+        transform: transformStub,
+    });
+    // trigger as many responses as needed
+    if (responses) {
+        for (let i = 0; i < responses.length; ++i) {
+            setImmediate(() => { mockStream.write({}); });
+        }
+        setImmediate(() => { mockStream.end(); });
+    } else {
+        setImmediate(() => { mockStream.write({}); });
+        setImmediate(() => { mockStream.end(); });
+    }
+    return sinon.stub().returns(mockStream);
+}
+{%- endif %}
+
+describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
+    it('has servicePath', () => {
+        const servicePath = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.servicePath;
+        assert(servicePath);
+    });
+
+    it('has apiEndpoint', () => {
+        const apiEndpoint = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.apiEndpoint;
+        assert(apiEndpoint);
+    });
+
+    it('has port', () => {
+        const port = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.port;
+        assert(port);
+        assert(typeof port === 'number');
+    });
+
+    it('should create a client with no option', () => {
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client();
+        assert(client);
+    });
+
+    it('should create a client with gRPC fallback', () => {
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            fallback: true,
+        });
+        assert(client);
+    });
+
+    it('has initialize method and supports deferred initialization', async () => {
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            credentials: { client_email: 'bogus', private_key: 'bogus' },
+            projectId: 'bogus',
+        });
+        assert.strictEqual(client.{{ service.name.toCamelCase() }}Stub, undefined);
+        await client.initialize();
+        assert(client.{{ service.name.toCamelCase() }}Stub);
+    });
+
+    it('has close method', () => {
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            credentials: { client_email: 'bogus', private_key: 'bogus' },
+            projectId: 'bogus',
+        });
+        client.close();
+    });
+
+    it('has getProjectId method', async () => {
+        const fakeProjectId = 'fake-project-id';
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            credentials: { client_email: 'bogus', private_key: 'bogus' },
+            projectId: 'bogus',
+        });
+        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);   
+        const result = await client.getProjectId();
+        assert.strictEqual(result, fakeProjectId);
+        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+    });
+
+    it('has getProjectId method with callback', async () => {
+        const fakeProjectId = 'fake-project-id';
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            credentials: { client_email: 'bogus', private_key: 'bogus' },
+            projectId: 'bogus',
+        });
+        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+        const promise = new Promise((resolve, reject) => {
+            client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(projectId);
+                }
+            });
+        });
+        const result = await promise;
+        assert.strictEqual(result, fakeProjectId);
+    });
+
+{%- for method in service.simpleMethods %}
+
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCall(expectedResponse);
+            const [response] = await client.{{ method.name.toCamelCase() }}(request);
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.{{ method.name.toCamelCase() }}(
+                    request,
+                    (err?: Error|null, result?: {{ util.toInterface(method.outputInterface) }}|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            const expectedError = new Error('expected');
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCall(undefined, expectedError);
+            assert.rejects(async () => { await client.{{ method.name.toCamelCase() }}(request); }, expectedError);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+    });
+{%- endfor %}
+{%- for method in service.longRunning %}
+
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(expectedResponse);
+            const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+            const [response] = await operation.promise();
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.{{ method.name.toCamelCase() }}(
+                    request,
+                    (err?: Error|null, 
+                     result?: LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>|null
+                    ) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const operation = await promise as LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>;
+            const [response] = await operation.promise();
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} with call error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            const expectedError = new Error('expected');
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(undefined, expectedError);
+            assert.rejects(async () => { await client.{{ method.name.toCamelCase() }}(request); }, expectedError);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} with LRO error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            const expectedError = new Error('expected');
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(undefined, undefined, expectedError);
+            const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+            assert.rejects(async () => { await operation.promise(); }, expectedError);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+    });
+{%- endfor %}
+{%- for method in service.serverStreaming %}
+
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubServerStreamingCall(expectedResponse);
+            const stream = client.{{ method.name.toCamelCase() }}(request);
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos{{ method.outputInterface }}) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            const expectedError = new Error('expected');
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubServerStreamingCall(undefined, expectedError);
+            const stream = client.{{ method.name.toCamelCase() }}(request);
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos{{ method.outputInterface }}) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+            });
+            assert.rejects(async () => { await promise; }, expectedError);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions));
+        });
+    });
+{%- endfor %}
+{%- for method in service.bidiStreaming %}
+
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubBidiStreamingCall(expectedResponse);
+            const stream = client.{{ method.name.toCamelCase() }}();
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos{{ method.outputInterface }}) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+                stream.write(request);
+                stream.end();
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWithExactly(undefined));
+            assert.deepStrictEqual(((stream as unknown as PassThrough)
+                ._transform as SinonStub).getCall(0).args[0], request);
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            const expectedError = new Error('expected');
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubBidiStreamingCall(undefined, expectedError);
+            const stream = client.{{ method.name.toCamelCase() }}();
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos{{ method.outputInterface }}) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+                stream.write(request);
+                stream.end();
+            });
+            assert.rejects(async () => { await promise; }, expectedError);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWithExactly(undefined));
+            assert.deepStrictEqual(((stream as unknown as PassThrough)
+                ._transform as SinonStub).getCall(0).args[0], request);
+        });
+    });
+{%- endfor %}
+{%- for method in service.clientStreaming %}
+
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubClientStreamingCall(expectedResponse);
+            let stream: PassThrough;
+            const promise = new Promise((resolve, reject) => {
+                stream = client.{{ method.name.toCamelCase() }}(
+                    (err?: Error|null, result?: {{ util.toInterface(method.outputInterface) }}|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    }) as unknown as PassThrough;
+                stream.write(request);
+                stream.end();
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(null, {} /*, callback defined above */));
+            assert.deepStrictEqual((stream!._transform as SinonStub).getCall(0).args[0], request);
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const expectedError = new Error('expected');
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubClientStreamingCall(undefined, expectedError);
+            let stream: PassThrough;
+            const promise = new Promise((resolve, reject) => {
+                stream = client.{{ method.name.toCamelCase() }}(
+                    (err?: Error|null, result?: {{ util.toInterface(method.outputInterface) }}|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    }) as unknown as PassThrough;
+                stream.write(request);
+                stream.end();
+            });
+            assert.rejects(async () => { await promise; }, expectedError);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(null, {} /*, callback defined above */));
+        });
+    });
+{%- endfor %}
+{%- for method in service.paging %}
+
+    describe('{{ method.name.toCamelCase() }}', () => {
+        it('invokes {{ method.name.toCamelCase() }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            {{ util.initPagingResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCall(expectedResponse);
+            const [response] = await client.{{ method.name.toCamelCase() }}(request);
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            {{ util.initPagingResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.{{ method.name.toCamelCase() }}(
+                    request,
+                    (err?: Error|null, result?: {{ util.toInterface(method.pagingResponseType) }}[]|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            const expectedError = new Error('expected');
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCall(undefined, expectedError);
+            assert.rejects(async () => { await client.{{ method.name.toCamelCase() }}(request); }, expectedError);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }}Stream without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) }}
+            {{ util.initPagingResponse(method) }}
+            client.descriptors.page.{{ method.name.toCamelCase() }}.createStream = stubPageStreamingCall(expectedResponse);
+            const stream = client.{{ method.name.toCamelCase() }}Stream(request);
+            const promise = new Promise((resolve, reject) => {
+                const responses: protos{{ method.pagingResponseType }}[] = [];
+                stream.on('data', (response: protos{{ method.pagingResponseType }}) => {
+                    responses.push(response);
+                });
+                stream.on('end', () => {
+                    resolve(responses);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+            });
+            const responses = await promise;
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert((client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
+                .getCall(0).calledWith(client.innerApiCalls.{{ method.name.toCamelCase() }}, request));
+{%- if method.headerRequestParams.length > 0 %}
+            assert.deepStrictEqual(
+                (client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+{%- endif %}
+        });
+
+        it('invokes {{ method.name.toCamelCase() }}Stream with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) }}
+            const expectedError = new Error('expected');
+            client.descriptors.page.{{ method.name.toCamelCase() }}.createStream = stubPageStreamingCall(undefined, expectedError);
+            const stream = client.{{ method.name.toCamelCase() }}Stream(request);
+            const promise = new Promise((resolve, reject) => {
+                const responses: protos{{ method.pagingResponseType }}[] = [];
+                stream.on('data', (response: protos{{ method.pagingResponseType }}) => {
+                    responses.push(response);
+                });
+                stream.on('end', () => {
+                    resolve(responses);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+            });
+            assert.rejects(async () => { await promise; }, expectedError);
+            assert((client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
+                .getCall(0).calledWith(client.innerApiCalls.{{ method.name.toCamelCase() }}, request));
+{%- if method.headerRequestParams.length > 0 %}
+            assert.deepStrictEqual(
+                (client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+{%- endif %}
+        });
+    });
+{%- endfor %}
+{%- if (service.pathTemplates.length > 0) %}
+
+    describe('Path templates', () => {
+{%- for template in service.pathTemplates %}
+
+        describe('{{ template.name.toCamelCase() }}', () => {
+            const fakePath = "/rendered/path/{{ template.name.toCamelCase() }}";
+            const expectedParameters = {
+{%- set callParameters = "" -%}
+{%- set callParametersJoiner = joiner(", ") -%}
+{%- for param in template.params %}
+                {{ param }}: "{{ param.toCamelCase() }}Value",
+{%- set callParameters = callParameters + callParametersJoiner() + '"' + param.toCamelCase() + 'Value"' %}
+{%- endfor %}
+            };
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.render = 
+                sinon.stub().returns(fakePath);
+            client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match = 
+                sinon.stub().returns(expectedParameters);
+
+            it('{{ template.name.toCamelCase() }}Path', () => {
+                const result = client.{{ template.name.toCamelCase() }}Path({{ callParameters | safe }});
+                assert.strictEqual(result, fakePath);
+                assert((client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.render as SinonStub)
+                    .getCall(-1).calledWith(expectedParameters));
+            });
+{%- for param in template.params %}
+
+            it('match{{ param.toPascalCase() }}From{{ template.name.toPascalCase() }}Name', () => {
+                const result = client.match{{ param.toPascalCase() }}From{{ template.name.toPascalCase() }}Name(fakePath);
+                assert.strictEqual(result, "{{ param.toCamelCase() }}Value");
+                assert((client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
+{%- endfor %}
+        });
+{%- endfor %}
+    });
+{%- endif %}
+});

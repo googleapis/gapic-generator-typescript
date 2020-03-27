@@ -203,17 +203,50 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endmacro -%}
 
 {%- macro initRequestWithHeaderParam(method) -%}
-            const request: {{ toInterface(method.inputInterface) }} = {};
+            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
 {%- if method.headerRequestParams.length > 0 %}
+{%- set expectedRequestParamJoiner = joiner("&") -%}
+{%- set expectedRequestParams = "" %}
 {%- for requestParam in method.headerRequestParams %}
 {%- set chain = "request" -%}
+{%- set originalName = "" -%}
 {%- for field in requestParam.slice(0, -1) %}
             {{ chain }}.{{ field.toCamelCase() }} = {};
 {%- set chain = chain + "." + field.toCamelCase() -%}
+{%- set originalName = originalName + field + "." -%}
 {%- endfor %}
             {{ chain }}.{{ requestParam.slice(-1)[0].toCamelCase() }} = '';
+{%- set expectedRequestParams = expectedRequestParams + expectedRequestParamJoiner() + 
+                                originalName + requestParam.slice(-1)[0] + "=" -%}
 {%- endfor %}
+            const expectedHeaderRequestParams = "{{ expectedRequestParams | safe }}";
 {%- endif %}
+{%- endmacro -%}
+
+{%- macro initRequestOptions(method) -%}
+{%- if method.headerRequestParams.length > 0 %}
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+{%- else %}
+            const expectedOptions = {};
+{%- endif %}
+{%- endmacro -%}
+
+{%- macro initResponse(method) -%}
+            const expectedResponse = generateSampleMessage(new protos{{ method.outputInterface }}());
+{%- endmacro -%}
+
+{%- macro initPagingResponse(method) -%}
+            const expectedResponse = [
+              generateSampleMessage(new protos{{ method.pagingResponseType }}()),
+              generateSampleMessage(new protos{{ method.pagingResponseType }}()),
+              generateSampleMessage(new protos{{ method.pagingResponseType }}()),
+            ];
 {%- endmacro -%}
 
 {%- macro typescriptType(protobufType) -%}
@@ -239,7 +272,7 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {{ tsType }}
 {%- else -%}
 {%- set index = type.lastIndexOf('.') -%}
-protosTypes{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
+protos{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
 {%- endif -%}
 {%- endmacro -%}
 

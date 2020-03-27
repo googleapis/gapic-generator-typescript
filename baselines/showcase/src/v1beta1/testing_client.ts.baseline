@@ -21,7 +21,7 @@ import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, Paginati
 import * as path from 'path';
 
 import { Transform } from 'stream';
-import * as protosTypes from '../../protos/protos';
+import * as protos from '../../protos/protos';
 import * as gapicConfig from './testing_client_config.json';
 
 const version = require('../../../package.json').version;
@@ -33,9 +33,6 @@ const version = require('../../../package.json').version;
  * @memberof v1beta1
  */
 export class TestingClient {
-  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
-  private _innerApiCalls: {[name: string]: Function};
-  private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   private _opts: ClientOptions;
   private _gaxModule: typeof gax | typeof gax.fallback;
@@ -43,6 +40,9 @@ export class TestingClient {
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
+  descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
+  innerApiCalls: {[name: string]: Function};
+  pathTemplates: {[name: string]: gax.PathTemplate};
   testingStub?: Promise<{[name: string]: Function}>;
 
   /**
@@ -130,6 +130,7 @@ export class TestingClient {
     const nodejsProtoPath = path.join(__dirname, '..', '..', 'protos', 'protos.json');
     this._protos = this._gaxGrpc.loadProto(
       opts.fallback ?
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require("../../protos/protos.json") :
         nodejsProtoPath
     );
@@ -137,7 +138,7 @@ export class TestingClient {
     // This API contains "path templates"; forward-slash-separated
     // identifiers to uniquely identify resources within the API.
     // Create useful helper objects for these.
-    this._pathTemplates = {
+    this.pathTemplates = {
       blueprintPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}/tests/{test}/blueprints/{blueprint}'
       ),
@@ -164,7 +165,7 @@ export class TestingClient {
     // Some of the methods on this service return "paged" results,
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
-    this._descriptors.page = {
+    this.descriptors.page = {
       listSessions:
           new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'sessions'),
       listTests:
@@ -179,7 +180,7 @@ export class TestingClient {
     // Set up a dictionary of "inner API calls"; the core implementation
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
-    this._innerApiCalls = {};
+    this.innerApiCalls = {};
   }
 
   /**
@@ -204,7 +205,7 @@ export class TestingClient {
     this.testingStub = this._gaxGrpc.createStub(
         this._opts.fallback ?
           (this._protos as protobuf.Root).lookupService('google.showcase.v1beta1.Testing') :
-          /* eslint-disable @typescript-eslint/no-explicit-any */
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).google.showcase.v1beta1.Testing,
         this._opts) as Promise<{[method: string]: Function}>;
 
@@ -229,12 +230,12 @@ export class TestingClient {
       const apiCall = this._gaxModule.createApiCall(
         innerCallPromise,
         this._defaults[methodName],
-        this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] ||
-            this._descriptors.longrunning[methodName]
+        this.descriptors.page[methodName] ||
+            this.descriptors.stream[methodName] ||
+            this.descriptors.longrunning[methodName]
       );
 
-      this._innerApiCalls[methodName] = (
+      this.innerApiCalls[methodName] = (
         argument: {},
         callOptions?: CallOptions,
         callback?: APICallback
@@ -296,18 +297,24 @@ export class TestingClient {
   // -- Service calls --
   // -------------------
   createSession(
-      request: protosTypes.google.showcase.v1beta1.ICreateSessionRequest,
+      request: protos.google.showcase.v1beta1.ICreateSessionRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.ISession,
-        protosTypes.google.showcase.v1beta1.ICreateSessionRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.ISession,
+        protos.google.showcase.v1beta1.ICreateSessionRequest|undefined, {}|undefined
       ]>;
   createSession(
-      request: protosTypes.google.showcase.v1beta1.ICreateSessionRequest,
+      request: protos.google.showcase.v1beta1.ICreateSessionRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.ISession,
-          protosTypes.google.showcase.v1beta1.ICreateSessionRequest|undefined,
+          protos.google.showcase.v1beta1.ISession,
+          protos.google.showcase.v1beta1.ICreateSessionRequest|undefined,
+          {}|undefined>): void;
+  createSession(
+      request: protos.google.showcase.v1beta1.ICreateSessionRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.ISession,
+          protos.google.showcase.v1beta1.ICreateSessionRequest|undefined,
           {}|undefined>): void;
 /**
  * Creates a new testing session.
@@ -325,17 +332,17 @@ export class TestingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   createSession(
-      request: protosTypes.google.showcase.v1beta1.ICreateSessionRequest,
+      request: protos.google.showcase.v1beta1.ICreateSessionRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.ISession,
-          protosTypes.google.showcase.v1beta1.ICreateSessionRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.ISession,
+          protos.google.showcase.v1beta1.ICreateSessionRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.ISession,
-          protosTypes.google.showcase.v1beta1.ICreateSessionRequest|undefined,
+          protos.google.showcase.v1beta1.ISession,
+          protos.google.showcase.v1beta1.ICreateSessionRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.ISession,
-        protosTypes.google.showcase.v1beta1.ICreateSessionRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.ISession,
+        protos.google.showcase.v1beta1.ICreateSessionRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -348,21 +355,27 @@ export class TestingClient {
     }
     options = options || {};
     this.initialize();
-    return this._innerApiCalls.createSession(request, options, callback);
+    return this.innerApiCalls.createSession(request, options, callback);
   }
   getSession(
-      request: protosTypes.google.showcase.v1beta1.IGetSessionRequest,
+      request: protos.google.showcase.v1beta1.IGetSessionRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.ISession,
-        protosTypes.google.showcase.v1beta1.IGetSessionRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.ISession,
+        protos.google.showcase.v1beta1.IGetSessionRequest|undefined, {}|undefined
       ]>;
   getSession(
-      request: protosTypes.google.showcase.v1beta1.IGetSessionRequest,
+      request: protos.google.showcase.v1beta1.IGetSessionRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.ISession,
-          protosTypes.google.showcase.v1beta1.IGetSessionRequest|undefined,
+          protos.google.showcase.v1beta1.ISession,
+          protos.google.showcase.v1beta1.IGetSessionRequest|undefined,
+          {}|undefined>): void;
+  getSession(
+      request: protos.google.showcase.v1beta1.IGetSessionRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.ISession,
+          protos.google.showcase.v1beta1.IGetSessionRequest|undefined,
           {}|undefined>): void;
 /**
  * Gets a testing session.
@@ -378,17 +391,17 @@ export class TestingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   getSession(
-      request: protosTypes.google.showcase.v1beta1.IGetSessionRequest,
+      request: protos.google.showcase.v1beta1.IGetSessionRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.ISession,
-          protosTypes.google.showcase.v1beta1.IGetSessionRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.ISession,
+          protos.google.showcase.v1beta1.IGetSessionRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.ISession,
-          protosTypes.google.showcase.v1beta1.IGetSessionRequest|undefined,
+          protos.google.showcase.v1beta1.ISession,
+          protos.google.showcase.v1beta1.IGetSessionRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.ISession,
-        protosTypes.google.showcase.v1beta1.IGetSessionRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.ISession,
+        protos.google.showcase.v1beta1.IGetSessionRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -408,21 +421,27 @@ export class TestingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.getSession(request, options, callback);
+    return this.innerApiCalls.getSession(request, options, callback);
   }
   deleteSession(
-      request: protosTypes.google.showcase.v1beta1.IDeleteSessionRequest,
+      request: protos.google.showcase.v1beta1.IDeleteSessionRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.showcase.v1beta1.IDeleteSessionRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteSessionRequest|undefined, {}|undefined
       ]>;
   deleteSession(
-      request: protosTypes.google.showcase.v1beta1.IDeleteSessionRequest,
+      request: protos.google.showcase.v1beta1.IDeleteSessionRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteSessionRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteSessionRequest|undefined,
+          {}|undefined>): void;
+  deleteSession(
+      request: protos.google.showcase.v1beta1.IDeleteSessionRequest,
+      callback: Callback<
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteSessionRequest|undefined,
           {}|undefined>): void;
 /**
  * Delete a test session.
@@ -438,17 +457,17 @@ export class TestingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   deleteSession(
-      request: protosTypes.google.showcase.v1beta1.IDeleteSessionRequest,
+      request: protos.google.showcase.v1beta1.IDeleteSessionRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteSessionRequest|undefined, {}|undefined>,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteSessionRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteSessionRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteSessionRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.showcase.v1beta1.IDeleteSessionRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteSessionRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -468,21 +487,27 @@ export class TestingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.deleteSession(request, options, callback);
+    return this.innerApiCalls.deleteSession(request, options, callback);
   }
   reportSession(
-      request: protosTypes.google.showcase.v1beta1.IReportSessionRequest,
+      request: protos.google.showcase.v1beta1.IReportSessionRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IReportSessionResponse,
-        protosTypes.google.showcase.v1beta1.IReportSessionRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IReportSessionResponse,
+        protos.google.showcase.v1beta1.IReportSessionRequest|undefined, {}|undefined
       ]>;
   reportSession(
-      request: protosTypes.google.showcase.v1beta1.IReportSessionRequest,
+      request: protos.google.showcase.v1beta1.IReportSessionRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IReportSessionResponse,
-          protosTypes.google.showcase.v1beta1.IReportSessionRequest|undefined,
+          protos.google.showcase.v1beta1.IReportSessionResponse,
+          protos.google.showcase.v1beta1.IReportSessionRequest|undefined,
+          {}|undefined>): void;
+  reportSession(
+      request: protos.google.showcase.v1beta1.IReportSessionRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IReportSessionResponse,
+          protos.google.showcase.v1beta1.IReportSessionRequest|undefined,
           {}|undefined>): void;
 /**
  * Report on the status of a session.
@@ -500,17 +525,17 @@ export class TestingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   reportSession(
-      request: protosTypes.google.showcase.v1beta1.IReportSessionRequest,
+      request: protos.google.showcase.v1beta1.IReportSessionRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IReportSessionResponse,
-          protosTypes.google.showcase.v1beta1.IReportSessionRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IReportSessionResponse,
+          protos.google.showcase.v1beta1.IReportSessionRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IReportSessionResponse,
-          protosTypes.google.showcase.v1beta1.IReportSessionRequest|undefined,
+          protos.google.showcase.v1beta1.IReportSessionResponse,
+          protos.google.showcase.v1beta1.IReportSessionRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IReportSessionResponse,
-        protosTypes.google.showcase.v1beta1.IReportSessionRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IReportSessionResponse,
+        protos.google.showcase.v1beta1.IReportSessionRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -530,21 +555,27 @@ export class TestingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.reportSession(request, options, callback);
+    return this.innerApiCalls.reportSession(request, options, callback);
   }
   deleteTest(
-      request: protosTypes.google.showcase.v1beta1.IDeleteTestRequest,
+      request: protos.google.showcase.v1beta1.IDeleteTestRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.showcase.v1beta1.IDeleteTestRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteTestRequest|undefined, {}|undefined
       ]>;
   deleteTest(
-      request: protosTypes.google.showcase.v1beta1.IDeleteTestRequest,
+      request: protos.google.showcase.v1beta1.IDeleteTestRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteTestRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteTestRequest|undefined,
+          {}|undefined>): void;
+  deleteTest(
+      request: protos.google.showcase.v1beta1.IDeleteTestRequest,
+      callback: Callback<
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteTestRequest|undefined,
           {}|undefined>): void;
 /**
  * Explicitly decline to implement a test.
@@ -565,17 +596,17 @@ export class TestingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   deleteTest(
-      request: protosTypes.google.showcase.v1beta1.IDeleteTestRequest,
+      request: protos.google.showcase.v1beta1.IDeleteTestRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteTestRequest|undefined, {}|undefined>,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteTestRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.showcase.v1beta1.IDeleteTestRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteTestRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.showcase.v1beta1.IDeleteTestRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteTestRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -595,21 +626,27 @@ export class TestingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.deleteTest(request, options, callback);
+    return this.innerApiCalls.deleteTest(request, options, callback);
   }
   verifyTest(
-      request: protosTypes.google.showcase.v1beta1.IVerifyTestRequest,
+      request: protos.google.showcase.v1beta1.IVerifyTestRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IVerifyTestResponse,
-        protosTypes.google.showcase.v1beta1.IVerifyTestRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IVerifyTestResponse,
+        protos.google.showcase.v1beta1.IVerifyTestRequest|undefined, {}|undefined
       ]>;
   verifyTest(
-      request: protosTypes.google.showcase.v1beta1.IVerifyTestRequest,
+      request: protos.google.showcase.v1beta1.IVerifyTestRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.showcase.v1beta1.IVerifyTestResponse,
-          protosTypes.google.showcase.v1beta1.IVerifyTestRequest|undefined,
+          protos.google.showcase.v1beta1.IVerifyTestResponse,
+          protos.google.showcase.v1beta1.IVerifyTestRequest|undefined,
+          {}|undefined>): void;
+  verifyTest(
+      request: protos.google.showcase.v1beta1.IVerifyTestRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IVerifyTestResponse,
+          protos.google.showcase.v1beta1.IVerifyTestRequest|undefined,
           {}|undefined>): void;
 /**
  * Register a response to a test.
@@ -632,17 +669,17 @@ export class TestingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   verifyTest(
-      request: protosTypes.google.showcase.v1beta1.IVerifyTestRequest,
+      request: protos.google.showcase.v1beta1.IVerifyTestRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.showcase.v1beta1.IVerifyTestResponse,
-          protosTypes.google.showcase.v1beta1.IVerifyTestRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IVerifyTestResponse,
+          protos.google.showcase.v1beta1.IVerifyTestRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.showcase.v1beta1.IVerifyTestResponse,
-          protosTypes.google.showcase.v1beta1.IVerifyTestRequest|undefined,
+          protos.google.showcase.v1beta1.IVerifyTestResponse,
+          protos.google.showcase.v1beta1.IVerifyTestRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.IVerifyTestResponse,
-        protosTypes.google.showcase.v1beta1.IVerifyTestRequest|undefined, {}|undefined
+        protos.google.showcase.v1beta1.IVerifyTestResponse,
+        protos.google.showcase.v1beta1.IVerifyTestRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -662,24 +699,30 @@ export class TestingClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.verifyTest(request, options, callback);
+    return this.innerApiCalls.verifyTest(request, options, callback);
   }
 
   listSessions(
-      request: protosTypes.google.showcase.v1beta1.IListSessionsRequest,
+      request: protos.google.showcase.v1beta1.IListSessionsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.ISession[],
-        protosTypes.google.showcase.v1beta1.IListSessionsRequest|null,
-        protosTypes.google.showcase.v1beta1.IListSessionsResponse
+        protos.google.showcase.v1beta1.ISession[],
+        protos.google.showcase.v1beta1.IListSessionsRequest|null,
+        protos.google.showcase.v1beta1.IListSessionsResponse
       ]>;
   listSessions(
-      request: protosTypes.google.showcase.v1beta1.IListSessionsRequest,
+      request: protos.google.showcase.v1beta1.IListSessionsRequest,
       options: gax.CallOptions,
       callback: PaginationCallback<
-          protosTypes.google.showcase.v1beta1.ISession[],
-          protosTypes.google.showcase.v1beta1.IListSessionsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListSessionsResponse>): void;
+          protos.google.showcase.v1beta1.IListSessionsRequest,
+          protos.google.showcase.v1beta1.IListSessionsResponse|null,
+          protos.google.showcase.v1beta1.ISession>): void;
+  listSessions(
+      request: protos.google.showcase.v1beta1.IListSessionsRequest,
+      callback: PaginationCallback<
+          protos.google.showcase.v1beta1.IListSessionsRequest,
+          protos.google.showcase.v1beta1.IListSessionsResponse|null,
+          protos.google.showcase.v1beta1.ISession>): void;
 /**
  * Lists the current test sessions.
  *
@@ -708,19 +751,19 @@ export class TestingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   listSessions(
-      request: protosTypes.google.showcase.v1beta1.IListSessionsRequest,
+      request: protos.google.showcase.v1beta1.IListSessionsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          protosTypes.google.showcase.v1beta1.ISession[],
-          protosTypes.google.showcase.v1beta1.IListSessionsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListSessionsResponse>,
+          protos.google.showcase.v1beta1.IListSessionsRequest,
+          protos.google.showcase.v1beta1.IListSessionsResponse|null,
+          protos.google.showcase.v1beta1.ISession>,
       callback?: PaginationCallback<
-          protosTypes.google.showcase.v1beta1.ISession[],
-          protosTypes.google.showcase.v1beta1.IListSessionsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListSessionsResponse>):
+          protos.google.showcase.v1beta1.IListSessionsRequest,
+          protos.google.showcase.v1beta1.IListSessionsResponse|null,
+          protos.google.showcase.v1beta1.ISession>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.ISession[],
-        protosTypes.google.showcase.v1beta1.IListSessionsRequest|null,
-        protosTypes.google.showcase.v1beta1.IListSessionsResponse
+        protos.google.showcase.v1beta1.ISession[],
+        protos.google.showcase.v1beta1.IListSessionsRequest|null,
+        protos.google.showcase.v1beta1.IListSessionsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -733,7 +776,7 @@ export class TestingClient {
     }
     options = options || {};
     this.initialize();
-    return this._innerApiCalls.listSessions(request, options, callback);
+    return this.innerApiCalls.listSessions(request, options, callback);
   }
 
 /**
@@ -761,34 +804,40 @@ export class TestingClient {
  *   An object stream which emits an object representing [Session]{@link google.showcase.v1beta1.Session} on 'data' event.
  */
   listSessionsStream(
-      request?: protosTypes.google.showcase.v1beta1.IListSessionsRequest,
+      request?: protos.google.showcase.v1beta1.IListSessionsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.listSessions.createStream(
-      this._innerApiCalls.listSessions as gax.GaxCall,
+    return this.descriptors.page.listSessions.createStream(
+      this.innerApiCalls.listSessions as gax.GaxCall,
       request,
       callSettings
     );
   }
   listTests(
-      request: protosTypes.google.showcase.v1beta1.IListTestsRequest,
+      request: protos.google.showcase.v1beta1.IListTestsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.showcase.v1beta1.ITest[],
-        protosTypes.google.showcase.v1beta1.IListTestsRequest|null,
-        protosTypes.google.showcase.v1beta1.IListTestsResponse
+        protos.google.showcase.v1beta1.ITest[],
+        protos.google.showcase.v1beta1.IListTestsRequest|null,
+        protos.google.showcase.v1beta1.IListTestsResponse
       ]>;
   listTests(
-      request: protosTypes.google.showcase.v1beta1.IListTestsRequest,
+      request: protos.google.showcase.v1beta1.IListTestsRequest,
       options: gax.CallOptions,
       callback: PaginationCallback<
-          protosTypes.google.showcase.v1beta1.ITest[],
-          protosTypes.google.showcase.v1beta1.IListTestsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListTestsResponse>): void;
+          protos.google.showcase.v1beta1.IListTestsRequest,
+          protos.google.showcase.v1beta1.IListTestsResponse|null,
+          protos.google.showcase.v1beta1.ITest>): void;
+  listTests(
+      request: protos.google.showcase.v1beta1.IListTestsRequest,
+      callback: PaginationCallback<
+          protos.google.showcase.v1beta1.IListTestsRequest,
+          protos.google.showcase.v1beta1.IListTestsResponse|null,
+          protos.google.showcase.v1beta1.ITest>): void;
 /**
  * List the tests of a sessesion.
  *
@@ -819,19 +868,19 @@ export class TestingClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   listTests(
-      request: protosTypes.google.showcase.v1beta1.IListTestsRequest,
+      request: protos.google.showcase.v1beta1.IListTestsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          protosTypes.google.showcase.v1beta1.ITest[],
-          protosTypes.google.showcase.v1beta1.IListTestsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListTestsResponse>,
+          protos.google.showcase.v1beta1.IListTestsRequest,
+          protos.google.showcase.v1beta1.IListTestsResponse|null,
+          protos.google.showcase.v1beta1.ITest>,
       callback?: PaginationCallback<
-          protosTypes.google.showcase.v1beta1.ITest[],
-          protosTypes.google.showcase.v1beta1.IListTestsRequest|null,
-          protosTypes.google.showcase.v1beta1.IListTestsResponse>):
+          protos.google.showcase.v1beta1.IListTestsRequest,
+          protos.google.showcase.v1beta1.IListTestsResponse|null,
+          protos.google.showcase.v1beta1.ITest>):
       Promise<[
-        protosTypes.google.showcase.v1beta1.ITest[],
-        protosTypes.google.showcase.v1beta1.IListTestsRequest|null,
-        protosTypes.google.showcase.v1beta1.IListTestsResponse
+        protos.google.showcase.v1beta1.ITest[],
+        protos.google.showcase.v1beta1.IListTestsRequest|null,
+        protos.google.showcase.v1beta1.IListTestsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -851,7 +900,7 @@ export class TestingClient {
       'parent': request.parent || '',
     });
     this.initialize();
-    return this._innerApiCalls.listTests(request, options, callback);
+    return this.innerApiCalls.listTests(request, options, callback);
   }
 
 /**
@@ -881,7 +930,7 @@ export class TestingClient {
  *   An object stream which emits an object representing [Test]{@link google.showcase.v1beta1.Test} on 'data' event.
  */
   listTestsStream(
-      request?: protosTypes.google.showcase.v1beta1.IListTestsRequest,
+      request?: protos.google.showcase.v1beta1.IListTestsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -895,8 +944,8 @@ export class TestingClient {
     });
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.listTests.createStream(
-      this._innerApiCalls.listTests as gax.GaxCall,
+    return this.descriptors.page.listTests.createStream(
+      this.innerApiCalls.listTests as gax.GaxCall,
       request,
       callSettings
     );
@@ -914,7 +963,7 @@ export class TestingClient {
    * @returns {string} Resource name string.
    */
   blueprintPath(session:string,test:string,blueprint:string) {
-    return this._pathTemplates.blueprintPathTemplate.render({
+    return this.pathTemplates.blueprintPathTemplate.render({
       session: session,
       test: test,
       blueprint: blueprint,
@@ -929,7 +978,7 @@ export class TestingClient {
    * @returns {string} A string representing the session.
    */
   matchSessionFromBlueprintName(blueprintName: string) {
-    return this._pathTemplates.blueprintPathTemplate.match(blueprintName).session;
+    return this.pathTemplates.blueprintPathTemplate.match(blueprintName).session;
   }
 
   /**
@@ -940,7 +989,7 @@ export class TestingClient {
    * @returns {string} A string representing the test.
    */
   matchTestFromBlueprintName(blueprintName: string) {
-    return this._pathTemplates.blueprintPathTemplate.match(blueprintName).test;
+    return this.pathTemplates.blueprintPathTemplate.match(blueprintName).test;
   }
 
   /**
@@ -951,7 +1000,7 @@ export class TestingClient {
    * @returns {string} A string representing the blueprint.
    */
   matchBlueprintFromBlueprintName(blueprintName: string) {
-    return this._pathTemplates.blueprintPathTemplate.match(blueprintName).blueprint;
+    return this.pathTemplates.blueprintPathTemplate.match(blueprintName).blueprint;
   }
 
   /**
@@ -961,7 +1010,7 @@ export class TestingClient {
    * @returns {string} Resource name string.
    */
   roomPath(roomId:string) {
-    return this._pathTemplates.roomPathTemplate.render({
+    return this.pathTemplates.roomPathTemplate.render({
       room_id: roomId,
     });
   }
@@ -974,7 +1023,7 @@ export class TestingClient {
    * @returns {string} A string representing the room_id.
    */
   matchRoomIdFromRoomName(roomName: string) {
-    return this._pathTemplates.roomPathTemplate.match(roomName).room_id;
+    return this.pathTemplates.roomPathTemplate.match(roomName).room_id;
   }
 
   /**
@@ -985,7 +1034,7 @@ export class TestingClient {
    * @returns {string} Resource name string.
    */
   roomIdBlurbIdPath(roomId:string,blurbId:string) {
-    return this._pathTemplates.roomIdBlurbIdPathTemplate.render({
+    return this.pathTemplates.roomIdBlurbIdPathTemplate.render({
       room_id: roomId,
       blurb_id: blurbId,
     });
@@ -999,7 +1048,7 @@ export class TestingClient {
    * @returns {string} A string representing the room_id.
    */
   matchRoomIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this._pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).room_id;
+    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).room_id;
   }
 
   /**
@@ -1010,7 +1059,7 @@ export class TestingClient {
    * @returns {string} A string representing the blurb_id.
    */
   matchBlurbIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this._pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).blurb_id;
+    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).blurb_id;
   }
 
   /**
@@ -1020,7 +1069,7 @@ export class TestingClient {
    * @returns {string} Resource name string.
    */
   sessionPath(session:string) {
-    return this._pathTemplates.sessionPathTemplate.render({
+    return this.pathTemplates.sessionPathTemplate.render({
       session: session,
     });
   }
@@ -1033,7 +1082,7 @@ export class TestingClient {
    * @returns {string} A string representing the session.
    */
   matchSessionFromSessionName(sessionName: string) {
-    return this._pathTemplates.sessionPathTemplate.match(sessionName).session;
+    return this.pathTemplates.sessionPathTemplate.match(sessionName).session;
   }
 
   /**
@@ -1044,7 +1093,7 @@ export class TestingClient {
    * @returns {string} Resource name string.
    */
   testPath(session:string,test:string) {
-    return this._pathTemplates.testPathTemplate.render({
+    return this.pathTemplates.testPathTemplate.render({
       session: session,
       test: test,
     });
@@ -1058,7 +1107,7 @@ export class TestingClient {
    * @returns {string} A string representing the session.
    */
   matchSessionFromTestName(testName: string) {
-    return this._pathTemplates.testPathTemplate.match(testName).session;
+    return this.pathTemplates.testPathTemplate.match(testName).session;
   }
 
   /**
@@ -1069,7 +1118,7 @@ export class TestingClient {
    * @returns {string} A string representing the test.
    */
   matchTestFromTestName(testName: string) {
-    return this._pathTemplates.testPathTemplate.match(testName).test;
+    return this.pathTemplates.testPathTemplate.match(testName).test;
   }
 
   /**
@@ -1079,7 +1128,7 @@ export class TestingClient {
    * @returns {string} Resource name string.
    */
   userPath(userId:string) {
-    return this._pathTemplates.userPathTemplate.render({
+    return this.pathTemplates.userPathTemplate.render({
       user_id: userId,
     });
   }
@@ -1092,7 +1141,7 @@ export class TestingClient {
    * @returns {string} A string representing the user_id.
    */
   matchUserIdFromUserName(userName: string) {
-    return this._pathTemplates.userPathTemplate.match(userName).user_id;
+    return this.pathTemplates.userPathTemplate.match(userName).user_id;
   }
 
   /**
@@ -1103,7 +1152,7 @@ export class TestingClient {
    * @returns {string} Resource name string.
    */
   userIdProfileBlurbIdPath(userId:string,blurbId:string) {
-    return this._pathTemplates.userIdProfileBlurbIdPathTemplate.render({
+    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.render({
       user_id: userId,
       blurb_id: blurbId,
     });
@@ -1117,7 +1166,7 @@ export class TestingClient {
    * @returns {string} A string representing the user_id.
    */
   matchUserIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this._pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).user_id;
+    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).user_id;
   }
 
   /**
@@ -1128,7 +1177,7 @@ export class TestingClient {
    * @returns {string} A string representing the blurb_id.
    */
   matchBlurbIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this._pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).blurb_id;
+    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).blurb_id;
   }
 
   /**

@@ -21,7 +21,7 @@ import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, Paginati
 import * as path from 'path';
 
 import { Transform } from 'stream';
-import * as protosTypes from '../../protos/protos';
+import * as protos from '../../protos/protos';
 import * as gapicConfig from './metric_service_client_config.json';
 
 const version = require('../../../package.json').version;
@@ -33,9 +33,6 @@ const version = require('../../../package.json').version;
  * @memberof v3
  */
 export class MetricServiceClient {
-  private _descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
-  private _innerApiCalls: {[name: string]: Function};
-  private _pathTemplates: {[name: string]: gax.PathTemplate};
   private _terminated = false;
   private _opts: ClientOptions;
   private _gaxModule: typeof gax | typeof gax.fallback;
@@ -43,6 +40,9 @@ export class MetricServiceClient {
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
+  descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
+  innerApiCalls: {[name: string]: Function};
+  pathTemplates: {[name: string]: gax.PathTemplate};
   metricServiceStub?: Promise<{[name: string]: Function}>;
 
   /**
@@ -130,6 +130,7 @@ export class MetricServiceClient {
     const nodejsProtoPath = path.join(__dirname, '..', '..', 'protos', 'protos.json');
     this._protos = this._gaxGrpc.loadProto(
       opts.fallback ?
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require("../../protos/protos.json") :
         nodejsProtoPath
     );
@@ -137,7 +138,7 @@ export class MetricServiceClient {
     // This API contains "path templates"; forward-slash-separated
     // identifiers to uniquely identify resources within the API.
     // Create useful helper objects for these.
-    this._pathTemplates = {
+    this.pathTemplates = {
       folderAlertPolicyPathTemplate: new this._gaxModule.PathTemplate(
         'folders/{folder}/alertPolicies/{alert_policy}'
       ),
@@ -233,7 +234,7 @@ export class MetricServiceClient {
     // Some of the methods on this service return "paged" results,
     // (e.g. 50 results at a time, with tokens to get subsequent
     // pages). Denote the keys used for pagination and results.
-    this._descriptors.page = {
+    this.descriptors.page = {
       listMonitoredResourceDescriptors:
           new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'resourceDescriptors'),
       listMetricDescriptors:
@@ -250,7 +251,7 @@ export class MetricServiceClient {
     // Set up a dictionary of "inner API calls"; the core implementation
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
-    this._innerApiCalls = {};
+    this.innerApiCalls = {};
   }
 
   /**
@@ -275,7 +276,7 @@ export class MetricServiceClient {
     this.metricServiceStub = this._gaxGrpc.createStub(
         this._opts.fallback ?
           (this._protos as protobuf.Root).lookupService('google.monitoring.v3.MetricService') :
-          /* eslint-disable @typescript-eslint/no-explicit-any */
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).google.monitoring.v3.MetricService,
         this._opts) as Promise<{[method: string]: Function}>;
 
@@ -300,12 +301,12 @@ export class MetricServiceClient {
       const apiCall = this._gaxModule.createApiCall(
         innerCallPromise,
         this._defaults[methodName],
-        this._descriptors.page[methodName] ||
-            this._descriptors.stream[methodName] ||
-            this._descriptors.longrunning[methodName]
+        this.descriptors.page[methodName] ||
+            this.descriptors.stream[methodName] ||
+            this.descriptors.longrunning[methodName]
       );
 
-      this._innerApiCalls[methodName] = (
+      this.innerApiCalls[methodName] = (
         argument: {},
         callOptions?: CallOptions,
         callback?: APICallback
@@ -372,18 +373,24 @@ export class MetricServiceClient {
   // -- Service calls --
   // -------------------
   getMonitoredResourceDescriptor(
-      request: protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
+      request: protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.api.IMonitoredResourceDescriptor,
-        protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined
+        protos.google.api.IMonitoredResourceDescriptor,
+        protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined
       ]>;
   getMonitoredResourceDescriptor(
-      request: protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
+      request: protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.api.IMonitoredResourceDescriptor,
-          protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
+          protos.google.api.IMonitoredResourceDescriptor,
+          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
+          {}|undefined>): void;
+  getMonitoredResourceDescriptor(
+      request: protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
+      callback: Callback<
+          protos.google.api.IMonitoredResourceDescriptor,
+          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
           {}|undefined>): void;
 /**
  * Gets a single monitored resource descriptor. This method does not require a Stackdriver account.
@@ -402,17 +409,17 @@ export class MetricServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   getMonitoredResourceDescriptor(
-      request: protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
+      request: protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.api.IMonitoredResourceDescriptor,
-          protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined>,
+          protos.google.api.IMonitoredResourceDescriptor,
+          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.api.IMonitoredResourceDescriptor,
-          protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
+          protos.google.api.IMonitoredResourceDescriptor,
+          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.api.IMonitoredResourceDescriptor,
-        protosTypes.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined
+        protos.google.api.IMonitoredResourceDescriptor,
+        protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -432,21 +439,27 @@ export class MetricServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.getMonitoredResourceDescriptor(request, options, callback);
+    return this.innerApiCalls.getMonitoredResourceDescriptor(request, options, callback);
   }
   getMetricDescriptor(
-      request: protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest,
+      request: protos.google.monitoring.v3.IGetMetricDescriptorRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.api.IMetricDescriptor,
-        protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined
+        protos.google.api.IMetricDescriptor,
+        protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined
       ]>;
   getMetricDescriptor(
-      request: protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest,
+      request: protos.google.monitoring.v3.IGetMetricDescriptorRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.api.IMetricDescriptor,
-          protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
+          protos.google.api.IMetricDescriptor,
+          protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
+          {}|undefined>): void;
+  getMetricDescriptor(
+      request: protos.google.monitoring.v3.IGetMetricDescriptorRequest,
+      callback: Callback<
+          protos.google.api.IMetricDescriptor,
+          protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
           {}|undefined>): void;
 /**
  * Gets a single metric descriptor. This method does not require a Stackdriver account.
@@ -465,17 +478,17 @@ export class MetricServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   getMetricDescriptor(
-      request: protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest,
+      request: protos.google.monitoring.v3.IGetMetricDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.api.IMetricDescriptor,
-          protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined>,
+          protos.google.api.IMetricDescriptor,
+          protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.api.IMetricDescriptor,
-          protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
+          protos.google.api.IMetricDescriptor,
+          protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.api.IMetricDescriptor,
-        protosTypes.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined
+        protos.google.api.IMetricDescriptor,
+        protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -495,21 +508,27 @@ export class MetricServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.getMetricDescriptor(request, options, callback);
+    return this.innerApiCalls.getMetricDescriptor(request, options, callback);
   }
   createMetricDescriptor(
-      request: protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest,
+      request: protos.google.monitoring.v3.ICreateMetricDescriptorRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.api.IMetricDescriptor,
-        protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined
+        protos.google.api.IMetricDescriptor,
+        protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined
       ]>;
   createMetricDescriptor(
-      request: protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest,
+      request: protos.google.monitoring.v3.ICreateMetricDescriptorRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.api.IMetricDescriptor,
-          protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
+          protos.google.api.IMetricDescriptor,
+          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
+          {}|undefined>): void;
+  createMetricDescriptor(
+      request: protos.google.monitoring.v3.ICreateMetricDescriptorRequest,
+      callback: Callback<
+          protos.google.api.IMetricDescriptor,
+          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
           {}|undefined>): void;
 /**
  * Creates a new metric descriptor.
@@ -531,17 +550,17 @@ export class MetricServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   createMetricDescriptor(
-      request: protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest,
+      request: protos.google.monitoring.v3.ICreateMetricDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.api.IMetricDescriptor,
-          protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined>,
+          protos.google.api.IMetricDescriptor,
+          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.api.IMetricDescriptor,
-          protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
+          protos.google.api.IMetricDescriptor,
+          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.api.IMetricDescriptor,
-        protosTypes.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined
+        protos.google.api.IMetricDescriptor,
+        protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -561,21 +580,27 @@ export class MetricServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.createMetricDescriptor(request, options, callback);
+    return this.innerApiCalls.createMetricDescriptor(request, options, callback);
   }
   deleteMetricDescriptor(
-      request: protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest,
+      request: protos.google.monitoring.v3.IDeleteMetricDescriptorRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined
       ]>;
   deleteMetricDescriptor(
-      request: protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest,
+      request: protos.google.monitoring.v3.IDeleteMetricDescriptorRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
+          {}|undefined>): void;
+  deleteMetricDescriptor(
+      request: protos.google.monitoring.v3.IDeleteMetricDescriptorRequest,
+      callback: Callback<
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
           {}|undefined>): void;
 /**
  * Deletes a metric descriptor. Only user-created
@@ -595,17 +620,17 @@ export class MetricServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   deleteMetricDescriptor(
-      request: protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest,
+      request: protos.google.monitoring.v3.IDeleteMetricDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined>,
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -625,21 +650,27 @@ export class MetricServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.deleteMetricDescriptor(request, options, callback);
+    return this.innerApiCalls.deleteMetricDescriptor(request, options, callback);
   }
   createTimeSeries(
-      request: protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest,
+      request: protos.google.monitoring.v3.ICreateTimeSeriesRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined
       ]>;
   createTimeSeries(
-      request: protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest,
+      request: protos.google.monitoring.v3.ICreateTimeSeriesRequest,
       options: gax.CallOptions,
       callback: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
+          {}|undefined>): void;
+  createTimeSeries(
+      request: protos.google.monitoring.v3.ICreateTimeSeriesRequest,
+      callback: Callback<
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
           {}|undefined>): void;
 /**
  * Creates or adds data to one or more time series.
@@ -667,17 +698,17 @@ export class MetricServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   createTimeSeries(
-      request: protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest,
+      request: protos.google.monitoring.v3.ICreateTimeSeriesRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined>,
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined>,
       callback?: Callback<
-          protosTypes.google.protobuf.IEmpty,
-          protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
+          protos.google.protobuf.IEmpty,
+          protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
           {}|undefined>):
       Promise<[
-        protosTypes.google.protobuf.IEmpty,
-        protosTypes.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -697,24 +728,30 @@ export class MetricServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.createTimeSeries(request, options, callback);
+    return this.innerApiCalls.createTimeSeries(request, options, callback);
   }
 
   listMonitoredResourceDescriptors(
-      request: protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+      request: protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.api.IMonitoredResourceDescriptor[],
-        protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
-        protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse
+        protos.google.api.IMonitoredResourceDescriptor[],
+        protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
+        protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse
       ]>;
   listMonitoredResourceDescriptors(
-      request: protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+      request: protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
       options: gax.CallOptions,
       callback: PaginationCallback<
-          protosTypes.google.api.IMonitoredResourceDescriptor[],
-          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
-          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse>): void;
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null,
+          protos.google.api.IMonitoredResourceDescriptor>): void;
+  listMonitoredResourceDescriptors(
+      request: protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+      callback: PaginationCallback<
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null,
+          protos.google.api.IMonitoredResourceDescriptor>): void;
 /**
  * Lists monitored resource descriptors that match a filter. This method does not require a Stackdriver account.
  *
@@ -756,19 +793,19 @@ export class MetricServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   listMonitoredResourceDescriptors(
-      request: protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+      request: protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          protosTypes.google.api.IMonitoredResourceDescriptor[],
-          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
-          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse>,
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null,
+          protos.google.api.IMonitoredResourceDescriptor>,
       callback?: PaginationCallback<
-          protosTypes.google.api.IMonitoredResourceDescriptor[],
-          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
-          protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse>):
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null,
+          protos.google.api.IMonitoredResourceDescriptor>):
       Promise<[
-        protosTypes.google.api.IMonitoredResourceDescriptor[],
-        protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
-        protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse
+        protos.google.api.IMonitoredResourceDescriptor[],
+        protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest|null,
+        protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -788,7 +825,7 @@ export class MetricServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.listMonitoredResourceDescriptors(request, options, callback);
+    return this.innerApiCalls.listMonitoredResourceDescriptors(request, options, callback);
   }
 
 /**
@@ -829,7 +866,7 @@ export class MetricServiceClient {
  *   An object stream which emits an object representing [MonitoredResourceDescriptor]{@link google.api.MonitoredResourceDescriptor} on 'data' event.
  */
   listMonitoredResourceDescriptorsStream(
-      request?: protosTypes.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
+      request?: protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -843,27 +880,33 @@ export class MetricServiceClient {
     });
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.listMonitoredResourceDescriptors.createStream(
-      this._innerApiCalls.listMonitoredResourceDescriptors as gax.GaxCall,
+    return this.descriptors.page.listMonitoredResourceDescriptors.createStream(
+      this.innerApiCalls.listMonitoredResourceDescriptors as gax.GaxCall,
       request,
       callSettings
     );
   }
   listMetricDescriptors(
-      request: protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest,
+      request: protos.google.monitoring.v3.IListMetricDescriptorsRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.api.IMetricDescriptor[],
-        protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
-        protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse
+        protos.google.api.IMetricDescriptor[],
+        protos.google.monitoring.v3.IListMetricDescriptorsRequest|null,
+        protos.google.monitoring.v3.IListMetricDescriptorsResponse
       ]>;
   listMetricDescriptors(
-      request: protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest,
+      request: protos.google.monitoring.v3.IListMetricDescriptorsRequest,
       options: gax.CallOptions,
       callback: PaginationCallback<
-          protosTypes.google.api.IMetricDescriptor[],
-          protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
-          protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse>): void;
+          protos.google.monitoring.v3.IListMetricDescriptorsRequest,
+          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null,
+          protos.google.api.IMetricDescriptor>): void;
+  listMetricDescriptors(
+      request: protos.google.monitoring.v3.IListMetricDescriptorsRequest,
+      callback: PaginationCallback<
+          protos.google.monitoring.v3.IListMetricDescriptorsRequest,
+          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null,
+          protos.google.api.IMetricDescriptor>): void;
 /**
  * Lists metric descriptors that match a filter. This method does not require a Stackdriver account.
  *
@@ -906,19 +949,19 @@ export class MetricServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   listMetricDescriptors(
-      request: protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest,
+      request: protos.google.monitoring.v3.IListMetricDescriptorsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          protosTypes.google.api.IMetricDescriptor[],
-          protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
-          protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse>,
+          protos.google.monitoring.v3.IListMetricDescriptorsRequest,
+          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null,
+          protos.google.api.IMetricDescriptor>,
       callback?: PaginationCallback<
-          protosTypes.google.api.IMetricDescriptor[],
-          protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
-          protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse>):
+          protos.google.monitoring.v3.IListMetricDescriptorsRequest,
+          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null,
+          protos.google.api.IMetricDescriptor>):
       Promise<[
-        protosTypes.google.api.IMetricDescriptor[],
-        protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest|null,
-        protosTypes.google.monitoring.v3.IListMetricDescriptorsResponse
+        protos.google.api.IMetricDescriptor[],
+        protos.google.monitoring.v3.IListMetricDescriptorsRequest|null,
+        protos.google.monitoring.v3.IListMetricDescriptorsResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -938,7 +981,7 @@ export class MetricServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.listMetricDescriptors(request, options, callback);
+    return this.innerApiCalls.listMetricDescriptors(request, options, callback);
   }
 
 /**
@@ -980,7 +1023,7 @@ export class MetricServiceClient {
  *   An object stream which emits an object representing [MetricDescriptor]{@link google.api.MetricDescriptor} on 'data' event.
  */
   listMetricDescriptorsStream(
-      request?: protosTypes.google.monitoring.v3.IListMetricDescriptorsRequest,
+      request?: protos.google.monitoring.v3.IListMetricDescriptorsRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -994,27 +1037,33 @@ export class MetricServiceClient {
     });
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.listMetricDescriptors.createStream(
-      this._innerApiCalls.listMetricDescriptors as gax.GaxCall,
+    return this.descriptors.page.listMetricDescriptors.createStream(
+      this.innerApiCalls.listMetricDescriptors as gax.GaxCall,
       request,
       callSettings
     );
   }
   listTimeSeries(
-      request: protosTypes.google.monitoring.v3.IListTimeSeriesRequest,
+      request: protos.google.monitoring.v3.IListTimeSeriesRequest,
       options?: gax.CallOptions):
       Promise<[
-        protosTypes.google.monitoring.v3.ITimeSeries[],
-        protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
-        protosTypes.google.monitoring.v3.IListTimeSeriesResponse
+        protos.google.monitoring.v3.ITimeSeries[],
+        protos.google.monitoring.v3.IListTimeSeriesRequest|null,
+        protos.google.monitoring.v3.IListTimeSeriesResponse
       ]>;
   listTimeSeries(
-      request: protosTypes.google.monitoring.v3.IListTimeSeriesRequest,
+      request: protos.google.monitoring.v3.IListTimeSeriesRequest,
       options: gax.CallOptions,
       callback: PaginationCallback<
-          protosTypes.google.monitoring.v3.ITimeSeries[],
-          protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
-          protosTypes.google.monitoring.v3.IListTimeSeriesResponse>): void;
+          protos.google.monitoring.v3.IListTimeSeriesRequest,
+          protos.google.monitoring.v3.IListTimeSeriesResponse|null,
+          protos.google.monitoring.v3.ITimeSeries>): void;
+  listTimeSeries(
+      request: protos.google.monitoring.v3.IListTimeSeriesRequest,
+      callback: PaginationCallback<
+          protos.google.monitoring.v3.IListTimeSeriesRequest,
+          protos.google.monitoring.v3.IListTimeSeriesResponse|null,
+          protos.google.monitoring.v3.ITimeSeries>): void;
 /**
  * Lists time series that match a filter. This method does not require a Stackdriver account.
  *
@@ -1075,19 +1124,19 @@ export class MetricServiceClient {
  *   The promise has a method named "cancel" which cancels the ongoing API call.
  */
   listTimeSeries(
-      request: protosTypes.google.monitoring.v3.IListTimeSeriesRequest,
+      request: protos.google.monitoring.v3.IListTimeSeriesRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
-          protosTypes.google.monitoring.v3.ITimeSeries[],
-          protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
-          protosTypes.google.monitoring.v3.IListTimeSeriesResponse>,
+          protos.google.monitoring.v3.IListTimeSeriesRequest,
+          protos.google.monitoring.v3.IListTimeSeriesResponse|null,
+          protos.google.monitoring.v3.ITimeSeries>,
       callback?: PaginationCallback<
-          protosTypes.google.monitoring.v3.ITimeSeries[],
-          protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
-          protosTypes.google.monitoring.v3.IListTimeSeriesResponse>):
+          protos.google.monitoring.v3.IListTimeSeriesRequest,
+          protos.google.monitoring.v3.IListTimeSeriesResponse|null,
+          protos.google.monitoring.v3.ITimeSeries>):
       Promise<[
-        protosTypes.google.monitoring.v3.ITimeSeries[],
-        protosTypes.google.monitoring.v3.IListTimeSeriesRequest|null,
-        protosTypes.google.monitoring.v3.IListTimeSeriesResponse
+        protos.google.monitoring.v3.ITimeSeries[],
+        protos.google.monitoring.v3.IListTimeSeriesRequest|null,
+        protos.google.monitoring.v3.IListTimeSeriesResponse
       ]>|void {
     request = request || {};
     let options: gax.CallOptions;
@@ -1107,7 +1156,7 @@ export class MetricServiceClient {
       'name': request.name || '',
     });
     this.initialize();
-    return this._innerApiCalls.listTimeSeries(request, options, callback);
+    return this.innerApiCalls.listTimeSeries(request, options, callback);
   }
 
 /**
@@ -1167,7 +1216,7 @@ export class MetricServiceClient {
  *   An object stream which emits an object representing [TimeSeries]{@link google.monitoring.v3.TimeSeries} on 'data' event.
  */
   listTimeSeriesStream(
-      request?: protosTypes.google.monitoring.v3.IListTimeSeriesRequest,
+      request?: protos.google.monitoring.v3.IListTimeSeriesRequest,
       options?: gax.CallOptions):
     Transform{
     request = request || {};
@@ -1181,8 +1230,8 @@ export class MetricServiceClient {
     });
     const callSettings = new gax.CallSettings(options);
     this.initialize();
-    return this._descriptors.page.listTimeSeries.createStream(
-      this._innerApiCalls.listTimeSeries as gax.GaxCall,
+    return this.descriptors.page.listTimeSeries.createStream(
+      this.innerApiCalls.listTimeSeries as gax.GaxCall,
       request,
       callSettings
     );
@@ -1199,7 +1248,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderAlertPolicyPath(folder:string,alertPolicy:string) {
-    return this._pathTemplates.folderAlertPolicyPathTemplate.render({
+    return this.pathTemplates.folderAlertPolicyPathTemplate.render({
       folder: folder,
       alert_policy: alertPolicy,
     });
@@ -1213,7 +1262,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderAlertPolicyName(folderAlertPolicyName: string) {
-    return this._pathTemplates.folderAlertPolicyPathTemplate.match(folderAlertPolicyName).folder;
+    return this.pathTemplates.folderAlertPolicyPathTemplate.match(folderAlertPolicyName).folder;
   }
 
   /**
@@ -1224,7 +1273,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromFolderAlertPolicyName(folderAlertPolicyName: string) {
-    return this._pathTemplates.folderAlertPolicyPathTemplate.match(folderAlertPolicyName).alert_policy;
+    return this.pathTemplates.folderAlertPolicyPathTemplate.match(folderAlertPolicyName).alert_policy;
   }
 
   /**
@@ -1236,7 +1285,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderAlertPolicyConditionPath(folder:string,alertPolicy:string,condition:string) {
-    return this._pathTemplates.folderAlertPolicyConditionPathTemplate.render({
+    return this.pathTemplates.folderAlertPolicyConditionPathTemplate.render({
       folder: folder,
       alert_policy: alertPolicy,
       condition: condition,
@@ -1251,7 +1300,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderAlertPolicyConditionName(folderAlertPolicyConditionName: string) {
-    return this._pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).folder;
+    return this.pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).folder;
   }
 
   /**
@@ -1262,7 +1311,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromFolderAlertPolicyConditionName(folderAlertPolicyConditionName: string) {
-    return this._pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).alert_policy;
+    return this.pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).alert_policy;
   }
 
   /**
@@ -1273,7 +1322,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the condition.
    */
   matchConditionFromFolderAlertPolicyConditionName(folderAlertPolicyConditionName: string) {
-    return this._pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).condition;
+    return this.pathTemplates.folderAlertPolicyConditionPathTemplate.match(folderAlertPolicyConditionName).condition;
   }
 
   /**
@@ -1284,7 +1333,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderChannelDescriptorPath(folder:string,channelDescriptor:string) {
-    return this._pathTemplates.folderChannelDescriptorPathTemplate.render({
+    return this.pathTemplates.folderChannelDescriptorPathTemplate.render({
       folder: folder,
       channel_descriptor: channelDescriptor,
     });
@@ -1298,7 +1347,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderChannelDescriptorName(folderChannelDescriptorName: string) {
-    return this._pathTemplates.folderChannelDescriptorPathTemplate.match(folderChannelDescriptorName).folder;
+    return this.pathTemplates.folderChannelDescriptorPathTemplate.match(folderChannelDescriptorName).folder;
   }
 
   /**
@@ -1309,7 +1358,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the channel_descriptor.
    */
   matchChannelDescriptorFromFolderChannelDescriptorName(folderChannelDescriptorName: string) {
-    return this._pathTemplates.folderChannelDescriptorPathTemplate.match(folderChannelDescriptorName).channel_descriptor;
+    return this.pathTemplates.folderChannelDescriptorPathTemplate.match(folderChannelDescriptorName).channel_descriptor;
   }
 
   /**
@@ -1320,7 +1369,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderGroupPath(folder:string,group:string) {
-    return this._pathTemplates.folderGroupPathTemplate.render({
+    return this.pathTemplates.folderGroupPathTemplate.render({
       folder: folder,
       group: group,
     });
@@ -1334,7 +1383,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderGroupName(folderGroupName: string) {
-    return this._pathTemplates.folderGroupPathTemplate.match(folderGroupName).folder;
+    return this.pathTemplates.folderGroupPathTemplate.match(folderGroupName).folder;
   }
 
   /**
@@ -1345,7 +1394,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the group.
    */
   matchGroupFromFolderGroupName(folderGroupName: string) {
-    return this._pathTemplates.folderGroupPathTemplate.match(folderGroupName).group;
+    return this.pathTemplates.folderGroupPathTemplate.match(folderGroupName).group;
   }
 
   /**
@@ -1356,7 +1405,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderMetricDescriptorPath(folder:string,metricDescriptor:string) {
-    return this._pathTemplates.folderMetricDescriptorPathTemplate.render({
+    return this.pathTemplates.folderMetricDescriptorPathTemplate.render({
       folder: folder,
       metric_descriptor: metricDescriptor,
     });
@@ -1370,7 +1419,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderMetricDescriptorName(folderMetricDescriptorName: string) {
-    return this._pathTemplates.folderMetricDescriptorPathTemplate.match(folderMetricDescriptorName).folder;
+    return this.pathTemplates.folderMetricDescriptorPathTemplate.match(folderMetricDescriptorName).folder;
   }
 
   /**
@@ -1381,7 +1430,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the metric_descriptor.
    */
   matchMetricDescriptorFromFolderMetricDescriptorName(folderMetricDescriptorName: string) {
-    return this._pathTemplates.folderMetricDescriptorPathTemplate.match(folderMetricDescriptorName).metric_descriptor;
+    return this.pathTemplates.folderMetricDescriptorPathTemplate.match(folderMetricDescriptorName).metric_descriptor;
   }
 
   /**
@@ -1392,7 +1441,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderMonitoredResourceDescriptorPath(folder:string,monitoredResourceDescriptor:string) {
-    return this._pathTemplates.folderMonitoredResourceDescriptorPathTemplate.render({
+    return this.pathTemplates.folderMonitoredResourceDescriptorPathTemplate.render({
       folder: folder,
       monitored_resource_descriptor: monitoredResourceDescriptor,
     });
@@ -1406,7 +1455,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderMonitoredResourceDescriptorName(folderMonitoredResourceDescriptorName: string) {
-    return this._pathTemplates.folderMonitoredResourceDescriptorPathTemplate.match(folderMonitoredResourceDescriptorName).folder;
+    return this.pathTemplates.folderMonitoredResourceDescriptorPathTemplate.match(folderMonitoredResourceDescriptorName).folder;
   }
 
   /**
@@ -1417,7 +1466,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the monitored_resource_descriptor.
    */
   matchMonitoredResourceDescriptorFromFolderMonitoredResourceDescriptorName(folderMonitoredResourceDescriptorName: string) {
-    return this._pathTemplates.folderMonitoredResourceDescriptorPathTemplate.match(folderMonitoredResourceDescriptorName).monitored_resource_descriptor;
+    return this.pathTemplates.folderMonitoredResourceDescriptorPathTemplate.match(folderMonitoredResourceDescriptorName).monitored_resource_descriptor;
   }
 
   /**
@@ -1428,7 +1477,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderNotificationChannelPath(folder:string,notificationChannel:string) {
-    return this._pathTemplates.folderNotificationChannelPathTemplate.render({
+    return this.pathTemplates.folderNotificationChannelPathTemplate.render({
       folder: folder,
       notification_channel: notificationChannel,
     });
@@ -1442,7 +1491,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderNotificationChannelName(folderNotificationChannelName: string) {
-    return this._pathTemplates.folderNotificationChannelPathTemplate.match(folderNotificationChannelName).folder;
+    return this.pathTemplates.folderNotificationChannelPathTemplate.match(folderNotificationChannelName).folder;
   }
 
   /**
@@ -1453,7 +1502,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the notification_channel.
    */
   matchNotificationChannelFromFolderNotificationChannelName(folderNotificationChannelName: string) {
-    return this._pathTemplates.folderNotificationChannelPathTemplate.match(folderNotificationChannelName).notification_channel;
+    return this.pathTemplates.folderNotificationChannelPathTemplate.match(folderNotificationChannelName).notification_channel;
   }
 
   /**
@@ -1464,7 +1513,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderServicePath(folder:string,service:string) {
-    return this._pathTemplates.folderServicePathTemplate.render({
+    return this.pathTemplates.folderServicePathTemplate.render({
       folder: folder,
       service: service,
     });
@@ -1478,7 +1527,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderServiceName(folderServiceName: string) {
-    return this._pathTemplates.folderServicePathTemplate.match(folderServiceName).folder;
+    return this.pathTemplates.folderServicePathTemplate.match(folderServiceName).folder;
   }
 
   /**
@@ -1489,7 +1538,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromFolderServiceName(folderServiceName: string) {
-    return this._pathTemplates.folderServicePathTemplate.match(folderServiceName).service;
+    return this.pathTemplates.folderServicePathTemplate.match(folderServiceName).service;
   }
 
   /**
@@ -1501,7 +1550,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderServiceServiceLevelObjectivePath(folder:string,service:string,serviceLevelObjective:string) {
-    return this._pathTemplates.folderServiceServiceLevelObjectivePathTemplate.render({
+    return this.pathTemplates.folderServiceServiceLevelObjectivePathTemplate.render({
       folder: folder,
       service: service,
       service_level_objective: serviceLevelObjective,
@@ -1516,7 +1565,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderServiceServiceLevelObjectiveName(folderServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).folder;
+    return this.pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).folder;
   }
 
   /**
@@ -1527,7 +1576,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromFolderServiceServiceLevelObjectiveName(folderServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).service;
+    return this.pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).service;
   }
 
   /**
@@ -1538,7 +1587,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the service_level_objective.
    */
   matchServiceLevelObjectiveFromFolderServiceServiceLevelObjectiveName(folderServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).service_level_objective;
+    return this.pathTemplates.folderServiceServiceLevelObjectivePathTemplate.match(folderServiceServiceLevelObjectiveName).service_level_objective;
   }
 
   /**
@@ -1549,7 +1598,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   folderUptimeCheckConfigPath(folder:string,uptimeCheckConfig:string) {
-    return this._pathTemplates.folderUptimeCheckConfigPathTemplate.render({
+    return this.pathTemplates.folderUptimeCheckConfigPathTemplate.render({
       folder: folder,
       uptime_check_config: uptimeCheckConfig,
     });
@@ -1563,7 +1612,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the folder.
    */
   matchFolderFromFolderUptimeCheckConfigName(folderUptimeCheckConfigName: string) {
-    return this._pathTemplates.folderUptimeCheckConfigPathTemplate.match(folderUptimeCheckConfigName).folder;
+    return this.pathTemplates.folderUptimeCheckConfigPathTemplate.match(folderUptimeCheckConfigName).folder;
   }
 
   /**
@@ -1574,7 +1623,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the uptime_check_config.
    */
   matchUptimeCheckConfigFromFolderUptimeCheckConfigName(folderUptimeCheckConfigName: string) {
-    return this._pathTemplates.folderUptimeCheckConfigPathTemplate.match(folderUptimeCheckConfigName).uptime_check_config;
+    return this.pathTemplates.folderUptimeCheckConfigPathTemplate.match(folderUptimeCheckConfigName).uptime_check_config;
   }
 
   /**
@@ -1585,7 +1634,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationAlertPolicyPath(organization:string,alertPolicy:string) {
-    return this._pathTemplates.organizationAlertPolicyPathTemplate.render({
+    return this.pathTemplates.organizationAlertPolicyPathTemplate.render({
       organization: organization,
       alert_policy: alertPolicy,
     });
@@ -1599,7 +1648,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationAlertPolicyName(organizationAlertPolicyName: string) {
-    return this._pathTemplates.organizationAlertPolicyPathTemplate.match(organizationAlertPolicyName).organization;
+    return this.pathTemplates.organizationAlertPolicyPathTemplate.match(organizationAlertPolicyName).organization;
   }
 
   /**
@@ -1610,7 +1659,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromOrganizationAlertPolicyName(organizationAlertPolicyName: string) {
-    return this._pathTemplates.organizationAlertPolicyPathTemplate.match(organizationAlertPolicyName).alert_policy;
+    return this.pathTemplates.organizationAlertPolicyPathTemplate.match(organizationAlertPolicyName).alert_policy;
   }
 
   /**
@@ -1622,7 +1671,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationAlertPolicyConditionPath(organization:string,alertPolicy:string,condition:string) {
-    return this._pathTemplates.organizationAlertPolicyConditionPathTemplate.render({
+    return this.pathTemplates.organizationAlertPolicyConditionPathTemplate.render({
       organization: organization,
       alert_policy: alertPolicy,
       condition: condition,
@@ -1637,7 +1686,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationAlertPolicyConditionName(organizationAlertPolicyConditionName: string) {
-    return this._pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).organization;
+    return this.pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).organization;
   }
 
   /**
@@ -1648,7 +1697,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromOrganizationAlertPolicyConditionName(organizationAlertPolicyConditionName: string) {
-    return this._pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).alert_policy;
+    return this.pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).alert_policy;
   }
 
   /**
@@ -1659,7 +1708,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the condition.
    */
   matchConditionFromOrganizationAlertPolicyConditionName(organizationAlertPolicyConditionName: string) {
-    return this._pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).condition;
+    return this.pathTemplates.organizationAlertPolicyConditionPathTemplate.match(organizationAlertPolicyConditionName).condition;
   }
 
   /**
@@ -1670,7 +1719,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationChannelDescriptorPath(organization:string,channelDescriptor:string) {
-    return this._pathTemplates.organizationChannelDescriptorPathTemplate.render({
+    return this.pathTemplates.organizationChannelDescriptorPathTemplate.render({
       organization: organization,
       channel_descriptor: channelDescriptor,
     });
@@ -1684,7 +1733,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationChannelDescriptorName(organizationChannelDescriptorName: string) {
-    return this._pathTemplates.organizationChannelDescriptorPathTemplate.match(organizationChannelDescriptorName).organization;
+    return this.pathTemplates.organizationChannelDescriptorPathTemplate.match(organizationChannelDescriptorName).organization;
   }
 
   /**
@@ -1695,7 +1744,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the channel_descriptor.
    */
   matchChannelDescriptorFromOrganizationChannelDescriptorName(organizationChannelDescriptorName: string) {
-    return this._pathTemplates.organizationChannelDescriptorPathTemplate.match(organizationChannelDescriptorName).channel_descriptor;
+    return this.pathTemplates.organizationChannelDescriptorPathTemplate.match(organizationChannelDescriptorName).channel_descriptor;
   }
 
   /**
@@ -1706,7 +1755,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationGroupPath(organization:string,group:string) {
-    return this._pathTemplates.organizationGroupPathTemplate.render({
+    return this.pathTemplates.organizationGroupPathTemplate.render({
       organization: organization,
       group: group,
     });
@@ -1720,7 +1769,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationGroupName(organizationGroupName: string) {
-    return this._pathTemplates.organizationGroupPathTemplate.match(organizationGroupName).organization;
+    return this.pathTemplates.organizationGroupPathTemplate.match(organizationGroupName).organization;
   }
 
   /**
@@ -1731,7 +1780,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the group.
    */
   matchGroupFromOrganizationGroupName(organizationGroupName: string) {
-    return this._pathTemplates.organizationGroupPathTemplate.match(organizationGroupName).group;
+    return this.pathTemplates.organizationGroupPathTemplate.match(organizationGroupName).group;
   }
 
   /**
@@ -1742,7 +1791,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationMetricDescriptorPath(organization:string,metricDescriptor:string) {
-    return this._pathTemplates.organizationMetricDescriptorPathTemplate.render({
+    return this.pathTemplates.organizationMetricDescriptorPathTemplate.render({
       organization: organization,
       metric_descriptor: metricDescriptor,
     });
@@ -1756,7 +1805,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationMetricDescriptorName(organizationMetricDescriptorName: string) {
-    return this._pathTemplates.organizationMetricDescriptorPathTemplate.match(organizationMetricDescriptorName).organization;
+    return this.pathTemplates.organizationMetricDescriptorPathTemplate.match(organizationMetricDescriptorName).organization;
   }
 
   /**
@@ -1767,7 +1816,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the metric_descriptor.
    */
   matchMetricDescriptorFromOrganizationMetricDescriptorName(organizationMetricDescriptorName: string) {
-    return this._pathTemplates.organizationMetricDescriptorPathTemplate.match(organizationMetricDescriptorName).metric_descriptor;
+    return this.pathTemplates.organizationMetricDescriptorPathTemplate.match(organizationMetricDescriptorName).metric_descriptor;
   }
 
   /**
@@ -1778,7 +1827,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationMonitoredResourceDescriptorPath(organization:string,monitoredResourceDescriptor:string) {
-    return this._pathTemplates.organizationMonitoredResourceDescriptorPathTemplate.render({
+    return this.pathTemplates.organizationMonitoredResourceDescriptorPathTemplate.render({
       organization: organization,
       monitored_resource_descriptor: monitoredResourceDescriptor,
     });
@@ -1792,7 +1841,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationMonitoredResourceDescriptorName(organizationMonitoredResourceDescriptorName: string) {
-    return this._pathTemplates.organizationMonitoredResourceDescriptorPathTemplate.match(organizationMonitoredResourceDescriptorName).organization;
+    return this.pathTemplates.organizationMonitoredResourceDescriptorPathTemplate.match(organizationMonitoredResourceDescriptorName).organization;
   }
 
   /**
@@ -1803,7 +1852,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the monitored_resource_descriptor.
    */
   matchMonitoredResourceDescriptorFromOrganizationMonitoredResourceDescriptorName(organizationMonitoredResourceDescriptorName: string) {
-    return this._pathTemplates.organizationMonitoredResourceDescriptorPathTemplate.match(organizationMonitoredResourceDescriptorName).monitored_resource_descriptor;
+    return this.pathTemplates.organizationMonitoredResourceDescriptorPathTemplate.match(organizationMonitoredResourceDescriptorName).monitored_resource_descriptor;
   }
 
   /**
@@ -1814,7 +1863,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationNotificationChannelPath(organization:string,notificationChannel:string) {
-    return this._pathTemplates.organizationNotificationChannelPathTemplate.render({
+    return this.pathTemplates.organizationNotificationChannelPathTemplate.render({
       organization: organization,
       notification_channel: notificationChannel,
     });
@@ -1828,7 +1877,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationNotificationChannelName(organizationNotificationChannelName: string) {
-    return this._pathTemplates.organizationNotificationChannelPathTemplate.match(organizationNotificationChannelName).organization;
+    return this.pathTemplates.organizationNotificationChannelPathTemplate.match(organizationNotificationChannelName).organization;
   }
 
   /**
@@ -1839,7 +1888,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the notification_channel.
    */
   matchNotificationChannelFromOrganizationNotificationChannelName(organizationNotificationChannelName: string) {
-    return this._pathTemplates.organizationNotificationChannelPathTemplate.match(organizationNotificationChannelName).notification_channel;
+    return this.pathTemplates.organizationNotificationChannelPathTemplate.match(organizationNotificationChannelName).notification_channel;
   }
 
   /**
@@ -1850,7 +1899,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationServicePath(organization:string,service:string) {
-    return this._pathTemplates.organizationServicePathTemplate.render({
+    return this.pathTemplates.organizationServicePathTemplate.render({
       organization: organization,
       service: service,
     });
@@ -1864,7 +1913,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationServiceName(organizationServiceName: string) {
-    return this._pathTemplates.organizationServicePathTemplate.match(organizationServiceName).organization;
+    return this.pathTemplates.organizationServicePathTemplate.match(organizationServiceName).organization;
   }
 
   /**
@@ -1875,7 +1924,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromOrganizationServiceName(organizationServiceName: string) {
-    return this._pathTemplates.organizationServicePathTemplate.match(organizationServiceName).service;
+    return this.pathTemplates.organizationServicePathTemplate.match(organizationServiceName).service;
   }
 
   /**
@@ -1887,7 +1936,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationServiceServiceLevelObjectivePath(organization:string,service:string,serviceLevelObjective:string) {
-    return this._pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.render({
+    return this.pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.render({
       organization: organization,
       service: service,
       service_level_objective: serviceLevelObjective,
@@ -1902,7 +1951,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationServiceServiceLevelObjectiveName(organizationServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).organization;
+    return this.pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).organization;
   }
 
   /**
@@ -1913,7 +1962,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromOrganizationServiceServiceLevelObjectiveName(organizationServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).service;
+    return this.pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).service;
   }
 
   /**
@@ -1924,7 +1973,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the service_level_objective.
    */
   matchServiceLevelObjectiveFromOrganizationServiceServiceLevelObjectiveName(organizationServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).service_level_objective;
+    return this.pathTemplates.organizationServiceServiceLevelObjectivePathTemplate.match(organizationServiceServiceLevelObjectiveName).service_level_objective;
   }
 
   /**
@@ -1935,7 +1984,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   organizationUptimeCheckConfigPath(organization:string,uptimeCheckConfig:string) {
-    return this._pathTemplates.organizationUptimeCheckConfigPathTemplate.render({
+    return this.pathTemplates.organizationUptimeCheckConfigPathTemplate.render({
       organization: organization,
       uptime_check_config: uptimeCheckConfig,
     });
@@ -1949,7 +1998,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the organization.
    */
   matchOrganizationFromOrganizationUptimeCheckConfigName(organizationUptimeCheckConfigName: string) {
-    return this._pathTemplates.organizationUptimeCheckConfigPathTemplate.match(organizationUptimeCheckConfigName).organization;
+    return this.pathTemplates.organizationUptimeCheckConfigPathTemplate.match(organizationUptimeCheckConfigName).organization;
   }
 
   /**
@@ -1960,7 +2009,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the uptime_check_config.
    */
   matchUptimeCheckConfigFromOrganizationUptimeCheckConfigName(organizationUptimeCheckConfigName: string) {
-    return this._pathTemplates.organizationUptimeCheckConfigPathTemplate.match(organizationUptimeCheckConfigName).uptime_check_config;
+    return this.pathTemplates.organizationUptimeCheckConfigPathTemplate.match(organizationUptimeCheckConfigName).uptime_check_config;
   }
 
   /**
@@ -1971,7 +2020,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectAlertPolicyPath(project:string,alertPolicy:string) {
-    return this._pathTemplates.projectAlertPolicyPathTemplate.render({
+    return this.pathTemplates.projectAlertPolicyPathTemplate.render({
       project: project,
       alert_policy: alertPolicy,
     });
@@ -1985,7 +2034,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectAlertPolicyName(projectAlertPolicyName: string) {
-    return this._pathTemplates.projectAlertPolicyPathTemplate.match(projectAlertPolicyName).project;
+    return this.pathTemplates.projectAlertPolicyPathTemplate.match(projectAlertPolicyName).project;
   }
 
   /**
@@ -1996,7 +2045,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromProjectAlertPolicyName(projectAlertPolicyName: string) {
-    return this._pathTemplates.projectAlertPolicyPathTemplate.match(projectAlertPolicyName).alert_policy;
+    return this.pathTemplates.projectAlertPolicyPathTemplate.match(projectAlertPolicyName).alert_policy;
   }
 
   /**
@@ -2008,7 +2057,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectAlertPolicyConditionPath(project:string,alertPolicy:string,condition:string) {
-    return this._pathTemplates.projectAlertPolicyConditionPathTemplate.render({
+    return this.pathTemplates.projectAlertPolicyConditionPathTemplate.render({
       project: project,
       alert_policy: alertPolicy,
       condition: condition,
@@ -2023,7 +2072,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectAlertPolicyConditionName(projectAlertPolicyConditionName: string) {
-    return this._pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).project;
+    return this.pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).project;
   }
 
   /**
@@ -2034,7 +2083,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the alert_policy.
    */
   matchAlertPolicyFromProjectAlertPolicyConditionName(projectAlertPolicyConditionName: string) {
-    return this._pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).alert_policy;
+    return this.pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).alert_policy;
   }
 
   /**
@@ -2045,7 +2094,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the condition.
    */
   matchConditionFromProjectAlertPolicyConditionName(projectAlertPolicyConditionName: string) {
-    return this._pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).condition;
+    return this.pathTemplates.projectAlertPolicyConditionPathTemplate.match(projectAlertPolicyConditionName).condition;
   }
 
   /**
@@ -2056,7 +2105,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectChannelDescriptorPath(project:string,channelDescriptor:string) {
-    return this._pathTemplates.projectChannelDescriptorPathTemplate.render({
+    return this.pathTemplates.projectChannelDescriptorPathTemplate.render({
       project: project,
       channel_descriptor: channelDescriptor,
     });
@@ -2070,7 +2119,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectChannelDescriptorName(projectChannelDescriptorName: string) {
-    return this._pathTemplates.projectChannelDescriptorPathTemplate.match(projectChannelDescriptorName).project;
+    return this.pathTemplates.projectChannelDescriptorPathTemplate.match(projectChannelDescriptorName).project;
   }
 
   /**
@@ -2081,7 +2130,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the channel_descriptor.
    */
   matchChannelDescriptorFromProjectChannelDescriptorName(projectChannelDescriptorName: string) {
-    return this._pathTemplates.projectChannelDescriptorPathTemplate.match(projectChannelDescriptorName).channel_descriptor;
+    return this.pathTemplates.projectChannelDescriptorPathTemplate.match(projectChannelDescriptorName).channel_descriptor;
   }
 
   /**
@@ -2092,7 +2141,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectGroupPath(project:string,group:string) {
-    return this._pathTemplates.projectGroupPathTemplate.render({
+    return this.pathTemplates.projectGroupPathTemplate.render({
       project: project,
       group: group,
     });
@@ -2106,7 +2155,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectGroupName(projectGroupName: string) {
-    return this._pathTemplates.projectGroupPathTemplate.match(projectGroupName).project;
+    return this.pathTemplates.projectGroupPathTemplate.match(projectGroupName).project;
   }
 
   /**
@@ -2117,7 +2166,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the group.
    */
   matchGroupFromProjectGroupName(projectGroupName: string) {
-    return this._pathTemplates.projectGroupPathTemplate.match(projectGroupName).group;
+    return this.pathTemplates.projectGroupPathTemplate.match(projectGroupName).group;
   }
 
   /**
@@ -2128,7 +2177,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectMetricDescriptorPath(project:string,metricDescriptor:string) {
-    return this._pathTemplates.projectMetricDescriptorPathTemplate.render({
+    return this.pathTemplates.projectMetricDescriptorPathTemplate.render({
       project: project,
       metric_descriptor: metricDescriptor,
     });
@@ -2142,7 +2191,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectMetricDescriptorName(projectMetricDescriptorName: string) {
-    return this._pathTemplates.projectMetricDescriptorPathTemplate.match(projectMetricDescriptorName).project;
+    return this.pathTemplates.projectMetricDescriptorPathTemplate.match(projectMetricDescriptorName).project;
   }
 
   /**
@@ -2153,7 +2202,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the metric_descriptor.
    */
   matchMetricDescriptorFromProjectMetricDescriptorName(projectMetricDescriptorName: string) {
-    return this._pathTemplates.projectMetricDescriptorPathTemplate.match(projectMetricDescriptorName).metric_descriptor;
+    return this.pathTemplates.projectMetricDescriptorPathTemplate.match(projectMetricDescriptorName).metric_descriptor;
   }
 
   /**
@@ -2164,7 +2213,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectMonitoredResourceDescriptorPath(project:string,monitoredResourceDescriptor:string) {
-    return this._pathTemplates.projectMonitoredResourceDescriptorPathTemplate.render({
+    return this.pathTemplates.projectMonitoredResourceDescriptorPathTemplate.render({
       project: project,
       monitored_resource_descriptor: monitoredResourceDescriptor,
     });
@@ -2178,7 +2227,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectMonitoredResourceDescriptorName(projectMonitoredResourceDescriptorName: string) {
-    return this._pathTemplates.projectMonitoredResourceDescriptorPathTemplate.match(projectMonitoredResourceDescriptorName).project;
+    return this.pathTemplates.projectMonitoredResourceDescriptorPathTemplate.match(projectMonitoredResourceDescriptorName).project;
   }
 
   /**
@@ -2189,7 +2238,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the monitored_resource_descriptor.
    */
   matchMonitoredResourceDescriptorFromProjectMonitoredResourceDescriptorName(projectMonitoredResourceDescriptorName: string) {
-    return this._pathTemplates.projectMonitoredResourceDescriptorPathTemplate.match(projectMonitoredResourceDescriptorName).monitored_resource_descriptor;
+    return this.pathTemplates.projectMonitoredResourceDescriptorPathTemplate.match(projectMonitoredResourceDescriptorName).monitored_resource_descriptor;
   }
 
   /**
@@ -2200,7 +2249,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectNotificationChannelPath(project:string,notificationChannel:string) {
-    return this._pathTemplates.projectNotificationChannelPathTemplate.render({
+    return this.pathTemplates.projectNotificationChannelPathTemplate.render({
       project: project,
       notification_channel: notificationChannel,
     });
@@ -2214,7 +2263,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectNotificationChannelName(projectNotificationChannelName: string) {
-    return this._pathTemplates.projectNotificationChannelPathTemplate.match(projectNotificationChannelName).project;
+    return this.pathTemplates.projectNotificationChannelPathTemplate.match(projectNotificationChannelName).project;
   }
 
   /**
@@ -2225,7 +2274,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the notification_channel.
    */
   matchNotificationChannelFromProjectNotificationChannelName(projectNotificationChannelName: string) {
-    return this._pathTemplates.projectNotificationChannelPathTemplate.match(projectNotificationChannelName).notification_channel;
+    return this.pathTemplates.projectNotificationChannelPathTemplate.match(projectNotificationChannelName).notification_channel;
   }
 
   /**
@@ -2236,7 +2285,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectServicePath(project:string,service:string) {
-    return this._pathTemplates.projectServicePathTemplate.render({
+    return this.pathTemplates.projectServicePathTemplate.render({
       project: project,
       service: service,
     });
@@ -2250,7 +2299,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectServiceName(projectServiceName: string) {
-    return this._pathTemplates.projectServicePathTemplate.match(projectServiceName).project;
+    return this.pathTemplates.projectServicePathTemplate.match(projectServiceName).project;
   }
 
   /**
@@ -2261,7 +2310,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromProjectServiceName(projectServiceName: string) {
-    return this._pathTemplates.projectServicePathTemplate.match(projectServiceName).service;
+    return this.pathTemplates.projectServicePathTemplate.match(projectServiceName).service;
   }
 
   /**
@@ -2273,7 +2322,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectServiceServiceLevelObjectivePath(project:string,service:string,serviceLevelObjective:string) {
-    return this._pathTemplates.projectServiceServiceLevelObjectivePathTemplate.render({
+    return this.pathTemplates.projectServiceServiceLevelObjectivePathTemplate.render({
       project: project,
       service: service,
       service_level_objective: serviceLevelObjective,
@@ -2288,7 +2337,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectServiceServiceLevelObjectiveName(projectServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).project;
+    return this.pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).project;
   }
 
   /**
@@ -2299,7 +2348,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the service.
    */
   matchServiceFromProjectServiceServiceLevelObjectiveName(projectServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).service;
+    return this.pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).service;
   }
 
   /**
@@ -2310,7 +2359,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the service_level_objective.
    */
   matchServiceLevelObjectiveFromProjectServiceServiceLevelObjectiveName(projectServiceServiceLevelObjectiveName: string) {
-    return this._pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).service_level_objective;
+    return this.pathTemplates.projectServiceServiceLevelObjectivePathTemplate.match(projectServiceServiceLevelObjectiveName).service_level_objective;
   }
 
   /**
@@ -2321,7 +2370,7 @@ export class MetricServiceClient {
    * @returns {string} Resource name string.
    */
   projectUptimeCheckConfigPath(project:string,uptimeCheckConfig:string) {
-    return this._pathTemplates.projectUptimeCheckConfigPathTemplate.render({
+    return this.pathTemplates.projectUptimeCheckConfigPathTemplate.render({
       project: project,
       uptime_check_config: uptimeCheckConfig,
     });
@@ -2335,7 +2384,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the project.
    */
   matchProjectFromProjectUptimeCheckConfigName(projectUptimeCheckConfigName: string) {
-    return this._pathTemplates.projectUptimeCheckConfigPathTemplate.match(projectUptimeCheckConfigName).project;
+    return this.pathTemplates.projectUptimeCheckConfigPathTemplate.match(projectUptimeCheckConfigName).project;
   }
 
   /**
@@ -2346,7 +2395,7 @@ export class MetricServiceClient {
    * @returns {string} A string representing the uptime_check_config.
    */
   matchUptimeCheckConfigFromProjectUptimeCheckConfigName(projectUptimeCheckConfigName: string) {
-    return this._pathTemplates.projectUptimeCheckConfigPathTemplate.match(projectUptimeCheckConfigName).uptime_check_config;
+    return this.pathTemplates.projectUptimeCheckConfigPathTemplate.match(projectUptimeCheckConfigName).uptime_check_config;
   }
 
   /**
