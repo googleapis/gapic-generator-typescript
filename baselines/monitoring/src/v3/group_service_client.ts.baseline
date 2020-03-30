@@ -17,7 +17,7 @@
 // ** All changes to this file may be overwritten. **
 
 import * as gax from 'google-gax';
-import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback} from 'google-gax';
+import {GaxCall, Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback} from 'google-gax';
 import * as path from 'path';
 
 import { Transform } from 'stream';
@@ -50,7 +50,6 @@ export class GroupServiceClient {
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
-  private _innerCallPromises: {[name: string]: gax.UnaryCall | gax.ServerStreamingCall | gax.ClientStreamingCall | gax.BiDiStreamingCall | Promise<gax.GRPCCall>};
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
   innerApiCalls: {[name: string]: Function};
@@ -244,7 +243,6 @@ export class GroupServiceClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
-    this._innerCallPromises = {};
   }
 
   /**
@@ -278,7 +276,7 @@ export class GroupServiceClient {
     const groupServiceStubMethods =
         ['listGroups', 'getGroup', 'createGroup', 'updateGroup', 'deleteGroup', 'listGroupMembers'];
     for (const methodName of groupServiceStubMethods) {
-      this._innerCallPromises[methodName] = this.groupServiceStub.then(
+      const callPromise = this.groupServiceStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -291,20 +289,14 @@ export class GroupServiceClient {
         });
 
       const apiCall = this._gaxModule.createApiCall(
-        this._innerCallPromises[methodName],
+        callPromise,
         this._defaults[methodName],
         this.descriptors.page[methodName] ||
             this.descriptors.stream[methodName] ||
             this.descriptors.longrunning[methodName]
       );
 
-      this.innerApiCalls[methodName] = (
-        argument: {},
-        callOptions?: CallOptions,
-        callback?: APICallback
-      ) => {
-        return apiCall(argument, callOptions, callback);
-      };
+      this.innerApiCalls[methodName] = apiCall;
     }
 
     return this.groupServiceStub;
@@ -375,14 +367,14 @@ export class GroupServiceClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.IGetGroupRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IGetGroupRequest|null|undefined,
+          {}|null|undefined>): void;
   getGroup(
       request: protos.google.monitoring.v3.IGetGroupRequest,
       callback: Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.IGetGroupRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IGetGroupRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Gets a single group.
  *
@@ -401,11 +393,12 @@ export class GroupServiceClient {
       request: protos.google.monitoring.v3.IGetGroupRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.IGetGroupRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.IGetGroupRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.IGetGroupRequest|undefined,
-          {}|undefined>):
+          protos.google.monitoring.v3.IGetGroupRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.monitoring.v3.IGroup,
         protos.google.monitoring.v3.IGetGroupRequest|undefined, {}|undefined
@@ -442,14 +435,14 @@ export class GroupServiceClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.ICreateGroupRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.ICreateGroupRequest|null|undefined,
+          {}|null|undefined>): void;
   createGroup(
       request: protos.google.monitoring.v3.ICreateGroupRequest,
       callback: Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.ICreateGroupRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.ICreateGroupRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Creates a new group.
  *
@@ -473,11 +466,12 @@ export class GroupServiceClient {
       request: protos.google.monitoring.v3.ICreateGroupRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.ICreateGroupRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.ICreateGroupRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.ICreateGroupRequest|undefined,
-          {}|undefined>):
+          protos.google.monitoring.v3.ICreateGroupRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.monitoring.v3.IGroup,
         protos.google.monitoring.v3.ICreateGroupRequest|undefined, {}|undefined
@@ -514,14 +508,14 @@ export class GroupServiceClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.IUpdateGroupRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IUpdateGroupRequest|null|undefined,
+          {}|null|undefined>): void;
   updateGroup(
       request: protos.google.monitoring.v3.IUpdateGroupRequest,
       callback: Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.IUpdateGroupRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IUpdateGroupRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Updates an existing group.
  * You can change any group attributes except `name`.
@@ -543,11 +537,12 @@ export class GroupServiceClient {
       request: protos.google.monitoring.v3.IUpdateGroupRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.IUpdateGroupRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.IUpdateGroupRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.monitoring.v3.IGroup,
-          protos.google.monitoring.v3.IUpdateGroupRequest|undefined,
-          {}|undefined>):
+          protos.google.monitoring.v3.IUpdateGroupRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.monitoring.v3.IGroup,
         protos.google.monitoring.v3.IUpdateGroupRequest|undefined, {}|undefined
@@ -584,14 +579,14 @@ export class GroupServiceClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.IDeleteGroupRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IDeleteGroupRequest|null|undefined,
+          {}|null|undefined>): void;
   deleteGroup(
       request: protos.google.monitoring.v3.IDeleteGroupRequest,
       callback: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.IDeleteGroupRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IDeleteGroupRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Deletes an existing group.
  *
@@ -614,11 +609,12 @@ export class GroupServiceClient {
       request: protos.google.monitoring.v3.IDeleteGroupRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.IDeleteGroupRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.IDeleteGroupRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.IDeleteGroupRequest|undefined,
-          {}|undefined>):
+          protos.google.monitoring.v3.IDeleteGroupRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.protobuf.IEmpty,
         protos.google.monitoring.v3.IDeleteGroupRequest|undefined, {}|undefined
@@ -657,13 +653,13 @@ export class GroupServiceClient {
       options: gax.CallOptions,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListGroupsRequest,
-          protos.google.monitoring.v3.IListGroupsResponse|null,
+          protos.google.monitoring.v3.IListGroupsResponse|null|undefined,
           protos.google.monitoring.v3.IGroup>): void;
   listGroups(
       request: protos.google.monitoring.v3.IListGroupsRequest,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListGroupsRequest,
-          protos.google.monitoring.v3.IListGroupsResponse|null,
+          protos.google.monitoring.v3.IListGroupsResponse|null|undefined,
           protos.google.monitoring.v3.IGroup>): void;
 /**
  * Lists the existing groups.
@@ -716,11 +712,11 @@ export class GroupServiceClient {
       request: protos.google.monitoring.v3.IListGroupsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
           protos.google.monitoring.v3.IListGroupsRequest,
-          protos.google.monitoring.v3.IListGroupsResponse|null,
+          protos.google.monitoring.v3.IListGroupsResponse|null|undefined,
           protos.google.monitoring.v3.IGroup>,
       callback?: PaginationCallback<
           protos.google.monitoring.v3.IListGroupsRequest,
-          protos.google.monitoring.v3.IListGroupsResponse|null,
+          protos.google.monitoring.v3.IListGroupsResponse|null|undefined,
           protos.google.monitoring.v3.IGroup>):
       Promise<[
         protos.google.monitoring.v3.IGroup[],
@@ -865,8 +861,9 @@ export class GroupServiceClient {
     });
     options = options || {};
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this.descriptors.page.listGroups.asyncIterate(
-      this._innerCallPromises['listGroups'] as unknown as gax.GaxCall,
+      this.innerApiCalls['listGroups'] as GaxCall,
       request as unknown as RequestType,
       callSettings
     ) as AsyncIterable<protos.google.monitoring.v3.IGroup>;
@@ -884,13 +881,13 @@ export class GroupServiceClient {
       options: gax.CallOptions,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListGroupMembersRequest,
-          protos.google.monitoring.v3.IListGroupMembersResponse|null,
+          protos.google.monitoring.v3.IListGroupMembersResponse|null|undefined,
           protos.google.api.IMonitoredResource>): void;
   listGroupMembers(
       request: protos.google.monitoring.v3.IListGroupMembersRequest,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListGroupMembersRequest,
-          protos.google.monitoring.v3.IListGroupMembersResponse|null,
+          protos.google.monitoring.v3.IListGroupMembersResponse|null|undefined,
           protos.google.api.IMonitoredResource>): void;
 /**
  * Lists the monitored resources that are members of a group.
@@ -941,11 +938,11 @@ export class GroupServiceClient {
       request: protos.google.monitoring.v3.IListGroupMembersRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
           protos.google.monitoring.v3.IListGroupMembersRequest,
-          protos.google.monitoring.v3.IListGroupMembersResponse|null,
+          protos.google.monitoring.v3.IListGroupMembersResponse|null|undefined,
           protos.google.api.IMonitoredResource>,
       callback?: PaginationCallback<
           protos.google.monitoring.v3.IListGroupMembersRequest,
-          protos.google.monitoring.v3.IListGroupMembersResponse|null,
+          protos.google.monitoring.v3.IListGroupMembersResponse|null|undefined,
           protos.google.api.IMonitoredResource>):
       Promise<[
         protos.google.api.IMonitoredResource[],
@@ -1086,8 +1083,9 @@ export class GroupServiceClient {
     });
     options = options || {};
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this.descriptors.page.listGroupMembers.asyncIterate(
-      this._innerCallPromises['listGroupMembers'] as unknown as gax.GaxCall,
+      this.innerApiCalls['listGroupMembers'] as GaxCall,
       request as unknown as RequestType,
       callSettings
     ) as AsyncIterable<protos.google.api.IMonitoredResource>;

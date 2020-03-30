@@ -17,7 +17,7 @@
 // ** All changes to this file may be overwritten. **
 
 import * as gax from 'google-gax';
-import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback} from 'google-gax';
+import {GaxCall, Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback} from 'google-gax';
 import * as path from 'path';
 
 import { Transform } from 'stream';
@@ -43,7 +43,6 @@ export class EchoClient {
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
-  private _innerCallPromises: {[name: string]: gax.UnaryCall | gax.ServerStreamingCall | gax.ClientStreamingCall | gax.BiDiStreamingCall | Promise<gax.GRPCCall>};
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
   innerApiCalls: {[name: string]: Function};
@@ -218,7 +217,6 @@ export class EchoClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
-    this._innerCallPromises = {};
   }
 
   /**
@@ -252,7 +250,7 @@ export class EchoClient {
     const echoStubMethods =
         ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'wait', 'block'];
     for (const methodName of echoStubMethods) {
-      this._innerCallPromises[methodName] = this.echoStub.then(
+      const callPromise = this.echoStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -265,20 +263,14 @@ export class EchoClient {
         });
 
       const apiCall = this._gaxModule.createApiCall(
-        this._innerCallPromises[methodName],
+        callPromise,
         this._defaults[methodName],
         this.descriptors.page[methodName] ||
             this.descriptors.stream[methodName] ||
             this.descriptors.longrunning[methodName]
       );
 
-      this.innerApiCalls[methodName] = (
-        argument: {},
-        callOptions?: CallOptions,
-        callback?: APICallback
-      ) => {
-        return apiCall(argument, callOptions, callback);
-      };
+      this.innerApiCalls[methodName] = apiCall;
     }
 
     return this.echoStub;
@@ -345,14 +337,14 @@ export class EchoClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.showcase.v1beta1.IEchoResponse,
-          protos.google.showcase.v1beta1.IEchoRequest|undefined,
-          {}|undefined>): void;
+          protos.google.showcase.v1beta1.IEchoRequest|null|undefined,
+          {}|null|undefined>): void;
   echo(
       request: protos.google.showcase.v1beta1.IEchoRequest,
       callback: Callback<
           protos.google.showcase.v1beta1.IEchoResponse,
-          protos.google.showcase.v1beta1.IEchoRequest|undefined,
-          {}|undefined>): void;
+          protos.google.showcase.v1beta1.IEchoRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * @param {Object} request
  *   The request object that will be sent.
@@ -370,11 +362,12 @@ export class EchoClient {
       request: protos.google.showcase.v1beta1.IEchoRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.showcase.v1beta1.IEchoResponse,
-          protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IEchoRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.showcase.v1beta1.IEchoResponse,
-          protos.google.showcase.v1beta1.IEchoRequest|undefined,
-          {}|undefined>):
+          protos.google.showcase.v1beta1.IEchoRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.showcase.v1beta1.IEchoResponse,
         protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined
@@ -404,14 +397,14 @@ export class EchoClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.showcase.v1beta1.IBlockResponse,
-          protos.google.showcase.v1beta1.IBlockRequest|undefined,
-          {}|undefined>): void;
+          protos.google.showcase.v1beta1.IBlockRequest|null|undefined,
+          {}|null|undefined>): void;
   block(
       request: protos.google.showcase.v1beta1.IBlockRequest,
       callback: Callback<
           protos.google.showcase.v1beta1.IBlockResponse,
-          protos.google.showcase.v1beta1.IBlockRequest|undefined,
-          {}|undefined>): void;
+          protos.google.showcase.v1beta1.IBlockRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * This method will block (wait) for the requested amount of time
  * and then return the response or error.
@@ -436,11 +429,12 @@ export class EchoClient {
       request: protos.google.showcase.v1beta1.IBlockRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.showcase.v1beta1.IBlockResponse,
-          protos.google.showcase.v1beta1.IBlockRequest|undefined, {}|undefined>,
+          protos.google.showcase.v1beta1.IBlockRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.showcase.v1beta1.IBlockResponse,
-          protos.google.showcase.v1beta1.IBlockRequest|undefined,
-          {}|undefined>):
+          protos.google.showcase.v1beta1.IBlockRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.showcase.v1beta1.IBlockResponse,
         protos.google.showcase.v1beta1.IBlockRequest|undefined, {}|undefined
@@ -488,12 +482,14 @@ export class EchoClient {
       options?: gax.CallOptions,
       callback?: Callback<
         protos.google.showcase.v1beta1.IEchoResponse,
-        protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>):
+        protos.google.showcase.v1beta1.IEchoRequest|null|undefined,
+        {}|null|undefined>):
     gax.CancellableStream;
   collect(
       callback?: Callback<
         protos.google.showcase.v1beta1.IEchoResponse,
-        protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>):
+        protos.google.showcase.v1beta1.IEchoRequest|null|undefined,
+        {}|null|undefined>):
     gax.CancellableStream;
 /**
  * This method will collect the words given to it. When the stream is closed
@@ -508,10 +504,12 @@ export class EchoClient {
   collect(
       optionsOrCallback?: gax.CallOptions|Callback<
         protos.google.showcase.v1beta1.IEchoResponse,
-        protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>,
+        protos.google.showcase.v1beta1.IEchoRequest|null|undefined,
+        {}|null|undefined>,
       callback?: Callback<
         protos.google.showcase.v1beta1.IEchoResponse,
-        protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined>):
+        protos.google.showcase.v1beta1.IEchoRequest|null|undefined,
+        {}|null|undefined>):
     gax.CancellableStream {
     if (optionsOrCallback instanceof Function && callback === undefined) {
         callback = optionsOrCallback;
@@ -553,14 +551,14 @@ export class EchoClient {
       options: gax.CallOptions,
       callback: Callback<
           LROperation<protos.google.showcase.v1beta1.IWaitResponse, protos.google.showcase.v1beta1.IWaitMetadata>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   wait(
       request: protos.google.showcase.v1beta1.IWaitRequest,
       callback: Callback<
           LROperation<protos.google.showcase.v1beta1.IWaitResponse, protos.google.showcase.v1beta1.IWaitMetadata>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
 /**
  * This method will wait the requested amount of and then return.
  * This method showcases how a client handles a request timing out.
@@ -586,11 +584,12 @@ export class EchoClient {
       request: protos.google.showcase.v1beta1.IWaitRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           LROperation<protos.google.showcase.v1beta1.IWaitResponse, protos.google.showcase.v1beta1.IWaitMetadata>,
-          protos.google.longrunning.IOperation|undefined, {}|undefined>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           LROperation<protos.google.showcase.v1beta1.IWaitResponse, protos.google.showcase.v1beta1.IWaitMetadata>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>):
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>):
       Promise<[
         LROperation<protos.google.showcase.v1beta1.IWaitResponse, protos.google.showcase.v1beta1.IWaitMetadata>,
         protos.google.longrunning.IOperation|undefined, {}|undefined
@@ -621,13 +620,13 @@ export class EchoClient {
       options: gax.CallOptions,
       callback: PaginationCallback<
           protos.google.showcase.v1beta1.IPagedExpandRequest,
-          protos.google.showcase.v1beta1.IPagedExpandResponse|null,
+          protos.google.showcase.v1beta1.IPagedExpandResponse|null|undefined,
           protos.google.showcase.v1beta1.IEchoResponse>): void;
   pagedExpand(
       request: protos.google.showcase.v1beta1.IPagedExpandRequest,
       callback: PaginationCallback<
           protos.google.showcase.v1beta1.IPagedExpandRequest,
-          protos.google.showcase.v1beta1.IPagedExpandResponse|null,
+          protos.google.showcase.v1beta1.IPagedExpandResponse|null|undefined,
           protos.google.showcase.v1beta1.IEchoResponse>): void;
 /**
  * This is similar to the Expand method but instead of returning a stream of
@@ -663,11 +662,11 @@ export class EchoClient {
       request: protos.google.showcase.v1beta1.IPagedExpandRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
           protos.google.showcase.v1beta1.IPagedExpandRequest,
-          protos.google.showcase.v1beta1.IPagedExpandResponse|null,
+          protos.google.showcase.v1beta1.IPagedExpandResponse|null|undefined,
           protos.google.showcase.v1beta1.IEchoResponse>,
       callback?: PaginationCallback<
           protos.google.showcase.v1beta1.IPagedExpandRequest,
-          protos.google.showcase.v1beta1.IPagedExpandResponse|null,
+          protos.google.showcase.v1beta1.IPagedExpandResponse|null|undefined,
           protos.google.showcase.v1beta1.IEchoResponse>):
       Promise<[
         protos.google.showcase.v1beta1.IEchoResponse[],
@@ -755,8 +754,9 @@ export class EchoClient {
     options = options || {};
     options = options || {};
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this.descriptors.page.pagedExpand.asyncIterate(
-      this._innerCallPromises['pagedExpand'] as unknown as gax.GaxCall,
+      this.innerApiCalls['pagedExpand'] as GaxCall,
       request as unknown as RequestType,
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.IEchoResponse>;

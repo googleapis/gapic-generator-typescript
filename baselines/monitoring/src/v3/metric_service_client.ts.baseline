@@ -17,7 +17,7 @@
 // ** All changes to this file may be overwritten. **
 
 import * as gax from 'google-gax';
-import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback} from 'google-gax';
+import {GaxCall, Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback} from 'google-gax';
 import * as path from 'path';
 
 import { Transform } from 'stream';
@@ -40,7 +40,6 @@ export class MetricServiceClient {
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
-  private _innerCallPromises: {[name: string]: gax.UnaryCall | gax.ServerStreamingCall | gax.ClientStreamingCall | gax.BiDiStreamingCall | Promise<gax.GRPCCall>};
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
   innerApiCalls: {[name: string]: Function};
@@ -254,7 +253,6 @@ export class MetricServiceClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
-    this._innerCallPromises = {};
   }
 
   /**
@@ -288,7 +286,7 @@ export class MetricServiceClient {
     const metricServiceStubMethods =
         ['listMonitoredResourceDescriptors', 'getMonitoredResourceDescriptor', 'listMetricDescriptors', 'getMetricDescriptor', 'createMetricDescriptor', 'deleteMetricDescriptor', 'listTimeSeries', 'createTimeSeries'];
     for (const methodName of metricServiceStubMethods) {
-      this._innerCallPromises[methodName] = this.metricServiceStub.then(
+      const callPromise = this.metricServiceStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -301,20 +299,14 @@ export class MetricServiceClient {
         });
 
       const apiCall = this._gaxModule.createApiCall(
-        this._innerCallPromises[methodName],
+        callPromise,
         this._defaults[methodName],
         this.descriptors.page[methodName] ||
             this.descriptors.stream[methodName] ||
             this.descriptors.longrunning[methodName]
       );
 
-      this.innerApiCalls[methodName] = (
-        argument: {},
-        callOptions?: CallOptions,
-        callback?: APICallback
-      ) => {
-        return apiCall(argument, callOptions, callback);
-      };
+      this.innerApiCalls[methodName] = apiCall;
     }
 
     return this.metricServiceStub;
@@ -386,14 +378,14 @@ export class MetricServiceClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.api.IMonitoredResourceDescriptor,
-          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|null|undefined,
+          {}|null|undefined>): void;
   getMonitoredResourceDescriptor(
       request: protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
       callback: Callback<
           protos.google.api.IMonitoredResourceDescriptor,
-          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Gets a single monitored resource descriptor. This method does not require a Stackdriver account.
  *
@@ -414,11 +406,12 @@ export class MetricServiceClient {
       request: protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.api.IMonitoredResourceDescriptor,
-          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.api.IMonitoredResourceDescriptor,
-          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined,
-          {}|undefined>):
+          protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.api.IMonitoredResourceDescriptor,
         protos.google.monitoring.v3.IGetMonitoredResourceDescriptorRequest|undefined, {}|undefined
@@ -455,14 +448,14 @@ export class MetricServiceClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.api.IMetricDescriptor,
-          protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IGetMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>): void;
   getMetricDescriptor(
       request: protos.google.monitoring.v3.IGetMetricDescriptorRequest,
       callback: Callback<
           protos.google.api.IMetricDescriptor,
-          protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IGetMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Gets a single metric descriptor. This method does not require a Stackdriver account.
  *
@@ -483,11 +476,12 @@ export class MetricServiceClient {
       request: protos.google.monitoring.v3.IGetMetricDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.api.IMetricDescriptor,
-          protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.IGetMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.api.IMetricDescriptor,
-          protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined,
-          {}|undefined>):
+          protos.google.monitoring.v3.IGetMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.api.IMetricDescriptor,
         protos.google.monitoring.v3.IGetMetricDescriptorRequest|undefined, {}|undefined
@@ -524,14 +518,14 @@ export class MetricServiceClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.api.IMetricDescriptor,
-          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>): void;
   createMetricDescriptor(
       request: protos.google.monitoring.v3.ICreateMetricDescriptorRequest,
       callback: Callback<
           protos.google.api.IMetricDescriptor,
-          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Creates a new metric descriptor.
  * User-created metric descriptors define
@@ -555,11 +549,12 @@ export class MetricServiceClient {
       request: protos.google.monitoring.v3.ICreateMetricDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.api.IMetricDescriptor,
-          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.api.IMetricDescriptor,
-          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined,
-          {}|undefined>):
+          protos.google.monitoring.v3.ICreateMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.api.IMetricDescriptor,
         protos.google.monitoring.v3.ICreateMetricDescriptorRequest|undefined, {}|undefined
@@ -596,14 +591,14 @@ export class MetricServiceClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>): void;
   deleteMetricDescriptor(
       request: protos.google.monitoring.v3.IDeleteMetricDescriptorRequest,
       callback: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Deletes a metric descriptor. Only user-created
  * [custom metrics](/monitoring/custom-metrics) can be deleted.
@@ -625,11 +620,12 @@ export class MetricServiceClient {
       request: protos.google.monitoring.v3.IDeleteMetricDescriptorRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined,
-          {}|undefined>):
+          protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.protobuf.IEmpty,
         protos.google.monitoring.v3.IDeleteMetricDescriptorRequest|undefined, {}|undefined
@@ -666,14 +662,14 @@ export class MetricServiceClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.ICreateTimeSeriesRequest|null|undefined,
+          {}|null|undefined>): void;
   createTimeSeries(
       request: protos.google.monitoring.v3.ICreateTimeSeriesRequest,
       callback: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
-          {}|undefined>): void;
+          protos.google.monitoring.v3.ICreateTimeSeriesRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Creates or adds data to one or more time series.
  * The response is empty if all time series in the request were written.
@@ -703,11 +699,12 @@ export class MetricServiceClient {
       request: protos.google.monitoring.v3.ICreateTimeSeriesRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined>,
+          protos.google.monitoring.v3.ICreateTimeSeriesRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined,
-          {}|undefined>):
+          protos.google.monitoring.v3.ICreateTimeSeriesRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.protobuf.IEmpty,
         protos.google.monitoring.v3.ICreateTimeSeriesRequest|undefined, {}|undefined
@@ -746,13 +743,13 @@ export class MetricServiceClient {
       options: gax.CallOptions,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
-          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null,
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null|undefined,
           protos.google.api.IMonitoredResourceDescriptor>): void;
   listMonitoredResourceDescriptors(
       request: protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
-          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null,
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null|undefined,
           protos.google.api.IMonitoredResourceDescriptor>): void;
 /**
  * Lists monitored resource descriptors that match a filter. This method does not require a Stackdriver account.
@@ -798,11 +795,11 @@ export class MetricServiceClient {
       request: protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
           protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
-          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null,
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null|undefined,
           protos.google.api.IMonitoredResourceDescriptor>,
       callback?: PaginationCallback<
           protos.google.monitoring.v3.IListMonitoredResourceDescriptorsRequest,
-          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null,
+          protos.google.monitoring.v3.IListMonitoredResourceDescriptorsResponse|null|undefined,
           protos.google.api.IMonitoredResourceDescriptor>):
       Promise<[
         protos.google.api.IMonitoredResourceDescriptor[],
@@ -933,8 +930,9 @@ export class MetricServiceClient {
     });
     options = options || {};
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this.descriptors.page.listMonitoredResourceDescriptors.asyncIterate(
-      this._innerCallPromises['listMonitoredResourceDescriptors'] as unknown as gax.GaxCall,
+      this.innerApiCalls['listMonitoredResourceDescriptors'] as GaxCall,
       request as unknown as RequestType,
       callSettings
     ) as AsyncIterable<protos.google.api.IMonitoredResourceDescriptor>;
@@ -952,13 +950,13 @@ export class MetricServiceClient {
       options: gax.CallOptions,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListMetricDescriptorsRequest,
-          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null,
+          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null|undefined,
           protos.google.api.IMetricDescriptor>): void;
   listMetricDescriptors(
       request: protos.google.monitoring.v3.IListMetricDescriptorsRequest,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListMetricDescriptorsRequest,
-          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null,
+          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null|undefined,
           protos.google.api.IMetricDescriptor>): void;
 /**
  * Lists metric descriptors that match a filter. This method does not require a Stackdriver account.
@@ -1005,11 +1003,11 @@ export class MetricServiceClient {
       request: protos.google.monitoring.v3.IListMetricDescriptorsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
           protos.google.monitoring.v3.IListMetricDescriptorsRequest,
-          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null,
+          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null|undefined,
           protos.google.api.IMetricDescriptor>,
       callback?: PaginationCallback<
           protos.google.monitoring.v3.IListMetricDescriptorsRequest,
-          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null,
+          protos.google.monitoring.v3.IListMetricDescriptorsResponse|null|undefined,
           protos.google.api.IMetricDescriptor>):
       Promise<[
         protos.google.api.IMetricDescriptor[],
@@ -1142,8 +1140,9 @@ export class MetricServiceClient {
     });
     options = options || {};
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this.descriptors.page.listMetricDescriptors.asyncIterate(
-      this._innerCallPromises['listMetricDescriptors'] as unknown as gax.GaxCall,
+      this.innerApiCalls['listMetricDescriptors'] as GaxCall,
       request as unknown as RequestType,
       callSettings
     ) as AsyncIterable<protos.google.api.IMetricDescriptor>;
@@ -1161,13 +1160,13 @@ export class MetricServiceClient {
       options: gax.CallOptions,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListTimeSeriesRequest,
-          protos.google.monitoring.v3.IListTimeSeriesResponse|null,
+          protos.google.monitoring.v3.IListTimeSeriesResponse|null|undefined,
           protos.google.monitoring.v3.ITimeSeries>): void;
   listTimeSeries(
       request: protos.google.monitoring.v3.IListTimeSeriesRequest,
       callback: PaginationCallback<
           protos.google.monitoring.v3.IListTimeSeriesRequest,
-          protos.google.monitoring.v3.IListTimeSeriesResponse|null,
+          protos.google.monitoring.v3.IListTimeSeriesResponse|null|undefined,
           protos.google.monitoring.v3.ITimeSeries>): void;
 /**
  * Lists time series that match a filter. This method does not require a Stackdriver account.
@@ -1232,11 +1231,11 @@ export class MetricServiceClient {
       request: protos.google.monitoring.v3.IListTimeSeriesRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
           protos.google.monitoring.v3.IListTimeSeriesRequest,
-          protos.google.monitoring.v3.IListTimeSeriesResponse|null,
+          protos.google.monitoring.v3.IListTimeSeriesResponse|null|undefined,
           protos.google.monitoring.v3.ITimeSeries>,
       callback?: PaginationCallback<
           protos.google.monitoring.v3.IListTimeSeriesRequest,
-          protos.google.monitoring.v3.IListTimeSeriesResponse|null,
+          protos.google.monitoring.v3.IListTimeSeriesResponse|null|undefined,
           protos.google.monitoring.v3.ITimeSeries>):
       Promise<[
         protos.google.monitoring.v3.ITimeSeries[],
@@ -1405,8 +1404,9 @@ export class MetricServiceClient {
     });
     options = options || {};
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this.descriptors.page.listTimeSeries.asyncIterate(
-      this._innerCallPromises['listTimeSeries'] as unknown as gax.GaxCall,
+      this.innerApiCalls['listTimeSeries'] as GaxCall,
       request as unknown as RequestType,
       callSettings
     ) as AsyncIterable<protos.google.monitoring.v3.ITimeSeries>;

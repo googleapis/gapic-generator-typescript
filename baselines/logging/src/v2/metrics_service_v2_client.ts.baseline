@@ -17,7 +17,7 @@
 // ** All changes to this file may be overwritten. **
 
 import * as gax from 'google-gax';
-import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback} from 'google-gax';
+import {GaxCall, Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback} from 'google-gax';
 import * as path from 'path';
 
 import { Transform } from 'stream';
@@ -39,7 +39,6 @@ export class MetricsServiceV2Client {
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
-  private _innerCallPromises: {[name: string]: gax.UnaryCall | gax.ServerStreamingCall | gax.ClientStreamingCall | gax.BiDiStreamingCall | Promise<gax.GRPCCall>};
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
   innerApiCalls: {[name: string]: Function};
@@ -225,7 +224,6 @@ export class MetricsServiceV2Client {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
-    this._innerCallPromises = {};
   }
 
   /**
@@ -259,7 +257,7 @@ export class MetricsServiceV2Client {
     const metricsServiceV2StubMethods =
         ['listLogMetrics', 'getLogMetric', 'createLogMetric', 'updateLogMetric', 'deleteLogMetric'];
     for (const methodName of metricsServiceV2StubMethods) {
-      this._innerCallPromises[methodName] = this.metricsServiceV2Stub.then(
+      const callPromise = this.metricsServiceV2Stub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -272,20 +270,14 @@ export class MetricsServiceV2Client {
         });
 
       const apiCall = this._gaxModule.createApiCall(
-        this._innerCallPromises[methodName],
+        callPromise,
         this._defaults[methodName],
         this.descriptors.page[methodName] ||
             this.descriptors.stream[methodName] ||
             this.descriptors.longrunning[methodName]
       );
 
-      this.innerApiCalls[methodName] = (
-        argument: {},
-        callOptions?: CallOptions,
-        callback?: APICallback
-      ) => {
-        return apiCall(argument, callOptions, callback);
-      };
+      this.innerApiCalls[methodName] = apiCall;
     }
 
     return this.metricsServiceV2Stub;
@@ -358,14 +350,14 @@ export class MetricsServiceV2Client {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.IGetLogMetricRequest|undefined,
-          {}|undefined>): void;
+          protos.google.logging.v2.IGetLogMetricRequest|null|undefined,
+          {}|null|undefined>): void;
   getLogMetric(
       request: protos.google.logging.v2.IGetLogMetricRequest,
       callback: Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.IGetLogMetricRequest|undefined,
-          {}|undefined>): void;
+          protos.google.logging.v2.IGetLogMetricRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Gets a logs-based metric.
  *
@@ -385,11 +377,12 @@ export class MetricsServiceV2Client {
       request: protos.google.logging.v2.IGetLogMetricRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.IGetLogMetricRequest|undefined, {}|undefined>,
+          protos.google.logging.v2.IGetLogMetricRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.IGetLogMetricRequest|undefined,
-          {}|undefined>):
+          protos.google.logging.v2.IGetLogMetricRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.logging.v2.ILogMetric,
         protos.google.logging.v2.IGetLogMetricRequest|undefined, {}|undefined
@@ -426,14 +419,14 @@ export class MetricsServiceV2Client {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.ICreateLogMetricRequest|undefined,
-          {}|undefined>): void;
+          protos.google.logging.v2.ICreateLogMetricRequest|null|undefined,
+          {}|null|undefined>): void;
   createLogMetric(
       request: protos.google.logging.v2.ICreateLogMetricRequest,
       callback: Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.ICreateLogMetricRequest|undefined,
-          {}|undefined>): void;
+          protos.google.logging.v2.ICreateLogMetricRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Creates a logs-based metric.
  *
@@ -458,11 +451,12 @@ export class MetricsServiceV2Client {
       request: protos.google.logging.v2.ICreateLogMetricRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.ICreateLogMetricRequest|undefined, {}|undefined>,
+          protos.google.logging.v2.ICreateLogMetricRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.ICreateLogMetricRequest|undefined,
-          {}|undefined>):
+          protos.google.logging.v2.ICreateLogMetricRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.logging.v2.ILogMetric,
         protos.google.logging.v2.ICreateLogMetricRequest|undefined, {}|undefined
@@ -499,14 +493,14 @@ export class MetricsServiceV2Client {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.IUpdateLogMetricRequest|undefined,
-          {}|undefined>): void;
+          protos.google.logging.v2.IUpdateLogMetricRequest|null|undefined,
+          {}|null|undefined>): void;
   updateLogMetric(
       request: protos.google.logging.v2.IUpdateLogMetricRequest,
       callback: Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.IUpdateLogMetricRequest|undefined,
-          {}|undefined>): void;
+          protos.google.logging.v2.IUpdateLogMetricRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Creates or updates a logs-based metric.
  *
@@ -532,11 +526,12 @@ export class MetricsServiceV2Client {
       request: protos.google.logging.v2.IUpdateLogMetricRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.IUpdateLogMetricRequest|undefined, {}|undefined>,
+          protos.google.logging.v2.IUpdateLogMetricRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.logging.v2.ILogMetric,
-          protos.google.logging.v2.IUpdateLogMetricRequest|undefined,
-          {}|undefined>):
+          protos.google.logging.v2.IUpdateLogMetricRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.logging.v2.ILogMetric,
         protos.google.logging.v2.IUpdateLogMetricRequest|undefined, {}|undefined
@@ -573,14 +568,14 @@ export class MetricsServiceV2Client {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.logging.v2.IDeleteLogMetricRequest|undefined,
-          {}|undefined>): void;
+          protos.google.logging.v2.IDeleteLogMetricRequest|null|undefined,
+          {}|null|undefined>): void;
   deleteLogMetric(
       request: protos.google.logging.v2.IDeleteLogMetricRequest,
       callback: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.logging.v2.IDeleteLogMetricRequest|undefined,
-          {}|undefined>): void;
+          protos.google.logging.v2.IDeleteLogMetricRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Deletes a logs-based metric.
  *
@@ -600,11 +595,12 @@ export class MetricsServiceV2Client {
       request: protos.google.logging.v2.IDeleteLogMetricRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.logging.v2.IDeleteLogMetricRequest|undefined, {}|undefined>,
+          protos.google.logging.v2.IDeleteLogMetricRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.protobuf.IEmpty,
-          protos.google.logging.v2.IDeleteLogMetricRequest|undefined,
-          {}|undefined>):
+          protos.google.logging.v2.IDeleteLogMetricRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.protobuf.IEmpty,
         protos.google.logging.v2.IDeleteLogMetricRequest|undefined, {}|undefined
@@ -643,13 +639,13 @@ export class MetricsServiceV2Client {
       options: gax.CallOptions,
       callback: PaginationCallback<
           protos.google.logging.v2.IListLogMetricsRequest,
-          protos.google.logging.v2.IListLogMetricsResponse|null,
+          protos.google.logging.v2.IListLogMetricsResponse|null|undefined,
           protos.google.logging.v2.ILogMetric>): void;
   listLogMetrics(
       request: protos.google.logging.v2.IListLogMetricsRequest,
       callback: PaginationCallback<
           protos.google.logging.v2.IListLogMetricsRequest,
-          protos.google.logging.v2.IListLogMetricsResponse|null,
+          protos.google.logging.v2.IListLogMetricsResponse|null|undefined,
           protos.google.logging.v2.ILogMetric>): void;
 /**
  * Lists logs-based metrics.
@@ -691,11 +687,11 @@ export class MetricsServiceV2Client {
       request: protos.google.logging.v2.IListLogMetricsRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
           protos.google.logging.v2.IListLogMetricsRequest,
-          protos.google.logging.v2.IListLogMetricsResponse|null,
+          protos.google.logging.v2.IListLogMetricsResponse|null|undefined,
           protos.google.logging.v2.ILogMetric>,
       callback?: PaginationCallback<
           protos.google.logging.v2.IListLogMetricsRequest,
-          protos.google.logging.v2.IListLogMetricsResponse|null,
+          protos.google.logging.v2.IListLogMetricsResponse|null|undefined,
           protos.google.logging.v2.ILogMetric>):
       Promise<[
         protos.google.logging.v2.ILogMetric[],
@@ -818,8 +814,9 @@ export class MetricsServiceV2Client {
     });
     options = options || {};
     const callSettings = new gax.CallSettings(options);
+    this.initialize();
     return this.descriptors.page.listLogMetrics.asyncIterate(
-      this._innerCallPromises['listLogMetrics'] as unknown as gax.GaxCall,
+      this.innerApiCalls['listLogMetrics'] as GaxCall,
       request as unknown as RequestType,
       callSettings
     ) as AsyncIterable<protos.google.logging.v2.ILogMetric>;
