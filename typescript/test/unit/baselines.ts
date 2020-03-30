@@ -96,4 +96,12 @@ describe('Baseline tests', () => {
     mainServiceName: 'ShowcaseService',
     template: 'typescript_gapic',
   });
+
+  runBaselineTest({
+    baselineName: 'IamService-test',
+    outputDir: '.test-out-iam-service-test',
+    protoPath: 'google/cloud/kms/v1/*.proto',
+    useCommonProto: false,
+    iamService: true,
+  });
 });
