@@ -44,6 +44,7 @@ export class Generator {
   // For historical reasons, Webpack library name matches "the main" service of the client library.
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName?: string;
+  iamService?: boolean;
   templates: string[];
 
   constructor() {
@@ -110,6 +111,14 @@ export class Generator {
       this.bundleConfigs = new BundleConfigClient().fromObject(info);
     }
   }
+  private readIamService() {
+    // if `--iam-service` is not specified, or set it as `false`, we will not generated IAM methods for the client.
+    // if `--iam-service` is true, we will include all IAM methods in the client.
+    if (this.paramMap?.['iam-service']) {
+      const iamService = this.paramMap['iam-service'];
+      this.iamService = iamService === 'true' ? true : false;
+    }
+  }
 
   private readPublishPackageName() {
     this.publishName = this.paramMap['package-name'];
@@ -135,6 +144,7 @@ export class Generator {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig();
       this.readBundleConfig();
+      this.readIamService();
       this.readPublishPackageName();
       this.readMainServiceName();
       this.readTemplates();
@@ -173,6 +183,7 @@ export class Generator {
       bundleConfigs: this.bundleConfigs,
       publishName: this.publishName,
       mainServiceName: this.mainServiceName,
+      iamService: this.iamService,
     });
     return api;
   }

@@ -22,6 +22,7 @@ export interface Options {
   bundleConfigs?: BundleConfig[];
   publishName?: string;
   mainServiceName?: string;
+  iamService?: boolean;
 }
 
 export class Naming {
