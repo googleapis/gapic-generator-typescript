@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v2.ConfigServiceV2Client', () => {
     it('has servicePath', () => {
         const servicePath = configservicev2Module.v2.ConfigServiceV2Client.servicePath;
@@ -1276,7 +1296,7 @@ describe('v2.ConfigServiceV2Client', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listBuckets.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listBuckets, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listBuckets.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -1310,8 +1330,65 @@ describe('v2.ConfigServiceV2Client', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listBuckets.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listBuckets, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listBuckets.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listBuckets without error', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListBucketsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.logging.v2.LogBucket()),
+              generateSampleMessage(new protos.google.logging.v2.LogBucket()),
+              generateSampleMessage(new protos.google.logging.v2.LogBucket()),
+            ];
+            client.descriptors.page.listBuckets.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.logging.v2.ILogBucket[] = [];
+            const iterable = client.listBucketsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listBuckets.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listBuckets.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listBuckets with error', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListBucketsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listBuckets.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listBucketsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.logging.v2.ILogBucket[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listBuckets.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listBuckets.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -1441,7 +1518,7 @@ describe('v2.ConfigServiceV2Client', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listSinks.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listSinks, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listSinks.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -1475,8 +1552,65 @@ describe('v2.ConfigServiceV2Client', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listSinks.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listSinks, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listSinks.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listSinks without error', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListSinksRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.logging.v2.LogSink()),
+              generateSampleMessage(new protos.google.logging.v2.LogSink()),
+              generateSampleMessage(new protos.google.logging.v2.LogSink()),
+            ];
+            client.descriptors.page.listSinks.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.logging.v2.ILogSink[] = [];
+            const iterable = client.listSinksAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listSinks.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listSinks.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listSinks with error', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListSinksRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listSinks.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listSinksAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.logging.v2.ILogSink[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listSinks.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listSinks.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -1606,7 +1740,7 @@ describe('v2.ConfigServiceV2Client', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listExclusions.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listExclusions, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listExclusions.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -1640,8 +1774,65 @@ describe('v2.ConfigServiceV2Client', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listExclusions.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listExclusions, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listExclusions.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listExclusions without error', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListExclusionsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
+              generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
+              generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
+            ];
+            client.descriptors.page.listExclusions.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.logging.v2.ILogExclusion[] = [];
+            const iterable = client.listExclusionsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listExclusions.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listExclusions.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listExclusions with error', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListExclusionsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listExclusions.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listExclusionsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.logging.v2.ILogExclusion[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listExclusions.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listExclusions.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );

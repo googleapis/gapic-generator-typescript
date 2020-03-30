@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v3.AlertPolicyServiceClient', () => {
     it('has servicePath', () => {
         const servicePath = alertpolicyserviceModule.v3.AlertPolicyServiceClient.servicePath;
@@ -607,7 +627,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listAlertPolicies.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listAlertPolicies, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listAlertPolicies.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -641,8 +661,65 @@ describe('v3.AlertPolicyServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listAlertPolicies.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listAlertPolicies, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listAlertPolicies.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listAlertPolicies without error', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
+            request.name = '';
+            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+              generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
+              generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
+              generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
+            ];
+            client.descriptors.page.listAlertPolicies.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.monitoring.v3.IAlertPolicy[] = [];
+            const iterable = client.listAlertPoliciesAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listAlertPolicies.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listAlertPolicies.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listAlertPolicies with error', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
+            request.name = '';
+            const expectedHeaderRequestParams = "name=";const expectedError = new Error('expected');
+            client.descriptors.page.listAlertPolicies.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listAlertPoliciesAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.monitoring.v3.IAlertPolicy[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listAlertPolicies.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listAlertPolicies.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );

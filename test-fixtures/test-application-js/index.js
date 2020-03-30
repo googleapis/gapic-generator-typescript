@@ -52,6 +52,7 @@ function runTest(client, opts) {
   }
   testPagedExpand(client);
   testPagedExpandStream(client);
+  testPagedExpandAsync(client);
   testWait(client);
 }
 
@@ -96,6 +97,22 @@ function testPagedExpand(client) {
     };
     const [response] = await client.pagedExpand(request);
     const result = response.map(r => r.content);
+    assert.deepStrictEqual(words, result);
+  });
+}
+
+function testPagedExpandAsync(client) {
+  it('pagedExpandAsync', async () => {
+    const words = ['nobody', 'ever', 'reads', 'test', 'input'];
+    const request = {
+      content: words.join(' '),
+      pageSize: 2,
+    };
+    const iterable = client.pagedExpandAsync(request);
+    const result = [];
+    for await (const resource of iterable) {
+      result.push(resource.content);
+    }
     assert.deepStrictEqual(words, result);
   });
 }

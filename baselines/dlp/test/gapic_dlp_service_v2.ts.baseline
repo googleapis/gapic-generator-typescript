@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v2.DlpServiceClient', () => {
     it('has servicePath', () => {
         const servicePath = dlpserviceModule.v2.DlpServiceClient.servicePath;
@@ -2428,7 +2448,7 @@ describe('v2.DlpServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listInspectTemplates.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listInspectTemplates, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listInspectTemplates.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -2462,8 +2482,65 @@ describe('v2.DlpServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listInspectTemplates.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listInspectTemplates, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listInspectTemplates.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listInspectTemplates without error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListInspectTemplatesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.privacy.dlp.v2.InspectTemplate()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.InspectTemplate()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.InspectTemplate()),
+            ];
+            client.descriptors.page.listInspectTemplates.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.privacy.dlp.v2.IInspectTemplate[] = [];
+            const iterable = client.listInspectTemplatesAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listInspectTemplates.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listInspectTemplates.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listInspectTemplates with error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListInspectTemplatesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listInspectTemplates.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listInspectTemplatesAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.privacy.dlp.v2.IInspectTemplate[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listInspectTemplates.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listInspectTemplates.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -2593,7 +2670,7 @@ describe('v2.DlpServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listDeidentifyTemplates.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listDeidentifyTemplates, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listDeidentifyTemplates.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -2627,8 +2704,65 @@ describe('v2.DlpServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listDeidentifyTemplates.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listDeidentifyTemplates, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listDeidentifyTemplates.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listDeidentifyTemplates without error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListDeidentifyTemplatesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.privacy.dlp.v2.DeidentifyTemplate()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.DeidentifyTemplate()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.DeidentifyTemplate()),
+            ];
+            client.descriptors.page.listDeidentifyTemplates.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.privacy.dlp.v2.IDeidentifyTemplate[] = [];
+            const iterable = client.listDeidentifyTemplatesAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listDeidentifyTemplates.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listDeidentifyTemplates.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listDeidentifyTemplates with error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListDeidentifyTemplatesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listDeidentifyTemplates.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listDeidentifyTemplatesAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.privacy.dlp.v2.IDeidentifyTemplate[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listDeidentifyTemplates.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listDeidentifyTemplates.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -2758,7 +2892,7 @@ describe('v2.DlpServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listJobTriggers.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listJobTriggers, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listJobTriggers.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -2792,8 +2926,65 @@ describe('v2.DlpServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listJobTriggers.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listJobTriggers, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listJobTriggers.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listJobTriggers without error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListJobTriggersRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.privacy.dlp.v2.JobTrigger()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.JobTrigger()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.JobTrigger()),
+            ];
+            client.descriptors.page.listJobTriggers.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.privacy.dlp.v2.IJobTrigger[] = [];
+            const iterable = client.listJobTriggersAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listJobTriggers.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listJobTriggers.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listJobTriggers with error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListJobTriggersRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listJobTriggers.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listJobTriggersAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.privacy.dlp.v2.IJobTrigger[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listJobTriggers.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listJobTriggers.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -2923,7 +3114,7 @@ describe('v2.DlpServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listDlpJobs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listDlpJobs, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listDlpJobs.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -2957,8 +3148,65 @@ describe('v2.DlpServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listDlpJobs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listDlpJobs, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listDlpJobs.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listDlpJobs without error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListDlpJobsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.privacy.dlp.v2.DlpJob()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.DlpJob()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.DlpJob()),
+            ];
+            client.descriptors.page.listDlpJobs.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.privacy.dlp.v2.IDlpJob[] = [];
+            const iterable = client.listDlpJobsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listDlpJobs.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listDlpJobs.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listDlpJobs with error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListDlpJobsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listDlpJobs.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listDlpJobsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.privacy.dlp.v2.IDlpJob[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listDlpJobs.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listDlpJobs.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -3088,7 +3336,7 @@ describe('v2.DlpServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listStoredInfoTypes.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listStoredInfoTypes, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listStoredInfoTypes.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -3122,8 +3370,65 @@ describe('v2.DlpServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listStoredInfoTypes.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listStoredInfoTypes, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listStoredInfoTypes.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listStoredInfoTypes without error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListStoredInfoTypesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.privacy.dlp.v2.StoredInfoType()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.StoredInfoType()),
+              generateSampleMessage(new protos.google.privacy.dlp.v2.StoredInfoType()),
+            ];
+            client.descriptors.page.listStoredInfoTypes.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.privacy.dlp.v2.IStoredInfoType[] = [];
+            const iterable = client.listStoredInfoTypesAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listStoredInfoTypes.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listStoredInfoTypes.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listStoredInfoTypes with error', async () => {
+            const client = new dlpserviceModule.v2.DlpServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.privacy.dlp.v2.ListStoredInfoTypesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listStoredInfoTypes.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listStoredInfoTypesAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.privacy.dlp.v2.IStoredInfoType[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listStoredInfoTypes.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listStoredInfoTypes.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );

@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v2.LoggingServiceV2Client', () => {
     it('has servicePath', () => {
         const servicePath = loggingservicev2Module.v2.LoggingServiceV2Client.servicePath;
@@ -414,6 +434,49 @@ describe('v2.LoggingServiceV2Client', () => {
             assert((client.descriptors.page.listLogEntries.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listLogEntries, request));
         });
+
+        it('uses async iteration with listLogEntries without error', async () => {
+            const client = new loggingservicev2Module.v2.LoggingServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListLogEntriesRequest());const expectedResponse = [
+              generateSampleMessage(new protos.google.logging.v2.LogEntry()),
+              generateSampleMessage(new protos.google.logging.v2.LogEntry()),
+              generateSampleMessage(new protos.google.logging.v2.LogEntry()),
+            ];
+            client.descriptors.page.listLogEntries.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.logging.v2.ILogEntry[] = [];
+            const iterable = client.listLogEntriesAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listLogEntries.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
+
+        it('uses async iteration with listLogEntries with error', async () => {
+            const client = new loggingservicev2Module.v2.LoggingServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListLogEntriesRequest());const expectedError = new Error('expected');
+            client.descriptors.page.listLogEntries.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listLogEntriesAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.logging.v2.ILogEntry[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listLogEntries.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
     });
 
     describe('listMonitoredResourceDescriptors', () => {
@@ -541,6 +604,49 @@ describe('v2.LoggingServiceV2Client', () => {
             assert((client.descriptors.page.listMonitoredResourceDescriptors.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listMonitoredResourceDescriptors, request));
         });
+
+        it('uses async iteration with listMonitoredResourceDescriptors without error', async () => {
+            const client = new loggingservicev2Module.v2.LoggingServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListMonitoredResourceDescriptorsRequest());const expectedResponse = [
+              generateSampleMessage(new protos.google.api.MonitoredResourceDescriptor()),
+              generateSampleMessage(new protos.google.api.MonitoredResourceDescriptor()),
+              generateSampleMessage(new protos.google.api.MonitoredResourceDescriptor()),
+            ];
+            client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.api.IMonitoredResourceDescriptor[] = [];
+            const iterable = client.listMonitoredResourceDescriptorsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
+
+        it('uses async iteration with listMonitoredResourceDescriptors with error', async () => {
+            const client = new loggingservicev2Module.v2.LoggingServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListMonitoredResourceDescriptorsRequest());const expectedError = new Error('expected');
+            client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listMonitoredResourceDescriptorsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.api.IMonitoredResourceDescriptor[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
     });
 
     describe('listLogs', () => {
@@ -666,7 +772,7 @@ describe('v2.LoggingServiceV2Client', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listLogs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listLogs, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listLogs.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -700,8 +806,65 @@ describe('v2.LoggingServiceV2Client', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listLogs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listLogs, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listLogs.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listLogs without error', async () => {
+            const client = new loggingservicev2Module.v2.LoggingServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListLogsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protosTYPE_STRING()),
+              generateSampleMessage(new protosTYPE_STRING()),
+              generateSampleMessage(new protosTYPE_STRING()),
+            ];
+            client.descriptors.page.listLogs.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: string[] = [];
+            const iterable = client.listLogsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listLogs.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listLogs.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listLogs with error', async () => {
+            const client = new loggingservicev2Module.v2.LoggingServiceV2Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.ListLogsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listLogs.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listLogsAsync(request);
+            assert.rejects(async () => {
+                const responses: string[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listLogs.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listLogs.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );

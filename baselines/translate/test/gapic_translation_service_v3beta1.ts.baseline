@@ -82,6 +82,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v3beta1.TranslationServiceClient', () => {
     it('has servicePath', () => {
         const servicePath = translationserviceModule.v3beta1.TranslationServiceClient.servicePath;
@@ -956,7 +976,7 @@ describe('v3beta1.TranslationServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listGlossaries.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listGlossaries, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listGlossaries.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -990,8 +1010,65 @@ describe('v3beta1.TranslationServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listGlossaries.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listGlossaries, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listGlossaries.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listGlossaries without error', async () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.ListGlossariesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
+              generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
+              generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
+            ];
+            client.descriptors.page.listGlossaries.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.cloud.translation.v3beta1.IGlossary[] = [];
+            const iterable = client.listGlossariesAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listGlossaries.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listGlossaries.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listGlossaries with error', async () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.ListGlossariesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listGlossaries.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listGlossariesAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.cloud.translation.v3beta1.IGlossary[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listGlossaries.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listGlossaries.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );

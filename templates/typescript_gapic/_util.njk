@@ -34,6 +34,14 @@ limitations under the License.
   {{- printReturnPageStream(method) }}
 {%- endmacro -%}
 
+{%- macro printCommentsPageAsync(method) -%}
+  {{- printPageAsyncHeader(method) -}}
+  {{- printRequest(method) -}}
+  {{- printCommentsForParams(method) -}}
+  {{- printOptions() -}}
+  {{- printReturnPageAsync(method) }}
+{%- endmacro -%}
+
 {%- macro printCommentsForService(service) -%}
 {%- set lines = service.comments -%}
 {% for line in lines %}
@@ -51,6 +59,14 @@ limitations under the License.
 {% for line in lines %}
  *{{ line.replaceAll('*/', '* /').replace(r/\s+$/, '') | replace(markdownReferenceRegex, '{@link $2|$1}') | safe }}
 {%- endfor %}
+{%- endmacro -%}
+
+
+{%- macro printPageAsyncHeader(method) %}
+ * Equivalent to {@link {{ method.name.toCamelCase() }}}, but returns an iterable object.
+ *
+ * for-await-of syntax is used with the iterable to recursively get response element on-demand.
+ *
 {%- endmacro -%}
 
 {%- macro printPageStreamHeader(method) %}
@@ -163,6 +179,11 @@ limitations under the License.
 {%- macro printReturnPageStream(method) %}
  * @returns {Stream}
  *   An object stream which emits an object representing {{ typeLink(method.pagingResponseType) }} on 'data' event.
+{%- endmacro -%}
+
+{%- macro printReturnPageAsync(method) %}
+ * @returns {Object}
+ *   An iterable Object that conforms to @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols.
 {%- endmacro -%}
 
 {%- macro printRequestField(oneComment) %}

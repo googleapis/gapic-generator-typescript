@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v1beta1.TestingClient', () => {
     it('has servicePath', () => {
         const servicePath = testingModule.v1beta1.TestingClient.servicePath;
@@ -750,6 +770,49 @@ describe('v1beta1.TestingClient', () => {
             assert((client.descriptors.page.listSessions.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listSessions, request));
         });
+
+        it('uses async iteration with listSessions without error', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListSessionsRequest());const expectedResponse = [
+              generateSampleMessage(new protos.google.showcase.v1beta1.Session()),
+              generateSampleMessage(new protos.google.showcase.v1beta1.Session()),
+              generateSampleMessage(new protos.google.showcase.v1beta1.Session()),
+            ];
+            client.descriptors.page.listSessions.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.showcase.v1beta1.ISession[] = [];
+            const iterable = client.listSessionsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listSessions.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
+
+        it('uses async iteration with listSessions with error', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListSessionsRequest());const expectedError = new Error('expected');
+            client.descriptors.page.listSessions.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listSessionsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.showcase.v1beta1.ISession[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listSessions.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
     });
 
     describe('listTests', () => {
@@ -875,7 +938,7 @@ describe('v1beta1.TestingClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listTests.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listTests, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listTests.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -909,8 +972,65 @@ describe('v1beta1.TestingClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listTests.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listTests, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listTests.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listTests without error', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListTestsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.showcase.v1beta1.Test()),
+              generateSampleMessage(new protos.google.showcase.v1beta1.Test()),
+              generateSampleMessage(new protos.google.showcase.v1beta1.Test()),
+            ];
+            client.descriptors.page.listTests.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.showcase.v1beta1.ITest[] = [];
+            const iterable = client.listTestsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listTests.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listTests.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listTests with error', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListTestsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listTests.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listTestsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.showcase.v1beta1.ITest[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listTests.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listTests.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );

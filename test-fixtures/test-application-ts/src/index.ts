@@ -15,15 +15,13 @@
 import * as assert from 'assert';
 import * as showcase from 'showcase';
 
-import * as grpc from '@grpc/grpc-js'; // to create credentials for local Showcase server
-
 interface ClientOptions{
-  [name: string]: Object;
+  [name: string]: {};
   servicePath: string;
   port: number;
 }
 interface Options {
-  [name: string]: Object;
+  [name: string]: {};
 }
 // Fake auth client for fallback
 const authStub = {
@@ -93,6 +91,7 @@ function runTest(client: showcase.v1beta1.EchoClient, opts: Options) {
     testChat(client);
   }
   testPagedExpand(client);
+  testPagedExpandAsync(client);
   testWait(client);
 }
 
@@ -129,7 +128,7 @@ function testExpand(client: showcase.v1beta1.EchoClient) {
 }
 
 function testPagedExpand(client: showcase.v1beta1.EchoClient) {
-  it('pagedExpand', async () => {
+  it('pagedExpandAsync', async () => {
     const words = ['nobody', 'ever', 'reads', 'test', 'input'];
     const request = {
       content: words.join(' '),
@@ -137,6 +136,22 @@ function testPagedExpand(client: showcase.v1beta1.EchoClient) {
     };
     const [response] = await client.pagedExpand(request);
     const result = response.map(r => r.content);
+    assert.deepStrictEqual(words, result);
+  });
+}
+
+function testPagedExpandAsync(client: showcase.v1beta1.EchoClient) {
+  it('pagedExpandAsync', async () => {
+    const words = ['nobody', 'ever', 'reads', 'test', 'input'];
+    const request = {
+      content: words.join(' '),
+      pageSize: 2,
+    };
+    const iterable = client.pagedExpandAsync(request);
+    const result: string[] = [];
+    for await (const resource of iterable) {
+      result.push(resource.content!);
+    }
     assert.deepStrictEqual(words, result);
   });
 }

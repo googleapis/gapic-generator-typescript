@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v3.ServiceMonitoringServiceClient', () => {
     it('has servicePath', () => {
         const servicePath = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.servicePath;
@@ -946,7 +966,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listServices.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listServices, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listServices.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -980,8 +1000,65 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listServices.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listServices, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listServices.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listServices without error', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.monitoring.v3.Service()),
+              generateSampleMessage(new protos.google.monitoring.v3.Service()),
+              generateSampleMessage(new protos.google.monitoring.v3.Service()),
+            ];
+            client.descriptors.page.listServices.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.monitoring.v3.IService[] = [];
+            const iterable = client.listServicesAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listServices.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listServices.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listServices with error', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listServices.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listServicesAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.monitoring.v3.IService[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listServices.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listServices.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -1111,7 +1188,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listServiceLevelObjectives.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listServiceLevelObjectives, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listServiceLevelObjectives.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -1145,8 +1222,65 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listServiceLevelObjectives.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listServiceLevelObjectives, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listServiceLevelObjectives.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listServiceLevelObjectives without error', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
+              generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
+              generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
+            ];
+            client.descriptors.page.listServiceLevelObjectives.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.monitoring.v3.IServiceLevelObjective[] = [];
+            const iterable = client.listServiceLevelObjectivesAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listServiceLevelObjectives.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listServiceLevelObjectives.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listServiceLevelObjectives with error', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listServiceLevelObjectives.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listServiceLevelObjectivesAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.monitoring.v3.IServiceLevelObjective[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listServiceLevelObjectives.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listServiceLevelObjectives.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );

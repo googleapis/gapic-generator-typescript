@@ -131,6 +131,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     }
     return sinon.stub().returns(mockStream);
 }
+
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
 {%- endif %}
 
 describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
@@ -616,7 +636,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert((client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.{{ method.name.toCamelCase() }}, request));
 {%- if method.headerRequestParams.length > 0 %}
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -650,8 +670,63 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert((client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.{{ method.name.toCamelCase() }}, request));
 {%- if method.headerRequestParams.length > 0 %}
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+{%- endif %}
+        });
+
+        it('uses async iteration with {{ method.name.toCamelCase() }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initPagingResponse(method) }}
+            client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
+            const iterable = client.{{ method.name.toCamelCase() }}Async(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+{%- if method.headerRequestParams.length > 0 %}
+            assert.strictEqual(
+                (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+{%- endif %}
+        });
+
+        it('uses async iteration with {{ method.name.toCamelCase() }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            const expectedError = new Error('expected');
+            client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.{{ method.name.toCamelCase() }}Async(request);
+            assert.rejects(async () => {
+                const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+{%- if method.headerRequestParams.length > 0 %}
+            assert.strictEqual(
+                (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );

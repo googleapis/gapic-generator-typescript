@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v1beta1.IdentityClient', () => {
     it('has servicePath', () => {
         const servicePath = identityModule.v1beta1.IdentityClient.servicePath;
@@ -584,6 +604,49 @@ describe('v1beta1.IdentityClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listUsers.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listUsers, request));
+        });
+
+        it('uses async iteration with listUsers without error', async () => {
+            const client = new identityModule.v1beta1.IdentityClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());const expectedResponse = [
+              generateSampleMessage(new protos.google.showcase.v1beta1.User()),
+              generateSampleMessage(new protos.google.showcase.v1beta1.User()),
+              generateSampleMessage(new protos.google.showcase.v1beta1.User()),
+            ];
+            client.descriptors.page.listUsers.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.showcase.v1beta1.IUser[] = [];
+            const iterable = client.listUsersAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listUsers.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
+
+        it('uses async iteration with listUsers with error', async () => {
+            const client = new identityModule.v1beta1.IdentityClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());const expectedError = new Error('expected');
+            client.descriptors.page.listUsers.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listUsersAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.showcase.v1beta1.IUser[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listUsers.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
         });
     });
 

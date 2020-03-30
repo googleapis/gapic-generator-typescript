@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v1.KeyManagementServiceClient', () => {
     it('has servicePath', () => {
         const servicePath = keymanagementserviceModule.v1.KeyManagementServiceClient.servicePath;
@@ -1870,7 +1890,7 @@ describe('v1.KeyManagementServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listKeyRings.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listKeyRings, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listKeyRings.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -1904,8 +1924,65 @@ describe('v1.KeyManagementServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listKeyRings.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listKeyRings, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listKeyRings.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listKeyRings without error', async () => {
+            const client = new keymanagementserviceModule.v1.KeyManagementServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.kms.v1.ListKeyRingsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.cloud.kms.v1.KeyRing()),
+              generateSampleMessage(new protos.google.cloud.kms.v1.KeyRing()),
+              generateSampleMessage(new protos.google.cloud.kms.v1.KeyRing()),
+            ];
+            client.descriptors.page.listKeyRings.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.cloud.kms.v1.IKeyRing[] = [];
+            const iterable = client.listKeyRingsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listKeyRings.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listKeyRings.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listKeyRings with error', async () => {
+            const client = new keymanagementserviceModule.v1.KeyManagementServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.kms.v1.ListKeyRingsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listKeyRings.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listKeyRingsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.cloud.kms.v1.IKeyRing[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listKeyRings.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listKeyRings.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -2035,7 +2112,7 @@ describe('v1.KeyManagementServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listCryptoKeys.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listCryptoKeys, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listCryptoKeys.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -2069,8 +2146,65 @@ describe('v1.KeyManagementServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listCryptoKeys.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listCryptoKeys, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listCryptoKeys.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listCryptoKeys without error', async () => {
+            const client = new keymanagementserviceModule.v1.KeyManagementServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.kms.v1.ListCryptoKeysRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.cloud.kms.v1.CryptoKey()),
+              generateSampleMessage(new protos.google.cloud.kms.v1.CryptoKey()),
+              generateSampleMessage(new protos.google.cloud.kms.v1.CryptoKey()),
+            ];
+            client.descriptors.page.listCryptoKeys.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.cloud.kms.v1.ICryptoKey[] = [];
+            const iterable = client.listCryptoKeysAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listCryptoKeys.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listCryptoKeys.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listCryptoKeys with error', async () => {
+            const client = new keymanagementserviceModule.v1.KeyManagementServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.kms.v1.ListCryptoKeysRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listCryptoKeys.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listCryptoKeysAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.cloud.kms.v1.ICryptoKey[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listCryptoKeys.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listCryptoKeys.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -2200,7 +2334,7 @@ describe('v1.KeyManagementServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listCryptoKeyVersions.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listCryptoKeyVersions, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listCryptoKeyVersions.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -2234,8 +2368,65 @@ describe('v1.KeyManagementServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listCryptoKeyVersions.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listCryptoKeyVersions, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listCryptoKeyVersions.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listCryptoKeyVersions without error', async () => {
+            const client = new keymanagementserviceModule.v1.KeyManagementServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.kms.v1.ListCryptoKeyVersionsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.cloud.kms.v1.CryptoKeyVersion()),
+              generateSampleMessage(new protos.google.cloud.kms.v1.CryptoKeyVersion()),
+              generateSampleMessage(new protos.google.cloud.kms.v1.CryptoKeyVersion()),
+            ];
+            client.descriptors.page.listCryptoKeyVersions.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.cloud.kms.v1.ICryptoKeyVersion[] = [];
+            const iterable = client.listCryptoKeyVersionsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listCryptoKeyVersions.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listCryptoKeyVersions.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listCryptoKeyVersions with error', async () => {
+            const client = new keymanagementserviceModule.v1.KeyManagementServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.kms.v1.ListCryptoKeyVersionsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listCryptoKeyVersions.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listCryptoKeyVersionsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.cloud.kms.v1.ICryptoKeyVersion[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listCryptoKeyVersions.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listCryptoKeyVersions.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -2365,7 +2556,7 @@ describe('v1.KeyManagementServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listImportJobs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listImportJobs, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listImportJobs.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -2399,8 +2590,65 @@ describe('v1.KeyManagementServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listImportJobs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listImportJobs, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listImportJobs.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listImportJobs without error', async () => {
+            const client = new keymanagementserviceModule.v1.KeyManagementServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.kms.v1.ListImportJobsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.cloud.kms.v1.ImportJob()),
+              generateSampleMessage(new protos.google.cloud.kms.v1.ImportJob()),
+              generateSampleMessage(new protos.google.cloud.kms.v1.ImportJob()),
+            ];
+            client.descriptors.page.listImportJobs.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.cloud.kms.v1.IImportJob[] = [];
+            const iterable = client.listImportJobsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listImportJobs.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listImportJobs.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listImportJobs with error', async () => {
+            const client = new keymanagementserviceModule.v1.KeyManagementServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.kms.v1.ListImportJobsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listImportJobs.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listImportJobsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.cloud.kms.v1.IImportJob[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listImportJobs.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listImportJobs.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );

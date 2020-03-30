@@ -17,10 +17,11 @@
 // ** All changes to this file may be overwritten. **
 
 import * as gax from 'google-gax';
-import {APICallback, Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback} from 'google-gax';
+import {GaxCall, Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback} from 'google-gax';
 import * as path from 'path';
 
 import { Transform } from 'stream';
+import { RequestType } from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import * as gapicConfig from './cloud_redis_client_config.json';
 
@@ -275,9 +276,8 @@ export class CloudRedisClient {
     // and create an API call method for each.
     const cloudRedisStubMethods =
         ['listInstances', 'getInstance', 'createInstance', 'updateInstance', 'importInstance', 'exportInstance', 'failoverInstance', 'deleteInstance'];
-
     for (const methodName of cloudRedisStubMethods) {
-      const innerCallPromise = this.cloudRedisStub.then(
+      const callPromise = this.cloudRedisStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
             return Promise.reject('The client has already been closed.');
@@ -290,20 +290,14 @@ export class CloudRedisClient {
         });
 
       const apiCall = this._gaxModule.createApiCall(
-        innerCallPromise,
+        callPromise,
         this._defaults[methodName],
         this.descriptors.page[methodName] ||
             this.descriptors.stream[methodName] ||
             this.descriptors.longrunning[methodName]
       );
 
-      this.innerApiCalls[methodName] = (
-        argument: {},
-        callOptions?: CallOptions,
-        callback?: APICallback
-      ) => {
-        return apiCall(argument, callOptions, callback);
-      };
+      this.innerApiCalls[methodName] = apiCall;
     }
 
     return this.cloudRedisStub;
@@ -372,14 +366,14 @@ export class CloudRedisClient {
       options: gax.CallOptions,
       callback: Callback<
           protos.google.cloud.redis.v1beta1.IInstance,
-          protos.google.cloud.redis.v1beta1.IGetInstanceRequest|undefined,
-          {}|undefined>): void;
+          protos.google.cloud.redis.v1beta1.IGetInstanceRequest|null|undefined,
+          {}|null|undefined>): void;
   getInstance(
       request: protos.google.cloud.redis.v1beta1.IGetInstanceRequest,
       callback: Callback<
           protos.google.cloud.redis.v1beta1.IInstance,
-          protos.google.cloud.redis.v1beta1.IGetInstanceRequest|undefined,
-          {}|undefined>): void;
+          protos.google.cloud.redis.v1beta1.IGetInstanceRequest|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Gets the details of a specific Redis instance.
  *
@@ -399,11 +393,12 @@ export class CloudRedisClient {
       request: protos.google.cloud.redis.v1beta1.IGetInstanceRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           protos.google.cloud.redis.v1beta1.IInstance,
-          protos.google.cloud.redis.v1beta1.IGetInstanceRequest|undefined, {}|undefined>,
+          protos.google.cloud.redis.v1beta1.IGetInstanceRequest|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           protos.google.cloud.redis.v1beta1.IInstance,
-          protos.google.cloud.redis.v1beta1.IGetInstanceRequest|undefined,
-          {}|undefined>):
+          protos.google.cloud.redis.v1beta1.IGetInstanceRequest|null|undefined,
+          {}|null|undefined>):
       Promise<[
         protos.google.cloud.redis.v1beta1.IInstance,
         protos.google.cloud.redis.v1beta1.IGetInstanceRequest|undefined, {}|undefined
@@ -441,14 +436,14 @@ export class CloudRedisClient {
       options: gax.CallOptions,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   createInstance(
       request: protos.google.cloud.redis.v1beta1.ICreateInstanceRequest,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Creates a Redis instance based on the specified tier and memory size.
  *
@@ -490,11 +485,12 @@ export class CloudRedisClient {
       request: protos.google.cloud.redis.v1beta1.ICreateInstanceRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined, {}|undefined>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>):
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>):
       Promise<[
         LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
         protos.google.longrunning.IOperation|undefined, {}|undefined
@@ -531,14 +527,14 @@ export class CloudRedisClient {
       options: gax.CallOptions,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   updateInstance(
       request: protos.google.cloud.redis.v1beta1.IUpdateInstanceRequest,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Updates the metadata and configuration of a specific Redis instance.
  *
@@ -570,11 +566,12 @@ export class CloudRedisClient {
       request: protos.google.cloud.redis.v1beta1.IUpdateInstanceRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined, {}|undefined>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>):
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>):
       Promise<[
         LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
         protos.google.longrunning.IOperation|undefined, {}|undefined
@@ -611,14 +608,14 @@ export class CloudRedisClient {
       options: gax.CallOptions,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   importInstance(
       request: protos.google.cloud.redis.v1beta1.IImportInstanceRequest,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Import a Redis RDB snapshot file from Cloud Storage into a Redis instance.
  *
@@ -647,11 +644,12 @@ export class CloudRedisClient {
       request: protos.google.cloud.redis.v1beta1.IImportInstanceRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined, {}|undefined>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>):
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>):
       Promise<[
         LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
         protos.google.longrunning.IOperation|undefined, {}|undefined
@@ -688,14 +686,14 @@ export class CloudRedisClient {
       options: gax.CallOptions,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   exportInstance(
       request: protos.google.cloud.redis.v1beta1.IExportInstanceRequest,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Export Redis instance data into a Redis RDB format file in Cloud Storage.
  *
@@ -722,11 +720,12 @@ export class CloudRedisClient {
       request: protos.google.cloud.redis.v1beta1.IExportInstanceRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined, {}|undefined>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>):
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>):
       Promise<[
         LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
         protos.google.longrunning.IOperation|undefined, {}|undefined
@@ -763,14 +762,14 @@ export class CloudRedisClient {
       options: gax.CallOptions,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   failoverInstance(
       request: protos.google.cloud.redis.v1beta1.IFailoverInstanceRequest,
       callback: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Initiates a failover of the master node to current replica node for a
  * specific STANDARD tier Cloud Memorystore for Redis instance.
@@ -794,11 +793,12 @@ export class CloudRedisClient {
       request: protos.google.cloud.redis.v1beta1.IFailoverInstanceRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined, {}|undefined>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>):
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>):
       Promise<[
         LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
         protos.google.longrunning.IOperation|undefined, {}|undefined
@@ -835,14 +835,14 @@ export class CloudRedisClient {
       options: gax.CallOptions,
       callback: Callback<
           LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   deleteInstance(
       request: protos.google.cloud.redis.v1beta1.IDeleteInstanceRequest,
       callback: Callback<
           LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>): void;
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
 /**
  * Deletes a specific Redis instance.  Instance stops serving and data is
  * deleted.
@@ -863,11 +863,12 @@ export class CloudRedisClient {
       request: protos.google.cloud.redis.v1beta1.IDeleteInstanceRequest,
       optionsOrCallback?: gax.CallOptions|Callback<
           LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined, {}|undefined>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>,
       callback?: Callback<
           LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|undefined,
-          {}|undefined>):
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>):
       Promise<[
         LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IAny>,
         protos.google.longrunning.IOperation|undefined, {}|undefined
@@ -905,13 +906,13 @@ export class CloudRedisClient {
       options: gax.CallOptions,
       callback: PaginationCallback<
           protos.google.cloud.redis.v1beta1.IListInstancesRequest,
-          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null,
+          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null|undefined,
           protos.google.cloud.redis.v1beta1.IInstance>): void;
   listInstances(
       request: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
       callback: PaginationCallback<
           protos.google.cloud.redis.v1beta1.IListInstancesRequest,
-          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null,
+          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null|undefined,
           protos.google.cloud.redis.v1beta1.IInstance>): void;
 /**
  * Lists all Redis instances owned by a project in either the specified
@@ -962,11 +963,11 @@ export class CloudRedisClient {
       request: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
       optionsOrCallback?: gax.CallOptions|PaginationCallback<
           protos.google.cloud.redis.v1beta1.IListInstancesRequest,
-          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null,
+          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null|undefined,
           protos.google.cloud.redis.v1beta1.IInstance>,
       callback?: PaginationCallback<
           protos.google.cloud.redis.v1beta1.IListInstancesRequest,
-          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null,
+          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null|undefined,
           protos.google.cloud.redis.v1beta1.IInstance>):
       Promise<[
         protos.google.cloud.redis.v1beta1.IInstance[],
@@ -1049,6 +1050,56 @@ export class CloudRedisClient {
       request,
       callSettings
     );
+  }
+
+/**
+ * Equivalent to {@link listInstances}, but returns an iterable object.
+ *
+ * for-await-of syntax is used with the iterable to recursively get response element on-demand.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent
+ *   Required. The resource name of the instance location using the form:
+ *       `projects/{project_id}/locations/{location_id}`
+ *   where `location_id` refers to a GCP region.
+ * @param {number} request.pageSize
+ *   The maximum number of items to return.
+ *
+ *   If not specified, a default value of 1000 will be used by the service.
+ *   Regardless of the page_size value, the response may include a partial list
+ *   and a caller should only rely on response's
+ *   {@link CloudRedis.ListInstancesResponse.next_page_token|next_page_token}
+ *   to determine if there are more instances left to be queried.
+ * @param {string} request.pageToken
+ *   The next_page_token value returned from a previous List request,
+ *   if any.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Object}
+ *   An iterable Object that conforms to @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols.
+ */
+  listInstancesAsync(
+      request?: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
+      options?: gax.CallOptions):
+    AsyncIterable<protos.google.cloud.redis.v1beta1.IInstance>{
+    request = request || {};
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'parent': request.parent || '',
+    });
+    options = options || {};
+    const callSettings = new gax.CallSettings(options);
+    this.initialize();
+    return this.descriptors.page.listInstances.asyncIterate(
+      this.innerApiCalls['listInstances'] as GaxCall,
+      request as unknown as RequestType,
+      callSettings
+    ) as AsyncIterable<protos.google.cloud.redis.v1beta1.IInstance>;
   }
   // --------------------
   // -- Path templates --

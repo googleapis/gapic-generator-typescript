@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v3.UptimeCheckServiceClient', () => {
     it('has servicePath', () => {
         const servicePath = uptimecheckserviceModule.v3.UptimeCheckServiceClient.servicePath;
@@ -607,7 +627,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listUptimeCheckConfigs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listUptimeCheckConfigs, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listUptimeCheckConfigs.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -641,8 +661,65 @@ describe('v3.UptimeCheckServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listUptimeCheckConfigs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listUptimeCheckConfigs, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listUptimeCheckConfigs.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listUptimeCheckConfigs without error', async () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListUptimeCheckConfigsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+              generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckConfig()),
+              generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckConfig()),
+              generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckConfig()),
+            ];
+            client.descriptors.page.listUptimeCheckConfigs.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.monitoring.v3.IUptimeCheckConfig[] = [];
+            const iterable = client.listUptimeCheckConfigsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listUptimeCheckConfigs.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listUptimeCheckConfigs.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listUptimeCheckConfigs with error', async () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListUptimeCheckConfigsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            client.descriptors.page.listUptimeCheckConfigs.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listUptimeCheckConfigsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.monitoring.v3.IUptimeCheckConfig[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listUptimeCheckConfigs.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listUptimeCheckConfigs.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -773,6 +850,49 @@ describe('v3.UptimeCheckServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listUptimeCheckIps.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listUptimeCheckIps, request));
+        });
+
+        it('uses async iteration with listUptimeCheckIps without error', async () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListUptimeCheckIpsRequest());const expectedResponse = [
+              generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckIp()),
+              generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckIp()),
+              generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckIp()),
+            ];
+            client.descriptors.page.listUptimeCheckIps.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.monitoring.v3.IUptimeCheckIp[] = [];
+            const iterable = client.listUptimeCheckIpsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listUptimeCheckIps.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
+
+        it('uses async iteration with listUptimeCheckIps with error', async () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListUptimeCheckIpsRequest());const expectedError = new Error('expected');
+            client.descriptors.page.listUptimeCheckIps.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listUptimeCheckIpsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.monitoring.v3.IUptimeCheckIp[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listUptimeCheckIps.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
         });
     });
 

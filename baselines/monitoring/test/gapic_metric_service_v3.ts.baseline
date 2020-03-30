@@ -66,6 +66,26 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 
+function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
+    let counter = 0;
+    const asyncIterable = {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    if (error) {
+                        return Promise.reject(error);
+                    }
+                    if (counter >= responses!.length) {
+                        return Promise.resolve({done: true, value: undefined});
+                    }
+                    return Promise.resolve({done: false, value: responses![counter++]});
+                }
+            };
+        }
+    };
+    return sinon.stub().returns(asyncIterable);
+}
+
 describe('v3.MetricServiceClient', () => {
     it('has servicePath', () => {
         const servicePath = metricserviceModule.v3.MetricServiceClient.servicePath;
@@ -688,7 +708,7 @@ describe('v3.MetricServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listMonitoredResourceDescriptors.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listMonitoredResourceDescriptors, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listMonitoredResourceDescriptors.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -722,8 +742,65 @@ describe('v3.MetricServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listMonitoredResourceDescriptors.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listMonitoredResourceDescriptors, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listMonitoredResourceDescriptors.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listMonitoredResourceDescriptors without error', async () => {
+            const client = new metricserviceModule.v3.MetricServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListMonitoredResourceDescriptorsRequest());
+            request.name = '';
+            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+              generateSampleMessage(new protos.google.api.MonitoredResourceDescriptor()),
+              generateSampleMessage(new protos.google.api.MonitoredResourceDescriptor()),
+              generateSampleMessage(new protos.google.api.MonitoredResourceDescriptor()),
+            ];
+            client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.api.IMonitoredResourceDescriptor[] = [];
+            const iterable = client.listMonitoredResourceDescriptorsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listMonitoredResourceDescriptors with error', async () => {
+            const client = new metricserviceModule.v3.MetricServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListMonitoredResourceDescriptorsRequest());
+            request.name = '';
+            const expectedHeaderRequestParams = "name=";const expectedError = new Error('expected');
+            client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listMonitoredResourceDescriptorsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.api.IMonitoredResourceDescriptor[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listMonitoredResourceDescriptors.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -853,7 +930,7 @@ describe('v3.MetricServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listMetricDescriptors.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listMetricDescriptors, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listMetricDescriptors.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -887,8 +964,65 @@ describe('v3.MetricServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listMetricDescriptors.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listMetricDescriptors, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listMetricDescriptors.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listMetricDescriptors without error', async () => {
+            const client = new metricserviceModule.v3.MetricServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListMetricDescriptorsRequest());
+            request.name = '';
+            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+              generateSampleMessage(new protos.google.api.MetricDescriptor()),
+              generateSampleMessage(new protos.google.api.MetricDescriptor()),
+              generateSampleMessage(new protos.google.api.MetricDescriptor()),
+            ];
+            client.descriptors.page.listMetricDescriptors.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.api.IMetricDescriptor[] = [];
+            const iterable = client.listMetricDescriptorsAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listMetricDescriptors.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listMetricDescriptors.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listMetricDescriptors with error', async () => {
+            const client = new metricserviceModule.v3.MetricServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListMetricDescriptorsRequest());
+            request.name = '';
+            const expectedHeaderRequestParams = "name=";const expectedError = new Error('expected');
+            client.descriptors.page.listMetricDescriptors.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listMetricDescriptorsAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.api.IMetricDescriptor[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listMetricDescriptors.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listMetricDescriptors.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
@@ -1018,7 +1152,7 @@ describe('v3.MetricServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listTimeSeries.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listTimeSeries, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listTimeSeries.createStream as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
@@ -1052,8 +1186,65 @@ describe('v3.MetricServiceClient', () => {
             assert.rejects(async () => { await promise; }, expectedError);
             assert((client.descriptors.page.listTimeSeries.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listTimeSeries, request));
-            assert.deepStrictEqual(
+            assert.strictEqual(
                 (client.descriptors.page.listTimeSeries.createStream as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listTimeSeries without error', async () => {
+            const client = new metricserviceModule.v3.MetricServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListTimeSeriesRequest());
+            request.name = '';
+            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+              generateSampleMessage(new protos.google.monitoring.v3.TimeSeries()),
+              generateSampleMessage(new protos.google.monitoring.v3.TimeSeries()),
+              generateSampleMessage(new protos.google.monitoring.v3.TimeSeries()),
+            ];
+            client.descriptors.page.listTimeSeries.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: protos.google.monitoring.v3.ITimeSeries[] = [];
+            const iterable = client.listTimeSeriesAsync(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.descriptors.page.listTimeSeries.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listTimeSeries.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+
+        it('uses async iteration with listTimeSeries with error', async () => {
+            const client = new metricserviceModule.v3.MetricServiceClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.ListTimeSeriesRequest());
+            request.name = '';
+            const expectedHeaderRequestParams = "name=";const expectedError = new Error('expected');
+            client.descriptors.page.listTimeSeries.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.listTimeSeriesAsync(request);
+            assert.rejects(async () => {
+                const responses: protos.google.monitoring.v3.ITimeSeries[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            assert.deepStrictEqual(
+                (client.descriptors.page.listTimeSeries.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.descriptors.page.listTimeSeries.asyncIterate as SinonStub)
                     .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
                 expectedHeaderRequestParams
             );
