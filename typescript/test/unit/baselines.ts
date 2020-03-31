@@ -98,7 +98,7 @@ describe('Baseline tests', () => {
   });
 
   runBaselineTest({
-    baselineName: 'IamService-test',
+    baselineName: 'iam-service-test',
     outputDir: '.test-out-iam-service-test',
     protoPath: 'google/cloud/kms/v1/*.proto',
     useCommonProto: false,
