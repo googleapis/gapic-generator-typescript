@@ -281,20 +281,23 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endmacro -%}
 
 {%- macro typescriptType(protobufType) -%}
-{#- protobufType can be an array (TYPE_STRING[]), hence .startsWith -#}
-{%- if protobufType.startsWith('TYPE_BYTES') -%}
-{%- set type = protobufType.replace('TYPE_BYTES', 'Buffer') -%}
-{%- elif protobufType.startsWith('TYPE_BOOL') -%}
-{%- set type = protobufType.replace('TYPE_BOOL', 'boolean') -%}
-{%- elif protobufType.startsWith('TYPE_STRING') -%}
-{%- set type = protobufType.replace('TYPE_STRING', 'string') -%}
-{%- elif protobufType.startsWith('TYPE_') -%}
+{%- if protobufType.includes('TYPE_BYTES') -%}
+{%- set type = 'Buffer' -%}
+{%- elif protobufType.includes('TYPE_BOOL') -%}
+{%- set type = 'boolean' -%}
+{%- elif protobufType.includes('TYPE_STRING') -%}
+{%- set type = 'string' -%}
+{%- elif protobufType.includes('TYPE_') -%}
 {#- any other type is essentially a number: int32, uint32, etc. -#}
-{%- set type = protobufType.replace(r/TYPE_\w+/, 'number') -%}
+{%- set type = 'number' -%}
 {%- else -%}
 {%- set type = '' -%}
 {%- endif -%}
+{%- if protobufType.includes('[]') -%}
+{{ type }}[]
+{%- else -%}
 {{ type }}
+{%- endif -%}
 {%- endmacro -%}
 
 {%- macro toInterface(type) -%}
