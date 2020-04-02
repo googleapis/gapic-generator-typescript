@@ -263,28 +263,41 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endmacro -%}
 
 {%- macro initPagingResponse(method) -%}
+{%- if method.pagingResponseType.includes('TYPE_STRING') -%}
+            const expectedResponse = [new String(), new String(), new String()];
+{%- elif method.pagingResponseType.includes('TYPE_BOOL') -%}
+            const expectedResponse = [new Boolean(), new Boolean(), new Boolean()];
+{%- elif method.pagingResponseType.includes('TYPE_BYTES') -%}
+            const expectedResponse = [Buffer.from(''), Buffer.from(''), Buffer.from('')];
+{%- elif method.pagingResponseType.includes('TYPE_') -%}
+            const expectedResponse = [new Number(), new Number(), new Number()];
+{%- else -%}
             const expectedResponse = [
               generateSampleMessage(new protos{{ method.pagingResponseType }}()),
               generateSampleMessage(new protos{{ method.pagingResponseType }}()),
               generateSampleMessage(new protos{{ method.pagingResponseType }}()),
             ];
+{%- endif %}
 {%- endmacro -%}
 
 {%- macro typescriptType(protobufType) -%}
-{#- protobufType can be an array (TYPE_STRING[]), hence .startsWith -#}
-{%- if protobufType.startsWith('TYPE_BYTES') -%}
-{%- set type = protobufType.replace('TYPE_BYTES', 'Buffer') -%}
-{%- elif protobufType.startsWith('TYPE_BOOL') -%}
-{%- set type = protobufType.replace('TYPE_BOOL', 'boolean') -%}
-{%- elif protobufType.startsWith('TYPE_STRING') -%}
-{%- set type = protobufType.replace('TYPE_STRING', 'string') -%}
-{%- elif protobufType.startsWith('TYPE_') -%}
+{%- if protobufType.includes('TYPE_BYTES') -%}
+{%- set type = 'Buffer' -%}
+{%- elif protobufType.includes('TYPE_BOOL') -%}
+{%- set type = 'boolean' -%}
+{%- elif protobufType.includes('TYPE_STRING') -%}
+{%- set type = 'string' -%}
+{%- elif protobufType.includes('TYPE_') -%}
 {#- any other type is essentially a number: int32, uint32, etc. -#}
-{%- set type = protobufType.replace(r/TYPE_\w+/, 'number') -%}
+{%- set type = 'number' -%}
 {%- else -%}
 {%- set type = '' -%}
 {%- endif -%}
+{%- if protobufType.includes('[]') -%}
+{{ type }}[]
+{%- else -%}
 {{ type }}
+{%- endif -%}
 {%- endmacro -%}
 
 {%- macro toInterface(type) -%}
@@ -299,4 +312,13 @@ protos{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
 
 {%- macro convertParamType(paramType) -%}
           {{- typescriptType(paramType) -}}
+{%- endmacro -%}
+
+{%- macro promiseResponsePaging(method) -%}
+{%- set tsType = typescriptType(method.pagingResponseType) -%}
+{%- if tsType.length > 0 -%}
+{{ tsType }}
+{%- else -%}
+protos{{ method.pagingResponseType }}
+{%- endif -%}
 {%- endmacro -%}
