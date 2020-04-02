@@ -263,11 +263,21 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endmacro -%}
 
 {%- macro initPagingResponse(method) -%}
+{%- if method.pagingResponseType.includes('TYPE_STRING') -%}
+            const expectedResponse = [new String(), new String(), new String()];
+{%- elif method.pagingResponseType.includes('TYPE_BOOL') -%}
+            const expectedResponse = [new Boolean(), new Boolean(), new Boolean()];
+{%- elif method.pagingResponseType.includes('TYPE_BYTES') -%}
+            const expectedResponse = [new Buffer(''), new Buffer(''), new Buffer('')];
+{%- elif method.pagingResponseType.includes('TYPE_') -%}
+            const expectedResponse = [new Number(), new Number(), new Number()];
+{%- else %}
             const expectedResponse = [
               generateSampleMessage(new protos{{ method.pagingResponseType }}()),
               generateSampleMessage(new protos{{ method.pagingResponseType }}()),
               generateSampleMessage(new protos{{ method.pagingResponseType }}()),
             ];
+{%- endif %}
 {%- endmacro -%}
 
 {%- macro typescriptType(protobufType) -%}

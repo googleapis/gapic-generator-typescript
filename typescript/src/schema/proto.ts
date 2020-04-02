@@ -246,7 +246,9 @@ function pagingResponseType(
   ) {
     return field.typeName; //.google.showcase.v1beta1.EchoResponse
   }
-  return plugin.google.protobuf.FieldDescriptorProto.Type[field.type];
+  const type = plugin.google.protobuf.FieldDescriptorProto.Type[field.type];
+  // .google.protobuf.FieldDescriptorProto.Type.TYPE_STRING
+  return '.google.protobuf.FieldDescriptorProto.Type.' + type;
 }
 
 export function getSingleHeaderParam(
