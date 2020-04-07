@@ -111,6 +111,7 @@ export class Generator {
       this.bundleConfigs = new BundleConfigClient().fromObject(info);
     }
   }
+
   private readIamService() {
     // if `--iam-service` is not specified, or set it as `false`, we will not generated IAM methods for the client.
     // if `--iam-service` is true, we will include all IAM methods in the client.
