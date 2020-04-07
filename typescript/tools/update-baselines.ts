@@ -82,12 +82,12 @@ async function copyBaseline(library: string, root: string, directory = '.') {
 async function main() {
   // generate test output
   try {
-    console.log(`Running npm test...`);
+    console.log('Running npm test...');
     await execp('npm test');
     console.log('Tests passed! No need to update baselines.');
     return;
   } catch (err) {
-    console.log(`Tests failed - that's OK, will update baselines.`);
+    console.log("Tests failed - that's OK, will update baselines.");
   }
 
   // get a list of baselines
