@@ -770,6 +770,53 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert((client.iamClient.{{ method }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+        it('invokes {{ method }} without error using callback', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+                new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
+            );
+            request.resource = '';
+            const expectedHeaderRequestParams = 'resource=';
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedResponse = generateSampleMessage(
+{%- if method === 'testIamPermissions' %}
+                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+{%- else %}
+                new IamProtos.google.iam.v1.Policy()
+{%- endif %}
+            );
+            client.iamClient.{{ method }} = sinon.stub().callsArgWith(2, null, expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.{{ method }}(
+                    request,
+                    expectedOptions,
+{%- if method === 'testIamPermissions' %}
+                    (err?: Error|null, result?: IamProtos.google.iam.v1.TestIamPermissionsResponse|null) => {
+{%- else %}
+                    (err?: Error|null, result?: IamProtos.google.iam.v1.Policy|null) => {
+{%- endif %}
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.iamClient.{{ method }} as SinonStub)
+                .getCall(0));
+        });
         it('invokes {{ method }} with error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
