@@ -71,11 +71,9 @@ export class API {
         map[fd.name!] = new Proto(
           fd,
           packageName,
-          options.grpcServiceConfig,
           allResourceDatabase,
           resourceDatabase,
-          options.bundleConfigs,
-          options.iamService
+          options
         );
         return map;
       }, {} as ProtosMap);

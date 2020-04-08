@@ -17,6 +17,8 @@ import {describe, it} from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import {getHeaderRequestParams} from '../../src/schema/proto';
 import {Proto} from '../../src/schema/proto';
+import {Options} from '../../src/schema/naming';
+
 import {ResourceDatabase} from '../../src/schema/resource-database';
 
 describe('src/schema/proto.ts', () => {
@@ -136,12 +138,15 @@ describe('src/schema/proto.ts', () => {
       fd.messageType[1].field[0].name = 'page_size';
       fd.messageType[1].field[1] = new plugin.google.protobuf.FieldDescriptorProto();
       fd.messageType[1].field[1].name = 'page_token';
+      const options: Options = {
+        grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+      };
       const proto = new Proto(
         fd,
         'google.cloud.talent.v4beta1',
-        new plugin.grpc.service_config.ServiceConfig(),
         new ResourceDatabase(),
-        new ResourceDatabase()
+        new ResourceDatabase(),
+        options
       );
       assert.deepStrictEqual(
         proto.services['service'].method[0].pagingFieldName,
