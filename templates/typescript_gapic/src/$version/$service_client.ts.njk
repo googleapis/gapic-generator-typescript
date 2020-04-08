@@ -47,10 +47,12 @@ export class {{ service.name }}Client {
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
-  {% if service.iamService > 0 %}private _iamClient: IamClient;{%- endif -%}
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
   innerApiCalls: {[name: string]: Function};
+  {%- if service.iamService > 0 %}
+  iamClient: IamClient;
+  {%- endif %}
   {%- if (service.pathTemplates.length > 0) %}
   pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
@@ -121,7 +123,7 @@ export class {{ service.name }}Client {
     // Save the auth object to the client, for use by other methods.
     this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
   {%- if service.iamService > 0 %}
-    this._iamClient = new IamClient(this._gaxGrpc, opts);
+    this.iamClient = new IamClient(this._gaxGrpc, opts);
   {% endif %}
 
     // Determine the client header string.
