@@ -61,24 +61,24 @@ describe('Test application for TypeScript users', () => {
       fs.copySync(TS_TEST_APPLICATION, LOCAL_TS_APPLICATION);
     }
     process.chdir(SHOWCASE_LIB);
-    await exec(`npm install`);
+    await exec('npm install');
   });
   it('npm pack showcase library and copy it to test application', async function () {
     this.timeout(120000);
-    await exec(`npm pack`);
+    await exec('npm pack');
     process.chdir(LOCAL_TS_APPLICATION);
     fs.copySync(PACKED_LIB_PATH, path.join(LOCAL_TS_APPLICATION, PACKED_LIB));
   });
   it('npm install showcase library in test application', async function () {
     this.timeout(120000);
-    await exec(`npm install`);
+    await exec('npm install');
   });
   it('run integration in test application', async function () {
     this.timeout(120000);
-    await exec(`npm test`);
+    await exec('npm test');
   });
   it('run browser test in application', async function () {
     this.timeout(120000);
-    await exec(`npm run browser-test`);
+    await exec('npm run browser-test');
   });
 });

@@ -39,6 +39,8 @@ const argv = yargs
   .describe('grpc-service-config', 'Path to gRPC service config JSON')
   .alias('bundle-config', 'bundle_config')
   .describe('bundle-config', 'Path to bundle request config JSON')
+  .alias('iam-service', 'iam_service')
+  .describe('iam-service', 'Include IAM service to the generated client')
   .alias('package-name', 'package_name')
   .describe('package-name', 'Publish package name')
   .alias('main-service', 'main_service')
@@ -61,6 +63,7 @@ const argv = yargs
 const outputDir = argv.outputDir as string;
 const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 const bundleConfig = argv.bundleConfig as string | undefined;
+const iamService = argv.iamService as string | undefined;
 const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
@@ -93,6 +96,9 @@ if (grpcServiceConfig) {
 if (bundleConfig) {
   protocCommand.push(`--typescript_gapic_opt="bundle-config=${bundleConfig}"`);
 }
+if (iamService) {
+  protocCommand.push(`--typescript_gapic_opt="iam-service=${iamService}"`);
+}
 if (packageName) {
   protocCommand.push(`--typescript_gapic_opt="package-name=${packageName}"`);
 }
@@ -107,7 +113,7 @@ if (template) {
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 protocCommand.push(`-I${commonProtoPath}`);
-execFileSync(`protoc`, protocCommand, {stdio: 'inherit'});
+execFileSync('protoc', protocCommand, {stdio: 'inherit'});
 
 // create protos folder to copy proto file
 const copyProtoDir = path.join(outputDir, 'protos');

@@ -18,11 +18,12 @@ limitations under the License.
 {% import "../../_license.njk" as license -%}
 {{license.license(commonParameters.copyrightYear)}}
 {% import "../../_util.njk" as util -%}
-
+{% import "../../_iam.njk" as iam -%}
 import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.longRunning.length > 0 %}, LROperation{%- endif -%}
 {%- if service.paging.length > 0 %}, PaginationCallback, GaxCall{%- endif -%}
+{%- if service.iamService > 0 %}, IamClient, IamProtos{%- endif -%}
 } from 'google-gax';
 import * as path from 'path';
 {% if (service.paging.length > 0) %}
@@ -49,6 +50,9 @@ export class {{ service.name }}Client {
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
   innerApiCalls: {[name: string]: Function};
+  {%- if service.iamService > 0 %}
+  iamClient: IamClient;
+  {%- endif %}
   {%- if (service.pathTemplates.length > 0) %}
   pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
@@ -118,6 +122,9 @@ export class {{ service.name }}Client {
 
     // Save the auth object to the client, for use by other methods.
     this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
+  {%- if service.iamService > 0 %}
+    this.iamClient = new IamClient(this._gaxGrpc, opts);
+  {% endif %}
 
     // Determine the client header string.
     const clientHeader = [
@@ -642,6 +649,9 @@ export class {{ service.name }}Client {
     ) as AsyncIterable<{{ util.toInterface(method.pagingResponseType) }}>;
   }
 {%- endfor %}
+{%- if service.iamService %}
+{{ iam.iamServiceMethods()}}
+{% endif -%}
 {%- if (service.pathTemplates.length > 0) %}
   // --------------------
   // -- Path templates --

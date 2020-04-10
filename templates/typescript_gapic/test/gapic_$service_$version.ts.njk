@@ -31,6 +31,7 @@ import {protobuf
 {%- if (service.longRunning.length > 0) -%}
 , LROperation
 {%- endif -%}
+{%- if service.iamService > 0 %}, IamProtos{%- endif -%}
 } from 'google-gax';
 
 function generateSampleMessage<T extends object>(instance: T) {
@@ -734,6 +735,115 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
     });
 {%- endfor %}
+{%- if service.iamService %}
+{%- set IAMmethods = ['getIamPolicy', 'setIamPolicy', 'testIamPermissions'] %}
+{%- for method in IAMmethods %}
+    describe('{{ method }}', () => {
+        it('invokes {{ method }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+                new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
+            );
+            request.resource = '';
+            const expectedHeaderRequestParams = 'resource=';
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedResponse = generateSampleMessage(
+{%- if method === 'testIamPermissions' %}
+                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+{%- else %}
+                new IamProtos.google.iam.v1.Policy()
+{%- endif %}
+            );
+            client.iamClient.{{ method }} = stubSimpleCall(expectedResponse);
+            const response = await client.{{ method }}(request, expectedOptions);
+            assert.deepStrictEqual(response, [expectedResponse]);
+            assert((client.iamClient.{{ method }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+        it('invokes {{ method }} without error using callback', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+                new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
+            );
+            request.resource = '';
+            const expectedHeaderRequestParams = 'resource=';
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedResponse = generateSampleMessage(
+{%- if method === 'testIamPermissions' %}
+                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+{%- else %}
+                new IamProtos.google.iam.v1.Policy()
+{%- endif %}
+            );
+            client.iamClient.{{ method }} = sinon.stub().callsArgWith(2, null, expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.{{ method }}(
+                    request,
+                    expectedOptions,
+{%- if method === 'testIamPermissions' %}
+                    (err?: Error|null, result?: IamProtos.google.iam.v1.TestIamPermissionsResponse|null) => {
+{%- else %}
+                    (err?: Error|null, result?: IamProtos.google.iam.v1.Policy|null) => {
+{%- endif %}
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.iamClient.{{ method }} as SinonStub)
+                .getCall(0));
+        });
+        it('invokes {{ method }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+                new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
+            );
+            request.resource = '';
+            const expectedHeaderRequestParams = 'resource=';
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedError = new Error('expected');
+            client.iamClient.{{ method }} = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(async () => { await client.{{ method }}(request, expectedOptions); }, expectedError);
+            assert((client.iamClient.{{ method }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+    });
+{%- endfor %}
+{%- endif %}
 {%- if (service.pathTemplates.length > 0) %}
 
     describe('Path templates', () => {

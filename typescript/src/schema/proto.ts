@@ -23,6 +23,7 @@ import {
   defaultParameters,
 } from './retryable-code-map';
 import {BundleConfig} from 'src/bundle';
+import {Options} from './naming';
 
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
@@ -73,6 +74,7 @@ export interface ServiceDescriptorProto
   grpcServiceConfig: plugin.grpc.service_config.ServiceConfig;
   bundleConfigsMethods: MethodDescriptorProto[];
   bundleConfigs?: BundleConfig[];
+  iamService: boolean;
 }
 
 export interface ServicesMap {
@@ -436,18 +438,18 @@ function augmentService(
   packageName: string,
   service: plugin.google.protobuf.IServiceDescriptorProto,
   commentsMap: CommentsMap,
-  grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
   allResourceDatabase: ResourceDatabase,
   resourceDatabase: ResourceDatabase,
-  bundleConfigs?: BundleConfig[]
+  options: Options
 ) {
   const augmentedService = service as ServiceDescriptorProto;
   augmentedService.packageName = packageName;
+  augmentedService.iamService = options.iamService ?? false;
   augmentedService.comments = commentsMap.getServiceComment(service.name!);
   augmentedService.commentsMap = commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
-  augmentedService.grpcServiceConfig = grpcServiceConfig;
-  augmentedService.bundleConfigs = bundleConfigs?.filter(
+  augmentedService.grpcServiceConfig = options.grpcServiceConfig;
+  augmentedService.bundleConfigs = options.bundleConfigs?.filter(
     bc => bc.serviceName === service.name
   );
   augmentedService.method = augmentedService.method.map(method =>
@@ -573,10 +575,9 @@ export class Proto {
   constructor(
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
-    grpcServiceConfig: plugin.grpc.service_config.ServiceConfig,
     allResourceDatabase: ResourceDatabase,
     resourceDatabase: ResourceDatabase,
-    bundleConfigs?: BundleConfig[]
+    options: Options
   ) {
     fd.enumType = fd.enumType || [];
     fd.messageType = fd.messageType || [];
@@ -609,10 +610,9 @@ export class Proto {
           packageName,
           service,
           commentsMap,
-          grpcServiceConfig,
           allResourceDatabase,
           resourceDatabase,
-          bundleConfigs
+          options
         )
       )
       .reduce((map, service) => {

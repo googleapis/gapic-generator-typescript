@@ -35,6 +35,7 @@ export interface BaselineOptions {
   packageName?: string;
   template?: string;
   bundleConfig?: string;
+  iamService?: boolean;
 }
 
 const cwd = process.cwd();
@@ -89,6 +90,7 @@ export function runBaselineTest(options: BaselineOptions) {
   const bundleConfig = options.bundleConfig
     ? path.join(protosDirRoot, options.bundleConfig.split('/').join(path.sep))
     : undefined;
+  const iamService = options.iamService ?? false;
   it(options.baselineName, function () {
     this.timeout(60000);
     if (fs.existsSync(outputDir)) {
@@ -117,7 +119,9 @@ export function runBaselineTest(options: BaselineOptions) {
     if (options.bundleConfig) {
       commandLine += ` --bundle-config="${bundleConfig}"`;
     }
-
+    if (options.iamService) {
+      commandLine += ` --iam-service="${iamService}"`;
+    }
     execSync(commandLine);
     assert(equalToBaseline(outputDir, baselineDir));
   });
