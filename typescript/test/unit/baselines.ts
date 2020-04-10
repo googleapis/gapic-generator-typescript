@@ -40,6 +40,7 @@ describe('Baseline tests', () => {
     outputDir: '.test-out-kms',
     protoPath: 'google/cloud/kms/v1/*.proto',
     useCommonProto: false,
+    iamService: true,
   });
 
   runBaselineTest({
@@ -95,13 +96,5 @@ describe('Baseline tests', () => {
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
     template: 'typescript_gapic',
-  });
-
-  runBaselineTest({
-    baselineName: 'iam-service-test',
-    outputDir: '.test-out-iam-service-test',
-    protoPath: 'google/cloud/kms/v1/*.proto',
-    useCommonProto: false,
-    iamService: true,
   });
 });
