@@ -412,6 +412,25 @@ describe('v1beta1.EchoClient', () => {
             assert((client.innerApiCalls.wait as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes decodewait without error', async () => {
+            const client = new echoModule.v1beta1.EchoClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.WaitRequest());
+            const expectedOptions = {};
+            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            client.innerApiCalls.wait = stubLongRunningCall(expectedResponse);
+            const [operation] = await client.wait(request);
+            const [result, metadata] = client.decodewaitLRO(operation);
+            console.warn('result: ', result);
+            console.warn('metadata: ', metadata);
+            assert.deepStrictEqual(result, expectedResponse);
+            assert((client.innerApiCalls.wait as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
     });
 
     describe('expand', () => {

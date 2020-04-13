@@ -978,6 +978,33 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.searchBlurbs as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes decodesearchBlurbs without error', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
+            request.parent = '';
+            const expectedHeaderRequestParams = "parent=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            client.innerApiCalls.searchBlurbs = stubLongRunningCall(expectedResponse);
+            const [operation] = await client.searchBlurbs(request);
+            const [result, metadata] = client.decodesearchBlurbsLRO(operation);
+            console.warn('result: ', result);
+            console.warn('metadata: ', metadata);
+            assert.deepStrictEqual(result, expectedResponse);
+            assert((client.innerApiCalls.searchBlurbs as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
     });
 
     describe('streamBlurbs', () => {

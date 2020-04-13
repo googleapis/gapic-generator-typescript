@@ -375,6 +375,25 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes decode{{ method.name.toCamelCase() }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestOptions(method) }}
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(expectedResponse);
+            const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+            const [result, metadata] = client.decode{{ method.name.toCamelCase() }}LRO(operation);
+            console.warn('result: ', result);
+            console.warn('metadata: ', metadata);
+            assert.deepStrictEqual(result, expectedResponse);
+            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
     });
 {%- endfor %}
 {%- for method in service.serverStreaming %}
