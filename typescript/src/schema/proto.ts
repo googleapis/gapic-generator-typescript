@@ -85,10 +85,6 @@ export interface MessagesMap {
   [name: string]: plugin.google.protobuf.IDescriptorProto;
 }
 
-export interface EnumsMap {
-  [name: string]: plugin.google.protobuf.IEnumDescriptorProto;
-}
-
 // The following functions are used to add some metadata such as idempotence
 // flag, long running operation info, pagination, and streaming, to all the
 // methods of the given service, to use in templates.
@@ -566,7 +562,6 @@ export class Proto {
   filePB2: plugin.google.protobuf.IFileDescriptorProto;
   services: ServicesMap = {};
   messages: MessagesMap = {};
-  enums: EnumsMap = {};
   fileToGenerate: boolean;
   // TODO: need to store metadata? address?
 
@@ -575,29 +570,15 @@ export class Proto {
   constructor(
     fd: plugin.google.protobuf.IFileDescriptorProto,
     packageName: string,
+    allMessages: MessagesMap,
     allResourceDatabase: ResourceDatabase,
     resourceDatabase: ResourceDatabase,
     options: Options
   ) {
-    fd.enumType = fd.enumType || [];
-    fd.messageType = fd.messageType || [];
     fd.service = fd.service || [];
 
     this.filePB2 = fd;
-
-    this.messages = fd.messageType
-      .filter(message => message.name)
-      .reduce((map, message) => {
-        map['.' + fd.package! + '.' + message.name!] = message;
-        return map;
-      }, {} as MessagesMap);
-
-    this.enums = fd.enumType
-      .filter(enum_ => enum_.name)
-      .reduce((map, enum_) => {
-        map[enum_.name!] = enum_;
-        return map;
-      }, {} as EnumsMap);
+    this.messages = allMessages;
     this.fileToGenerate = fd.package
       ? fd.package.startsWith(packageName)
       : false;

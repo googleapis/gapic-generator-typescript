@@ -15,7 +15,7 @@
 import * as plugin from '../../../pbjs-genfiles/plugin';
 
 import {Naming, Options as namingOptions} from './naming';
-import {Proto} from './proto';
+import {Proto, MessagesMap} from './proto';
 import {ResourceDatabase, ResourceDescriptor} from './resource-database';
 
 export interface ProtosMap {
@@ -59,11 +59,20 @@ export class API {
     // users specify the actual package name, if not, set it to product name.
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
-    // construct resource map
+
     const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
       fileDescriptors
     );
-    // parse resource map to Proto constructor
+
+    const allMessages: MessagesMap = {};
+    for (const fd of fileDescriptors) {
+      fd.messageType
+        ?.filter(message => message.name)
+        .forEach(message => {
+          allMessages['.' + fd.package! + '.' + message.name!] = message;
+        });
+    }
+
     this.protos = fileDescriptors
       .filter(fd => fd.name)
       .filter(fd => !API.isIgnoredService(fd))
@@ -71,6 +80,7 @@ export class API {
         map[fd.name!] = new Proto(
           fd,
           packageName,
+          allMessages,
           allResourceDatabase,
           resourceDatabase,
           options

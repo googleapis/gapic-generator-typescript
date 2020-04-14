@@ -15,7 +15,7 @@
 import * as assert from 'assert';
 import {describe, it} from 'mocha';
 import * as plugin from '../../../pbjs-genfiles/plugin';
-import {getHeaderRequestParams} from '../../src/schema/proto';
+import {getHeaderRequestParams, MessagesMap} from '../../src/schema/proto';
 import {Proto} from '../../src/schema/proto';
 import {Options} from '../../src/schema/naming';
 
@@ -96,6 +96,7 @@ describe('src/schema/proto.ts', () => {
       );
     });
   });
+
   describe('special work around for talent API', () => {
     it('The pagingFieldName should be undefined for SearchJobs & SearchProfiles rpc', () => {
       const fd = new plugin.google.protobuf.FileDescriptorProto();
@@ -141,9 +142,16 @@ describe('src/schema/proto.ts', () => {
       const options: Options = {
         grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
       };
+      const allMessages: MessagesMap = {};
+      fd.messageType
+        .filter(message => message.name)
+        .forEach(message => {
+          allMessages['.' + fd.package! + '.' + message.name!] = message;
+        });
       const proto = new Proto(
         fd,
         'google.cloud.talent.v4beta1',
+        allMessages,
         new ResourceDatabase(),
         new ResourceDatabase(),
         options
