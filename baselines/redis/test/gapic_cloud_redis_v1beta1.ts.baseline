@@ -25,7 +25,7 @@ import * as cloudredisModule from '../src';
 
 import {PassThrough} from 'stream';
 
-import {protobuf, LROperation} from 'google-gax';
+import {protobuf, LROperation, LROOperation, LROOperation} from 'google-gax';
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -47,6 +47,10 @@ function stubLongRunningCall<ResponseType>(response?: ResponseType, callError?: 
         promise: innerStub,
     };
     return callError ? sinon.stub().rejects(callError) : sinon.stub().resolves([mockOperation]);
+}
+
+function stubDecodeLROCall(response?: LROOperation, callError?: Error) {
+    return callError ? sinon.stub().rejects(callError) : sinon.stub().resolves([response!.result, response?.metadata]);
 }
 
 function stubLongRunningCallWithCallback<ResponseType>(response?: ResponseType, callError?: Error, lroError?: Error) {
@@ -382,25 +386,13 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.CreateInstanceRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
-            client.innerApiCalls.createInstance = stubLongRunningCall(expectedResponse);
-            const [operation] = await client.createInstance(request);
-            const [result, metadata] = client.decodecreateInstanceLRO(operation);
-            console.warn('result: ', result);
-            console.warn('metadata: ', metadata);
-            assert.deepStrictEqual(result, expectedResponse);
-            assert((client.innerApiCalls.createInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            let expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation()) as LROOperation;
+            expectedResponse.metadata = {type_url: 'sampleMetadata'};
+            expectedResponse.result = 'response';
+            client.decodewaitLRO = stubDecodeLROCall(expectedResponse);
+            const [result, metadata] = client.decodewaitLRO(expectedResponse);
+            assert.deepStrictEqual(result, expectedResponse.result);
+            assert.deepStrictEqual(metadata, expectedResponse.metadata);
         });
     });
 
@@ -525,26 +517,13 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.UpdateInstanceRequest());
-            request.instance = {};
-            request.instance.name = '';
-            const expectedHeaderRequestParams = "instance.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
-            client.innerApiCalls.updateInstance = stubLongRunningCall(expectedResponse);
-            const [operation] = await client.updateInstance(request);
-            const [result, metadata] = client.decodeupdateInstanceLRO(operation);
-            console.warn('result: ', result);
-            console.warn('metadata: ', metadata);
-            assert.deepStrictEqual(result, expectedResponse);
-            assert((client.innerApiCalls.updateInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            let expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation()) as LROOperation;
+            expectedResponse.metadata = {type_url: 'sampleMetadata'};
+            expectedResponse.result = 'response';
+            client.decodewaitLRO = stubDecodeLROCall(expectedResponse);
+            const [result, metadata] = client.decodewaitLRO(expectedResponse);
+            assert.deepStrictEqual(result, expectedResponse.result);
+            assert.deepStrictEqual(metadata, expectedResponse.metadata);
         });
     });
 
@@ -665,25 +644,13 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ImportInstanceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
-            client.innerApiCalls.importInstance = stubLongRunningCall(expectedResponse);
-            const [operation] = await client.importInstance(request);
-            const [result, metadata] = client.decodeimportInstanceLRO(operation);
-            console.warn('result: ', result);
-            console.warn('metadata: ', metadata);
-            assert.deepStrictEqual(result, expectedResponse);
-            assert((client.innerApiCalls.importInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            let expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation()) as LROOperation;
+            expectedResponse.metadata = {type_url: 'sampleMetadata'};
+            expectedResponse.result = 'response';
+            client.decodewaitLRO = stubDecodeLROCall(expectedResponse);
+            const [result, metadata] = client.decodewaitLRO(expectedResponse);
+            assert.deepStrictEqual(result, expectedResponse.result);
+            assert.deepStrictEqual(metadata, expectedResponse.metadata);
         });
     });
 
@@ -804,25 +771,13 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ExportInstanceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
-            client.innerApiCalls.exportInstance = stubLongRunningCall(expectedResponse);
-            const [operation] = await client.exportInstance(request);
-            const [result, metadata] = client.decodeexportInstanceLRO(operation);
-            console.warn('result: ', result);
-            console.warn('metadata: ', metadata);
-            assert.deepStrictEqual(result, expectedResponse);
-            assert((client.innerApiCalls.exportInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            let expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation()) as LROOperation;
+            expectedResponse.metadata = {type_url: 'sampleMetadata'};
+            expectedResponse.result = 'response';
+            client.decodewaitLRO = stubDecodeLROCall(expectedResponse);
+            const [result, metadata] = client.decodewaitLRO(expectedResponse);
+            assert.deepStrictEqual(result, expectedResponse.result);
+            assert.deepStrictEqual(metadata, expectedResponse.metadata);
         });
     });
 
@@ -943,25 +898,13 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.FailoverInstanceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
-            client.innerApiCalls.failoverInstance = stubLongRunningCall(expectedResponse);
-            const [operation] = await client.failoverInstance(request);
-            const [result, metadata] = client.decodefailoverInstanceLRO(operation);
-            console.warn('result: ', result);
-            console.warn('metadata: ', metadata);
-            assert.deepStrictEqual(result, expectedResponse);
-            assert((client.innerApiCalls.failoverInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            let expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation()) as LROOperation;
+            expectedResponse.metadata = {type_url: 'sampleMetadata'};
+            expectedResponse.result = 'response';
+            client.decodewaitLRO = stubDecodeLROCall(expectedResponse);
+            const [result, metadata] = client.decodewaitLRO(expectedResponse);
+            assert.deepStrictEqual(result, expectedResponse.result);
+            assert.deepStrictEqual(metadata, expectedResponse.metadata);
         });
     });
 
@@ -1082,25 +1025,13 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.DeleteInstanceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
-            client.innerApiCalls.deleteInstance = stubLongRunningCall(expectedResponse);
-            const [operation] = await client.deleteInstance(request);
-            const [result, metadata] = client.decodedeleteInstanceLRO(operation);
-            console.warn('result: ', result);
-            console.warn('metadata: ', metadata);
-            assert.deepStrictEqual(result, expectedResponse);
-            assert((client.innerApiCalls.deleteInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            let expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation()) as LROOperation;
+            expectedResponse.metadata = {type_url: 'sampleMetadata'};
+            expectedResponse.result = 'response';
+            client.decodewaitLRO = stubDecodeLROCall(expectedResponse);
+            const [result, metadata] = client.decodewaitLRO(expectedResponse);
+            assert.deepStrictEqual(result, expectedResponse.result);
+            assert.deepStrictEqual(metadata, expectedResponse.metadata);
         });
     });
 

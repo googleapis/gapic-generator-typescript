@@ -25,7 +25,7 @@ import * as messagingModule from '../src';
 
 import {PassThrough} from 'stream';
 
-import {protobuf, LROperation} from 'google-gax';
+import {protobuf, LROperation, LROOperation, LROOperation} from 'google-gax';
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -80,6 +80,10 @@ function stubLongRunningCall<ResponseType>(response?: ResponseType, callError?: 
         promise: innerStub,
     };
     return callError ? sinon.stub().rejects(callError) : sinon.stub().resolves([mockOperation]);
+}
+
+function stubDecodeLROCall(response?: LROOperation, callError?: Error) {
+    return callError ? sinon.stub().rejects(callError) : sinon.stub().resolves([response!.result, response?.metadata]);
 }
 
 function stubLongRunningCallWithCallback<ResponseType>(response?: ResponseType, callError?: Error, lroError?: Error) {
@@ -985,25 +989,13 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
-            client.innerApiCalls.searchBlurbs = stubLongRunningCall(expectedResponse);
-            const [operation] = await client.searchBlurbs(request);
-            const [result, metadata] = client.decodesearchBlurbsLRO(operation);
-            console.warn('result: ', result);
-            console.warn('metadata: ', metadata);
-            assert.deepStrictEqual(result, expectedResponse);
-            assert((client.innerApiCalls.searchBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            let expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation()) as LROOperation;
+            expectedResponse.metadata = {type_url: 'sampleMetadata'};
+            expectedResponse.result = 'response';
+            client.decodewaitLRO = stubDecodeLROCall(expectedResponse);
+            const [result, metadata] = client.decodewaitLRO(expectedResponse);
+            assert.deepStrictEqual(result, expectedResponse.result);
+            assert.deepStrictEqual(metadata, expectedResponse.metadata);
         });
     });
 

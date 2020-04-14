@@ -29,7 +29,7 @@ import {PassThrough} from 'stream';
 {% endif %}
 import {protobuf
 {%- if (service.longRunning.length > 0) -%}
-, LROperation
+, LROperation, LROOperation, LROOperation
 {%- endif -%}
 {%- if service.iamService > 0 %}, IamProtos{%- endif -%}
 } from 'google-gax';
@@ -96,6 +96,10 @@ function stubLongRunningCall<ResponseType>(response?: ResponseType, callError?: 
         promise: innerStub,
     };
     return callError ? sinon.stub().rejects(callError) : sinon.stub().resolves([mockOperation]);
+}
+
+function stubDecodeLROCall(response?: LROOperation, callError?: Error) {
+    return callError ? sinon.stub().rejects(callError) : sinon.stub().resolves([response!.result, response?.metadata]);
 }
 
 function stubLongRunningCallWithCallback<ResponseType>(response?: ResponseType, callError?: Error, lroError?: Error) {
@@ -382,17 +386,13 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
-            {{ util.initResponse(method) }}
-            client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(expectedResponse);
-            const [operation] = await client.{{ method.name.toCamelCase() }}(request);
-            const [result, metadata] = client.decode{{ method.name.toCamelCase() }}LRO(operation);
-            console.warn('result: ', result);
-            console.warn('metadata: ', metadata);
-            assert.deepStrictEqual(result, expectedResponse);
-            assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            let expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation()) as LROOperation;
+            expectedResponse.metadata = {type_url: 'sampleMetadata'};
+            expectedResponse.result = 'response';
+            client.decodewaitLRO = stubDecodeLROCall(expectedResponse);
+            const [result, metadata] = client.decodewaitLRO(expectedResponse);
+            assert.deepStrictEqual(result, expectedResponse.result);
+            assert.deepStrictEqual(metadata, expectedResponse.metadata);
         });
     });
 {%- endfor %}
