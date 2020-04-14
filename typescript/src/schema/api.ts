@@ -77,14 +77,14 @@ export class API {
       .filter(fd => fd.name)
       .filter(fd => !API.isIgnoredService(fd))
       .reduce((map, fd) => {
-        map[fd.name!] = new Proto(
+        map[fd.name!] = new Proto({
           fd,
           packageName,
           allMessages,
           allResourceDatabase,
           resourceDatabase,
-          options
-        );
+          options,
+        });
         return map;
       }, {} as ProtosMap);
 

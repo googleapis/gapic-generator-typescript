@@ -192,8 +192,8 @@ describe('src/schema/api.ts', () => {
 
       assert(spy.calledWithNew());
       assert.strictEqual(spy.callCount, 2); // one Proto object created for each fd
-      const firstCallMessages = spy.getCall(0).args[2];
-      const secondCallMessages = spy.getCall(1).args[2];
+      const firstCallMessages = spy.getCall(0).args[0].allMessages;
+      const secondCallMessages = spy.getCall(1).args[0].allMessages;
       assert('.google.cloud.example.v1.MessageA' in firstCallMessages);
       assert('.google.cloud.example.v1.MessageB' in firstCallMessages);
       assert('.google.cloud.example.v1.MessageA' in secondCallMessages);

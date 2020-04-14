@@ -148,14 +148,14 @@ describe('src/schema/proto.ts', () => {
         .forEach(message => {
           allMessages['.' + fd.package! + '.' + message.name!] = message;
         });
-      const proto = new Proto(
+      const proto = new Proto({
         fd,
-        'google.cloud.talent.v4beta1',
+        packageName: 'google.cloud.talent.v4beta1',
         allMessages,
-        new ResourceDatabase(),
-        new ResourceDatabase(),
-        options
-      );
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+      });
       assert.deepStrictEqual(
         proto.services['service'].method[0].pagingFieldName,
         undefined
