@@ -15,7 +15,9 @@
 import {API} from '../../src/schema/api';
 import * as plugin from '../../../pbjs-genfiles/plugin';
 import * as assert from 'assert';
-import {describe, it} from 'mocha';
+import {afterEach, describe, it} from 'mocha';
+import * as sinon from 'sinon';
+import * as proto from '../../src/schema/proto';
 
 describe('src/schema/api.ts', () => {
   it('should construct an API object and return list of protos', () => {
@@ -155,6 +157,47 @@ describe('src/schema/api.ts', () => {
         grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
       });
       assert(api);
+    });
+  });
+
+  describe('Calling Proto constructor', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should pass all messages to Proto constructor', () => {
+      const fd1 = new plugin.google.protobuf.FileDescriptorProto();
+      fd1.name = 'google/cloud/example/v1/test.proto';
+      fd1.package = 'google.cloud.example.v1';
+
+      fd1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+      fd1.service[0].name = 'Service';
+      fd1.service[0].options = {
+        '.google.api.defaultHost': 'hostname.example.com:443',
+      };
+      fd1.messageType = [new plugin.google.protobuf.MethodDescriptorProto()];
+      fd1.messageType[0].name = 'MessageA';
+
+      const fd2 = new plugin.google.protobuf.FileDescriptorProto();
+      fd2.name = 'google/cloud/example/v1/example.proto';
+      fd2.package = 'google.cloud.example.v1';
+      fd2.messageType = [new plugin.google.protobuf.MethodDescriptorProto()];
+      fd2.messageType[0].name = 'MessageB';
+
+      const spy = sinon.spy(proto, 'Proto');
+
+      new API([fd1, fd2], 'google.cloud.example.v1', {
+        grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+      });
+
+      assert(spy.calledWithNew());
+      assert.strictEqual(spy.callCount, 2); // one Proto object created for each fd
+      const firstCallMessages = spy.getCall(0).args[0].allMessages;
+      const secondCallMessages = spy.getCall(1).args[0].allMessages;
+      assert('.google.cloud.example.v1.MessageA' in firstCallMessages);
+      assert('.google.cloud.example.v1.MessageB' in firstCallMessages);
+      assert('.google.cloud.example.v1.MessageA' in secondCallMessages);
+      assert('.google.cloud.example.v1.MessageB' in secondCallMessages);
     });
   });
 });

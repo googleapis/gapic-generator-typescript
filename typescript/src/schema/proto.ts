@@ -85,10 +85,6 @@ export interface MessagesMap {
   [name: string]: plugin.google.protobuf.IDescriptorProto;
 }
 
-export interface EnumsMap {
-  [name: string]: plugin.google.protobuf.IEnumDescriptorProto;
-}
-
 // The following functions are used to add some metadata such as idempotence
 // flag, long running operation info, pagination, and streaming, to all the
 // methods of the given service, to use in templates.
@@ -291,34 +287,43 @@ function getMethodConfig(
   return result;
 }
 
+interface AugmentMethodParameters {
+  allMessages: MessagesMap;
+  localMessages: MessagesMap;
+  service: ServiceDescriptorProto;
+}
+
 function augmentMethod(
-  messages: MessagesMap,
-  service: ServiceDescriptorProto,
+  parameters: AugmentMethodParameters,
   method: MethodDescriptorProto
 ) {
   method = Object.assign(
     {
       longRunning: longrunning(method),
       longRunningResponseType: longRunningResponseType(
-        service.packageName,
+        parameters.service.packageName,
         method
       ),
       longRunningMetadataType: longRunningMetadataType(
-        service.packageName,
+        parameters.service.packageName,
         method
       ),
       streaming: streaming(method),
-      pagingFieldName: pagingFieldName(messages, method, service),
-      pagingResponseType: pagingResponseType(messages, method),
+      pagingFieldName: pagingFieldName(
+        parameters.allMessages,
+        method,
+        parameters.service
+      ),
+      pagingResponseType: pagingResponseType(parameters.allMessages, method),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
-      comments: service.commentsMap.getMethodComments(
-        service.name!,
+      comments: parameters.service.commentsMap.getMethodComments(
+        parameters.service.name!,
         method.name!
       ),
       methodConfig: getMethodConfig(
-        service.grpcServiceConfig,
-        `${service.packageName}.${service.name!}`,
+        parameters.service.grpcServiceConfig,
+        `${parameters.service.packageName}.${parameters.service.name!}`,
         method.name!
       ),
       retryableCodesName: defaultNonIdempotentRetryCodesName,
@@ -326,11 +331,11 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
-  const bundleConfigs = service.bundleConfigs;
+  const bundleConfigs = parameters.service.bundleConfigs;
   if (bundleConfigs) {
     for (const bc of bundleConfigs) {
       if (bc.methodName === method.name) {
-        const inputType = messages[method.inputType!];
+        const inputType = parameters.allMessages[method.inputType!];
         const repeatedFields = inputType.field!.filter(
           field =>
             field.label ===
@@ -343,12 +348,12 @@ function augmentMethod(
       }
     }
   }
-  if (method.inputType && messages[method.inputType]?.field) {
+  if (method.inputType && parameters.allMessages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
-    const inputType = messages[method.inputType!];
+    const inputType = parameters.allMessages[method.inputType!];
     const inputmessageName = toMessageName(method.inputType);
     for (const field of inputType.field!) {
-      const comment = service.commentsMap.getParamComments(
+      const comment = parameters.service.commentsMap.getParamComments(
         inputmessageName,
         field.name!
       );
@@ -357,7 +362,7 @@ function augmentMethod(
     method.paramComment = paramComment;
   }
   if (method.methodConfig.retryPolicy?.retryableStatusCodes) {
-    method.retryableCodesName = service.retryableCodeMap.getRetryableCodesName(
+    method.retryableCodesName = parameters.service.retryableCodeMap.getRetryableCodesName(
       method.methodConfig.retryPolicy.retryableStatusCodes
     );
   }
@@ -388,7 +393,7 @@ function augmentMethod(
       defaultParameters.max_rpc_timeout_millis;
     retryParams.total_timeout_millis = defaultParameters.total_timeout_millis;
 
-    method.retryParamsName = service.retryableCodeMap.getParamsName(
+    method.retryParamsName = parameters.service.retryableCodeMap.getParamsName(
       retryParams
     );
   }
@@ -433,27 +438,39 @@ export function getHeaderRequestParams(
   return result;
 }
 
-function augmentService(
-  messages: MessagesMap,
-  packageName: string,
-  service: plugin.google.protobuf.IServiceDescriptorProto,
-  commentsMap: CommentsMap,
-  allResourceDatabase: ResourceDatabase,
-  resourceDatabase: ResourceDatabase,
-  options: Options
-) {
-  const augmentedService = service as ServiceDescriptorProto;
-  augmentedService.packageName = packageName;
-  augmentedService.iamService = options.iamService ?? false;
-  augmentedService.comments = commentsMap.getServiceComment(service.name!);
-  augmentedService.commentsMap = commentsMap;
+interface AugmentServiceParameters {
+  allMessages: MessagesMap;
+  localMessages: MessagesMap;
+  packageName: string;
+  service: plugin.google.protobuf.IServiceDescriptorProto;
+  commentsMap: CommentsMap;
+  allResourceDatabase: ResourceDatabase;
+  resourceDatabase: ResourceDatabase;
+  options: Options;
+}
+
+function augmentService(parameters: AugmentServiceParameters) {
+  const augmentedService = parameters.service as ServiceDescriptorProto;
+  augmentedService.packageName = parameters.packageName;
+  augmentedService.iamService = parameters.options.iamService ?? false;
+  augmentedService.comments = parameters.commentsMap.getServiceComment(
+    parameters.service.name!
+  );
+  augmentedService.commentsMap = parameters.commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
-  augmentedService.grpcServiceConfig = options.grpcServiceConfig;
-  augmentedService.bundleConfigs = options.bundleConfigs?.filter(
-    bc => bc.serviceName === service.name
+  augmentedService.grpcServiceConfig = parameters.options.grpcServiceConfig;
+  augmentedService.bundleConfigs = parameters.options.bundleConfigs?.filter(
+    bc => bc.serviceName === parameters.service.name
   );
   augmentedService.method = augmentedService.method.map(method =>
-    augmentMethod(messages, augmentedService, method)
+    augmentMethod(
+      {
+        allMessages: parameters.allMessages,
+        localMessages: parameters.localMessages,
+        service: augmentedService,
+      },
+      method
+    )
   );
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
     method => method.bundleConfig
@@ -505,21 +522,22 @@ function augmentService(
   // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
   const uniqueResources: {[name: string]: ResourceDescriptor} = {};
   // Copy all resources in resourceDatabase to uniqueResources
-  const allPatterns = resourceDatabase.patterns;
+  const allPatterns = parameters.resourceDatabase.patterns;
   for (const pattern of Object.keys(allPatterns)) {
     const resource = allPatterns[pattern];
     uniqueResources[resource.name] = resource;
   }
 
   // Copy all resources definination which are referenced into unique resources map.
-  for (const property of Object.keys(messages)) {
-    const errorLocation = `service ${service.name} message ${property}`;
-    for (const fieldDescriptor of messages[property].field ?? []) {
+  for (const property of Object.keys(parameters.localMessages)) {
+    const errorLocation = `service ${parameters.service.name} message ${property}`;
+    for (const fieldDescriptor of parameters.localMessages[property].field ??
+      []) {
       // note: ResourceDatabase can accept `undefined` values, so we happily use optional chaining here.
       const resourceReference =
         fieldDescriptor.options?.['.google.api.resourceReference'];
       // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
-      const parentResources = allResourceDatabase.getParentResourcesByChildType(
+      const parentResources = parameters.allResourceDatabase.getParentResourcesByChildType(
         resourceReference?.childType,
         errorLocation
       );
@@ -529,7 +547,7 @@ function augmentService(
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
       if (!resourceReference || !resourceReference.type) continue;
-      const resourceByType = allResourceDatabase.getResourceByType(
+      const resourceByType = parameters.allResourceDatabase.getResourceByType(
         resourceReference?.type,
         errorLocation
       );
@@ -537,7 +555,7 @@ function augmentService(
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
       // look up pattern map for all resources.
       for (const pattern of resourceByType!.pattern!) {
-        const resourceByPattern = allResourceDatabase.getResourceByPattern(
+        const resourceByPattern = parameters.allResourceDatabase.getResourceByPattern(
           pattern
         );
         if (!resourceByPattern) continue;
@@ -562,58 +580,54 @@ function augmentService(
   return augmentedService;
 }
 
+interface ProtoParameters {
+  fd: plugin.google.protobuf.IFileDescriptorProto;
+  packageName: string;
+  allMessages: MessagesMap;
+  allResourceDatabase: ResourceDatabase;
+  resourceDatabase: ResourceDatabase;
+  options: Options;
+}
+
 export class Proto {
   filePB2: plugin.google.protobuf.IFileDescriptorProto;
   services: ServicesMap = {};
-  messages: MessagesMap = {};
-  enums: EnumsMap = {};
+  allMessages: MessagesMap = {};
+  localMessages: MessagesMap = {};
   fileToGenerate: boolean;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
   // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
-  constructor(
-    fd: plugin.google.protobuf.IFileDescriptorProto,
-    packageName: string,
-    allResourceDatabase: ResourceDatabase,
-    resourceDatabase: ResourceDatabase,
-    options: Options
-  ) {
-    fd.enumType = fd.enumType || [];
-    fd.messageType = fd.messageType || [];
-    fd.service = fd.service || [];
+  constructor(parameters: ProtoParameters) {
+    parameters.fd.service = parameters.fd.service || [];
+    parameters.fd.messageType = parameters.fd.messageType || [];
 
-    this.filePB2 = fd;
-
-    this.messages = fd.messageType
+    this.filePB2 = parameters.fd;
+    this.allMessages = parameters.allMessages;
+    this.localMessages = parameters.fd.messageType
       .filter(message => message.name)
       .reduce((map, message) => {
-        map['.' + fd.package! + '.' + message.name!] = message;
+        map[`.${parameters.fd.package!}.${message.name!}`] = message;
         return map;
       }, {} as MessagesMap);
-
-    this.enums = fd.enumType
-      .filter(enum_ => enum_.name)
-      .reduce((map, enum_) => {
-        map[enum_.name!] = enum_;
-        return map;
-      }, {} as EnumsMap);
-    this.fileToGenerate = fd.package
-      ? fd.package.startsWith(packageName)
+    this.fileToGenerate = parameters.fd.package
+      ? parameters.fd.package.startsWith(parameters.packageName)
       : false;
-    const commentsMap = new CommentsMap(fd);
-    this.services = fd.service
+    const commentsMap = new CommentsMap(parameters.fd);
+    this.services = parameters.fd.service
       .filter(service => service.name)
       .map(service =>
-        augmentService(
-          this.messages,
-          packageName,
+        augmentService({
+          allMessages: this.allMessages,
+          localMessages: this.localMessages,
+          packageName: parameters.packageName,
           service,
           commentsMap,
-          allResourceDatabase,
-          resourceDatabase,
-          options
-        )
+          allResourceDatabase: parameters.allResourceDatabase,
+          resourceDatabase: parameters.resourceDatabase,
+          options: parameters.options,
+        })
       )
       .reduce((map, service) => {
         map[service.name!] = service;
