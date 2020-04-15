@@ -24,7 +24,7 @@ import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import * as gapicConfig from './messaging_client_config.json';
-
+import * as operationProtos from 'google-gax/build/protos/operations';
 const version = require('../../../package.json').version;
 
 /**
@@ -1041,6 +1041,11 @@ export class MessagingClient {
     });
     this.initialize();
     return this.innerApiCalls.searchBlurbs(request, options, callback);
+  }
+  async searchBlurbsDecodeLRO(name: string){
+    const [operation] = await this.operationsClient.getOperation({name}, {}) as unknown as [operationProtos.google.longrunning.Operation];
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.searchBlurbs, gax.createDefaultBackoffSettings());
+    return decodeOperation;
   }
   listRooms(
       request: protos.google.showcase.v1beta1.IListRoomsRequest,

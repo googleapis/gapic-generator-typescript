@@ -32,7 +32,9 @@ import { RequestType } from 'google-gax/build/src/apitypes';
 {%- endif %}
 import * as protos from '../../protos/protos';
 import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json';
-
+{% if service.longRunning.length > 0 -%}
+import * as operationProtos from 'google-gax/build/protos/operations';
+{%- endif %}
 const version = require('../../../package.json').version;
 
 /**
@@ -556,6 +558,11 @@ export class {{ service.name }}Client {
     {{ util.buildHeaderRequestParam(method) }}
     this.initialize();
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+  }
+  async {{ method.name.toCamelCase() }}DecodeLRO(name: string){
+    const [operation] = await this.operationsClient.getOperation({name}, {}) as unknown as [operationProtos.google.longrunning.Operation];
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, gax.createDefaultBackoffSettings());
+    return decodeOperation;
   }
 {%- endfor %}
 {%- for method in service.paging %}

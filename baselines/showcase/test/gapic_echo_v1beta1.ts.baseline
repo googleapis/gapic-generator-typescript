@@ -26,7 +26,7 @@ import * as echoModule from '../src';
 import {PassThrough} from 'stream';
 
 import {protobuf, LROperation} from 'google-gax';
-
+import * as operationProtos from 'google-gax/build/protos/operations';
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -411,6 +411,24 @@ describe('v1beta1.EchoClient', () => {
             await assert.rejects(async () => { await operation.promise(); }, expectedError);
             assert((client.innerApiCalls.wait as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+        it('invokes waitDecodeLRO without error', async () => {
+            const client = new echoModule.v1beta1.EchoClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const expectedResponse = generateSampleMessage(new operationProtos.google.longrunning.Operation());
+            expectedResponse.name = 'test';
+            expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
+            expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
+            expectedResponse.result = 'response';
+
+            client.operationsClient.getOperation = stubSimpleCall(expectedResponse);
+            const decodedOperation = await client.waitDecodeLRO(expectedResponse.name);
+            assert.deepStrictEqual(decodedOperation.name, expectedResponse.name);
+            assert(decodedOperation.metadata);
+            assert((client.operationsClient.getOperation as SinonStub).getCall(0));
         });
     });
 

@@ -33,7 +33,9 @@ import {protobuf
 {%- endif -%}
 {%- if service.iamService > 0 %}, IamProtos{%- endif -%}
 } from 'google-gax';
-
+{% if (service.longRunning.length > 0) -%}
+import * as operationProtos from 'google-gax/build/protos/operations';
+{%- endif %}
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -374,6 +376,24 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             await assert.rejects(async () => { await operation.promise(); }, expectedError);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+        it('invokes {{method.name.toCamelCase() }}DecodeLRO without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const expectedResponse = generateSampleMessage(new operationProtos.google.longrunning.Operation());
+            expectedResponse.name = 'test';
+            expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
+            expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
+            expectedResponse.result = 'response';
+
+            client.operationsClient.getOperation = stubSimpleCall(expectedResponse);
+            const decodedOperation = await client.{{method.name.toCamelCase() }}DecodeLRO(expectedResponse.name);
+            assert.deepStrictEqual(decodedOperation.name, expectedResponse.name);
+            assert(decodedOperation.metadata);
+            assert((client.operationsClient.getOperation as SinonStub).getCall(0));
         });
     });
 {%- endfor %}
