@@ -348,9 +348,9 @@ function augmentMethod(
       }
     }
   }
-  if (method.inputType && parameters.allMessages[method.inputType]?.field) {
+  if (method.inputType && parameters.localMessages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
-    const inputType = parameters.allMessages[method.inputType!];
+    const inputType = parameters.localMessages[method.inputType!];
     const inputmessageName = toMessageName(method.inputType);
     for (const field of inputType.field!) {
       const comment = parameters.service.commentsMap.getParamComments(
