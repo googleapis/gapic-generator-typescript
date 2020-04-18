@@ -24,7 +24,8 @@ import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import * as gapicConfig from './messaging_client_config.json';
-import * as operationProtos from 'google-gax/build/protos/operations';
+import { operationsProtos } from 'google-gax';
+import { Metadata } from 'google-gax/build/src/grpc';
 const version = require('../../../package.json').version;
 
 /**
@@ -1044,11 +1045,23 @@ export class MessagingClient {
   }
 /**
  * This method is for decoding operations.
+ * @param {String} name
+ *   The operation name that will be passed.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing the result of operations.
+ *   The second element of the array is an object representing the metadata of operations.
+ *
+ * @code sample:
+ *   const decodedOperation = await searchBlurbsDecodeLRO(name);
+ *   console.log(decodedOperation.result);
+ *   console.log(decodedOperation.metadata);
+ *
  */
-  async searchBlurbsDecodeLRO(name: string){
-    const [operation] = await this.operationsClient.getOperation({name}, {}) as unknown as [operationProtos.google.longrunning.Operation];
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.searchBlurbs, gax.createDefaultBackoffSettings());
-    return decodeOperation;
+  async searchBlurbsDecodeLRO(name: string): Promise<LROperation<{} | null, Metadata | null>>{
+    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const [operation] = await this.operationsClient.getOperation(request);
+    const decodeOperation = new gax.Operation(operation as operationsProtos.google.longrunning.Operation, this.descriptors.longrunning.searchBlurbs, gax.createDefaultBackoffSettings());
+    return decodeOperation as LROperation<{} | null, Metadata | null>;
   }
   listRooms(
       request: protos.google.showcase.v1beta1.IListRoomsRequest,

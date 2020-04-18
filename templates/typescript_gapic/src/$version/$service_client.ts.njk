@@ -33,7 +33,8 @@ import { RequestType } from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json';
 {% if service.longRunning.length > 0 -%}
-import * as operationProtos from 'google-gax/build/protos/operations';
+import { operationsProtos } from 'google-gax';
+import { Metadata } from 'google-gax/build/src/grpc';
 {%- endif %}
 const version = require('../../../package.json').version;
 
@@ -562,10 +563,11 @@ export class {{ service.name }}Client {
 /**
 {{- util.printDecodeMethodComments(method) }}
  */
-  async {{ method.name.toCamelCase() }}DecodeLRO(name: string){
-    const [operation] = await this.operationsClient.getOperation({name}, {}) as unknown as [operationProtos.google.longrunning.Operation];
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, gax.createDefaultBackoffSettings());
-    return decodeOperation;
+  async {{ method.name.toCamelCase() }}DecodeLRO(name: string): Promise<LROperation<{} | null, Metadata | null>>{
+    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const [operation] = await this.operationsClient.getOperation(request);
+    const decodeOperation = new gax.Operation(operation as operationsProtos.google.longrunning.Operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, gax.createDefaultBackoffSettings());
+    return decodeOperation as LROperation<{} | null, Metadata | null>;
   }
 {%- endfor %}
 {%- for method in service.paging %}

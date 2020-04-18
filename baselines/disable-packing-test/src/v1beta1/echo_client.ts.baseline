@@ -24,7 +24,8 @@ import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import * as gapicConfig from './echo_client_config.json';
-import * as operationProtos from 'google-gax/build/protos/operations';
+import { operationsProtos } from 'google-gax';
+import { Metadata } from 'google-gax/build/src/grpc';
 const version = require('../../../package.json').version;
 
 /**
@@ -609,11 +610,23 @@ export class EchoClient {
   }
 /**
  * This method is for decoding operations.
+ * @param {String} name
+ *   The operation name that will be passed.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing the result of operations.
+ *   The second element of the array is an object representing the metadata of operations.
+ *
+ * @code sample:
+ *   const decodedOperation = await waitDecodeLRO(name);
+ *   console.log(decodedOperation.result);
+ *   console.log(decodedOperation.metadata);
+ *
  */
-  async waitDecodeLRO(name: string){
-    const [operation] = await this.operationsClient.getOperation({name}, {}) as unknown as [operationProtos.google.longrunning.Operation];
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.wait, gax.createDefaultBackoffSettings());
-    return decodeOperation;
+  async waitDecodeLRO(name: string): Promise<LROperation<{} | null, Metadata | null>>{
+    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const [operation] = await this.operationsClient.getOperation(request);
+    const decodeOperation = new gax.Operation(operation as operationsProtos.google.longrunning.Operation, this.descriptors.longrunning.wait, gax.createDefaultBackoffSettings());
+    return decodeOperation as LROperation<{} | null, Metadata | null>;
   }
   pagedExpand(
       request: protos.google.showcase.v1beta1.IPagedExpandRequest,
