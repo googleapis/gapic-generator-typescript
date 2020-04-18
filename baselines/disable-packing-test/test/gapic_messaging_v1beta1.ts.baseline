@@ -978,6 +978,7 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.searchBlurbs as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
         it('invokes searchBlurbsDecodeLRO without error', async () => {
             const client = new messagingModule.v1beta1.MessagingClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
@@ -995,6 +996,20 @@ describe('v1beta1.MessagingClient', () => {
             assert.deepStrictEqual(decodedOperation.name, expectedResponse.name);
             assert(decodedOperation.metadata);
             assert((client.operationsClient.getOperation as SinonStub).getCall(0));
+        });
+
+        it('invokes searchBlurbsDecodeLRO with error', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const expectedError = new Error('expected');
+
+            client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(async () => { await client.searchBlurbsDecodeLRO(''); }, expectedError);
+            assert((client.operationsClient.getOperation as SinonStub)
+                .getCall(0));
         });
     });
 

@@ -412,6 +412,7 @@ describe('v1beta1.EchoClient', () => {
             assert((client.innerApiCalls.wait as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
         it('invokes waitDecodeLRO without error', async () => {
             const client = new echoModule.v1beta1.EchoClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
@@ -429,6 +430,20 @@ describe('v1beta1.EchoClient', () => {
             assert.deepStrictEqual(decodedOperation.name, expectedResponse.name);
             assert(decodedOperation.metadata);
             assert((client.operationsClient.getOperation as SinonStub).getCall(0));
+        });
+
+        it('invokes waitDecodeLRO with error', async () => {
+            const client = new echoModule.v1beta1.EchoClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const expectedError = new Error('expected');
+
+            client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(async () => { await client.waitDecodeLRO(''); }, expectedError);
+            assert((client.operationsClient.getOperation as SinonStub)
+                .getCall(0));
         });
     });
 
