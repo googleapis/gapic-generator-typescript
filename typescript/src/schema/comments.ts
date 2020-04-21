@@ -110,7 +110,9 @@ export class CommentsMap {
                 if (field) {
                   //Type Enum: TYPE_STRING, TYPE_BOOL, etc.
                   let paramType =
-                    plugin.google.protobuf.FieldDescriptorProto.Type[field.type!];
+                    plugin.google.protobuf.FieldDescriptorProto.Type[
+                      field.type!
+                    ];
                   // If field.label is 'REPEATED' then the paramType is an array.
                   if (field.label === 3) {
                     paramType += '[]';
@@ -133,7 +135,8 @@ export class CommentsMap {
                     comments,
                   };
                   if (options && options['.google.api.fieldBehavior']) {
-                    const fieldBehavior = options['.google.api.fieldBehavior'][0];
+                    const fieldBehavior =
+                      options['.google.api.fieldBehavior'][0];
                     fieldComment.fieldBehavior = fieldBehavior;
                   }
                   const key = messageType + ':' + field.name;
