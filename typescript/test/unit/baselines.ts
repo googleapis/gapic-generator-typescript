@@ -26,6 +26,13 @@ describe('Baseline tests', () => {
   });
 
   runBaselineTest({
+    baselineName: 'tasks',
+    outputDir: '.test-out-tasks',
+    protoPath: 'google/cloud/tasks/v2/*.proto',
+    useCommonProto: false,
+  });
+
+  runBaselineTest({
     baselineName: 'texttospeech',
     outputDir: '.test-out-texttospeech',
     protoPath: 'google/cloud/texttospeech/v1/*.proto',
