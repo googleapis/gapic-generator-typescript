@@ -255,7 +255,7 @@ export function getSingleHeaderParam(
   const message =
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
   if (message) {
-    const res = message.match(/{(.*?)=/);
+    const res = message.match(/{(.*?)[=}]/);
     return res?.[1] ? res[1].split('.') : [];
   }
   return [];
