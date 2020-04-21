@@ -54,7 +54,7 @@ function runTest(client, opts) {
   testPagedExpandStream(client);
   testPagedExpandAsync(client);
   testWait(client);
-  testWaitDecodeLRO(client);
+  testCheckWaitProgress(client);
 }
 
 // Set of functions to tests all showcase methods
@@ -210,8 +210,8 @@ function testWait(client) {
   });
 }
 
-function testWaitDecodeLRO(client) {
-  it('waitDecodeLRO', async function() {
+function testCheckWaitProgress(client) {
+  it('checkWaitProgress', async function() {
     this.timeout(10000);
     const request = {
       ttl: {
@@ -223,7 +223,9 @@ function testWaitDecodeLRO(client) {
       },
     };
     const [operation] = await client.wait(request);
-    const decodedOperation = await client.waitDecodeLRO(operation.name);
+    const decodedOperation = await client.checkWaitProgress(operation.name);
+    const [response] = await decodedOperation.promise();
+    assert.deepStrictEqual(response.content, request.success.content);
     assert.deepStrictEqual(decodedOperation.name, operation.name);
     assert(decodedOperation.metadata);
     assert(decodedOperation.result)
