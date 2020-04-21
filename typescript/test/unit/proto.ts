@@ -20,6 +20,7 @@ import {Proto} from '../../src/schema/proto';
 import {Options} from '../../src/schema/naming';
 
 import {ResourceDatabase} from '../../src/schema/resource-database';
+import {CommentsMap} from '../../src/schema/comments';
 
 describe('src/schema/proto.ts', () => {
   describe('should get header parameters from http rule', () => {
@@ -148,6 +149,7 @@ describe('src/schema/proto.ts', () => {
         .forEach(message => {
           allMessages['.' + fd.package! + '.' + message.name!] = message;
         });
+      const commentsMap = new CommentsMap([fd]);
       const proto = new Proto({
         fd,
         packageName: 'google.cloud.talent.v4beta1',
@@ -155,6 +157,7 @@ describe('src/schema/proto.ts', () => {
         allResourceDatabase: new ResourceDatabase(),
         resourceDatabase: new ResourceDatabase(),
         options,
+        commentsMap,
       });
       assert.deepStrictEqual(
         proto.services['service'].method[0].pagingFieldName,
