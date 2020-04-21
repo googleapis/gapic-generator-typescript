@@ -17,6 +17,7 @@ import * as plugin from '../../../pbjs-genfiles/plugin';
 import {Naming, Options as namingOptions} from './naming';
 import {Proto, MessagesMap} from './proto';
 import {ResourceDatabase, ResourceDescriptor} from './resource-database';
+import {CommentsMap} from './comments';
 
 export interface ProtosMap {
   [filename: string]: Proto;
@@ -72,6 +73,7 @@ export class API {
           allMessages['.' + fd.package! + '.' + message.name!] = message;
         });
     }
+    const commentsMap = new CommentsMap(fileDescriptors);
 
     this.protos = fileDescriptors
       .filter(fd => fd.name)
@@ -84,6 +86,7 @@ export class API {
           allResourceDatabase,
           resourceDatabase,
           options,
+          commentsMap,
         });
         return map;
       }, {} as ProtosMap);
