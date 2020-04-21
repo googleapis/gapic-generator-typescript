@@ -348,9 +348,9 @@ function augmentMethod(
       }
     }
   }
-  if (method.inputType && parameters.localMessages[method.inputType]?.field) {
+  if (method.inputType && parameters.allMessages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
-    const inputType = parameters.localMessages[method.inputType!];
+    const inputType = parameters.allMessages[method.inputType!];
     const inputmessageName = toMessageName(method.inputType);
     for (const field of inputType.field!) {
       const comment = parameters.service.commentsMap.getParamComments(
@@ -587,6 +587,7 @@ interface ProtoParameters {
   allResourceDatabase: ResourceDatabase;
   resourceDatabase: ResourceDatabase;
   options: Options;
+  commentsMap: CommentsMap;
 }
 
 export class Proto {
@@ -614,7 +615,6 @@ export class Proto {
     this.fileToGenerate = parameters.fd.package
       ? parameters.fd.package.startsWith(parameters.packageName)
       : false;
-    const commentsMap = new CommentsMap(parameters.fd);
     this.services = parameters.fd.service
       .filter(service => service.name)
       .map(service =>
@@ -623,7 +623,7 @@ export class Proto {
           localMessages: this.localMessages,
           packageName: parameters.packageName,
           service,
-          commentsMap,
+          commentsMap: parameters.commentsMap,
           allResourceDatabase: parameters.allResourceDatabase,
           resourceDatabase: parameters.resourceDatabase,
           options: parameters.options,
