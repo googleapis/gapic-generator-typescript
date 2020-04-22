@@ -70,7 +70,7 @@ describe('Test application for JavaScript users', () => {
     await exec('npm install');
   });
   it('run integration in test application', async function () {
-    this.timeout(60000);
+    this.timeout(120000);
     await exec('npm test');
   });
   it('run browser test in application', async function () {
