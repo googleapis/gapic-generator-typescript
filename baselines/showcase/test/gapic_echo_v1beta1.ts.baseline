@@ -25,7 +25,7 @@ import * as echoModule from '../src';
 
 import {PassThrough} from 'stream';
 
-import {protobuf, LROperation} from 'google-gax';
+import {protobuf, LROperation, operationsProtos} from 'google-gax';
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -268,7 +268,7 @@ describe('v1beta1.EchoClient', () => {
             const expectedOptions = {};
             const expectedError = new Error('expected');
             client.innerApiCalls.echo = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.echo(request); }, expectedError);
+            await assert.rejects(client.echo(request), expectedError);
             assert((client.innerApiCalls.echo as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -328,7 +328,7 @@ describe('v1beta1.EchoClient', () => {
             const expectedOptions = {};
             const expectedError = new Error('expected');
             client.innerApiCalls.block = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.block(request); }, expectedError);
+            await assert.rejects(client.block(request), expectedError);
             assert((client.innerApiCalls.block as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -392,7 +392,7 @@ describe('v1beta1.EchoClient', () => {
             const expectedOptions = {};
             const expectedError = new Error('expected');
             client.innerApiCalls.wait = stubLongRunningCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.wait(request); }, expectedError);
+            await assert.rejects(client.wait(request), expectedError);
             assert((client.innerApiCalls.wait as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -408,9 +408,41 @@ describe('v1beta1.EchoClient', () => {
             const expectedError = new Error('expected');
             client.innerApiCalls.wait = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.wait(request);
-            await assert.rejects(async () => { await operation.promise(); }, expectedError);
+            await assert.rejects(operation.promise(), expectedError);
             assert((client.innerApiCalls.wait as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes checkWaitProgress without error', async () => {
+            const client = new echoModule.v1beta1.EchoClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            expectedResponse.name = 'test';
+            expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
+            expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
+
+            client.operationsClient.getOperation = stubSimpleCall(expectedResponse);
+            const decodedOperation = await client.checkWaitProgress(expectedResponse.name);
+            assert.deepStrictEqual(decodedOperation.name, expectedResponse.name);
+            assert(decodedOperation.metadata);
+            assert((client.operationsClient.getOperation as SinonStub).getCall(0));
+        });
+
+        it('invokes checkWaitProgress with error', async () => {
+            const client = new echoModule.v1beta1.EchoClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const expectedError = new Error('expected');
+
+            client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.checkWaitProgress(''), expectedError);
+            assert((client.operationsClient.getOperation as SinonStub)
+                .getCall(0));
         });
     });
 
@@ -459,7 +491,7 @@ describe('v1beta1.EchoClient', () => {
                     reject(err);
                 });
             });
-            await assert.rejects(async () => { await promise; }, expectedError);
+            await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.expand as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions));
         });
@@ -513,7 +545,7 @@ describe('v1beta1.EchoClient', () => {
                 stream.write(request);
                 stream.end();
             });
-            await assert.rejects(async () => { await promise; }, expectedError);
+            await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.chat as SinonStub)
                 .getCall(0).calledWithExactly(undefined));
             assert.deepStrictEqual(((stream as unknown as PassThrough)
@@ -573,7 +605,7 @@ describe('v1beta1.EchoClient', () => {
                 stream.write(request);
                 stream.end();
             });
-            await assert.rejects(async () => { await promise; }, expectedError);
+            await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.collect as SinonStub)
                 .getCall(0).calledWith(null, {} /*, callback defined above */));
         });
@@ -641,7 +673,7 @@ describe('v1beta1.EchoClient', () => {
             const expectedOptions = {};
             const expectedError = new Error('expected');
             client.innerApiCalls.pagedExpand = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.pagedExpand(request); }, expectedError);
+            await assert.rejects(client.pagedExpand(request), expectedError);
             assert((client.innerApiCalls.pagedExpand as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -700,7 +732,7 @@ describe('v1beta1.EchoClient', () => {
                     reject(err);
                 });
             });
-            await assert.rejects(async () => { await promise; }, expectedError);
+            await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.pagedExpand.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.pagedExpand, request));
         });

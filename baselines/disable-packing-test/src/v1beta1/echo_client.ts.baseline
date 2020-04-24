@@ -24,7 +24,7 @@ import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import * as gapicConfig from './echo_client_config.json';
-
+import { operationsProtos } from 'google-gax';
 const version = require('../../../package.json').version;
 
 /**
@@ -606,6 +606,26 @@ export class EchoClient {
     options = options || {};
     this.initialize();
     return this.innerApiCalls.wait(request, options, callback);
+  }
+/**
+ * Check the status of the long running operation returned by the wait() method.
+ * @param {String} name
+ *   The operation name that will be passed.
+ * @returns {Promise} - The promise which resolves to an object.
+ *   The decoded operation object has result and metadata field to get information from.
+ *
+ * @example:
+ *   const decodedOperation = await checkWaitProgress(name);
+ *   console.log(decodedOperation.result);
+ *   console.log(decodedOperation.done);
+ *   console.log(decodedOperation.metadata);
+ *
+ */
+  async checkWaitProgress(name: string): Promise<LROperation<protos.google.showcase.v1beta1.WaitResponse, protos.google.showcase.v1beta1.WaitMetadata>>{
+    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const [operation] = await this.operationsClient.getOperation(request);
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.wait, gax.createDefaultBackoffSettings());
+    return decodeOperation as LROperation<protos.google.showcase.v1beta1.WaitResponse, protos.google.showcase.v1beta1.WaitMetadata>;
   }
   pagedExpand(
       request: protos.google.showcase.v1beta1.IPagedExpandRequest,

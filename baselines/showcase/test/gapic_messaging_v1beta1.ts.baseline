@@ -25,7 +25,7 @@ import * as messagingModule from '../src';
 
 import {PassThrough} from 'stream';
 
-import {protobuf, LROperation} from 'google-gax';
+import {protobuf, LROperation, operationsProtos} from 'google-gax';
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -268,7 +268,7 @@ describe('v1beta1.MessagingClient', () => {
             const expectedOptions = {};
             const expectedError = new Error('expected');
             client.innerApiCalls.createRoom = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.createRoom(request); }, expectedError);
+            await assert.rejects(client.createRoom(request), expectedError);
             assert((client.innerApiCalls.createRoom as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -352,7 +352,7 @@ describe('v1beta1.MessagingClient', () => {
             };
             const expectedError = new Error('expected');
             client.innerApiCalls.getRoom = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.getRoom(request); }, expectedError);
+            await assert.rejects(client.getRoom(request), expectedError);
             assert((client.innerApiCalls.getRoom as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -439,7 +439,7 @@ describe('v1beta1.MessagingClient', () => {
             };
             const expectedError = new Error('expected');
             client.innerApiCalls.updateRoom = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.updateRoom(request); }, expectedError);
+            await assert.rejects(client.updateRoom(request), expectedError);
             assert((client.innerApiCalls.updateRoom as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -523,7 +523,7 @@ describe('v1beta1.MessagingClient', () => {
             };
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteRoom = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.deleteRoom(request); }, expectedError);
+            await assert.rejects(client.deleteRoom(request), expectedError);
             assert((client.innerApiCalls.deleteRoom as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -607,7 +607,7 @@ describe('v1beta1.MessagingClient', () => {
             };
             const expectedError = new Error('expected');
             client.innerApiCalls.createBlurb = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.createBlurb(request); }, expectedError);
+            await assert.rejects(client.createBlurb(request), expectedError);
             assert((client.innerApiCalls.createBlurb as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -691,7 +691,7 @@ describe('v1beta1.MessagingClient', () => {
             };
             const expectedError = new Error('expected');
             client.innerApiCalls.getBlurb = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.getBlurb(request); }, expectedError);
+            await assert.rejects(client.getBlurb(request), expectedError);
             assert((client.innerApiCalls.getBlurb as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -778,7 +778,7 @@ describe('v1beta1.MessagingClient', () => {
             };
             const expectedError = new Error('expected');
             client.innerApiCalls.updateBlurb = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.updateBlurb(request); }, expectedError);
+            await assert.rejects(client.updateBlurb(request), expectedError);
             assert((client.innerApiCalls.updateBlurb as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -862,7 +862,7 @@ describe('v1beta1.MessagingClient', () => {
             };
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteBlurb = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.deleteBlurb(request); }, expectedError);
+            await assert.rejects(client.deleteBlurb(request), expectedError);
             assert((client.innerApiCalls.deleteBlurb as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -950,7 +950,7 @@ describe('v1beta1.MessagingClient', () => {
             };
             const expectedError = new Error('expected');
             client.innerApiCalls.searchBlurbs = stubLongRunningCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.searchBlurbs(request); }, expectedError);
+            await assert.rejects(client.searchBlurbs(request), expectedError);
             assert((client.innerApiCalls.searchBlurbs as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -974,9 +974,41 @@ describe('v1beta1.MessagingClient', () => {
             const expectedError = new Error('expected');
             client.innerApiCalls.searchBlurbs = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.searchBlurbs(request);
-            await assert.rejects(async () => { await operation.promise(); }, expectedError);
+            await assert.rejects(operation.promise(), expectedError);
             assert((client.innerApiCalls.searchBlurbs as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes checkSearchBlurbsProgress without error', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            expectedResponse.name = 'test';
+            expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
+            expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
+
+            client.operationsClient.getOperation = stubSimpleCall(expectedResponse);
+            const decodedOperation = await client.checkSearchBlurbsProgress(expectedResponse.name);
+            assert.deepStrictEqual(decodedOperation.name, expectedResponse.name);
+            assert(decodedOperation.metadata);
+            assert((client.operationsClient.getOperation as SinonStub).getCall(0));
+        });
+
+        it('invokes checkSearchBlurbsProgress with error', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            const expectedError = new Error('expected');
+
+            client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.checkSearchBlurbsProgress(''), expectedError);
+            assert((client.operationsClient.getOperation as SinonStub)
+                .getCall(0));
         });
     });
 
@@ -1041,7 +1073,7 @@ describe('v1beta1.MessagingClient', () => {
                     reject(err);
                 });
             });
-            await assert.rejects(async () => { await promise; }, expectedError);
+            await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.streamBlurbs as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions));
         });
@@ -1095,7 +1127,7 @@ describe('v1beta1.MessagingClient', () => {
                 stream.write(request);
                 stream.end();
             });
-            await assert.rejects(async () => { await promise; }, expectedError);
+            await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.connect as SinonStub)
                 .getCall(0).calledWithExactly(undefined));
             assert.deepStrictEqual(((stream as unknown as PassThrough)
@@ -1155,7 +1187,7 @@ describe('v1beta1.MessagingClient', () => {
                 stream.write(request);
                 stream.end();
             });
-            await assert.rejects(async () => { await promise; }, expectedError);
+            await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.sendBlurbs as SinonStub)
                 .getCall(0).calledWith(null, {} /*, callback defined above */));
         });
@@ -1223,7 +1255,7 @@ describe('v1beta1.MessagingClient', () => {
             const expectedOptions = {};
             const expectedError = new Error('expected');
             client.innerApiCalls.listRooms = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.listRooms(request); }, expectedError);
+            await assert.rejects(client.listRooms(request), expectedError);
             assert((client.innerApiCalls.listRooms as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -1282,7 +1314,7 @@ describe('v1beta1.MessagingClient', () => {
                     reject(err);
                 });
             });
-            await assert.rejects(async () => { await promise; }, expectedError);
+            await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.listRooms.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listRooms, request));
         });
@@ -1417,7 +1449,7 @@ describe('v1beta1.MessagingClient', () => {
             };
             const expectedError = new Error('expected');
             client.innerApiCalls.listBlurbs = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(async () => { await client.listBlurbs(request); }, expectedError);
+            await assert.rejects(client.listBlurbs(request), expectedError);
             assert((client.innerApiCalls.listBlurbs as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -1485,7 +1517,7 @@ describe('v1beta1.MessagingClient', () => {
                     reject(err);
                 });
             });
-            await assert.rejects(async () => { await promise; }, expectedError);
+            await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.listBlurbs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listBlurbs, request));
             assert.strictEqual(
