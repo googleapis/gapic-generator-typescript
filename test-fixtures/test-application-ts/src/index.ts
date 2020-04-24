@@ -242,10 +242,12 @@ function testCheckWaitProgress(client: showcase.v1beta1.EchoClient) {
     };
     const [operation] = await client.wait(request);
     const decodedOperation = await client.checkWaitProgress(operation.name!);
-    const [response] = await decodedOperation.promise();
-    assert.deepStrictEqual(response.content, request.success.content);
     assert.deepStrictEqual(decodedOperation.name, operation.name);
     assert(decodedOperation.metadata);
-    assert(decodedOperation.result)
+    assert(decodedOperation.result);
+    const [response, metadata, rawOperation] = await decodedOperation.promise();
+    assert.deepStrictEqual(response.content, request.success.content);
+    assert(metadata);
+    assert(rawOperation.done);
   });
 }
