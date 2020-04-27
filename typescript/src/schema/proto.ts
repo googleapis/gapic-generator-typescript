@@ -167,7 +167,7 @@ function pagingField(
   const serviceName =
     service && service.packageName === 'google.cloud.talent.v4beta1';
   const methodName =
-    method.name === 'SearchProfiles' || method.name === 'SearchJobs';
+    method.name === 'SearchProfiles' || method.name === 'SearchJobs' || method.name === 'SearchJobsForAlert';
   if (serviceName && methodName) {
     return undefined;
   }
