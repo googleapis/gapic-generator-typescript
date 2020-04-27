@@ -113,10 +113,12 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method[1] = new plugin.google.protobuf.MethodDescriptorProto();
       fd.service[0].method[1].name = 'SearchProfiles';
       fd.service[0].method[2] = new plugin.google.protobuf.MethodDescriptorProto();
-      fd.service[0].method[2].name = 'ListJobs';
-      fd.service[0].method[2].outputType =
+      fd.service[0].method[2].name = 'SearchJobsForAlert';
+      fd.service[0].method[3] = new plugin.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[3].name = 'ListJobs';
+      fd.service[0].method[3].outputType =
         '.google.cloud.talent.v4beta1.ListJobsOutput';
-      fd.service[0].method[2].inputType =
+      fd.service[0].method[3].inputType =
         '.google.cloud.talent.v4beta1.ListJobsInput';
 
       fd.messageType = [new plugin.google.protobuf.DescriptorProto()];
@@ -169,6 +171,10 @@ describe('src/schema/proto.ts', () => {
       );
       assert.deepStrictEqual(
         proto.services['service'].method[2].pagingFieldName,
+        undefined
+      );
+      assert.deepStrictEqual(
+        proto.services['service'].method[3].pagingFieldName,
         'next_page_token'
       );
     });
