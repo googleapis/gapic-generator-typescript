@@ -333,6 +333,15 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+  if (method.longRunning) {
+    if (!method.longRunningMetadataType) {
+      throw Error(
+        'Longrunning method is not correctly configured, Metadata Type can not be parsed.');
+    } else if (!method.longRunningResponseType) {
+      throw Error(
+        'Longrunning method is not correctly configured, Response Type can not be parsed.');
+    }
+  }
   const bundleConfigs = parameters.service.bundleConfigs;
   if (bundleConfigs) {
     for (const bc of bundleConfigs) {
