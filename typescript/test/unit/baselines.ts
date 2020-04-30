@@ -18,52 +18,52 @@ import {runBaselineTest, initBaselineTest} from '../util';
 describe('Baseline tests', () => {
   initBaselineTest();
 
-  runBaselineTest({
-    baselineName: 'dlp',
-    outputDir: '.test-out-dlp',
-    protoPath: 'google/privacy/dlp/v2/*.proto',
-    useCommonProto: true,
-  });
+  // runBaselineTest({
+  //   baselineName: 'dlp',
+  //   outputDir: '.test-out-dlp',
+  //   protoPath: 'google/privacy/dlp/v2/*.proto',
+  //   useCommonProto: true,
+  // });
 
-  runBaselineTest({
-    baselineName: 'tasks',
-    outputDir: '.test-out-tasks',
-    protoPath: 'google/cloud/tasks/v2/*.proto',
-    useCommonProto: false,
-  });
+  // runBaselineTest({
+  //   baselineName: 'tasks',
+  //   outputDir: '.test-out-tasks',
+  //   protoPath: 'google/cloud/tasks/v2/*.proto',
+  //   useCommonProto: false,
+  // });
 
-  runBaselineTest({
-    baselineName: 'texttospeech',
-    outputDir: '.test-out-texttospeech',
-    protoPath: 'google/cloud/texttospeech/v1/*.proto',
-    useCommonProto: false,
-    grpcServiceConfig:
-      'google/cloud/texttospeech/v1/texttospeech_grpc_service_config.json',
-    packageName: '@google-cloud/text-to-speech',
-  });
+  // runBaselineTest({
+  //   baselineName: 'texttospeech',
+  //   outputDir: '.test-out-texttospeech',
+  //   protoPath: 'google/cloud/texttospeech/v1/*.proto',
+  //   useCommonProto: false,
+  //   grpcServiceConfig:
+  //     'google/cloud/texttospeech/v1/texttospeech_grpc_service_config.json',
+  //   packageName: '@google-cloud/text-to-speech',
+  // });
 
-  runBaselineTest({
-    baselineName: 'kms',
-    outputDir: '.test-out-kms',
-    protoPath: 'google/cloud/kms/v1/*.proto',
-    useCommonProto: false,
-    iamService: true,
-  });
+  // runBaselineTest({
+  //   baselineName: 'kms',
+  //   outputDir: '.test-out-kms',
+  //   protoPath: 'google/cloud/kms/v1/*.proto',
+  //   useCommonProto: false,
+  //   iamService: true,
+  // });
 
-  runBaselineTest({
-    baselineName: 'monitoring',
-    outputDir: '.test-out-monitoring',
-    protoPath: 'google/monitoring/v3/*.proto',
-    useCommonProto: false,
-    mainServiceName: 'monitoring',
-  });
+  // runBaselineTest({
+  //   baselineName: 'monitoring',
+  //   outputDir: '.test-out-monitoring',
+  //   protoPath: 'google/monitoring/v3/*.proto',
+  //   useCommonProto: false,
+  //   mainServiceName: 'monitoring',
+  // });
 
-  runBaselineTest({
-    baselineName: 'redis',
-    outputDir: '.test-out-redis',
-    protoPath: 'google/cloud/redis/v1beta1/*.proto',
-    useCommonProto: true,
-  });
+  // runBaselineTest({
+  //   baselineName: 'redis',
+  //   outputDir: '.test-out-redis',
+  //   protoPath: 'google/cloud/redis/v1beta1/*.proto',
+  //   useCommonProto: true,
+  // });
 
   runBaselineTest({
     baselineName: 'showcase',
@@ -74,34 +74,34 @@ describe('Baseline tests', () => {
     template: 'typescript_gapic;typescript_packing_test',
   });
 
-  runBaselineTest({
-    baselineName: 'translate',
-    outputDir: '.test-out-translate',
-    protoPath: 'google/cloud/translate/v3beta1/*.proto',
-    useCommonProto: true,
-  });
+  // runBaselineTest({
+  //   baselineName: 'translate',
+  //   outputDir: '.test-out-translate',
+  //   protoPath: 'google/cloud/translate/v3beta1/*.proto',
+  //   useCommonProto: true,
+  // });
 
-  runBaselineTest({
-    baselineName: 'bigquery-storage',
-    outputDir: '.test-out-bigquery-storage',
-    protoPath: 'google/cloud/bigquery/storage/v1beta1/*.proto',
-    useCommonProto: false,
-  });
+  // runBaselineTest({
+  //   baselineName: 'bigquery-storage',
+  //   outputDir: '.test-out-bigquery-storage',
+  //   protoPath: 'google/cloud/bigquery/storage/v1beta1/*.proto',
+  //   useCommonProto: false,
+  // });
 
-  runBaselineTest({
-    baselineName: 'logging',
-    outputDir: '.test-out-logging',
-    protoPath: 'google/logging/v2/*.proto',
-    useCommonProto: true,
-    bundleConfig: 'google/logging/v2/logging_gapic.yaml',
-    mainServiceName: 'LoggingService',
-  });
-  runBaselineTest({
-    baselineName: 'disable-packing-test',
-    outputDir: '.test-out-disable-packing-test',
-    protoPath: 'google/showcase/v1beta1/*.proto',
-    useCommonProto: false,
-    mainServiceName: 'ShowcaseService',
-    template: 'typescript_gapic',
-  });
+  // runBaselineTest({
+  //   baselineName: 'logging',
+  //   outputDir: '.test-out-logging',
+  //   protoPath: 'google/logging/v2/*.proto',
+  //   useCommonProto: true,
+  //   bundleConfig: 'google/logging/v2/logging_gapic.yaml',
+  //   mainServiceName: 'LoggingService',
+  // });
+  // runBaselineTest({
+  //   baselineName: 'disable-packing-test',
+  //   outputDir: '.test-out-disable-packing-test',
+  //   protoPath: 'google/showcase/v1beta1/*.proto',
+  //   useCommonProto: false,
+  //   mainServiceName: 'ShowcaseService',
+  //   template: 'typescript_gapic',
+  // });
 });
