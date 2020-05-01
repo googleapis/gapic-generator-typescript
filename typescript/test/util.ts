@@ -76,10 +76,14 @@ export function initBaselineTest() {
 
 export function runBaselineTest(options: BaselineOptions) {
   const outputDir = path.join(cwd, options.outputDir);
-  const protoPath = path.join(
-    protosDirRoot,
-    options.protoPath.split('/').join(path.sep)
-  );
+  const protos = options.protoPath.split(';');
+  let protoPaths = '';
+  for (const proto of protos) {
+    protoPaths =
+      protoPaths +
+      path.join(protosDirRoot, proto.split('/').join(path.sep)) +
+      ' ';
+  }
   const baselineDir = path.join(baselineRootDir, options.baselineName);
   const grpcServiceConfig = options.grpcServiceConfig
     ? path.join(
@@ -100,7 +104,7 @@ export function runBaselineTest(options: BaselineOptions) {
 
     let commandLine =
       `node ${startScriptPath} --output_dir=${outputDir} ` +
-      `-I${protosDirRoot} -I${googleGaxProtosDir} ${protoPath}`;
+      `-I${protosDirRoot} -I${googleGaxProtosDir} ${protoPaths}`;
     if (options.useCommonProto) {
       commandLine += ` ${commonProtoFilePath}`;
     }
