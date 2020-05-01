@@ -113,7 +113,6 @@ if (template) {
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 protocCommand.push(`-I${commonProtoPath}`);
-
 execFileSync('protoc', protocCommand, {stdio: 'inherit'});
 
 // create protos folder to copy proto file
