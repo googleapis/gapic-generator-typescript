@@ -90,8 +90,17 @@ export interface MessagesMap {
 // methods of the given service, to use in templates.
 
 function longrunning(method: MethodDescriptorProto) {
-  if (method.options?.['.google.longrunning.operationInfo']) {
-    return method.options['.google.longrunning.operationInfo']!;
+  if (
+    method.outputType &&
+    method.outputType === '.google.longrunning.Operation'
+  ) {
+    if (!method.options?.['.google.longrunning.operationInfo']) {
+      throw Error(
+        `rpc ${method.name} returns google.longrunning.Operation but is missing option google.longrunning.operation_info`
+      );
+    } else {
+      return method.options!['.google.longrunning.operationInfo']!;
+    }
   }
   return undefined;
 }
@@ -336,10 +345,12 @@ function augmentMethod(
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
       throw Error(
-        'Longrunning method is not correctly configured, Metadata Type can not be parsed.');
+        `rpc ${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type`
+      );
     } else if (!method.longRunningResponseType) {
       throw Error(
-        'Longrunning method is not correctly configured, Response Type can not be parsed.');
+        `rpc ${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.response_type`
+      );
     }
   }
   const bundleConfigs = parameters.service.bundleConfigs;

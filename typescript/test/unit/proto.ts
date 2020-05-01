@@ -179,4 +179,76 @@ describe('src/schema/proto.ts', () => {
       );
     });
   });
+  describe('throw error for misconfigured LRO', () => {
+    it('throw error if method returns Operation, but without operation_info option', () => {
+      const fd = new plugin.google.protobuf.FileDescriptorProto();
+      fd.name = 'google/cloud/showcase/v1beta1/test.proto';
+      fd.package = 'google.cloud.showcase.v1beta1';
+      fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        new plugin.google.protobuf.MethodDescriptorProto(),
+      ];
+      fd.service[0].method[0] = new plugin.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[0].name = 'Test';
+      fd.service[0].method[0].outputType = '.google.longrunning.Operation';
+      const options: Options = {
+        grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+      };
+      const allMessages: MessagesMap = {};
+      fd.messageType
+        .filter(message => message.name)
+        .forEach(message => {
+          allMessages['.' + fd.package! + '.' + message.name!] = message;
+        });
+      const commentsMap = new CommentsMap([fd]);
+      assert.throws(() => {
+        new Proto({
+          fd,
+          packageName: 'google.cloud.showcase.v1beta1',
+          allMessages,
+          allResourceDatabase: new ResourceDatabase(),
+          resourceDatabase: new ResourceDatabase(),
+          options,
+          commentsMap,
+        });
+      }, new Error('rpc Test returns google.longrunning.Operation but is missing option google.longrunning.operation_info'));
+    });
+    it('throw error if method returns Operation, but without operation_info option', () => {
+      const fd = new plugin.google.protobuf.FileDescriptorProto();
+      fd.name = 'google/cloud/showcase/v1beta1/test.proto';
+      fd.package = 'google.cloud.showcase.v1beta1';
+      fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        new plugin.google.protobuf.MethodDescriptorProto(),
+      ];
+      fd.service[0].method[0] = new plugin.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[0].name = 'Test';
+      fd.service[0].method[0].outputType = '.google.longrunning.Operation';
+      const options: Options = {
+        grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+      };
+      fd.service[0].method[0].options = new plugin.google.protobuf.MethodOptions();
+      fd.service[0].method[0].options['.google.longrunning.operationInfo'] = {};
+      const allMessages: MessagesMap = {};
+      fd.messageType
+        .filter(message => message.name)
+        .forEach(message => {
+          allMessages['.' + fd.package! + '.' + message.name!] = message;
+        });
+      const commentsMap = new CommentsMap([fd]);
+      assert.throws(() => {
+        new Proto({
+          fd,
+          packageName: 'google.cloud.showcase.v1beta1',
+          allMessages,
+          allResourceDatabase: new ResourceDatabase(),
+          resourceDatabase: new ResourceDatabase(),
+          options,
+          commentsMap,
+        });
+      }, new Error('rpc Test has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type'));
+    });
+  });
 });
