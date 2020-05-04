@@ -107,7 +107,7 @@ export class API {
         }
         const defaultHost = service!.options!['.google.api.defaultHost']!;
         if (defaultHost.length === 0) {
-          throw Error(
+          console.warn(
             `service ${service.name} google.api.default_host is empty`
           );
         }
