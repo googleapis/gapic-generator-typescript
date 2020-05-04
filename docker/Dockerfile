@@ -20,6 +20,9 @@ RUN cd /root/files && \
     wget https://github.com/googleapis/api-common-protos/archive/master.zip
 RUN cd /protos && unzip /root/files/master.zip && chmod -R a+rx /protos
 
+# Add gapic-config-validator plugin
+COPY --from=gcr.io/gapic-images/gapic-config-validator /usr/local/bin/protoc-gen-gapic-validator /usr/local/bin/protoc-gen-gapic-validator
+
 # Copy the start script
 COPY ./start.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/start.sh

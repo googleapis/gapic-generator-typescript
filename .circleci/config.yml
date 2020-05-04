@@ -3,9 +3,16 @@ jobs:
   testGenerator:
     docker:
       - image: circleci/node:10-browsers
+      - image: circleci/golang:1.12
     working_directory: /home/circleci/project/gapic-generator-typescript
     steps:
       - checkout
+      - run: go install github.com/googleapis/gapic-generator-typescript/cmd/protoc-gen-typescript_gapic
+      - run:
+          name: verify error conformance
+          command: |
+            go install github.com/googleapis/gapic-config-validator/cmd/gapic-error-conformance
+            gapic-error-conformance -plugin=protoc-gen-typescript_gapic -plugin_opts="typescript-gapic-package=foo.com/bar/v1;bar"
       - run:
           name: Install protoc
           command: |
@@ -24,7 +31,7 @@ jobs:
             npm test
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
-      - run: 
+      - run:
           name: Run linting
           command: |
             npm run lint
@@ -34,7 +41,7 @@ jobs:
             for dir in .test-out-* ; do
               cp -r test-fixtures/protos $dir
             done
-      - run: 
+      - run:
           name: move test out folders to a separate folder
           command: |
             mkdir /home/circleci/project/baselines
@@ -47,7 +54,7 @@ jobs:
   showcaseTestApplications:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
+    steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/workspace
@@ -66,7 +73,7 @@ jobs:
   showcaseLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
+    steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/workspace
@@ -84,7 +91,7 @@ jobs:
   kmsLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
+    steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/workspace
@@ -95,7 +102,7 @@ jobs:
   translateLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
+    steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/workspace
@@ -106,7 +113,7 @@ jobs:
   monitoringLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
+    steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/workspace
@@ -117,7 +124,7 @@ jobs:
   dlpLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
+    steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/workspace
@@ -128,7 +135,7 @@ jobs:
   ttsLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
+    steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/workspace
