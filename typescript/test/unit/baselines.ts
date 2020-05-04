@@ -75,6 +75,17 @@ describe('Baseline tests', () => {
   });
 
   runBaselineTest({
+    baselineName: 'asset',
+    outputDir: '.test-out-asset',
+    protoPath:
+      'google/cloud/asset/v1/*.proto;google/cloud/orgpolicy/v1/orgpolicy.proto;google/identity/accesscontextmanager/v1/*.proto;google/identity/accesscontextmanager/type/*.proto',
+    useCommonProto: true,
+    grpcServiceConfig:
+      'google/cloud/asset/v1/cloudasset_grpc_service_config.json',
+    packageName: '@google-cloud/asset',
+  });
+
+  runBaselineTest({
     baselineName: 'translate',
     outputDir: '.test-out-translate',
     protoPath: 'google/cloud/translate/v3beta1/*.proto',
