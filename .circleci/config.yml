@@ -3,18 +3,9 @@ jobs:
   testGenerator:
     docker:
       - image: circleci/node:10-browsers
-      - image: circleci/golang:1.12
     working_directory: /home/circleci/project/gapic-generator-typescript
     steps:
       - checkout
-      - run:
-          name: verify error conformance
-          command: |
-            curl -sSL https://github.com/googleapis/gapic-config-validator/releases/download/v0.4.1/gapic-config-validator-0.4.1-linux-amd64.tar.gz > config-validator.tar.gz
-            tar xvf config-validator.tar.gz
-            chmod +x gapic-error-conformance
-            export PATH=$PATH:`pwd`
-            gapic-error-conformance -plugin=protoc-gen-typescript_gapic -plugin_opts="typescript-gapic-package=foo.com/bar/v1;bar"
       - run:
           name: Install protoc
           command: |
@@ -26,6 +17,16 @@ jobs:
           name: Run npm install
           command: |
             npm install
+      - run:
+          name: verify error conformance
+          command: |
+            curl -sSL https://github.com/googleapis/gapic-config-validator/releases/download/v0.4.1/gapic-config-validator-0.4.1-linux-amd64.tar.gz > config-validator.tar.gz
+            tar xvf config-validator.tar.gz
+            chmod +x gapic-error-conformance
+            export PATH=$PATH:`pwd`
+            echo $PATH
+            gapic-error-conformance -version
+            gapic-error-conformance -plugin=protoc-gen-typescript_gapic=build/src/cli.js -plugin_opts="-I/home/circleci/project/gapic-generator-typescript/test-fixtures/protos/ /home/circleci/project/gapic-generator-typescript/test-fixtures/protos/showcase/v1beta1/echo.proto"
       - run:
           name: Run generator unit tests
           command: |
