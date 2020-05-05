@@ -99,7 +99,20 @@ export class API {
         servicesList.push(...fd.service!);
         return servicesList;
       }, [] as plugin.google.protobuf.IServiceDescriptorProto[])
-      .filter(service => service?.options?.['.google.api.defaultHost'])
+      .filter(service => {
+        if (!service.options || !service.options['.google.api.defaultHost']) {
+          throw new Error(
+            `service ${service.name} is missing option google.api.default_host`
+          );
+        }
+        const defaultHost = service!.options!['.google.api.defaultHost']!;
+        if (defaultHost.length === 0) {
+          console.warn(
+            `service ${service.name} google.api.default_host is empty`
+          );
+        }
+        return service?.options?.['.google.api.defaultHost'];
+      })
       .sort((service1, service2) =>
         service1.name!.localeCompare(service2.name!)
       )
