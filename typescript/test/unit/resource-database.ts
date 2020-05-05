@@ -29,7 +29,7 @@ describe('src/schema/resource-database.ts', () => {
   const resourcePatternSpecial2 = 'organization/{organization=**}/case';
   const resourcePatternSpecial3 = '{organization=**}/tasks/{task}/result';
   const noSlashPatternSpecial =
-    'organization/{organization}/tasks/{task_id}{task_name}/result';
+    'organization/{organization}/tasks/{taskId}{taskName}/result';
   const resourceParameters = ['location', 'example'];
   const parentResourceName = 'Location';
   const parentResourceType = 'locations.googleapis.com/Location';
@@ -146,7 +146,33 @@ describe('src/schema/resource-database.ts', () => {
       noSlashPatternSpecial
     );
     assert(registeredNonSlashResource);
-    assert.strictEqual(registeredNonSlashResource!.name, 'task_result');
+    assert.strictEqual(
+      registeredNonSlashResource!.name,
+      'organization_taskId_taskName_result'
+    );
+  });
+
+  it('get correct resource name for single non-slash patterns', () => {
+    const rdb = new ResourceDatabase();
+    const resource: plugin.google.api.IResourceDescriptor = {
+      type: 'examples.googleapis.com/Case',
+      pattern: [noSlashPatternSpecial],
+    };
+    rdb.registerResource(resource, errorLocation);
+    const registeredResource = rdb.getResourceByType(
+      'examples.googleapis.com/Case'
+    );
+    assert(registeredResource);
+    assert.strictEqual(
+      registeredResource!.type,
+      'examples.googleapis.com/Case'
+    );
+
+    const registeredNonSlashResource = rdb.getResourceByPattern(
+      noSlashPatternSpecial
+    );
+    assert(registeredNonSlashResource);
+    assert.strictEqual(registeredNonSlashResource!.name, 'Case');
   });
 
   it('can get registered resource by type', () => {
