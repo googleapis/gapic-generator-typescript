@@ -28,6 +28,8 @@ describe('src/schema/resource-database.ts', () => {
   const resourcePatternSpecial1 = 'location/{location}/profile/case/{case_id}';
   const resourcePatternSpecial2 = 'organization/{organization=**}/case';
   const resourcePatternSpecial3 = '{organization=**}/tasks/{task}/result';
+  const noSlashPatternSpecial =
+    'organization/{organization}/tasks/{task_id}{task_name}/result';
   const resourceParameters = ['location', 'example'];
   const parentResourceName = 'Location';
   const parentResourceType = 'locations.googleapis.com/Location';
@@ -108,6 +110,7 @@ describe('src/schema/resource-database.ts', () => {
         resourcePatternSpecial1,
         resourcePatternSpecial2,
         resourcePatternSpecial3,
+        noSlashPatternSpecial,
       ],
     };
     rdb.registerResource(resource, errorLocation);
@@ -138,6 +141,12 @@ describe('src/schema/resource-database.ts', () => {
     );
     assert(registeredResourceByPattern3);
     assert.strictEqual(registeredResourceByPattern3!.name, 'task_result');
+
+    const registeredNonSlashResource = rdb.getResourceByPattern(
+      noSlashPatternSpecial
+    );
+    assert(registeredNonSlashResource);
+    assert.strictEqual(registeredNonSlashResource!.name, 'task_result');
   });
 
   it('can get registered resource by type', () => {
