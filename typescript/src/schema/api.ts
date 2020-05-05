@@ -101,7 +101,7 @@ export class API {
       }, [] as plugin.google.protobuf.IServiceDescriptorProto[])
       .filter(service => {
         if (!service.options || !service.options['.google.api.defaultHost']) {
-          throw Error(
+          throw new Error(
             `service ${service.name} is missing option google.api.default_host`
           );
         }
