@@ -66,12 +66,39 @@ describe('src/schema/api.ts', () => {
     const fd3 = new plugin.google.protobuf.FileDescriptorProto();
     fd3.name = 'google/iam/v1/iam_policy.proto';
     fd3.package = 'google.iam.v1';
-    fd2.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    fd3.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
     const api = new API([fd1, fd2, fd3], 'google.cloud.test.v1', {
       grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
     });
     assert.deepStrictEqual(api.filesToGenerate, [
       'google/cloud/test/v1/test.proto',
+    ]);
+  });
+
+  it('should not return common protos in the proto list', () => {
+    const fd1 = new plugin.google.protobuf.FileDescriptorProto();
+    fd1.name = 'google/cloud/test/v1/test.proto';
+    fd1.package = 'google.cloud.test.v1';
+    fd1.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    fd1.service[0].name = 'ZService';
+    fd1.service[0].options = {
+      '.google.api.defaultHost': 'hostname.example.com:443',
+    };
+    const fd2 = new plugin.google.protobuf.FileDescriptorProto();
+    fd2.name = 'google/api/annotations.proto';
+    fd2.package = 'google.api';
+    const fd3 = new plugin.google.protobuf.FileDescriptorProto();
+    fd3.name = 'google/orgpolicy/v1/orgpolicy.proto';
+    fd3.package = 'google.orgpolicy.v1';
+    const fd4 = new plugin.google.protobuf.FileDescriptorProto();
+    fd4.name = 'google/cloud/common_resources.proto';
+    fd4.package = 'google.cloud';
+    const api = new API([fd1, fd2, fd3, fd4], 'google', {
+      grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+    });
+    assert.deepStrictEqual(api.filesToGenerate, [
+      'google/cloud/test/v1/test.proto',
+      'google/orgpolicy/v1/orgpolicy.proto',
     ]);
   });
 

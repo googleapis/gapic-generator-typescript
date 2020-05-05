@@ -25,6 +25,13 @@ import {
 import {BundleConfig} from 'src/bundle';
 import {Options} from './naming';
 
+const COMMON_PROTO_LIST = [
+  'google.api',
+  'google.rpc',
+  'google.protobuf',
+  'google.type',
+];
+
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
   longRunning?: plugin.google.longrunning.IOperationInfo;
@@ -617,7 +624,7 @@ export class Proto {
   services: ServicesMap = {};
   allMessages: MessagesMap = {};
   localMessages: MessagesMap = {};
-  fileToGenerate: boolean;
+  fileToGenerate = true;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
@@ -634,9 +641,17 @@ export class Proto {
         map[`.${parameters.fd.package!}.${message.name!}`] = message;
         return map;
       }, {} as MessagesMap);
-    this.fileToGenerate = parameters.fd.package
-      ? parameters.fd.package.startsWith(parameters.packageName)
-      : false;
+    const protopackage = parameters.fd.package;
+    if (!protopackage || !protopackage.startsWith(parameters.packageName)) {
+      this.fileToGenerate = false;
+    }
+    if (this.fileToGenerate) {
+      for (const commonProto of COMMON_PROTO_LIST) {
+        if (protopackage?.startsWith(commonProto)) {
+          this.fileToGenerate = false;
+        }
+      }
+    }
     this.services = parameters.fd.service
       .filter(service => service.name)
       .map(service =>
