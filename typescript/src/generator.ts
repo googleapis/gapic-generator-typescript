@@ -202,6 +202,8 @@ export class Generator {
 
   async generate() {
     this.response = plugin.google.protobuf.compiler.CodeGeneratorResponse.create();
+    this.response.supportedFeatures =
+      plugin.google.protobuf.compiler.CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL;
 
     this.addProtosToResponse();
     const api = this.buildAPIObject();

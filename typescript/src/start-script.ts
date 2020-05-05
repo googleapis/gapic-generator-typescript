@@ -87,6 +87,7 @@ const cliPath = path.join(__dirname, 'cli.js');
 const protocCommand = [
   `--plugin=protoc-gen-typescript_gapic=${cliPath}`,
   `--typescript_gapic_out=${outputDir}`,
+  '--experimental_allow_proto3_optional',
 ];
 if (grpcServiceConfig) {
   protocCommand.push(
