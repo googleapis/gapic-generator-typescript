@@ -37,6 +37,19 @@ describe('src/schema/api.ts', () => {
     ]);
   });
 
+  it('throw error if an api does not have default host', () => {
+    const fd = new plugin.google.protobuf.FileDescriptorProto();
+    fd.name = 'google/cloud/test/v1/test.proto';
+    fd.package = 'google.cloud.test.v1';
+    fd.service = [new plugin.google.protobuf.ServiceDescriptorProto()];
+    fd.service[0].name = 'ZService';
+    assert.throws(() => {
+      new API([fd], 'google.cloud.test.v1', {
+        grpcServiceConfig: new plugin.grpc.service_config.ServiceConfig(),
+      });
+    }, new Error('service ZService is missing option google.api.default_host'));
+  });
+
   it('should not return common protos in the list of protos', () => {
     const fd1 = new plugin.google.protobuf.FileDescriptorProto();
     fd1.name = 'google/cloud/test/v1/test.proto';
