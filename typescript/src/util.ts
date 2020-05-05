@@ -143,7 +143,6 @@ Array.prototype.toSnakeCaseString = function (
 };
 
 export function getResourceNameByPattern(pattern: string): string {
-  //For non-slash resource 'organization/{organization}/tasks/{task_id}{task_name}/result'
   const elements = pattern.split('/');
   const name = [];
   // Multi pattern like: `projects/{project}/cmekSettings`, we need to append `cmekSettings` to the name.
@@ -158,14 +157,14 @@ export function getResourceNameByPattern(pattern: string): string {
       break;
     } else {
       const nextEle = elements[0];
-      // {task_id}{task_name}
       if (nextEle.match(/{[a-zA-Z_]+(?:=.*?)?}/g)) {
         elements.shift();
         const params = nextEle.match(/{[a-zA-Z_]+(?:=.*?)?}/g);
         if (params!.length === 1) {
           name.push(getChuckName(nextEle));
         } else {
-          // task_id, task_name
+          // For non-slash resource 'organization/{organization}/tasks/{task_id}{task_name}/result'
+          // Take parameters that match pattern [{task_id}, {task_name}] and combine them as part of the name.
           const params = nextEle.match(/{[a-zA-Z_]+(?:=.*?)?}/g);
           name.push(params?.map(p => getChuckName(p))?.join('_'));
         }
