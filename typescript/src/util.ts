@@ -157,16 +157,16 @@ export function getResourceNameByPattern(pattern: string): string {
       break;
     } else {
       const nextEle = elements[0];
-      if (nextEle.match(/{[a-zA-Z_]+(?:=.*?)?}/g)) {
+      if (nextEle.match(/(?<=\{).*?(?=(?:=.*?)?\})/g)) {
         elements.shift();
-        const params = nextEle.match(/{[a-zA-Z_]+(?:=.*?)?}/g);
+        const params = nextEle.match(/(?<=\{).*?(?=(?:=.*?)?\})/g);
         if (params!.length === 1) {
-          name.push(getChuckName(nextEle));
+          name.push(params![0]);
         } else {
           // For non-slash resource 'organization/{organization}/tasks/{task_id}{task_name}/result'
           // Take parameters that match pattern [{task_id}, {task_name}] and combine them as part of the name.
-          const params = nextEle.match(/{[a-zA-Z_]+(?:=.*?)?}/g);
-          name.push(params?.map(p => getChuckName(p))?.join('_'));
+          const params = nextEle.match(/(?<=\{).*?(?=(?:=.*?)?\})/g);
+          name.push(params!.join('_'));
         }
       } else {
         if (eleName!.match(/{[a-zA-Z_]+(?:=.*?)?}/g)) {
@@ -178,11 +178,4 @@ export function getResourceNameByPattern(pattern: string): string {
     }
   }
   return name.join('_');
-}
-
-function getChuckName(chuck: string): string {
-  return chuck.substring(
-    1,
-    chuck.includes('=') ? chuck.indexOf('=') : chuck.length - 1
-  );
 }
