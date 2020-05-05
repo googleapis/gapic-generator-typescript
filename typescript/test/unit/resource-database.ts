@@ -28,8 +28,10 @@ describe('src/schema/resource-database.ts', () => {
   const resourcePatternSpecial1 = 'location/{location}/profile/case/{case_id}';
   const resourcePatternSpecial2 = 'organization/{organization=**}/case';
   const resourcePatternSpecial3 = '{organization=**}/tasks/{task}/result';
-  const noSlashPatternSpecial =
+  const nonSlashPatternSpecial =
     'organization/{organization}/tasks/{taskId}{taskName}/result';
+  const nonSlashPatternSpecial2 =
+    'organization/{organization}/tasks/{taskId=*}{taskName}/result';
   const resourceParameters = ['location', 'example'];
   const parentResourceName = 'Location';
   const parentResourceType = 'locations.googleapis.com/Location';
@@ -110,7 +112,8 @@ describe('src/schema/resource-database.ts', () => {
         resourcePatternSpecial1,
         resourcePatternSpecial2,
         resourcePatternSpecial3,
-        noSlashPatternSpecial,
+        nonSlashPatternSpecial,
+        nonSlashPatternSpecial2,
       ],
     };
     rdb.registerResource(resource, errorLocation);
@@ -143,11 +146,20 @@ describe('src/schema/resource-database.ts', () => {
     assert.strictEqual(registeredResourceByPattern3!.name, 'task_result');
 
     const registeredNonSlashResource = rdb.getResourceByPattern(
-      noSlashPatternSpecial
+      nonSlashPatternSpecial
     );
     assert(registeredNonSlashResource);
     assert.strictEqual(
       registeredNonSlashResource!.name,
+      'organization_taskId_taskName_result'
+    );
+
+    const registeredNonSlashResource2 = rdb.getResourceByPattern(
+      nonSlashPatternSpecial2
+    );
+    assert(registeredNonSlashResource2);
+    assert.strictEqual(
+      registeredNonSlashResource2!.name,
       'organization_taskId_taskName_result'
     );
   });
@@ -156,7 +168,7 @@ describe('src/schema/resource-database.ts', () => {
     const rdb = new ResourceDatabase();
     const resource: plugin.google.api.IResourceDescriptor = {
       type: 'examples.googleapis.com/Case',
-      pattern: [noSlashPatternSpecial],
+      pattern: [nonSlashPatternSpecial],
     };
     rdb.registerResource(resource, errorLocation);
     const registeredResource = rdb.getResourceByType(
@@ -169,7 +181,7 @@ describe('src/schema/resource-database.ts', () => {
     );
 
     const registeredNonSlashResource = rdb.getResourceByPattern(
-      noSlashPatternSpecial
+      nonSlashPatternSpecial
     );
     assert(registeredNonSlashResource);
     assert.strictEqual(registeredNonSlashResource!.name, 'Case');
