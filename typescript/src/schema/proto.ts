@@ -25,6 +25,13 @@ import {
 import {BundleConfig} from 'src/bundle';
 import {Options} from './naming';
 
+const COMMON_PROTO_LIST = [
+  'google.api',
+  'google.rpc',
+  'google.protobuf',
+  'google.type',
+];
+
 interface MethodDescriptorProto
   extends plugin.google.protobuf.IMethodDescriptorProto {
   longRunning?: plugin.google.longrunning.IOperationInfo;
@@ -90,8 +97,17 @@ export interface MessagesMap {
 // methods of the given service, to use in templates.
 
 function longrunning(method: MethodDescriptorProto) {
-  if (method.options?.['.google.longrunning.operationInfo']) {
-    return method.options['.google.longrunning.operationInfo']!;
+  if (
+    method.outputType &&
+    method.outputType === '.google.longrunning.Operation'
+  ) {
+    if (!method.options?.['.google.longrunning.operationInfo']) {
+      throw Error(
+        `rpc ${method.name} returns google.longrunning.Operation but is missing option google.longrunning.operation_info`
+      );
+    } else {
+      return method.options!['.google.longrunning.operationInfo']!;
+    }
   }
   return undefined;
 }
@@ -333,6 +349,17 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+  if (method.longRunning) {
+    if (!method.longRunningMetadataType) {
+      throw Error(
+        `rpc ${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type`
+      );
+    } else if (!method.longRunningResponseType) {
+      throw Error(
+        `rpc ${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.response_type`
+      );
+    }
+  }
   const bundleConfigs = parameters.service.bundleConfigs;
   if (bundleConfigs) {
     for (const bc of bundleConfigs) {
@@ -597,7 +624,7 @@ export class Proto {
   services: ServicesMap = {};
   allMessages: MessagesMap = {};
   localMessages: MessagesMap = {};
-  fileToGenerate: boolean;
+  fileToGenerate = true;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
@@ -614,9 +641,17 @@ export class Proto {
         map[`.${parameters.fd.package!}.${message.name!}`] = message;
         return map;
       }, {} as MessagesMap);
-    this.fileToGenerate = parameters.fd.package
-      ? parameters.fd.package.startsWith(parameters.packageName)
-      : false;
+    const protopackage = parameters.fd.package;
+    if (!protopackage || !protopackage.startsWith(parameters.packageName)) {
+      this.fileToGenerate = false;
+    }
+    if (this.fileToGenerate) {
+      for (const commonProto of COMMON_PROTO_LIST) {
+        if (protopackage?.startsWith(commonProto)) {
+          this.fileToGenerate = false;
+        }
+      }
+    }
     this.services = parameters.fd.service
       .filter(service => service.name)
       .map(service =>
