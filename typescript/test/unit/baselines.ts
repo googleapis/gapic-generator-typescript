@@ -107,6 +107,14 @@ describe('Baseline tests', () => {
     bundleConfig: 'google/logging/v2/logging_gapic.yaml',
     mainServiceName: 'LoggingService',
   });
+
+  runBaselineTest({
+    baselineName: 'videointelligence',
+    outputDir: '.test-out-videointelligence',
+    protoPath: 'google/cloud/videointelligence/v1/*.proto',
+    useCommonProto: true,
+  });
+
   runBaselineTest({
     baselineName: 'disable-packing-test',
     outputDir: '.test-out-disable-packing-test',
