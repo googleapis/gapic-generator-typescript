@@ -14,11 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {execFileSync, execSync} from 'child_process';
+import {execFileSync} from 'child_process';
 import * as path from 'path';
 import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
-import {existsSync} from 'fs-extra';
 const fileSystem = require('file-system'); // eslint-disable-line
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
@@ -69,20 +68,6 @@ const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
 const protoDirs: string[] = [];
-const gapicValidatorDir = path.join(
-  __dirname,
-  '..',
-  '..',
-  'gapic-config-validator'
-);
-const testFixtureProtosDir = path.join(
-  __dirname,
-  '..',
-  '..',
-  'test-fixtures',
-  'protos'
-);
-console.warn(gapicValidatorDir);
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
 }
@@ -96,26 +81,6 @@ if (Array.isArray(argv._)) {
 }
 
 const commonProtoPath = argv.commonProtoPath || googleGaxProtosDir;
-
-// Run gapic-config-validator before micro-generator invocation.
-// Download the gapic-config-validator tar
-// if (!existsSync(path.join(gapicValidatorDir, 'config.tar.gz'))) {
-//   execSync(
-//     `curl -sSL https://github.com/googleapis/gapic-config-validator/releases/download/v0.4.1/gapic-config-validator-0.4.1-darwin-amd64.tar.gz > ${gapicValidatorDir}/config.tar.gz`
-//   );
-// }
-// execSync(`tar -xvf ${gapicValidatorDir}/config.tar.gz`);
-// const validatorCommand = [
-//   `-I ${commonProtoPath}`,
-//   '-I .',
-//   '--gapic-validator_out=. ',
-//   `--typescript_gapic_out=${outputDir}`,
-//   `-I ${testFixtureProtosDir}`,
-// ];
-// validatorCommand.push(...protoFiles);
-// execFileSync('protoc', validatorCommand, {stdio: 'inherit'});
-
-// console.warn('validator pass!');
 // run protoc command to generate client library
 const cliPath = path.join(__dirname, 'cli.js');
 const protocCommand = [
@@ -150,6 +115,7 @@ protocCommand.push(`-I${commonProtoPath}`);
 execFileSync('protoc', protocCommand, {stdio: 'inherit'});
 // create protos folder to copy proto file
 const copyProtoDir = path.join(outputDir, 'protos');
+
 if (!fs.existsSync(copyProtoDir)) {
   fs.mkdirSync(copyProtoDir);
 }
