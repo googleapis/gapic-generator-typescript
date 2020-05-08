@@ -22,6 +22,7 @@
 //    }
 // Then we use this module-alias module that alters behavior of
 // `require` by adding an alias to gapic_generator_typescript.
+// TODO(@alexander-fenster): get rid of module-alias.
 import * as moduleAlias from 'module-alias';
 import * as path from 'path';
 moduleAlias.addAlias('gapic_generator_typescript', path.join(__dirname, '..'));

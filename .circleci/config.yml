@@ -43,7 +43,13 @@ jobs:
       - run:
           name: Run lint
           working_directory: /home/circleci/workspace/gapic-generator-typescript
-          command: npm run lint
+          command: |
+            rm -f bazel-*  # we don't need these broken symlinks here
+            # we have some extra stuff here in Circle that we don't want to lint
+            echo test-application-runners >> .eslintignore
+            echo test-application-runners >> .prettierignore
+            # and now finally...
+            npm run lint
   showcaseTestApplications:
     docker:
       - image: circleci/node:10-browsers
