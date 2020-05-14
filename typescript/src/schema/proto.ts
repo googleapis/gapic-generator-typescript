@@ -96,13 +96,16 @@ export interface MessagesMap {
 // flag, long running operation info, pagination, and streaming, to all the
 // methods of the given service, to use in templates.
 
-function longrunning(packageName: string, method: MethodDescriptorProto) {
+function longrunning(
+  service: ServiceDescriptorProto,
+  method: MethodDescriptorProto
+) {
   if (
     method.outputType &&
     method.outputType === '.google.longrunning.Operation'
   ) {
     if (!method.options?.['.google.longrunning.operationInfo']) {
-      throw `rpc ${packageName}.${method.name} returns google.longrunning.Operation but is missing option google.longrunning.operation_info`;
+      throw `rpc "${service.packageName}.${service.name}.${method.name}" returns google.longrunning.Operation but is missing option google.longrunning.operation_info`;
     } else {
       return method.options!['.google.longrunning.operationInfo']!;
     }
@@ -315,7 +318,7 @@ function augmentMethod(
 ) {
   method = Object.assign(
     {
-      longRunning: longrunning(parameters.service.packageName, method),
+      longRunning: longrunning(parameters.service, method),
       longRunningResponseType: longRunningResponseType(
         parameters.service.packageName,
         method
