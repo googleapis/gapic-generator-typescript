@@ -81,6 +81,7 @@ if (Array.isArray(argv._)) {
 }
 
 const commonProtoPath = argv.commonProtoPath || googleGaxProtosDir;
+
 // run protoc command to generate client library
 const cliPath = path.join(__dirname, 'cli.js');
 const protocCommand = [
