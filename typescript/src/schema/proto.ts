@@ -96,14 +96,14 @@ export interface MessagesMap {
 // flag, long running operation info, pagination, and streaming, to all the
 // methods of the given service, to use in templates.
 
-function longrunning(method: MethodDescriptorProto) {
+function longrunning(packageName: string, method: MethodDescriptorProto) {
   if (
     method.outputType &&
     method.outputType === '.google.longrunning.Operation'
   ) {
     if (!method.options?.['.google.longrunning.operationInfo']) {
       throw Error(
-        `rpc ${method.name} returns google.longrunning.Operation but is missing option google.longrunning.operation_info`
+        `rpc ${packageName}.${method.name} returns google.longrunning.Operation but is missing option google.longrunning.operation_info`
       );
     } else {
       return method.options!['.google.longrunning.operationInfo']!;
@@ -317,7 +317,7 @@ function augmentMethod(
 ) {
   method = Object.assign(
     {
-      longRunning: longrunning(method),
+      longRunning: longrunning(parameters.service.packageName, method),
       longRunningResponseType: longRunningResponseType(
         parameters.service.packageName,
         method
@@ -352,11 +352,11 @@ function augmentMethod(
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
       throw Error(
-        `rpc ${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type`
+        `rpc ${parameters.service.packageName}.${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type`
       );
     } else if (!method.longRunningResponseType) {
       throw Error(
-        `rpc ${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.response_type`
+        `rpc ${parameters.service.packageName}.${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.response_type`
       );
     }
   }
