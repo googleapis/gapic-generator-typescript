@@ -248,7 +248,7 @@ describe('src/schema/proto.ts', () => {
           options,
           commentsMap,
         });
-      }, 'rpc "google.cloud.showcase.v1beta1.Test" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type');
+      }, /rpc "google.cloud.showcase.v1beta1.Test" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type/);
     });
   });
 });

@@ -349,9 +349,9 @@ function augmentMethod(
   ) as MethodDescriptorProto;
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
-      throw `rpc ${parameters.service.packageName}.${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type`;
+      throw `rpc "${parameters.service.packageName}.${method.name}" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type`;
     } else if (!method.longRunningResponseType) {
-      throw `rpc ${parameters.service.packageName}.${method.name} has google.longrunning.operation_info but is missing option google.longrunning.operation_info.response_type`;
+      throw `rpc "${parameters.service.packageName}.${method.name}" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.response_type`;
     }
   }
   const bundleConfigs = parameters.service.bundleConfigs;
