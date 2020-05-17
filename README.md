@@ -83,48 +83,56 @@ If you came here to make changes to the generated TypeScript libraries (e.g. `@g
 you are in the right place! Chances are high you don't need to edit any code, just the
 [Nunjucks](https://mozilla.github.io/nunjucks/) templates located in the `templates` folder.
 
-After you edited the files, make the generator available globally:
+This project is written in TypeScript, but we use [Bazel](https://bazel.build/) for managing dependencies
+(for unrelated reasons), which makes the build process a little bit unusual.
+
+Good news is that you don't really need to learn Bazel to make a quick fix. All bazel commands are
+hidden under the hood, so just use regular `npm` commands and just don't be surprised to see a lot of extra
+output.
+
+To compile the code:
 
 ```sh
 # in gapic-generator-typescript folder
-$ npm install  # install dependencies
-$ npm install -g .
-# make sure gapic-generator-typescript launch script in PATH
+$ npm install      # install dependencies
+$ npm run compile  # build project with Bazel
 ```
 
-You'll need `protoc` in your `PATH` as well, take the latest `protoc-*.zip` from
-their [releases page](https://github.com/protocolbuffers/protobuf/releases).
-Make sure it works:
+To run the generator:
 
 ```sh
-$ protoc --version
-libprotoc 3.7.1  # the exact version does not really matter
+bazel run //:gapic-generator-typescript -- --help
 ```
+
+**Note:** this section will be updated soon. After updating Bazel rules in `googleapis`,
+the generator will be actually called by running `bazel build` on a specific target
+in `googleapis` repository. Until this is ready, the following will work:
 
 Checkout `googleapis`, which has a lot of protobuf definitions of real Google Cloud APIs:
 
 ```sh
 $ git clone https://github.com/googleapis/googleapis.git
-$ cd googleapis
+$ export GOOGLEAPIS="`pwd`/googleapis"  # save the path.
 ```
 
 Pick some API, how about `translate` `v3`?
 
 ```sh
 $ mkdir -p /tmp/translate-v3-typescript  # where to put the result
-# from googleapis folder:
-$ gapic-generator-typescript -I . \
-  --output_dir /tmp/translate-v3-typescript \
-  --grpc-service-config google/cloud/translate/v3/translate_grpc_service_config.json \
-  `find google/cloud/translate/v3 -name '*.proto'` \
-  google/cloud/common_resources.proto
+# from gapic-generator-typescript folder:
+$ bazel run //:gapic-generator-typescript -- \
+    --output-dir /tmp/translate-v3-typescript \
+    -I "$GOOGLEAPIS" \
+    --grpc-service-config "$GOOGLEAPIS/google/cloud/translate/v3/translate_grpc_service_config.json" \
+    `find "$GOOGLEAPIS/google/cloud/translate/v3" -name '*.proto'` \
+    "$GOOGLEAPIS/google/cloud/common_resources.proto"
 ```
 
-Line by line:  
-`-I .` means pass the current directory (i.e. `googleapis`) to `protoc`  
-`--output_dir /tmp/translate-v3-typescript` is where to put the result  
-`--grpc-service-config google/cloud/translate/v3/translate_grpc_service_config.json`
-is an optional configuration file for timeouts and stuff  
+Line by line:
+`-I "$GOOGLEAPIS"` means pass the `googleapis` to `protoc`
+`--output-dir /tmp/translate-v3-typescript` is where to put the result
+`--grpc-service-config "$GOOGLEAPIS/google/cloud/translate/v3/translate_grpc_service_config.json"`
+is an optional configuration file for timeouts and stuff
 Then we add all the `translate` `v3` proto file to the command line, as well as the
 proto file that defines common resources (some APIs need it, some others don't).
 
@@ -150,4 +158,3 @@ We support some cool things such as streaming RPCs, auto-pagination for certain 
 ## Disclaimer
 
 **This is not an official Google product.**
-

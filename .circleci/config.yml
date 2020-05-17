@@ -2,72 +2,83 @@ version: 2.1
 jobs:
   testGenerator:
     docker:
-      - image: circleci/node:10-browsers
+      - image: l.gcr.io/google/bazel
     working_directory: /home/circleci/project/gapic-generator-typescript
     steps:
       - checkout
       - run:
-          name: Install protoc
-          command: |
-            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.10.0/protoc-3.10.0-linux-x86_64.zip
-            cd / && sudo unzip /tmp/protoc-3.10.0-linux-x86_64.zip
-            protoc --version
-          working_directory: /tmp
-      - run:
-          name: Run npm install
-          command: |
-            npm install
-      - run:
           name: Run generator unit tests
           command: |
-            npm link
-            npm test
-          environment:
-            NPM_CONFIG_PREFIX: /tmp/.npm-global
-      - run: 
-          name: Run linting
-          command: |
-            npm run lint
+            bazel test //:unit_tests
       - run:
-          name: copy protos to generated client library & move .test-out-* to project/out/
-          command: |
-            for dir in .test-out-* ; do
-              cp -r test-fixtures/protos $dir
-            done
-      - run: 
-          name: move test out folders to a separate folder
+          name: Unzip baseline tests output
           command: |
             mkdir /home/circleci/project/baselines
-            cp -r .test-out-* /home/circleci/project/baselines
+            unzip bazel-testlogs/unit_tests/test.outputs/outputs.zip -d /home/circleci/project/baselines
+      - run:
+          name: Copy protos to baselines
+          command: |
+            for dir in /home/circleci/project/baselines/.test-out-* ; do
+              cp -r test-fixtures/protos $dir
+            done
+      - run:
+          name: Copy compiled test applications
+          # bazel-bin/ is a symlink to /root/.cache/bazel/... and we won't have it
+          # available in Node container. Let's just save what we need.
+          command: |
+            mkdir test-application-runners
+            cp bazel-bin/test/test-application/test-*.js test-application-runners/
+            cp bazel-testlogs/unit_tests/test.outputs/outputs.zip test-application-runners/
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
             - gapic-generator-typescript
             - baselines
-  showcaseTestApplications:
+  lint:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
-      - checkout
+    steps:
       - attach_workspace:
           at: /home/circleci/workspace
       - run:
+          name: Run lint
+          working_directory: /home/circleci/workspace/gapic-generator-typescript
+          command: |
+            rm -f bazel-*  # we don't need these broken symlinks here
+            # we have some extra stuff here in Circle that we don't want to lint
+            echo test-application-runners >> .eslintignore
+            echo test-application-runners >> .prettierignore
+            # and now finally...
+            npm run lint
+  showcaseTestApplications:
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - attach_workspace:
+          at: /home/circleci/workspace
+      - run:
+          name: Prepare test applications
+          working_directory: /home/circleci/workspace/gapic-generator-typescript
+          command: |
+            rm -f bazel-testlogs
+            mkdir -p bazel-testlogs/unit_tests/test.outputs
+            cp test-application-runners/outputs.zip bazel-testlogs/unit_tests/test.outputs/
+      - run:
           name: Run showcase test for Typescript users
           working_directory: /home/circleci/workspace/gapic-generator-typescript
-          command: npm run ts-test-application
+          command: npx mocha test-application-runners/test-ts.js
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
       - run:
           name: Run showcase test for JavaScript users
           working_directory: /home/circleci/workspace/gapic-generator-typescript
-          command: npm run js-test-application
+          command: npx mocha test-application-runners/test-js.js
           environment:
             NPM_CONFIG_PREFIX: /tmp/.npm-global
   showcaseLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
-      - checkout
+    steps:
       - attach_workspace:
           at: /home/circleci/workspace
       - run:
@@ -84,8 +95,7 @@ jobs:
   kmsLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
-      - checkout
+    steps:
       - attach_workspace:
           at: /home/circleci/workspace
       - run:
@@ -95,8 +105,7 @@ jobs:
   translateLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
-      - checkout
+    steps:
       - attach_workspace:
           at: /home/circleci/workspace
       - run:
@@ -106,8 +115,7 @@ jobs:
   monitoringLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
-      - checkout
+    steps:
       - attach_workspace:
           at: /home/circleci/workspace
       - run:
@@ -117,8 +125,7 @@ jobs:
   dlpLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
-      - checkout
+    steps:
       - attach_workspace:
           at: /home/circleci/workspace
       - run:
@@ -128,8 +135,7 @@ jobs:
   ttsLibTest:
     docker:
       - image: circleci/node:10-browsers
-    steps: 
-      - checkout
+    steps:
       - attach_workspace:
           at: /home/circleci/workspace
       - run:
@@ -141,6 +147,9 @@ workflows:
   tests:
     jobs:
       - testGenerator
+      - lint:
+          requires:
+            - testGenerator
       - showcaseTestApplications:
           requires:
             - testGenerator

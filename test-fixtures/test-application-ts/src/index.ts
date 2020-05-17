@@ -14,6 +14,7 @@
 
 import * as assert from 'assert';
 import * as showcase from 'showcase';
+import {describe, it} from 'mocha';
 
 interface ClientOptions{
   [name: string]: {};
