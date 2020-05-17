@@ -52,7 +52,7 @@ const entryPointPath =
     ? path.join(
         process.env['RUNFILES_DIR'],
         process.env['BAZEL_WORKSPACE'],
-        'gapic-generator-typescript.sh'
+        'gapic_generator_typescript.sh'
       )
     : path.join(__dirname, '..', 'src', 'gapic-generator-typescript.js');
 // Try saving the generated baseline test outputs to the proper bazel location

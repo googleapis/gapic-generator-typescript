@@ -99,9 +99,14 @@ $ npm run compile  # build project with Bazel
 ```
 
 To run the generator:
+
 ```sh
 bazel run //:gapic-generator-typescript -- --help
 ```
+
+**Note:** this section will be updated soon. After updating Bazel rules in `googleapis`,
+the generator will be actually called by running `bazel build` on a specific target
+in `googleapis` repository. Until this is ready, the following will work:
 
 Checkout `googleapis`, which has a lot of protobuf definitions of real Google Cloud APIs:
 

@@ -32,10 +32,6 @@ rules_proto_toolchains()
 
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install", "yarn_install")
 
-# node_repositories(
-#     preserve_symlinks = True,
-# )
-
 npm_install(
     name = "npm",
     package_json = "//:package.json",
