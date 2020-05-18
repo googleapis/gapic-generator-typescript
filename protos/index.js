@@ -1,0 +1,1 @@
+../bazel-bin/protos.js

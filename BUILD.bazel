@@ -1,0 +1,164 @@
+# Allow any ts_library rules in this workspace to reference the config
+exports_files(["tsconfig.json"], visibility = ["//:__subpackages__"])
+
+package(default_visibility = ["//visibility:public"])
+
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test")
+load("@npm_bazel_typescript//:index.bzl", "ts_project", "ts_config")
+load("@npm_bazel_labs//:index.bzl", "protobufjs_ts_library")
+
+proto_library(
+    name = "google_protobuf_protos",
+    srcs = glob(["node_modules/google-gax/build/protos/google/protobuf/*.proto"]) +
+    [
+        "node_modules/google-gax/build/protos/google/protobuf/compiler/plugin.proto",
+    ],
+    strip_import_prefix = "node_modules/google-gax/build/protos",
+)
+
+proto_library(
+    name = "google_rpc_protos",
+    deps = [
+        ":google_protobuf_protos",
+    ],
+    srcs = glob(["node_modules/google-gax/build/protos/google/rpc/*.proto"]),
+    strip_import_prefix = "node_modules/google-gax/build/protos/",
+)
+
+proto_library(
+    name = "google_api_protos",
+    deps = [
+        ":google_protobuf_protos",
+    ],
+    srcs = glob(["node_modules/google-gax/build/protos/google/api/*.proto"]),
+    strip_import_prefix = "node_modules/google-gax/build/protos",
+)
+
+proto_library(
+    name = "google_longrunning_protos",
+    deps = [
+        ":google_protobuf_protos",
+        ":google_api_protos",
+        ":google_rpc_protos",
+    ],
+    srcs = ["node_modules/google-gax/build/protos/google/longrunning/operations.proto"],
+    strip_import_prefix = "node_modules/google-gax/build/protos",
+)
+
+proto_library(
+    name = "service_config_proto",
+    deps = [
+        ":google_protobuf_protos",
+        ":google_rpc_protos",
+    ],
+    srcs = ["protos/service_config.proto"],
+    strip_import_prefix = "protos/",
+)
+
+protobufjs_ts_library(
+    name = "protos",
+    deps = [
+        ":google_api_protos",
+        ":google_longrunning_protos",
+        ":service_config_proto",
+    ]
+)
+
+filegroup(
+    name = "templates",
+    srcs = glob(["templates/**/*.*", "templates/**/.*"]),
+)
+
+filegroup(
+    name = "test_fixtures",
+    srcs = glob(["test-fixtures/**/*.*"]),
+)
+
+filegroup(
+    name = "baselines",
+    srcs = glob(["baselines/**/*.*", "baselines/**/.*"]),
+)
+
+npm_runtime_dependencies = [
+    "@npm//file-system",
+    "@npm//fs-extra",
+    "@npm//get-stdin",
+    "@npm//google-gax",
+    "@npm//js-yaml",
+    "@npm//module-alias",
+    "@npm//nunjucks",
+    "@npm//object-hash",
+    "@npm//protobufjs",
+    "@npm//yargs",
+]
+
+npm_test_dependencies = npm_runtime_dependencies + [
+    "@npm//assert-rejects",
+    "@npm//espower-typescript",
+    "@npm//sinon",
+    "@npm//mocha",
+]
+
+npm_compile_dependencies = npm_test_dependencies + [
+    "@npm//@types/js-yaml",
+    "@npm//@types/fs-extra",
+    "@npm//@types/get-stdin",
+    "@npm//@types/mocha",
+    "@npm//@types/module-alias",
+    "@npm//@types/node",
+    "@npm//@types/nunjucks",
+    "@npm//@types/object-hash",
+    "@npm//@types/sinon",
+    "@npm//@types/yargs",
+    "@npm//gts",
+]
+
+ts_project(
+    name = "compile",
+    srcs = glob([
+        "src/**/*.ts",
+        "test/**/*.ts",
+        "tools/**/*.ts",
+        "index.d.ts"
+    ]),
+    tsconfig = "//:tsconfig.json",
+    extends = ["@npm//:node_modules/gts/tsconfig-google.json"],
+    source_map = True,
+    declaration = True,
+    deps = [
+        ":protos",
+    ] + npm_compile_dependencies,
+)
+
+nodejs_binary(
+    name = "protoc_plugin",
+    entry_point = "//:src/protoc-plugin.js",
+    data = [
+        ":compile",
+        ":templates",
+        ":protos",
+    ] + npm_runtime_dependencies,
+)
+
+nodejs_binary(
+    name = "gapic_generator_typescript",
+    entry_point = "//:src/gapic-generator-typescript.js",
+    data = [
+        ":protoc_plugin",
+        ":compile",
+        ":templates",
+        ":protos",
+        "@com_google_protobuf//:protoc",
+    ] + npm_runtime_dependencies,
+)
+
+nodejs_test(
+    name = "unit_tests",
+    entry_point = "@npm//:node_modules/mocha/bin/mocha",
+    args = ["test/unit/"],
+    data = [
+        ":gapic_generator_typescript",
+        ":test_fixtures",
+        ":baselines",
+    ] + npm_test_dependencies,
+)
