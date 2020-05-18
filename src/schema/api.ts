@@ -101,14 +101,12 @@ export class API {
       }, [] as protos.google.protobuf.IServiceDescriptorProto[])
       .filter(service => {
         if (!service.options || !service.options['.google.api.defaultHost']) {
-          throw new Error(
-            `service ${service.name} is missing option google.api.default_host`
-          );
+          throw `service "${packageName}.${service.name}" is missing option google.api.default_host`;
         }
         const defaultHost = service!.options!['.google.api.defaultHost']!;
         if (defaultHost.length === 0) {
           console.warn(
-            `service ${service.name} google.api.default_host is empty`
+            `service ${packageName}.${service.name} google.api.default_host is empty`
           );
         }
         return service?.options?.['.google.api.defaultHost'];

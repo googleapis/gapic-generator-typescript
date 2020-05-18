@@ -53,7 +53,7 @@ describe('src/schema/api.ts', () => {
       new API([fd], 'google.cloud.test.v1', {
         grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
       });
-    }, new Error('service ZService is missing option google.api.default_host'));
+    }, /service "google.cloud.test.v1.ZService" is missing option google.api.default_host/);
   });
 
   it('should not return common protos in the list of protos', () => {

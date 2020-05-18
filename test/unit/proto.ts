@@ -220,7 +220,7 @@ describe('src/schema/proto.ts', () => {
           options,
           commentsMap,
         });
-      }, new Error('rpc Test returns google.longrunning.Operation but is missing option google.longrunning.operation_info'));
+      }, 'rpc "google.cloud.showcase.v1beta1.Test" returns google.longrunning.Operation but is missing option google.longrunning.operation_info');
     });
     it('throw error if method returns Operation, but without operation_info option', () => {
       const fd = new protos.google.protobuf.FileDescriptorProto();
@@ -256,7 +256,7 @@ describe('src/schema/proto.ts', () => {
           options,
           commentsMap,
         });
-      }, new Error('rpc Test has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type'));
+      }, /rpc "google.cloud.showcase.v1beta1.Test" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type/);
     });
   });
 });

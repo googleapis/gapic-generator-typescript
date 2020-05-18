@@ -40,6 +40,8 @@ const argv = yargs
   .demandOption('output_dir')
   .describe('I', 'Include directory to pass to protoc')
   .alias('output-dir', 'output_dir')
+  .describe('gapic-validator_out', 'Path to the output of the gapic validator')
+  .alias('gapic-validator_out', 'gapic_validator_out')
   .describe('output_dir', 'Path to a directory for the generated code')
   .alias('grpc-service-config', 'grpc_service_config')
   .describe('grpc-service-config', 'Path to gRPC service config JSON')
@@ -73,6 +75,7 @@ const iamService = argv.iamService as string | undefined;
 const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
+const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
@@ -93,6 +96,9 @@ const protocCommand = [
   `--plugin=protoc-gen-typescript_gapic=${protocPlugin}`,
   `--typescript_gapic_out=${outputDir}`,
 ];
+if (gapicValidatorOut) {
+  protocCommand.push(`--gapic-validator_out=${gapicValidatorOut}`);
+}
 if (grpcServiceConfig) {
   protocCommand.push(
     `--typescript_gapic_opt="grpc-service-config=${grpcServiceConfig}"`

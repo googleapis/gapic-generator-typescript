@@ -202,9 +202,13 @@ export class Generator {
   async generate() {
     this.response = protos.google.protobuf.compiler.CodeGeneratorResponse.create();
 
-    this.addProtosToResponse();
-    const api = this.buildAPIObject();
-    await this.processTemplates(api);
+    try {
+      this.addProtosToResponse();
+      const api = this.buildAPIObject();
+      await this.processTemplates(api);
+    } catch (err) {
+      this.response.error = err.toString();
+    }
 
     const outputBuffer = protos.google.protobuf.compiler.CodeGeneratorResponse.encode(
       this.response
