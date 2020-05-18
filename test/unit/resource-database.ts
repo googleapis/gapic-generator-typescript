@@ -35,9 +35,9 @@ describe('src/schema/resource-database.ts', () => {
   const resourcePatternSpecial2 = 'organization/{organization=**}/case';
   const resourcePatternSpecial3 = '{organization=**}/tasks/{task}/result';
   const nonSlashPatternSpecial =
-    'organization/{organization}/tasks/{taskId}{taskName}/result';
+    'organization/{organization}/tasks/{taskId}-{taskName}/result';
   const nonSlashPatternSpecial2 =
-    'organization/{organization}/tasks/{taskId=*}{taskName}/result';
+    'organization/{organization}/tasks/{taskId=*}.{taskName}/result';
   const resourceParameters = ['location', 'example'];
   const parentResourceName = 'Location';
   const parentResourceType = 'locations.googleapis.com/Location';
