@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  validator:
+  testGenerator:
     docker:
       - image: l.gcr.io/google/bazel
     working_directory: /home/circleci/project/gapic-generator-typescript
@@ -17,13 +17,6 @@ jobs:
             chmod +x gapic-error-conformance
             chmod +x bazel-bin/protoc_plugin.sh
             ./gapic-error-conformance -plugin="bazel-bin/protoc_plugin.sh"
-
-  testGenerator:
-    docker:
-      - image: l.gcr.io/google/bazel
-    working_directory: /home/circleci/project/gapic-generator-typescript
-    steps:
-      - checkout
       - run:
           name: Run generator unit tests
           command: |
@@ -164,7 +157,6 @@ workflows:
   version: 2
   tests:
     jobs:
-      - validator
       - testGenerator
       - lint:
           requires:
