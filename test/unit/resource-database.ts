@@ -172,7 +172,7 @@ describe('src/schema/resource-database.ts', () => {
 
   it('get correct resource name for single non-slash pattern resource', () => {
     const rdb = new ResourceDatabase();
-    const resource: plugin.google.api.IResourceDescriptor = {
+    const resource: protos.google.api.IResourceDescriptor = {
       type: 'examples.googleapis.com/Case',
       pattern: [nonSlashPatternSpecial],
     };
