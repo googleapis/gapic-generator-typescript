@@ -1,19 +1,28 @@
 version: 2.1
 jobs:
-  testGenerator:
+  validator:
     docker:
       - image: l.gcr.io/google/bazel
     working_directory: /home/circleci/project/gapic-generator-typescript
     steps:
-      - checkout
+      - run:
+          name: bazel build
+          command : bazel build //...
       - run:
           name: verify error conformance
           command: |
             curl -sSL https://github.com/googleapis/gapic-config-validator/releases/download/v0.5.0/gapic-config-validator-0.5.0-linux-amd64.tar.gz > config-validator.tar.gz
             tar xzf config-validator.tar.gz --no-same-owner
             chmod +x gapic-error-conformance
-            chmod +x bazel-bin/src/gapic-generator-typescript.js
-            ./gapic-error-conformance -plugin="bazel-bin/src/gapic-generator-typescript.js"
+            chmod +x bazel-bin/protoc_plugin.sh
+            ./gapic-error-conformance -plugin="bazel-bin/protoc_plugin.sh"
+
+  testGenerator:
+    docker:
+      - image: l.gcr.io/google/bazel
+    working_directory: /home/circleci/project/gapic-generator-typescript
+    steps:
+      - checkout
       - run:
           name: Run generator unit tests
           command: |
@@ -154,6 +163,7 @@ workflows:
   version: 2
   tests:
     jobs:
+      - validator
       - testGenerator
       - lint:
           requires:
