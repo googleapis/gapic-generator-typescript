@@ -38,7 +38,7 @@ const resultPrefix = /^\.test-out-(.*)$/;
 const baselineZip = path.join(
   root,
   'bazel-testlogs',
-  'unit-tests',
+  'unit_tests',
   'test.outputs',
   'outputs.zip'
 );
