@@ -196,3 +196,4 @@
 ### Code Refactoring
 
 * bazel build ([#442](https://www.github.com/googleapis/gapic-generator-typescript/issues/442)) ([79a5eaf](https://www.github.com/googleapis/gapic-generator-typescript/commit/79a5eafc18eb2d3e774cb957c389dee11069b11b))
+
