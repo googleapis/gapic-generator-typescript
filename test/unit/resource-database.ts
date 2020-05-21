@@ -34,6 +34,10 @@ describe('src/schema/resource-database.ts', () => {
   const resourcePatternSpecial1 = 'location/{location}/profile/case/{case_id}';
   const resourcePatternSpecial2 = 'organization/{organization=**}/case';
   const resourcePatternSpecial3 = '{organization=**}/tasks/{task}/result';
+  const nonSlashPatternSpecial =
+    'organization/{organization}/tasks/{taskId}-{taskName}/result';
+  const nonSlashPatternSpecial2 =
+    'organization/{organization}/tasks/{taskId=*}.{taskName}/result';
   const resourceParameters = ['location', 'example'];
   const parentResourceName = 'Location';
   const parentResourceType = 'locations.googleapis.com/Location';
@@ -114,6 +118,8 @@ describe('src/schema/resource-database.ts', () => {
         resourcePatternSpecial1,
         resourcePatternSpecial2,
         resourcePatternSpecial3,
+        nonSlashPatternSpecial,
+        nonSlashPatternSpecial2,
       ],
     };
     rdb.registerResource(resource, errorLocation);
@@ -144,6 +150,47 @@ describe('src/schema/resource-database.ts', () => {
     );
     assert(registeredResourceByPattern3);
     assert.strictEqual(registeredResourceByPattern3!.name, 'task_result');
+
+    const registeredNonSlashResource = rdb.getResourceByPattern(
+      nonSlashPatternSpecial
+    );
+    assert(registeredNonSlashResource);
+    assert.strictEqual(
+      registeredNonSlashResource!.name,
+      'organization_taskId_taskName_result'
+    );
+
+    const registeredNonSlashResource2 = rdb.getResourceByPattern(
+      nonSlashPatternSpecial2
+    );
+    assert(registeredNonSlashResource2);
+    assert.strictEqual(
+      registeredNonSlashResource2!.name,
+      'organization_taskId_taskName_result'
+    );
+  });
+
+  it('get correct resource name for single non-slash pattern resource', () => {
+    const rdb = new ResourceDatabase();
+    const resource: protos.google.api.IResourceDescriptor = {
+      type: 'examples.googleapis.com/Case',
+      pattern: [nonSlashPatternSpecial],
+    };
+    rdb.registerResource(resource, errorLocation);
+    const registeredResource = rdb.getResourceByType(
+      'examples.googleapis.com/Case'
+    );
+    assert(registeredResource);
+    assert.strictEqual(
+      registeredResource!.type,
+      'examples.googleapis.com/Case'
+    );
+
+    const registeredNonSlashResource = rdb.getResourceByPattern(
+      nonSlashPatternSpecial
+    );
+    assert(registeredNonSlashResource);
+    assert.strictEqual(registeredNonSlashResource!.name, 'Case');
   });
 
   it('can get registered resource by type', () => {
