@@ -14,36 +14,9 @@
 
 load("@com_google_api_codegen//rules_gapic:gapic.bzl", "proto_custom_library", "unzipped_srcjar")
 
-# We want to rename it to typescript_gapic_library so keeping this just for compatibility.
-def nodejs_gapic_library(
-  name,
-  src, # for compatibility - should be "srcs"
-  deps,
-  grpc_service_config = None,
-  package_name = None,
-  main_service = None,
-  bundle_config = None,
-  iam_service = None,
-  extra_protoc_parameters = [],
-  extra_protoc_file_parameters = {},
-  **kwargs):
-  typescript_gapic_library(
-    name = name,
-    srcs = [src],
-    deps = deps,
-    grpc_service_config = grpc_service_config,
-    package_name = package_name,
-    main_service = main_service,
-    bundle_config = bundle_config,
-    iam_service = iam_service,
-    extra_protoc_parameters = extra_protoc_parameters,
-    extra_protoc_file_parameters = extra_protoc_file_parameters,
-    **kwargs
-  )
-
 def typescript_gapic_library(
   name,
-  srcs,
+  src,
   deps,
   grpc_service_config = None,
   package_name = None,
@@ -78,7 +51,7 @@ def typescript_gapic_library(
 
   proto_custom_library(
     name = name,
-    deps = srcs,
+    deps = [src],
     plugin = Label("//:protoc_plugin"),
     plugin_args = plugin_args,
     plugin_file_args = file_args,

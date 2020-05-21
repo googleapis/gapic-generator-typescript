@@ -14,7 +14,7 @@
 
 load("@com_google_api_codegen//rules_gapic:gapic_pkg.bzl", "construct_package_dir_paths")
 
-def _nodejs_gapic_src_pkg_impl(ctx):
+def _typescript_gapic_src_pkg_impl(ctx):
     proto_srcs = []
     gapic_srcs = []
 
@@ -62,7 +62,7 @@ _nodejs_gapic_src_pkg = rule(
     implementation = _nodejs_gapic_src_pkg_impl,
 )
 
-def nodejs_gapic_assembly_pkg(name, deps, assembly_name = None):
+def typescript_gapic_assembly_pkg(name, deps, assembly_name = None):
     package_dir = name
     if assembly_name:
         package_dir = "%s-%s" % (assembly_name, name)
