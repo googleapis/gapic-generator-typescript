@@ -53,20 +53,20 @@ def _typescript_gapic_src_pkg_impl(ctx):
         outputs = [ctx.outputs.pkg],
     )
 
-_nodejs_gapic_src_pkg = rule(
+_typescript_gapic_src_pkg = rule(
     attrs = {
         "deps": attr.label_list(allow_files = True, mandatory = True),
         "package_dir": attr.string(mandatory = True),
     },
     outputs = {"pkg": "%{name}.tar.gz"},
-    implementation = _nodejs_gapic_src_pkg_impl,
+    implementation = _typescript_gapic_src_pkg_impl,
 )
 
 def typescript_gapic_assembly_pkg(name, deps, assembly_name = None):
     package_dir = name
     if assembly_name:
         package_dir = "%s-%s" % (assembly_name, name)
-    _nodejs_gapic_src_pkg(
+    _typescript_gapic_src_pkg(
         name = name,
         deps = deps,
         package_dir = package_dir,
