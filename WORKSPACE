@@ -30,15 +30,15 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
 rules_proto_dependencies()
 rules_proto_toolchains()
 
-load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install", "yarn_install")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 
-npm_install(
+yarn_install(
     name = "npm",
     package_json = "//:package.json",
-    package_lock_json = "//:package-lock.json",
+    yarn_lock = "//:yarn.lock",
 )
 
-# Install any Bazel rules which were extracted earlier by the npm_install rule.
+# Install any Bazel rules which were extracted earlier by the yarn_install rule.
 load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
 install_bazel_dependencies()
 
@@ -52,8 +52,4 @@ yarn_install(
     name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
     package_json = "@npm_bazel_labs//protobufjs:package.json",
     yarn_lock = "@npm_bazel_labs//protobufjs:yarn.lock",
-    # Do not symlink node_modules as when used in downstream repos we should not create
-    # node_modules folders in the @npm_bazel_typescript external repository. This is
-    # not supported by managed_directories.
-    symlink_node_modules = False,
 )
