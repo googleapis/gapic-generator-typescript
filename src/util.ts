@@ -157,14 +157,17 @@ export function getResourceNameByPattern(pattern: string): string {
       break;
     } else {
       const nextEle = elements[0];
-      if (nextEle.match(/{[a-zA-Z_]+(?:=.*?)?}/g)) {
+      if (nextEle.match(/(?<=\{).*?(?=(?:=.*?)?\})/g)) {
         elements.shift();
-        name.push(
-          nextEle.substring(
-            1,
-            nextEle.includes('=') ? nextEle.indexOf('=') : nextEle.length - 1
-          )
-        );
+        const params = nextEle.match(/(?<=\{).*?(?=(?:=.*?)?\})/g);
+        if (params!.length === 1) {
+          name.push(params![0]);
+        } else {
+          // For non-slash resource 'organization/{organization}/tasks/{task_id}{task_name}/result'
+          // Take parameters that match pattern [{task_id}, {task_name}] and combine them as part of the name.
+          const params = nextEle.match(/(?<=\{).*?(?=(?:=.*?)?\})/g);
+          name.push(params!.join('_'));
+        }
       } else {
         if (eleName!.match(/{[a-zA-Z_]+(?:=.*?)?}/g)) {
           continue;
