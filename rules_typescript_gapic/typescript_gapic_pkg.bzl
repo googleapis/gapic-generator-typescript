@@ -27,11 +27,11 @@ def _typescript_gapic_src_pkg_impl(ctx):
     paths = construct_package_dir_paths(ctx.attr.package_dir, ctx.outputs.pkg, ctx.label.name)
 
     script = """
-    echo -e "{gapic_srcs}" | while read gapic_src; do
+    for gapic_src in {gapic_srcs}; do
         mkdir -p "{package_dir_path}"
         unzip -q -o "$gapic_src" -d "{package_dir_path}"
     done
-    echo -e "{proto_srcs}" | while read proto_src; do
+    for proto_src in {proto_srcs}; do
         dirname=`dirname "$proto_src"`
         mkdir -p "{package_dir_path}/protos/$dirname"
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
@@ -40,8 +40,8 @@ def _typescript_gapic_src_pkg_impl(ctx):
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
     rm -rf "{package_dir_path}"
     """.format(
-        gapic_srcs = "\\n".join([f.path for f in gapic_srcs]),
-        proto_srcs = "\\n".join([f.path for f in proto_srcs]),
+        gapic_srcs = " ".join([f.path for f in gapic_srcs]),
+        proto_srcs = " ".join([f.path for f in proto_srcs]),
         package_dir_path = paths.package_dir_path,
         package_dir = paths.package_dir,
         pkg = ctx.outputs.pkg.path,
