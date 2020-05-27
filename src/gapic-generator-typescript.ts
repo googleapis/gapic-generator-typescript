@@ -42,6 +42,10 @@ const argv = yargs
   .alias('output-dir', 'output_dir')
   .describe('gapic-validator_out', 'Path to the output of the gapic validator')
   .alias('gapic-validator_out', 'gapic_validator_out')
+  .describe(
+    'validation',
+    'Option to set the validation of proto files, default value is true'
+  )
   .describe('output_dir', 'Path to a directory for the generated code')
   .alias('grpc-service-config', 'grpc_service_config')
   .describe('grpc-service-config', 'Path to gRPC service config JSON')
@@ -76,6 +80,7 @@ const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
+const validation = argv.validation as string | 'true';
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
@@ -96,7 +101,7 @@ const protocCommand = [
   `--plugin=protoc-gen-typescript_gapic=${protocPlugin}`,
   `--typescript_gapic_out=${outputDir}`,
 ];
-if (gapicValidatorOut) {
+if (gapicValidatorOut && validation !== 'true') {
   protocCommand.push(`--gapic-validator_out=${gapicValidatorOut}`);
 }
 if (grpcServiceConfig) {
