@@ -80,7 +80,9 @@ const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
+console.warn('validtor: ', gapicValidatorOut);
 const validation = argv.validation as string | 'true';
+console.warn('validtion ? : ', validation);
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
@@ -101,7 +103,8 @@ const protocCommand = [
   `--plugin=protoc-gen-typescript_gapic=${protocPlugin}`,
   `--typescript_gapic_out=${outputDir}`,
 ];
-if (gapicValidatorOut && validation !== 'true') {
+if (gapicValidatorOut && validation === 'true') {
+  console.warn('checking proto files.....');
   protocCommand.push(`--gapic-validator_out=${gapicValidatorOut}`);
 }
 if (grpcServiceConfig) {
