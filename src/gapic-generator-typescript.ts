@@ -101,7 +101,7 @@ const protocCommand = [
   `--plugin=protoc-gen-typescript_gapic=${protocPlugin}`,
   `--typescript_gapic_out=${outputDir}`,
 ];
-if (gapicValidatorOut && validation !== 'true') {
+if (gapicValidatorOut && validation === 'true') {
   protocCommand.push(`--gapic-validator_out=${gapicValidatorOut}`);
 }
 if (grpcServiceConfig) {

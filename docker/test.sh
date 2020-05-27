@@ -32,8 +32,7 @@ mkdir $DIR_NAME
 docker run --rm \
   --mount type=bind,source=`pwd`/test-fixtures/protos/google/showcase/v1beta1,destination=/in/google/showcase/v1beta1,readonly \
   --mount type=bind,source=`pwd`/$DIR_NAME,destination=/out \
-  --validation false
-  gapic-generator-typescript:latest
+  gapic-generator-typescript:latest --validation false
 # Test generated client library
 cd $DIR_NAME
 npm install  # install dependencies
