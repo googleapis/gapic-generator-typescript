@@ -80,7 +80,7 @@ const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
-const validation = argv.validation as string | 'true';
+const validation = (argv.validation as string | undefined) ?? 'true';
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
