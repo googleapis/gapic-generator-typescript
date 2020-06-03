@@ -33,7 +33,7 @@ export class API {
   // For historical reasons, Webpack library name matches "the main" service of the client library.
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName: string;
-  serviceNamesList: string[];
+  uniqkeywords: string[];
 
   static isIgnoredService(
     fd: protos.google.protobuf.IFileDescriptorProto
@@ -92,7 +92,7 @@ export class API {
         return map;
       }, {} as ProtosMap);
 
-    this.serviceNamesList = [];
+    const serviceNamesList: string[] = [];
     fileDescriptors
       .filter(fd => !API.isIgnoredService(fd))
       .filter(fd => fd.service)
@@ -125,14 +125,18 @@ export class API {
         }
         this.hostName = hostname || this.hostName || 'localhost';
         this.port = port ?? this.port ?? '443';
-        this.serviceNamesList.push(service.name || this.naming.name);
+        serviceNamesList.push(service.name || this.naming.name);
       });
-    if (this.serviceNamesList.length === 0) {
+    if (serviceNamesList.length === 0) {
       throw new Error(
         `Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
       );
     }
-    this.mainServiceName = options.mainServiceName || this.serviceNamesList[0];
+    this.mainServiceName = options.mainServiceName || serviceNamesList[0];
+    // For generating keywords in package.json
+    this.uniqkeywords = [
+      ...new Set(serviceNamesList.map(name => name.words().join(' '))),
+    ];
   }
 
   get services() {
