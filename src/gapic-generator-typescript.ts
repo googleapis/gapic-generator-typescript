@@ -126,6 +126,7 @@ if (mainServiceName) {
 if (template) {
   protocCommand.push(`--typescript_gapic_opt="template=${template}"`);
 }
+protocCommand.push('--experimental_allow_proto3_optional');
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 protocCommand.push(`-I${commonProtoPath}`);

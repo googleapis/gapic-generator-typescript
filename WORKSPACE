@@ -8,14 +8,24 @@ workspace(
     managed_directories = {"@npm": ["node_modules"]},
 )
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 # Install the nodejs "bootstrap" package
 # This provides the basic tools for running and packaging nodejs programs in Bazel
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "build_bazel_rules_nodejs",
     sha256 = "84abf7ac4234a70924628baa9a73a5a5cbad944c4358cf9abdb4aab29c9a5b77",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/1.7.0/rules_nodejs-1.7.0.tar.gz"],
 )
+
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "71030a04aedf9f612d2991c1c552317038c3c5a2b578ac4745267a45e7037c29",
+    strip_prefix = "protobuf-3.12.3",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.12.3.tar.gz"],
+)
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
 
 http_archive(
     name = "rules_proto",
