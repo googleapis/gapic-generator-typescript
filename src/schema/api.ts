@@ -33,6 +33,7 @@ export class API {
   // For historical reasons, Webpack library name matches "the main" service of the client library.
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName: string;
+  uniqKeywords: string[];
 
   static isIgnoredService(
     fd: protos.google.protobuf.IFileDescriptorProto
@@ -132,6 +133,10 @@ export class API {
       );
     }
     this.mainServiceName = options.mainServiceName || serviceNamesList[0];
+    // For generating keywords in package.json
+    this.uniqKeywords = [
+      ...new Set(serviceNamesList.map(name => name.words().join(' '))),
+    ];
   }
 
   get services() {
