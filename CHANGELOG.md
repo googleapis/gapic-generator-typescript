@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.0.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v0.99.0...v1.0.0) (2020-06-04)
+
+
+### Features
+
+* list external dependencies in repositories.bzl ([#541](https://www.github.com/googleapis/gapic-generator-typescript/issues/541)) ([e3f50ef](https://www.github.com/googleapis/gapic-generator-typescript/commit/e3f50ef309f9be366761a415d958196d54492f8c))
+* proto3 optional support ([#539](https://www.github.com/googleapis/gapic-generator-typescript/issues/539)) ([fcce8ef](https://www.github.com/googleapis/gapic-generator-typescript/commit/fcce8ef30a7c1089ae021b88b2357d5e78d8f018))
+* update keywords in package.json ([#535](https://www.github.com/googleapis/gapic-generator-typescript/issues/535)) ([d215e50](https://www.github.com/googleapis/gapic-generator-typescript/commit/d215e500f4ac8c86fced4395c5edda6d1cdb9de7))
+
+
+### Bug Fixes
+
+* add option to disable validator  ([#522](https://www.github.com/googleapis/gapic-generator-typescript/issues/522)) ([206dac3](https://www.github.com/googleapis/gapic-generator-typescript/commit/206dac380341910709ad2ba38319b513878ad599))
+* docker test ([#523](https://www.github.com/googleapis/gapic-generator-typescript/issues/523)) ([df2a0fe](https://www.github.com/googleapis/gapic-generator-typescript/commit/df2a0fe7ea322723d1b5a3777c54ddf1a6d201a6))
+* **deps:** update dependency fs-extra to ^9.0.1 ([#537](https://www.github.com/googleapis/gapic-generator-typescript/issues/537)) ([e2cbf68](https://www.github.com/googleapis/gapic-generator-typescript/commit/e2cbf6875f82659bedab215988958cba61e8c37b))
+* **deps:** update dependency google-gax to ^2.4.1 ([#529](https://www.github.com/googleapis/gapic-generator-typescript/issues/529)) ([b769669](https://www.github.com/googleapis/gapic-generator-typescript/commit/b769669cfc05b9e13989c50984b4640012414975))
+* **deps:** update dependency google-gax to ^2.5.0 ([#534](https://www.github.com/googleapis/gapic-generator-typescript/issues/534)) ([96bbbb0](https://www.github.com/googleapis/gapic-generator-typescript/commit/96bbbb09dcb1ca6747cbd8c2f39fb20cf7096d58))
+* fix package.json for renovate ([#544](https://www.github.com/googleapis/gapic-generator-typescript/issues/544)) ([5f2c8bf](https://www.github.com/googleapis/gapic-generator-typescript/commit/5f2c8bf0cd454c947d96582bcbf2a85646aaeeec))
+* fix the default value of validation option ([#524](https://www.github.com/googleapis/gapic-generator-typescript/issues/524)) ([7a3657e](https://www.github.com/googleapis/gapic-generator-typescript/commit/7a3657e066671f7c086926651f2bdb997f947f36))
+* use es2018 as a target ([#531](https://www.github.com/googleapis/gapic-generator-typescript/issues/531)) ([6c6fae4](https://www.github.com/googleapis/gapic-generator-typescript/commit/6c6fae4c7f3ef4c92bfe9e0ba8bbc5e6d1a82140))
+* **deps:** update dependency google-gax to ^2.6.0 ([#548](https://www.github.com/googleapis/gapic-generator-typescript/issues/548)) ([d89e6b1](https://www.github.com/googleapis/gapic-generator-typescript/commit/d89e6b1c34b8c90968f4d90b19c6d1105e93581d))
+* **deps:** update dependency js-yaml to ^3.14.0 ([#517](https://www.github.com/googleapis/gapic-generator-typescript/issues/517)) ([1aaca04](https://www.github.com/googleapis/gapic-generator-typescript/commit/1aaca043d92bab20b42aad0ac8d218d463e39227))
+
 ## 0.99.0 (2020-05-21)
 
 
@@ -196,4 +219,3 @@
 ### Code Refactoring
 
 * bazel build ([#442](https://www.github.com/googleapis/gapic-generator-typescript/issues/442)) ([79a5eaf](https://www.github.com/googleapis/gapic-generator-typescript/commit/79a5eafc18eb2d3e774cb957c389dee11069b11b))
-
