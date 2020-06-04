@@ -23,6 +23,7 @@ import {API} from './schema/api';
 import {processTemplates} from './templater';
 import {BundleConfigClient, BundleConfig} from './bundle';
 import {commonPrefix, duration} from './util';
+import * as Long from 'long';
 
 export interface OptionsMap {
   [name: string]: string;
@@ -201,6 +202,9 @@ export class Generator {
 
   async generate() {
     this.response = protos.google.protobuf.compiler.CodeGeneratorResponse.create();
+    this.response.supportedFeatures = new Long(
+      protos.google.protobuf.compiler.CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL
+    );
 
     try {
       this.addProtosToResponse();
