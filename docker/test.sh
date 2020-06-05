@@ -16,6 +16,7 @@
 
 ### Prepare the package and run `docker build`
 
+set -e
 SCRIPTDIR=`dirname "$0"`
 cd "$SCRIPTDIR"
 cd ..   # now in the package.json directory
@@ -32,6 +33,7 @@ mkdir $DIR_NAME
 docker run --rm \
   --mount type=bind,source=`pwd`/test-fixtures/protos/google/showcase/v1beta1,destination=/in/google/showcase/v1beta1,readonly \
   --mount type=bind,source=`pwd`/$DIR_NAME,destination=/out \
+  --user $UID \
   gapic-generator-typescript:latest --validation false
 # Test generated client library
 cd $DIR_NAME
