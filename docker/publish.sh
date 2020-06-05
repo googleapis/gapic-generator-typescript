@@ -16,6 +16,7 @@
 
 ### Prepare the package and run `docker build`
 
+set -e
 SCRIPTDIR=`dirname "$0"`
 cd "$SCRIPTDIR"
 cd ..   # now in the package.json directory

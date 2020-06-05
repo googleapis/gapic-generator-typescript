@@ -14,6 +14,8 @@ RUN npm install -g /root/files/package.tgz
 RUN cd /root/files && \
     wget https://github.com/protocolbuffers/protobuf/releases/download/v3.12.3/protoc-3.12.3-linux-x86_64.zip
 RUN cd /usr/local && unzip /root/files/protoc-3.12.3-linux-x86_64.zip
+RUN chmod -R ugo+rX /usr/local
+RUN chmod ugo+rx /usr/local/bin/protoc
 
 # Download a copy of API common protos
 RUN cd /root/files && \
