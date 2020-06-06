@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.0...v1.0.1) (2020-06-05)
+
+
+### Bug Fixes
+
+* chmod protoc in docker image ([#552](https://www.github.com/googleapis/gapic-generator-typescript/issues/552)) ([728ebee](https://www.github.com/googleapis/gapic-generator-typescript/commit/728ebee7a751b0883c91c488aa2a9e419ba1c1cd))
+
 ## [1.0.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v0.99.0...v1.0.0) (2020-06-04)
 
 
