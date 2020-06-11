@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.0.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.1...v1.0.2) (2020-06-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-gax to ^2.6.1 ([#557](https://www.github.com/googleapis/gapic-generator-typescript/issues/557)) ([f7d23cc](https://www.github.com/googleapis/gapic-generator-typescript/commit/f7d23cc2e90b3373d6886621a3d68626ef829040))
+* make fallback work properly in Electron ([#565](https://www.github.com/googleapis/gapic-generator-typescript/issues/565)) ([80414e5](https://www.github.com/googleapis/gapic-generator-typescript/commit/80414e54436d752280503075d5e9831831ccc7ec))
+
 ### [1.0.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.0...v1.0.1) (2020-06-05)
 
 
