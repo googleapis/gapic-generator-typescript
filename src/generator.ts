@@ -79,10 +79,14 @@ export class Generator {
     const parameters = parameter.split(',');
     for (let param of parameters) {
       // remove double quote
-      param = param.substring(1, param.length - 1);
+      if (param[0] === '"' && param[param.length - 1] === '"') {
+        param = param.substring(1, param.length - 1);
+      }
       const arr = param.split('=');
       this.paramMap[arr[0].toKebabCase()] = arr[1];
     }
+    // Print the parameters to simplify transition to Bazel build.
+    console.warn('gapic-generator-typescript parameters:', this.paramMap);
   }
 
   private async readGrpcServiceConfig() {
