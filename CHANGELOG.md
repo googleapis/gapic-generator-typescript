@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.3](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.2...v1.0.3) (2020-06-24)
+
+
+### Bug Fixes
+
+* make plugin parameters work properly ([#574](https://www.github.com/googleapis/gapic-generator-typescript/issues/574)) ([2d77494](https://www.github.com/googleapis/gapic-generator-typescript/commit/2d774943913fbcc096b39d0786fe603994565ff9))
+
 ### [1.0.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.1...v1.0.2) (2020-06-11)
 
 
