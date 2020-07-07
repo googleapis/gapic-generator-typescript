@@ -4,64 +4,6 @@ exports_files(["tsconfig.json"], visibility = ["//visibility:public"])
 
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test")
 load("@npm_bazel_typescript//:index.bzl", "ts_project", "ts_config")
-load("@npm_bazel_labs//:index.bzl", "protobufjs_ts_library")
-
-proto_library(
-    name = "google_protobuf_protos",
-    srcs = glob(["node_modules/google-gax/build/protos/google/protobuf/*.proto"]) +
-    [
-        "node_modules/google-gax/build/protos/google/protobuf/compiler/plugin.proto",
-    ],
-    strip_import_prefix = "node_modules/google-gax/build/protos",
-)
-
-proto_library(
-    name = "google_rpc_protos",
-    deps = [
-        ":google_protobuf_protos",
-    ],
-    srcs = glob(["node_modules/google-gax/build/protos/google/rpc/*.proto"]),
-    strip_import_prefix = "node_modules/google-gax/build/protos/",
-)
-
-proto_library(
-    name = "google_api_protos",
-    deps = [
-        ":google_protobuf_protos",
-    ],
-    srcs = glob(["node_modules/google-gax/build/protos/google/api/*.proto"]),
-    strip_import_prefix = "node_modules/google-gax/build/protos",
-)
-
-proto_library(
-    name = "google_longrunning_protos",
-    deps = [
-        ":google_protobuf_protos",
-        ":google_api_protos",
-        ":google_rpc_protos",
-    ],
-    srcs = ["node_modules/google-gax/build/protos/google/longrunning/operations.proto"],
-    strip_import_prefix = "node_modules/google-gax/build/protos",
-)
-
-proto_library(
-    name = "service_config_proto",
-    deps = [
-        ":google_protobuf_protos",
-        ":google_rpc_protos",
-    ],
-    srcs = ["protos/service_config.proto"],
-    strip_import_prefix = "protos/",
-)
-
-protobufjs_ts_library(
-    name = "protos",
-    deps = [
-        ":google_api_protos",
-        ":google_longrunning_protos",
-        ":service_config_proto",
-    ]
-)
 
 filegroup(
     name = "templates",
@@ -120,13 +62,12 @@ ts_project(
             "test/**/*.ts",
             "tools/**/*.ts",
             "index.d.ts",
+            "protos/index.d.ts",
         ]),
     tsconfig = "//:tsconfig.json",
     source_map = True,
     declaration = True,
-    deps = [
-        "//:protos"
-    ] + npm_compile_dependencies,
+    deps = npm_compile_dependencies,
 )
 
 nodejs_binary(
@@ -135,7 +76,7 @@ nodejs_binary(
     data = [
         ":compile",
         ":templates",
-        ":protos",
+        "//:protos/index.js",
     ] + npm_runtime_dependencies,
 )
 
@@ -146,8 +87,8 @@ nodejs_binary(
         ":protoc_plugin",
         ":compile",
         ":templates",
-        ":protos",
         "@com_google_protobuf//:protoc",
+        "//:protos/index.js",
     ] + npm_runtime_dependencies,
 )
 

@@ -33,11 +33,3 @@ install_bazel_dependencies()
 # Setup TypeScript toolchain
 load("@npm_bazel_typescript//:index.bzl", "ts_setup_workspace")
 ts_setup_workspace()
-
-load("@npm_bazel_labs//:index.bzl", "protobufjs_ts_library")
-
-yarn_install(
-    name = "build_bazel_rules_typescript_protobufs_compiletime_deps",
-    package_json = "@npm_bazel_labs//protobufjs:package.json",
-    yarn_lock = "@npm_bazel_labs//protobufjs:yarn.lock",
-)
