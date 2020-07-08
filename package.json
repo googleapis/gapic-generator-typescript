@@ -19,8 +19,7 @@
   "files": [
     "build/src/**/*.js",
     "build/src/**/*.d.ts",
-    "build/protos.js",
-    "build/protos.d.ts",
+    "build/protos",
     "build/templates"
   ],
   "scripts": {
@@ -28,11 +27,12 @@
     "clean": "bazel clean && rm -rf build",
     "codecov": "c8 --reporter=lcov mocha bazel-bin/test/unit && c8 report",
     "compile": "bazel build //...",
+    "compile-protos": "pbjs -t static-module -o protos/index.js -p node_modules/google-gax/build/protos -p protos google/api/annotations.proto google/api/field_behavior.proto google/api/resource.proto google/longrunning/operations.proto google/protobuf/compiler/plugin.proto service_config.proto && pbts protos/index.js -o protos/index.d.ts",
     "docker-test": "sh docker/test.sh",
     "fix": "gts fix",
     "js-test-application": "mocha bazel-bin/test/test-application/test-js --timeout 600000",
     "lint": "gts check",
-    "prepack": "npm run compile && cd templates/typescript_gapic && rm -f package.json.njk && mv package.json package.json.njk && cd ../.. && mkdir -p build && cp -rf bazel-bin/src bazel-bin/protos.js templates build/",
+    "prepack": "npm run compile && cd templates/typescript_gapic && rm -f package.json.njk && mv package.json package.json.njk && cd ../.. && mkdir -p build && cp -rf bazel-bin/src templates protos build/",
     "postpack": "cd templates/typescript_gapic && mv package.json.njk package.json && ln -s package.json package.json.njk",
     "test": "bazel test //:unit_tests",
     "ts-test-application": "mocha bazel-bin/test/test-application/test-ts --timeout 600000"
@@ -54,7 +54,6 @@
   "devDependencies": {
     "@bazel/bazelisk": "^1.5.0",
     "@bazel/buildifier": "^3.3.0",
-    "@bazel/labs": "^1.7.0",
     "@bazel/typescript": "^1.7.0",
     "@types/fs-extra": "^9.0.1",
     "@types/get-stdin": "^7.0.0",
