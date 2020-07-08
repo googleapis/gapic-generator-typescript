@@ -1,5 +1,14 @@
 # Changelog
 
+### [1.0.4](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.3...v1.0.4) (2020-07-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @types/js-yaml to ^3.12.5 ([#578](https://www.github.com/googleapis/gapic-generator-typescript/issues/578)) ([6a07554](https://www.github.com/googleapis/gapic-generator-typescript/commit/6a07554d4e8cfcbec9e7bd73b0c97d7bd90eb78d))
+* **deps:** update dependency google-gax to ^2.6.2 ([#586](https://www.github.com/googleapis/gapic-generator-typescript/issues/586)) ([2879ed4](https://www.github.com/googleapis/gapic-generator-typescript/commit/2879ed4d1e6d3e45d33d2b99d8816bebb944f505))
+* **deps:** update dependency yargs to ^15.4.0 ([#582](https://www.github.com/googleapis/gapic-generator-typescript/issues/582)) ([56efd46](https://www.github.com/googleapis/gapic-generator-typescript/commit/56efd460b7ecb6e7f2e31a9bfb92dda4f7ad49a0))
+
 ### [1.0.3](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.2...v1.0.3) (2020-06-24)
 
 
