@@ -85,8 +85,6 @@ export class Generator {
       const arr = param.split('=');
       this.paramMap[arr[0].toKebabCase()] = arr[1];
     }
-    // Print the parameters to simplify transition to Bazel build.
-    console.warn('gapic-generator-typescript parameters:', this.paramMap);
   }
 
   private async readGrpcServiceConfig() {
