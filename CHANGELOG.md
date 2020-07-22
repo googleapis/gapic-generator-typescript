@@ -2,6 +2,9 @@
 
 ### [1.0.6](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.5...v1.0.6) (2020-07-21)
 
+### Updates
+
+* Now using Bazel Node.js / TypeScript rules v2.0 ([#614](https://github.com/googleapis/gapic-generator-typescript/pull/614)) ([821b068](https://github.com/googleapis/gapic-generator-typescript/commit/821b068c9de835ccf3267b4a19f59634fe144c63))
 
 ### Bug Fixes
 
