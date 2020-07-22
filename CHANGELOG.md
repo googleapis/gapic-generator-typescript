@@ -1,5 +1,17 @@
 # Changelog
 
+### [1.0.6](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.5...v1.0.6) (2020-07-21)
+
+### Updates
+
+* Now using Bazel Node.js / TypeScript rules v2.0 ([#614](https://github.com/googleapis/gapic-generator-typescript/pull/614)) ([821b068](https://github.com/googleapis/gapic-generator-typescript/commit/821b068c9de835ccf3267b4a19f59634fe144c63))
+
+### Bug Fixes
+
+* **deps:** update dependency nunjucks to ^3.2.2 ([#613](https://www.github.com/googleapis/gapic-generator-typescript/issues/613)) ([d22d753](https://www.github.com/googleapis/gapic-generator-typescript/commit/d22d753b301279e08a48b87d7c6b1d65acd3e911))
+* **deps:** update dependency protobufjs to ^6.10.1 ([#603](https://www.github.com/googleapis/gapic-generator-typescript/issues/603)) ([f231769](https://www.github.com/googleapis/gapic-generator-typescript/commit/f231769fed3ffaf5826bfb8014fd4d035bd741ce))
+* **deps:** update dependency yargs to ^15.4.1 ([#597](https://www.github.com/googleapis/gapic-generator-typescript/issues/597)) ([98aacee](https://www.github.com/googleapis/gapic-generator-typescript/commit/98aacee546086790af5aaa46c9a013e7d5791c62))
+
 ### [1.0.5](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.4...v1.0.5) (2020-07-10)
 
 
