@@ -50,7 +50,12 @@ export class {{ service.name }}Client {
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
-  descriptors: Descriptors = {page: {}, stream: {}, longrunning: {}, batching: {}};
+  descriptors: Descriptors = {
+    page: {},
+    stream: {},
+    longrunning: {},
+    batching: {},
+  };
   innerApiCalls: {[name: string]: Function};
   {%- if service.iamService > 0 %}
   iamClient: IamClient;
@@ -236,7 +241,7 @@ export class {{ service.name }}Client {
 
     this.descriptors.batching = {
 {%- for method in service.bundleConfigsMethods %}
-      {{ method.name }}: new this._gaxModule.BundleDescriptor(
+      {{ method.name.toCamelCase() }}: new this._gaxModule.BundleDescriptor(
         '{{ method.bundleConfig.batchDescriptor.batched_field }}',
         [
 {%- set pagingJoiner = joiner() -%}
@@ -319,12 +324,24 @@ export class {{ service.name }}Client {
           throw err;
         });
 
+      const descriptor =
+{%- if service.paging.length > 0 %}
+        this.descriptors.page[methodName] ||
+{%- endif %}
+{%- if service.streaming.length > 0 %}
+        this.descriptors.stream[methodName] ||
+{%- endif %}
+{%- if service.longRunning.length > 0 %}
+        this.descriptors.longrunning[methodName] ||
+{%- endif %}
+{%- if service.bundleConfigs.length > 0 %}
+        this.descriptors.batching[methodName] ||
+{%- endif %}
+        undefined;
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        this.descriptors.page[methodName] ||
-            this.descriptors.stream[methodName] ||
-            this.descriptors.longrunning[methodName]
+        descriptor
       );
 
       this.innerApiCalls[methodName] = apiCall;
