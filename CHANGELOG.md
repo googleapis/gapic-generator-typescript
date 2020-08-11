@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.0.7](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.6...v1.0.7) (2020-08-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-gax to ^2.7.0 ([#629](https://www.github.com/googleapis/gapic-generator-typescript/issues/629)) ([a5dde0a](https://www.github.com/googleapis/gapic-generator-typescript/commit/a5dde0acf9369fcb86b965730ac8a92a4b541173))
+* properly use method descriptors in the generated client ([#641](https://www.github.com/googleapis/gapic-generator-typescript/issues/641)) ([e0d9a68](https://www.github.com/googleapis/gapic-generator-typescript/commit/e0d9a68c66bc2408357a468399430c18746e6dd3))
+
 ### [1.0.6](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.5...v1.0.6) (2020-07-21)
 
 ### Updates
