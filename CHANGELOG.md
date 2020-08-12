@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.8](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.7...v1.0.8) (2020-08-12)
+
+
+### Bug Fixes
+
+* make batching descriptor compile ([#646](https://www.github.com/googleapis/gapic-generator-typescript/issues/646)) ([e85df21](https://www.github.com/googleapis/gapic-generator-typescript/commit/e85df21f63d300af87036d1f63af5ef125da8034))
+
 ### [1.0.7](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.6...v1.0.7) (2020-08-11)
 
 
