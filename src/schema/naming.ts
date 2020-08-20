@@ -56,20 +56,37 @@ export class Naming {
     if (!invalidPrefix) {
       rootPackage = prefix.replace(/\.$/, '');
     }
+
     const segments = rootPackage.split('.');
     if (!segments || segments.length < 2) {
       throw new Error(`Cannot parse package name ${rootPackage}.`);
     }
-    const version = segments[segments.length - 1];
+
     // version should follow the pattern of 'v1' or 'v1alpha1'
     const versionPattern = /^((v[0-9]+(p[0-9]+)?((alpha|beta)[0-9]+)?[^.]*))?$/;
-    if (!version.match(versionPattern)) {
+    // we need to find a version and ignore everything after it
+    // (e.g. in "google.example.v1.services", "services" will be ignored)
+    const versionIndex = segments.findIndex(segment =>
+      segment.match(versionPattern)
+    );
+    if (versionIndex === -1) {
       throw new Error(
         `Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`
       );
     }
-    const name = segments[segments.length - 2];
-    const namespaces = segments.slice(0, -2).join('.');
+    const version = segments[versionIndex];
+
+    // name immediately preceeds the version
+    if (versionIndex === 0) {
+      throw new Error(
+        `Cannot parse package name ${rootPackage}: version ${version} is the first segment in the name.`
+      );
+    }
+    const name = segments[versionIndex - 1];
+
+    // everything before the name is namespace
+    const namespaces = segments.slice(0, versionIndex - 1).join('.');
+
     this.name = name.capitalize();
     this.productName = this.name;
     this.namespace = namespaces.replace(/\.$/, '').split('.');

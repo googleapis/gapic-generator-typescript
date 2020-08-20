@@ -63,6 +63,21 @@ describe('src/schema/naming.ts', () => {
     assert.strictEqual(naming.protoPackage, 'company.service.v1beta1');
   });
 
+  it('ignores everything after the version', () => {
+    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
+    descriptor1.package = 'company.service.v1beta1.unexpected';
+    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    const naming = new Naming([descriptor1]);
+    assert.strictEqual(naming.name, 'Service');
+    assert.strictEqual(naming.productName, 'Service');
+    assert.deepStrictEqual(naming.namespace, ['company']);
+    assert.strictEqual(naming.version, 'v1beta1');
+    assert.strictEqual(
+      naming.protoPackage,
+      'company.service.v1beta1.unexpected'
+    );
+  });
+
   it('ignores files with no services when determining package name', () => {
     const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
     const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
