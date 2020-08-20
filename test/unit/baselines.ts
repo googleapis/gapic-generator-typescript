@@ -127,4 +127,11 @@ describe('Baseline tests', () => {
     mainServiceName: 'ShowcaseService',
     template: 'typescript_gapic',
   });
+
+  runBaselineTest({
+    baselineName: 'naming',
+    outputDir: '.test-out-naming',
+    protoPath: 'google/naming/v1beta1/*.proto',
+    useCommonProto: false,
+  });
 });
