@@ -26,6 +26,8 @@ def typescript_gapic_library(
   extra_protoc_parameters = [],
   extra_protoc_file_parameters = {},
   **kwargs):
+  # Note: if extra parameters contain any of the named parameters, the behavior is undefined
+  # (up to the plugin implementation)
 
   plugin_args_dict = {}
   if package_name:
@@ -36,16 +38,12 @@ def typescript_gapic_library(
     plugin_args_dict["iam-service"] = iam_service
 
   file_args = {} # note: keys are filenames, values are parameter name, aligned with the prior art
-  for key, value in extra_protoc_file_parameters:
-    file_args[key] = value
   if grpc_service_config:
     file_args[grpc_service_config] = "grpc-service-config"
   if bundle_config:
     file_args[bundle_config] = "bundle-config"
 
-  plugin_args = []
-  for parameter in extra_protoc_parameters:
-    plugin_args.append(parameter)
+  plugin_args = extra_protoc_parameters
   for key, value in plugin_args_dict.items():
     plugin_args.append("{}={}".format(key, value))
 

@@ -79,9 +79,7 @@ export class Generator {
     const parameters = parameter.split(',');
     for (let param of parameters) {
       // remove double quote
-      if (param[0] === '"' && param[param.length - 1] === '"') {
-        param = param.substring(1, param.length - 1);
-      }
+      param = param.substring(1, param.length - 1);
       const arr = param.split('=');
       this.paramMap[arr[0].toKebabCase()] = arr[1];
     }
