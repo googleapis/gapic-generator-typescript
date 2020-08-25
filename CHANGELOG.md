@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.0.9](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.8...v1.0.9) (2020-08-25)
+
+
+### Bug Fixes
+
+* allow trailing segments after version in package name ([#667](https://www.github.com/googleapis/gapic-generator-typescript/issues/667)) ([43680ad](https://www.github.com/googleapis/gapic-generator-typescript/commit/43680add38d45d07e19d9772d04a92a748db30f5))
+* **deps:** update dependency prettier to ^2.1.0 ([#674](https://www.github.com/googleapis/gapic-generator-typescript/issues/674)) ([ee48ad4](https://www.github.com/googleapis/gapic-generator-typescript/commit/ee48ad45383c27991dabc26c92ef1faeadc51717))
+
 ### [1.0.8](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.7...v1.0.8) (2020-08-12)
 
 
