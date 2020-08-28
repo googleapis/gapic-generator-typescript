@@ -21,6 +21,11 @@ import * as protos from 'gapic_generator_typescript/protos';
 
 import {API} from './schema/api';
 
+interface Namer {
+  register: (name: string) => string;
+  get: (name: string) => string;
+}
+
 const commonParameters: {[name: string]: string} = {
   copyrightYear: new Date().getFullYear().toString(),
 };
@@ -77,7 +82,8 @@ function renderFile(
 function processOneTemplate(
   basePath: string,
   templateFilename: string,
-  api: API
+  api: API,
+  id: Namer
 ) {
   const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
   const relativeTemplateName = templateFilename.substr(basePath.length + 1);
@@ -95,7 +101,7 @@ function processOneTemplate(
         renderFile(
           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
           relativeTemplateName,
-          {api, commonParameters, service}
+          {api, commonParameters, service, id}
         )
       );
     }
@@ -114,10 +120,32 @@ function processOneTemplate(
 export async function processTemplates(basePath: string, api: API) {
   nunjucks.configure(basePath);
   basePath = basePath.replace(/\/*$/, '');
+
+  // If this template provides a namer plugin, load it
+  const namerLocation = path.join(basePath, 'namer.js');
+  const id: Namer = {
+    register: () => {
+      return '';
+    },
+    get: () => {
+      return '';
+    },
+  };
+  if (fs.existsSync(namerLocation)) {
+    const {register, get} = require(namerLocation) as Namer;
+    id.register = register;
+    id.get = get;
+  }
+
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
   for (const templateFilename of templateFiles) {
-    const generatedFiles = processOneTemplate(basePath, templateFilename, api);
+    const generatedFiles = processOneTemplate(
+      basePath,
+      templateFilename,
+      api,
+      id
+    );
     result.push(...generatedFiles);
   }
   return result;
