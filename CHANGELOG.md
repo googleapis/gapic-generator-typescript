@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.8...v1.1.0) (2020-08-28)
+
+
+### Features
+
+* reduce possibility of name conflicts ([#682](https://www.github.com/googleapis/gapic-generator-typescript/issues/682)) ([420cbbc](https://www.github.com/googleapis/gapic-generator-typescript/commit/420cbbcd545ac85c21cb61e23b6981a5f6f86166))
+
+
+### Bug Fixes
+
+* **deps:** update dependency prettier to ^2.1.1 ([#678](https://www.github.com/googleapis/gapic-generator-typescript/issues/678)) ([41b68e9](https://www.github.com/googleapis/gapic-generator-typescript/commit/41b68e976bf2ced9fa744d297feb3b16f4cd921b))
+* allow trailing segments after version in package name ([#667](https://www.github.com/googleapis/gapic-generator-typescript/issues/667)) ([43680ad](https://www.github.com/googleapis/gapic-generator-typescript/commit/43680add38d45d07e19d9772d04a92a748db30f5))
+* **deps:** update dependency prettier to ^2.1.0 ([#674](https://www.github.com/googleapis/gapic-generator-typescript/issues/674)) ([ee48ad4](https://www.github.com/googleapis/gapic-generator-typescript/commit/ee48ad45383c27991dabc26c92ef1faeadc51717))
+
 ### [1.0.8](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.7...v1.0.8) (2020-08-12)
 
 
