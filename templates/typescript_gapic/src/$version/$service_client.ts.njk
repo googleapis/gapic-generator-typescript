@@ -19,6 +19,8 @@ limitations under the License.
 {{license.license(commonParameters.copyrightYear)}}
 {% import "../../_util.njk" as util -%}
 {% import "../../_iam.njk" as iam -%}
+{% import "../../_namer.njk" as namer -%}
+{{- namer.initialize(id, service) -}}
 import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.longRunning.length > 0 %}, LROperation{%- endif -%}
@@ -100,8 +102,8 @@ export class {{ service.name }}Client {
     const servicePath = opts && opts.servicePath ?
         opts.servicePath :
         ((opts && opts.apiEndpoint) ? opts.apiEndpoint :
-                                      staticMembers.servicePath);
-    const port = opts && opts.port ? opts.port : staticMembers.port;
+                                      staticMembers.{{ id.get("servicePath") }});
+    const port = opts && opts.port ? opts.port : staticMembers.{{ id.get("port") }};
 
     if (!opts) {
       opts = {servicePath, port};
@@ -119,10 +121,12 @@ export class {{ service.name }}Client {
 
     // Create a `gaxGrpc` object, with any grpc-specific options
     // sent to the client.
-    opts.scopes = (this.constructor as typeof {{ service.name }}Client).scopes;
+    {#- TODO: replace the following line with `opts.scopes = staticMembers.{{ id.get("scopes") }};` #}
+    {#- (it will change the code for all libraries, we'll leave it unchanged for now) #}
+    opts.scopes = (this.constructor as typeof {{ service.name }}Client).{{ id.get("scopes") }};
     this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
 
-    // Save options to use in initialize() method.
+    // Save options to use in {{ id.get("initialize") }}() method.
     this._opts = opts;
 
     // Save the auth object to the client, for use by other methods.
@@ -280,13 +284,13 @@ export class {{ service.name }}Client {
    * Performs asynchronous operations (such as authentication) and prepares the client.
    * This function will be called automatically when any class method is called for the
    * first time, but if you need to initialize it before calling an actual method,
-   * feel free to call initialize() directly.
+   * feel free to call {{ id.get("initialize") }}() directly.
    *
    * You can await on this method if you want to make sure the client is initialized.
    *
    * @returns {Promise} A promise that resolves to an authenticated service stub.
    */
-  initialize() {
+  {{ id.get("initialize") }}() {
     // If the client stub promise is already initialized, return immediately.
     if (this.{{ service.name.toCamelCase() }}Stub) {
       return this.{{ service.name.toCamelCase() }}Stub;
@@ -353,22 +357,22 @@ export class {{ service.name }}Client {
   /**
    * The DNS address for this API service.
    */
-  static get servicePath() {
+  static get {{ id.get("servicePath") }}() {
     return '{{ api.hostName }}';
   }
 
   /**
-   * The DNS address for this API service - same as servicePath(),
+   * The DNS address for this API service - same as {{ id.get("servicePath") }}(),
    * exists for compatibility reasons.
    */
-  static get apiEndpoint() {
+  static get {{ id.get("apiEndpoint") }}() {
     return '{{ api.hostName }}';
   }
 
   /**
    * The port for this API service.
    */
-  static get port() {
+  static get {{ id.get("port") }}() {
     return {{ api.port }};
   }
 
@@ -376,7 +380,7 @@ export class {{ service.name }}Client {
    * The scopes needed to make gRPC calls for every method defined
    * in this service.
    */
-  static get scopes() {
+  static get {{ id.get("scopes") }}() {
 {%- if (service.oauthScopes.length == 0) %}
     return [];
 {%- else %}
@@ -390,14 +394,14 @@ export class {{ service.name }}Client {
 {%- endif %}
   }
 
-  getProjectId(): Promise<string>;
-  getProjectId(callback: Callback<string, undefined, undefined>): void;
+  {{ id.get("getProjectId") }}(): Promise<string>;
+  {{ id.get("getProjectId") }}(callback: Callback<string, undefined, undefined>): void;
   /**
    * Return the project ID used by this class.
    * @param {function(Error, string)} callback - the callback to
    *   be called with the current project Id.
    */
-  getProjectId(callback?: Callback<string, undefined, undefined>):
+  {{ id.get("getProjectId") }}(callback?: Callback<string, undefined, undefined>):
       Promise<string>|void {
     if (callback) {
       this.auth.getProjectId(callback);
@@ -458,7 +462,7 @@ export class {{ service.name }}Client {
       options = optionsOrCallback as gax.CallOptions;
     }
     {{ util.buildHeaderRequestParam(method) }}
-    this.initialize();
+    this.{{ id.get("initialize") }}();
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
 {%- endfor %}
@@ -470,7 +474,7 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}(
       options?: gax.CallOptions):
     gax.CancellableStream {
-    this.initialize();
+    this.{{ id.get("initialize") }}();
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(options);
   }
 {%- elif method.serverStreaming %}
@@ -483,7 +487,7 @@ export class {{ service.name }}Client {
     gax.CancellableStream{
     request = request || {};
     {{ util.buildHeaderRequestParam(method) }}
-    this.initialize();
+    this.{{ id.get("initialize") }}();
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options);
   }
 {%- elif method.clientStreaming %}
@@ -518,7 +522,7 @@ export class {{ service.name }}Client {
         optionsOrCallback = {};
     }
     const options = optionsOrCallback as gax.CallOptions;
-    this.initialize();
+    this.{{ id.get("initialize") }}();
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(null, options, callback);
   }
 {%- endif %}
@@ -571,13 +575,14 @@ export class {{ service.name }}Client {
       options = optionsOrCallback as gax.CallOptions;
     }
     {{ util.buildHeaderRequestParam(method) }}
-    this.initialize();
+    this.{{ id.get("initialize") }}();
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
 /**
-{{- util.printDecodeMethodComments(method) }}
+{%- set decodeMethodName = id.get("check" + method.name.toPascalCase() + "Progress") -%}
+{{- util.printDecodeMethodComments(method, decodeMethodName) }}
  */
-  async check{{ method.name.toPascalCase() }}Progress(name: string): Promise<LROperation<protos{{ method.longRunningResponseType }}, protos{{ method.longRunningMetadataType }}>>{
+  async {{ decodeMethodName }}(name: string): Promise<LROperation<protos{{ method.longRunningResponseType }}, protos{{ method.longRunningMetadataType }}>>{
     const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
     const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, gax.createDefaultBackoffSettings());
@@ -634,21 +639,21 @@ export class {{ service.name }}Client {
       options = optionsOrCallback as gax.CallOptions;
     }
     {{ util.buildHeaderRequestParam(method) }}
-    this.initialize();
+    this.{{ id.get("initialize") }}();
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
 
 /**
 {{- util.printCommentsPageStream(method) }}
  */
-  {{ method.name.toCamelCase() }}Stream(
+  {{ id.get(method.name.toCamelCase() + "Stream") }}(
       request?: {{ util.toInterface(method.inputInterface) }},
       options?: gax.CallOptions):
     Transform{
     request = request || {};
     {{ util.buildHeaderRequestParam(method) }}
     const callSettings = new gax.CallSettings(options);
-    this.initialize();
+    this.{{ id.get("initialize") }}();
     return this.descriptors.page.{{ method.name.toCamelCase() }}.createStream(
       this.innerApiCalls.{{ method.name.toCamelCase() }} as gax.GaxCall,
       request,
@@ -659,7 +664,7 @@ export class {{ service.name }}Client {
 /**
 {{- util.printCommentsPageAsync(method) }}
  */
-  {{ method.name.toCamelCase() }}Async(
+  {{ id.get(method.name.toCamelCase() + "Async") }}(
       request?: {{ util.toInterface(method.inputInterface) }},
       options?: gax.CallOptions):
     AsyncIterable<{{ util.toInterface(method.pagingResponseType) }}>{
@@ -667,7 +672,7 @@ export class {{ service.name }}Client {
     {{ util.buildHeaderRequestParam(method) }}
     options = options || {};
     const callSettings = new gax.CallSettings(options);
-    this.initialize();
+    this.{{ id.get("initialize") }}();
     return this.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate(
       this.innerApiCalls['{{ method.name.toCamelCase() }}'] as GaxCall,
       request as unknown as RequestType,
@@ -692,7 +697,7 @@ export class {{ service.name }}Client {
 {%- endfor %}
    * @returns {string} Resource name string.
    */
-  {{ template.name.toCamelCase() }}Path(
+  {{ id.get(template.name.toCamelCase() + "Path") }}(
 {%- set paramJoiner = joiner() %}
 {%- for param in template.params %}
 {{-paramJoiner()-}}{{ param.toCamelCase() }}:string
@@ -713,7 +718,7 @@ export class {{ service.name }}Client {
    *   A fully-qualified path representing {{ template.name }} resource.
    * @returns {string} A string representing the {{ param }}.
    */
-  match{{ param.toPascalCase() }}From{{ template.name.toPascalCase() }}Name({{ template.name.toCamelCase() }}Name: string) {
+  {{ id.get("match" + param.toPascalCase() + "From" + template.name.toPascalCase() + "Name") }}({{ template.name.toCamelCase() }}Name: string) {
     return this.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match({{ template.name.toCamelCase() }}Name).{{ param }};
   }
 {%- endfor %}
@@ -725,8 +730,8 @@ export class {{ service.name }}Client {
    *
    * The client will no longer be usable and all future behavior is undefined.
    */
-  close(): Promise<void> {
-    this.initialize();
+  {{ id.get("close") }}(): Promise<void> {
+    this.{{ id.get("initialize") }}();
     if (!this._terminated) {
       return this.{{ service.name.toCamelCase() }}Stub!.then(stub => {
         this._terminated = true;

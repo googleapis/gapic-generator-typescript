@@ -18,6 +18,8 @@ limitations under the License.
 {% import "../_license.njk" as license -%}
 {% import "../_util.njk" as util -%}
 {{license.license(commonParameters.copyrightYear)}}
+{% import "../_namer.njk" as namer -%}
+{{- namer.initialize(id, service) -}}
 import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
@@ -156,17 +158,17 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 
 describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
     it('has servicePath', () => {
-        const servicePath = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.servicePath;
+        const servicePath = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.{{ id.get("servicePath") }};
         assert(servicePath);
     });
 
     it('has apiEndpoint', () => {
-        const apiEndpoint = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.apiEndpoint;
+        const apiEndpoint = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.{{ id.get("apiEndpoint") }};
         assert(apiEndpoint);
     });
 
     it('has port', () => {
-        const port = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.port;
+        const port = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.{{ id.get("port") }};
         assert(port);
         assert(typeof port === 'number');
     });
@@ -189,7 +191,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             projectId: 'bogus',
         });
         assert.strictEqual(client.{{ service.name.toCamelCase() }}Stub, undefined);
-        await client.initialize();
+        await client.{{ id.get("initialize") }}();
         assert(client.{{ service.name.toCamelCase() }}Stub);
     });
 
@@ -198,7 +200,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             credentials: { client_email: 'bogus', private_key: 'bogus' },
             projectId: 'bogus',
         });
-        client.close();
+        client.{{ id.get("close") }}();
     });
 
     it('has getProjectId method', async () => {
@@ -208,7 +210,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
+        const result = await client.{{ id.get("getProjectId") }}();
         assert.strictEqual(result, fakeProjectId);
         assert((client.auth.getProjectId as SinonStub).calledWithExactly());
     });
@@ -221,7 +223,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
+            client.{{ id.get("getProjectId") }}((err?: Error|null, projectId?: string|null) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -241,7 +243,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
@@ -257,7 +259,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
@@ -284,7 +286,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             const expectedError = new Error('expected');
@@ -303,7 +305,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
@@ -320,7 +322,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
@@ -350,7 +352,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             const expectedError = new Error('expected');
@@ -365,7 +367,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             const expectedError = new Error('expected');
@@ -376,34 +378,34 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
-        it('invokes check{{method.name.toPascalCase() }}Progress without error', async () => {
+        it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} without error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
 
             client.operationsClient.getOperation = stubSimpleCall(expectedResponse);
-            const decodedOperation = await client.check{{method.name.toPascalCase() }}Progress(expectedResponse.name);
+            const decodedOperation = await client.{{ id.get("check" + method.name.toPascalCase() + "Progress") }}(expectedResponse.name);
             assert.deepStrictEqual(decodedOperation.name, expectedResponse.name);
             assert(decodedOperation.metadata);
             assert((client.operationsClient.getOperation as SinonStub).getCall(0));
         });
 
-        it('invokes check{{method.name.toPascalCase() }}Progress with error', async () => {
+        it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} with error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             const expectedError = new Error('expected');
 
             client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(client.check{{ method.name.toPascalCase() }}Progress(''), expectedError);
+            await assert.rejects(client.{{ id.get("check" + method.name.toPascalCase() + "Progress") }}(''), expectedError);
             assert((client.operationsClient.getOperation as SinonStub)
                 .getCall(0));
         });
@@ -417,7 +419,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
@@ -442,7 +444,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             const expectedError = new Error('expected');
@@ -470,7 +472,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubBidiStreamingCall(expectedResponse);
@@ -498,7 +500,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubBidiStreamingCall(undefined, expectedError);
@@ -529,7 +531,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubClientStreamingCall(expectedResponse);
@@ -558,7 +560,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubClientStreamingCall(undefined, expectedError);
@@ -589,7 +591,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             {{ util.initPagingResponse(method) }}
@@ -605,7 +607,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             {{ util.initPagingResponse(method) }}
@@ -632,7 +634,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             const expectedError = new Error('expected');
@@ -642,16 +644,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
-        it('invokes {{ method.name.toCamelCase() }}Stream without error', async () => {
+        it('invokes {{ id.get(method.name.toCamelCase() + "Stream") }} without error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             {{ util.initPagingResponse(method) }}
             client.descriptors.page.{{ method.name.toCamelCase() }}.createStream = stubPageStreamingCall(expectedResponse);
-            const stream = client.{{ method.name.toCamelCase() }}Stream(request);
+            const stream = client.{{ id.get(method.name.toCamelCase() + "Stream") }}(request);
             const promise = new Promise((resolve, reject) => {
                 const responses: {{ util.promiseResponsePaging(method) }}[] = [];
                 stream.on('data', (response: {{ util.promiseResponsePaging(method) }}) => {
@@ -677,16 +679,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- endif %}
         });
 
-        it('invokes {{ method.name.toCamelCase() }}Stream with error', async () => {
+        it('invokes {{ id.get(method.name.toCamelCase() + "Stream") }} with error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.descriptors.page.{{ method.name.toCamelCase() }}.createStream = stubPageStreamingCall(undefined, expectedError);
-            const stream = client.{{ method.name.toCamelCase() }}Stream(request);
+            const stream = client.{{ id.get(method.name.toCamelCase() + "Stream") }}(request);
             const promise = new Promise((resolve, reject) => {
                 const responses: {{ util.promiseResponsePaging(method) }}[] = [];
                 stream.on('data', (response: {{ util.promiseResponsePaging(method) }}) => {
@@ -716,12 +718,12 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initPagingResponse(method) }}
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(expectedResponse);
             const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
-            const iterable = client.{{ method.name.toCamelCase() }}Async(request);
+            const iterable = client.{{ id.get(method.name.toCamelCase() + "Async") }}(request);
             for await (const resource of iterable) {
                 responses.push(resource!);
             }
@@ -743,11 +745,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             const expectedError = new Error('expected');
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
-            const iterable = client.{{ method.name.toCamelCase() }}Async(request);
+            const iterable = client.{{ id.get(method.name.toCamelCase() + "Async") }}(request);
             await assert.rejects(async () => {
                 const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
                 for await (const resource of iterable) {
@@ -776,7 +778,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
             );
@@ -807,7 +809,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
             );
@@ -854,7 +856,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
             );
@@ -895,22 +897,22 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.initialize();
+            client.{{ id.get("initialize") }}();
             client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.render =
                 sinon.stub().returns(fakePath);
             client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match =
                 sinon.stub().returns(expectedParameters);
 
-            it('{{ template.name.toCamelCase() }}Path', () => {
-                const result = client.{{ template.name.toCamelCase() }}Path({{ callParameters | safe }});
+            it('{{ id.get(template.name.toCamelCase() + "Path") }}', () => {
+                const result = client.{{ id.get(template.name.toCamelCase() + "Path") }}({{ callParameters | safe }});
                 assert.strictEqual(result, fakePath);
                 assert((client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.render as SinonStub)
                     .getCall(-1).calledWith(expectedParameters));
             });
 {%- for param in template.params %}
 
-            it('match{{ param.toPascalCase() }}From{{ template.name.toPascalCase() }}Name', () => {
-                const result = client.match{{ param.toPascalCase() }}From{{ template.name.toPascalCase() }}Name(fakePath);
+            it('{{ id.get("match" + param.toPascalCase() + "From" + template.name.toPascalCase() + "Name") }}', () => {
+                const result = client.{{ id.get("match" + param.toPascalCase() + "From" + template.name.toPascalCase() + "Name") }}(fakePath);
                 assert.strictEqual(result, "{{ param.toCamelCase() }}Value");
                 assert((client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
