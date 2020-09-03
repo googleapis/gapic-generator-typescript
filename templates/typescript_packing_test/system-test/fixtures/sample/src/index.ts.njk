@@ -25,9 +25,18 @@ import {
   {%- endfor -%}
 } from '{{ api.publishName }}';
 
+// check that the client class type name can be used
+{%- for service in api.services %}
+function doStuffWith{{ service.name.toPascalCase() + 'Client' }}(client: {{ service.name.toPascalCase() + 'Client' }}) {
+  client.close();
+}
+{%- endfor %}
+
 function main() {
 {%- for service in api.services %}
-  new {{ service.name.toPascalCase() + 'Client' -}}();
+  // check that the client instance can be created
+  const {{ service.name.toCamelCase() }}Client = new {{ service.name.toPascalCase() + 'Client' }}();
+  doStuffWith{{ service.name.toPascalCase() + 'Client' }}({{ service.name.toCamelCase() }}Client);
 {%- endfor %}
 }
 
