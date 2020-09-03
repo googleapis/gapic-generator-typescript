@@ -94,36 +94,34 @@ export class {{ service.name }}Client {
    *     your project ID will be detected automatically.
    * @param {string} [options.apiEndpoint] - The domain name of the
    *     API remote host.
+   * @param {gax.ClientConfig} [options.clientConfig] - client configuration override.
+   *     Client configuration set in the JSON config
+   *     (`src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`)
+   *     can be overridden by passing `clientConfig` to the client constructor.
+   *     The detailed structure of the clientConfig can be found
+   *     {@link https://github.com/googleapis/gax-nodejs/blob/master/src/gax.ts#L564-L611 here}.
+   *     Pass any subset of that JSON config as `options.clientConfig`.
+   * @param {boolean} fallback - Use HTTP fallback mode.
+   *     In fallback mode, a special browser-compatible transport implementation is used
+   *     instead of gRPC transport. In browser context (if the `window` object is defined)
+   *     the fallback mode is enabled automatically; set `options.fallback` to `false`
+   *     if you need to override this behavior.
    */
 
   constructor(opts?: ClientOptions) {
-    // Ensure that options include the service address and port.
+    // Ensure that options include all the required fields.
     const staticMembers = this.constructor as typeof {{ service.name }}Client;
-    const servicePath = opts && opts.servicePath ?
-        opts.servicePath :
-        ((opts && opts.apiEndpoint) ? opts.apiEndpoint :
-                                      staticMembers.{{ id.get("servicePath") }});
-    const port = opts && opts.port ? opts.port : staticMembers.{{ id.get("port") }};
+    const servicePath = opts?.servicePath ?? opts?.apiEndpoint ?? staticMembers.{{ id.get("servicePath") }};
+    const port = opts?.port ?? staticMembers.{{ id.get("port") }};
+    const scopes = opts?.scopes ?? staticMembers.{{ id.get("scopes") }};
+    const clientConfig = opts?.clientConfig ?? {};
+    const fallback = opts?.fallback ?? (typeof window !== "undefined");
+    opts = Object.assign({servicePath, port, scopes, clientConfig, fallback}, opts);
 
-    if (!opts) {
-      opts = {servicePath, port};
-    }
-    opts.servicePath = opts.servicePath || servicePath;
-    opts.port = opts.port || port;
-{{ util.bundlingOptionsComments() }}
-    opts.clientConfig = opts.clientConfig || {};
-
-    // If we're running in browser, it's OK to omit `fallback` since
-    // google-gax has `browser` field in its `package.json`.
-    // For Electron (which does not respect `browser` field),
-    // pass `{fallback: true}` to the {{ service.name}}Client constructor.
+    // Choose either gRPC or proto-over-HTTP implementation of google-gax.
     this._gaxModule = opts.fallback ? gax.fallback : gax;
 
-    // Create a `gaxGrpc` object, with any grpc-specific options
-    // sent to the client.
-    {#- TODO: replace the following line with `opts.scopes = staticMembers.{{ id.get("scopes") }};` #}
-    {#- (it will change the code for all libraries, we'll leave it unchanged for now) #}
-    opts.scopes = (this.constructor as typeof {{ service.name }}Client).{{ id.get("scopes") }};
+    // Create a `gaxGrpc` object, with any grpc-specific options sent to the client.
     this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
 
     // Save options to use in {{ id.get("initialize") }}() method.
