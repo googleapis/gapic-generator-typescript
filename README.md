@@ -129,11 +129,11 @@ $ bazel run //:gapic-generator-typescript -- \
 ```
 
 Line by line:
-`-I "$GOOGLEAPIS"` means pass the `googleapis` to `protoc`
-`--output-dir /tmp/translate-v3-typescript` is where to put the result
-`--grpc-service-config "$GOOGLEAPIS/google/cloud/translate/v3/translate_grpc_service_config.json"`
+* `-I "$GOOGLEAPIS"` means pass the `googleapis` to `protoc`
+* `--output-dir /tmp/translate-v3-typescript` is where to put the result
+* `--grpc-service-config "$GOOGLEAPIS/google/cloud/translate/v3/translate_grpc_service_config.json"`
 is an optional configuration file for timeouts and stuff
-Then we add all the `translate` `v3` proto file to the command line, as well as the
+* Then we add all the `translate` `v3` proto file to the command line, as well as the
 proto file that defines common resources (some APIs need it, some others don't).
 
 If you like the changes, make sure that tests pass!
