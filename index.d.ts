@@ -22,6 +22,7 @@ interface String {
   replaceAll(this: string, search: string, replacement: string): string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Array<T> {
   toCamelCaseString(this: string[], joiner: string): string;
   toSnakeCaseString(this: string[], joiner: string): string;
