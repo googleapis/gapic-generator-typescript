@@ -369,7 +369,12 @@ function augmentMethod(
                 .LABEL_REPEATED &&
             field.name === bc.batchDescriptor.batched_field
         );
-        bc.repeatedField = repeatedFields[0].typeName?.substring(1)!;
+        if (!repeatedFields[0].typeName) {
+          throw new Error(
+            `Wrong bundle config for method ${method.name}: typeName is undefined.`
+          );
+        }
+        bc.repeatedField = repeatedFields[0].typeName!.substring(1)!;
         method.bundleConfig = bc;
       }
     }
