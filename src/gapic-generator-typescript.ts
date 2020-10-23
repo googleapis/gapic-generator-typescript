@@ -69,7 +69,9 @@ const argv = yargs
     'template',
     'Semicolon-separated list of templates to use. Allowed values: ' +
       `"${allTemplates.join(';')}"`
-  ).usage(`Usage: $0 -I /path/to/googleapis \\
+  )
+  .describe('metadata', 'Set to true if GAPIC metadata generation is requested')
+  .boolean('metadata').usage(`Usage: $0 -I /path/to/googleapis \\
   --output_dir /path/to/output_directory \\
   google/example/api/v1/api.proto`).argv;
 const outputDir = argv.outputDir as string;
@@ -81,6 +83,7 @@ const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
 const validation = (argv.validation as string | undefined) ?? 'true';
+const metadata = argv.metadata as string | undefined;
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
@@ -125,6 +128,9 @@ if (mainServiceName) {
 }
 if (template) {
   protocCommand.push(`--typescript_gapic_opt="template=${template}"`);
+}
+if (metadata) {
+  protocCommand.push('--typescript_gapic_opt="metadata"');
 }
 protocCommand.push('--experimental_allow_proto3_optional');
 protocCommand.push(...protoDirsArg);

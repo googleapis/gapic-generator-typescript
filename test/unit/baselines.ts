@@ -76,6 +76,7 @@ describe('Baseline tests', () => {
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
     template: 'typescript_gapic;typescript_packing_test',
+    metadata: true,
   });
 
   runBaselineTest({
@@ -133,5 +134,6 @@ describe('Baseline tests', () => {
     outputDir: '.test-out-naming',
     protoPath: 'google/naming/v1beta1/*.proto',
     useCommonProto: false,
+    metadata: true,
   });
 });

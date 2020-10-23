@@ -35,6 +35,7 @@ export interface BaselineOptions {
   template?: string;
   bundleConfig?: string;
   iamService?: boolean;
+  metadata?: boolean;
 }
 
 const cwd = process.cwd();
@@ -108,6 +109,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (options.iamService) {
       commandLine += ` --iam-service="${iamService}"`;
+    }
+    if (options.metadata) {
+      commandLine += ' --metadata';
     }
     execSync(commandLine);
     assert(equalToBaseline(outputDir, baselineDir));
