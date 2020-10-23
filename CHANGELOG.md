@@ -1,5 +1,18 @@
 # Changelog
 
+### [1.1.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.1.0...v1.1.1) (2020-10-23)
+
+
+### Bug Fixes
+
+* make the generator work locally with and without bazel ([#755](https://www.github.com/googleapis/gapic-generator-typescript/issues/755)) ([d893363](https://www.github.com/googleapis/gapic-generator-typescript/commit/d893363a63452952163828cc9b587fff89cfadc9))
+* **deps:** update dependency google-gax to ^2.8.0 ([#693](https://www.github.com/googleapis/gapic-generator-typescript/issues/693)) ([3a61f08](https://www.github.com/googleapis/gapic-generator-typescript/commit/3a61f080b5cc9af89175f7e4dc70672fdea06c1e))
+* **deps:** update dependency prettier to ^2.1.2 ([#717](https://www.github.com/googleapis/gapic-generator-typescript/issues/717)) ([a33875a](https://www.github.com/googleapis/gapic-generator-typescript/commit/a33875ae184fe234d2dc5632ba84b2a3aaeee3cf))
+* **deps:** update dependency yargs to ^16.0.3 ([#709](https://www.github.com/googleapis/gapic-generator-typescript/issues/709)) ([c5eb327](https://www.github.com/googleapis/gapic-generator-typescript/commit/c5eb3277a4bf25c6c7636694610388ffebd36e2c))
+* **deps:** update dependency yargs to v16 ([#707](https://www.github.com/googleapis/gapic-generator-typescript/issues/707)) ([594a9b1](https://www.github.com/googleapis/gapic-generator-typescript/commit/594a9b1e778fc345a9a192658513ccf15ee1c38c))
+* **deps:** use TypeScript v4, gts v3, webpack v5 ([#745](https://www.github.com/googleapis/gapic-generator-typescript/issues/745)) ([0bd3cdd](https://www.github.com/googleapis/gapic-generator-typescript/commit/0bd3cdd7c87659937296a96888d7ea3b43417eab))
+* do not overwrite options object ([#696](https://www.github.com/googleapis/gapic-generator-typescript/issues/696)) ([309a69c](https://www.github.com/googleapis/gapic-generator-typescript/commit/309a69c7a0192863df335a11e7a4d285364e4f5d))
+
 ## [1.1.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.0.8...v1.1.0) (2020-08-28)
 
 
