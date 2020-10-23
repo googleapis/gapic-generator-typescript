@@ -24,7 +24,7 @@ cd ..   # now in the package.json directory
 ### Test script pulling the docker image and use it against showcase proto.
 
 # Docker image tag: gapic-generator-typescript:latest.
-DIR_NAME=.showcase-typescript
+DIR_NAME=$TMPDIR/.showcase-typescript
 # Remove test directory if it already exists
 rm -rf $DIR_NAME
 # Create new directory showcase-typescript. 
@@ -32,7 +32,7 @@ mkdir $DIR_NAME
 # Use Docker Image for generating showcase client library
 docker run --rm \
   --mount type=bind,source=`pwd`/test-fixtures/protos/google/showcase/v1beta1,destination=/in/google/showcase/v1beta1,readonly \
-  --mount type=bind,source=`pwd`/$DIR_NAME,destination=/out \
+  --mount type=bind,source=$DIR_NAME,destination=/out \
   --user $UID \
   gapic-generator-typescript:latest --validation false
 # Test generated client library

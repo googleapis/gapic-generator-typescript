@@ -30,7 +30,12 @@ export interface OptionsMap {
 }
 const readFile = util.promisify(fs.readFile);
 
-const templatesDirectory = path.join(__dirname, '..', 'templates');
+// support both run from Bazel and without it
+const templatesDirectory = fs.existsSync(
+  '../gapic_generator_typescript/templates'
+)
+  ? '../gapic_generator_typescript/templates'
+  : path.join(__dirname, '..', 'templates');
 const defaultTemplates = ['typescript_gapic', 'typescript_packing_test'];
 
 export class Generator {
