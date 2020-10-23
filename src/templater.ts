@@ -132,7 +132,15 @@ export async function processTemplates(basePath: string, api: API) {
     },
   };
   if (fs.existsSync(namerLocation)) {
-    const {register, get} = require(namerLocation) as Namer;
+    let namer: Namer;
+    // different location when running from Bazel, hence try {} - the reason
+    // is that the `require` logic in Bazel runs is changed
+    try {
+      namer = require(namerLocation) as Namer;
+    } catch (err) {
+      namer = require(namerLocation.replace(/^..\//, '')) as Namer;
+    }
+    const {register, get} = namer;
     id.register = register;
     id.get = get;
   }

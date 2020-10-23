@@ -30,7 +30,14 @@ export interface OptionsMap {
 }
 const readFile = util.promisify(fs.readFile);
 
-const templatesDirectory = path.join(__dirname, '..', 'templates');
+// support both run from Bazel and without it. Bazel makes ../gapic_generator_typescript
+// a valid symlink because of the `link_workspace_root` option in BUILD.bazel,
+// we use it here and below. For non-bazel runs we just follow __dirname as usual.
+const templatesDirectory = fs.existsSync(
+  '../gapic_generator_typescript/templates'
+)
+  ? '../gapic_generator_typescript/templates'
+  : path.join(__dirname, '..', 'templates');
 const defaultTemplates = ['typescript_gapic', 'typescript_packing_test'];
 
 export class Generator {

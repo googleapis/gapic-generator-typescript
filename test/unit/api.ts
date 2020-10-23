@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as moduleAlias from 'module-alias';
-import * as path from 'path';
-moduleAlias.addAlias(
-  'gapic_generator_typescript',
-  path.join(__dirname, '..', '..')
-);
 import {API} from 'gapic_generator_typescript/src/schema/api';
 import * as protos from 'gapic_generator_typescript/protos';
 import * as assert from 'assert';
