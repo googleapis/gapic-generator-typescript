@@ -83,7 +83,7 @@ const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
 const validation = (argv.validation as string | undefined) ?? 'true';
-const metadata = argv.metadata as string | undefined;
+const metadata = argv.metadata as boolean | undefined;
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
