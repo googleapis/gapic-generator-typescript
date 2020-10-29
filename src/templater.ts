@@ -22,8 +22,8 @@ import * as protos from 'gapic_generator_typescript/protos';
 import {API} from './schema/api';
 
 interface Namer {
-  register: (name: string) => string;
-  get: (name: string) => string;
+  register: (name: string, serviceName?: string) => string;
+  get: (name: string, serviceName?: string) => string;
 }
 
 const commonParameters: {[name: string]: string} = {
@@ -110,6 +110,7 @@ function processOneTemplate(
       renderFile(outputFilename, relativeTemplateName, {
         api,
         commonParameters,
+        id,
       })
     );
   }

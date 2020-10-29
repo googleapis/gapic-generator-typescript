@@ -37,6 +37,7 @@ const templatesDirectory = fs.existsSync(
   ? '../gapic_generator_typescript/templates'
   : path.join(__dirname, '..', 'templates');
 const defaultTemplates = ['typescript_gapic', 'typescript_packing_test'];
+const metadataTemplate = 'typescript_gapic_metadata';
 
 export class Generator {
   request: protos.google.protobuf.compiler.CodeGeneratorRequest;
@@ -51,6 +52,7 @@ export class Generator {
   mainServiceName?: string;
   iamService?: boolean;
   templates: string[];
+  metadata?: boolean;
 
   constructor() {
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.create();
@@ -88,6 +90,9 @@ export class Generator {
         param = param.substring(1, param.length - 1);
       }
       const arr = param.split('=');
+      if (arr.length === 1) {
+        arr.push('true'); // "param" with no value gets converted to "param=true"
+      }
       this.paramMap[arr[0].toKebabCase()] = arr[1];
     }
   }
@@ -137,10 +142,13 @@ export class Generator {
   }
 
   private readTemplates() {
-    if (!this.paramMap['template']) {
-      return;
+    if (this.paramMap['template']) {
+      this.templates = this.paramMap['template'].split(';');
     }
-    this.templates = this.paramMap['template'].split(';');
+
+    if (this.paramMap['metadata'] === 'true') {
+      this.templates.push(metadataTemplate);
+    }
   }
 
   async initializeFromStdin() {

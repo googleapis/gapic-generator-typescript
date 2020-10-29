@@ -27,9 +27,11 @@ limitations under the License.
   and the conflicting "FooAsync" will become "FooAsync1".
 -#}
 
-{%- macro initialize(id, service) -%}
-{#- All method names from the given service are reserved -#}
-{%- for method in service.method -%}
-  {{- id.register(method.name.toCamelCase()) -}}
+{%- macro initialize(id, api) -%}
+{#- All method names from all the services are reserved -#}
+{%- for service in api.services -%}
+  {%- for method in service.method -%}
+    {{- id.register(method.name.toCamelCase(), service.name) -}}
+  {%- endfor -%}
 {%- endfor -%}
 {%- endmacro -%}
