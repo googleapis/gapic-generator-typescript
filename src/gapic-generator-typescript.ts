@@ -32,48 +32,57 @@ const protocPlugin = fs.existsSync(protocPluginBash)
   ? protocPluginBash
   : path.join(__dirname, 'protoc-plugin.js');
 
-const argv = yargs
-  .array('I')
-  .nargs('I', 1)
-  .alias('proto_path', 'I')
-  .alias('proto-path', 'I')
-  .demandOption('output_dir')
-  .describe('I', 'Include directory to pass to protoc')
-  .alias('output-dir', 'output_dir')
-  .describe('gapic-validator_out', 'Path to the output of the gapic validator')
-  .alias('gapic-validator_out', 'gapic_validator_out')
-  .describe(
-    'validation',
-    'Option to set the validation of proto files, default value is true'
-  )
-  .describe('output_dir', 'Path to a directory for the generated code')
-  .alias('grpc-service-config', 'grpc_service_config')
-  .describe('grpc-service-config', 'Path to gRPC service config JSON')
-  .alias('bundle-config', 'bundle_config')
-  .describe('bundle-config', 'Path to bundle request config JSON')
-  .alias('iam-service', 'iam_service')
-  .describe('iam-service', 'Include IAM service to the generated client')
-  .alias('package-name', 'package_name')
-  .describe('package-name', 'Publish package name')
-  .alias('main-service', 'main_service')
-  .describe(
-    'main_service',
-    'Main service name (if the package has multiple services, this one will be used for Webpack bundle name)'
-  )
-  .alias('common-proto-path', 'common_protos_path')
-  .describe(
-    'common_proto_path',
-    'Path to API common protos to use (if unset, will use protos shipped with google-gax)'
-  )
-  .describe(
-    'template',
-    'Semicolon-separated list of templates to use. Allowed values: ' +
-      `"${allTemplates.join(';')}"`
-  )
-  .describe('metadata', 'Set to true if GAPIC metadata generation is requested')
-  .boolean('metadata').usage(`Usage: $0 -I /path/to/googleapis \\
-  --output_dir /path/to/output_directory \\
-  google/example/api/v1/api.proto`).argv;
+yargs.array('I');
+yargs.nargs('I', 1);
+yargs.alias('proto_path', 'I');
+yargs.alias('proto-path', 'I');
+yargs.demandOption('output_dir');
+yargs.describe('I', 'Include directory to pass to protoc');
+yargs.alias('output-dir', 'output_dir');
+yargs.describe(
+  'gapic-validator_out',
+  'Path to the output of the gapic validator'
+);
+yargs.alias('gapic-validator_out', 'gapic_validator_out');
+yargs.describe(
+  'validation',
+  'Option to set the validation of proto files, default value is true'
+);
+yargs.describe('output_dir', 'Path to a directory for the generated code');
+yargs.alias('grpc-service-config', 'grpc_service_config');
+yargs.describe('grpc-service-config', 'Path to gRPC service config JSON');
+yargs.alias('bundle-config', 'bundle_config');
+yargs.describe('bundle-config', 'Path to bundle request config JSON');
+yargs.alias('iam-service', 'iam_service');
+yargs.describe('iam-service', 'Include IAM service to the generated client');
+yargs.alias('package-name', 'package_name');
+yargs.describe('package-name', 'Publish package name');
+yargs.alias('main-service', 'main_service');
+yargs.describe(
+  'main_service',
+  'Main service name (if the package has multiple services, this one will be used for Webpack bundle name)'
+);
+yargs.alias('common-proto-path', 'common_protos_path');
+yargs.describe(
+  'common_proto_path',
+  'Path to API common protos to use (if unset, will use protos shipped with google-gax)'
+);
+yargs.describe(
+  'template',
+  `Semicolon-separated list of templates to use. Allowed values: "${allTemplates.join(
+    ';'
+  )}"`
+);
+yargs.describe(
+  'metadata',
+  'Set to true if GAPIC metadata generation is requested'
+);
+yargs.boolean('metadata');
+yargs.usage('Usage: $0 -I /path/to/googleapis');
+yargs.usage('  --output_dir /path/to/output_directory');
+yargs.usage('  google/example/api/v1/api.proto');
+
+const argv = yargs.argv;
 const outputDir = argv.outputDir as string;
 const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 const bundleConfig = argv.bundleConfig as string | undefined;
