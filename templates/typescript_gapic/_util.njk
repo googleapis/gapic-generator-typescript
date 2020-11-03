@@ -18,43 +18,44 @@ limitations under the License.
 
 {% set markdownReferenceRegex = r/\[(.*?)\]\[(.*?)\]/g %}
 
-{%- macro printComments(method, service) -%}
+{%- macro printComments(method, service, generatedAsyncName) -%}
   {{- printCommentsForMethod(method) }}
   {{- printRequest(method) -}}
   {{- printCommentsForParams(method) -}}
   {{- printOptions() -}}
-  {{- printReturn(method, service) }}
+  {{- printReturn(method, service, generatedAsyncName) }}
 {%- endmacro %}
 
 {%- macro printDecodeMethodComments(method, decodeMethodName) %}
- * Check the status of the long running operation returned by the {{ method.name.toCamelCase() }}() method.
+ * Check the status of the long running operation returned by `{{ method.name.toCamelCase() }}()`.
  * @param {String} name
  *   The operation name that will be passed.
  * @returns {Promise} - The promise which resolves to an object.
  *   The decoded operation object has result and metadata field to get information from.
- *
- * @example:
- *   const decodedOperation = await {{ decodeMethodName }}(name);
- *   console.log(decodedOperation.result);
- *   console.log(decodedOperation.done);
- *   console.log(decodedOperation.metadata);
- *
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   for more details and examples.
+ * @example
+ * const decodedOperation = await {{ decodeMethodName }}(name);
+ * console.log(decodedOperation.result);
+ * console.log(decodedOperation.done);
+ * console.log(decodedOperation.metadata);
 {%- endmacro %}
 
-{%- macro printCommentsPageStream(method) -%}
+{%- macro printCommentsPageStream(method, generatedName) -%}
   {{- printPageStreamHeader(method) -}}
   {{- printRequest(method) -}}
   {{- printCommentsForParams(method) -}}
   {{- printOptions() -}}
-  {{- printReturnPageStream(method) }}
+  {{- printReturnPageStream(method, generatedName) }}
 {%- endmacro -%}
 
-{%- macro printCommentsPageAsync(method) -%}
+{%- macro printCommentsPageAsync(method, generatedName) -%}
   {{- printPageAsyncHeader(method) -}}
   {{- printRequest(method) -}}
   {{- printCommentsForParams(method) -}}
   {{- printOptions() -}}
-  {{- printReturnPageAsync(method) }}
+  {{- printReturnPageAsync(method, generatedName) }}
 {%- endmacro -%}
 
 {%- macro printCommentsForService(service) -%}
@@ -78,25 +79,13 @@ limitations under the License.
 
 
 {%- macro printPageAsyncHeader(method) %}
- * Equivalent to {@link {{ method.name.toCamelCase() }}}, but returns an iterable object.
+ * Equivalent to `{{ method.name.toCamelCase() }}`, but returns an iterable object.
  *
- * for-await-of syntax is used with the iterable to recursively get response element on-demand.
- *
+ * `for`-`await`-`of` syntax is used with the iterable to get response elements on-demand.
 {%- endmacro -%}
 
 {%- macro printPageStreamHeader(method) %}
- * Equivalent to {@link {{ method.name.toCamelCase() }}}, but returns a NodeJS Stream object.
- *
- * This fetches the paged responses for {@link {{ method.name.toCamelCase() }}} continuously
- * and invokes the callback registered for 'data' event for each element in the
- * responses.
- *
- * The returned object has 'end' method when no more elements are required.
- *
- * autoPaginate option will be ignored.
- *
- * @see {@link https://nodejs.org/api/stream.html}
- *
+ * Equivalent to `method.name.toCamelCase()`, but returns a NodeJS Stream object.
 {%- endmacro -%}
 
 {%- macro printRequest(method) %}
@@ -134,13 +123,13 @@ limitations under the License.
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
 {%- endmacro -%}
 
-{%- macro printReturn(method, service) -%}
+{%- macro printReturn(method, service, generatedAsyncName) -%}
 {%- if method.longRunning %}
-{{- printReturnSimpleMethod(method) }}
+{{- printReturnLROMethod(method) }}
 {%- elif method.serverStreaming and method.clientStreaming %}
 {{- printReturnBidiStreamingMethod(method) }}
 {%- elif method in service.paging %}
-{{- printReturnPagingServerMethod(method) }}
+{{- printReturnPagingServerMethod(method, generatedAsyncName) }}
 {%- elif method.serverStreaming %}
 {{- printReturnServerStreamingMethod(method) }}
 {%- elif method.clientStreaming %}
@@ -150,38 +139,64 @@ limitations under the License.
 {%- endif -%}
 {%- endmacro -%}
 
+{%- macro printReturnLROMethod(method) %}
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing
+ *   a long running operation. Its `promise()` method returns a promise
+ *   you can `await` for.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   for more details and examples.
+ * @example
+ * const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+ * const [response] = await operation.promise();
+{%- endmacro -%}
+
 {%- macro printReturnSimpleMethod(method) %}
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing {{ typeLink(method.outputType) }}.
- *   The promise has a method named "cancel" which cancels the ongoing API call.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   for more details and examples.
+ * @example
+ * const [response] = await client.{{ method.name.toCamelCase() }}(request);
 {%- endmacro -%}
 
-{%- macro printReturnPagingServerMethod(method) %}
+{%- macro printReturnPagingServerMethod(method, generatedAsyncName) %}
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is Array of {{ typeLink(method.pagingResponseType) }}.
- *   The client library support auto-pagination by default: it will call the API as many
+ *   The client library will perform auto-pagination by default: it will call the API as many
  *   times as needed and will merge results from all the pages into this array.
- *
- *   When autoPaginate: false is specified through options, the array has three elements.
- *   The first element is Array of {{ typeLink(method.pagingResponseType) }} that corresponds to
- *   the one page received from the API server.
- *   If the second element is not null it contains the request object of type {{ typeLink(method.inputType) }}
- *   that can be used to obtain the next page of the results.
- *   If it is null, the next page does not exist.
- *   The third element contains the raw response received from the API server. Its type is
- *   {{ typeLink(method.outputType) }}.
- *
- *   The promise has a method named "cancel" which cancels the ongoing API call.
+ *   Note that it can affect your quota.
+ *   We recommend using `{{ generatedAsyncName }}()`
+ *   method described below for async iteration which you can stop as needed.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   for more details and examples.
 {%- endmacro -%}
 
 {%- macro printReturnServerStreamingMethod(method) %}
  * @returns {Stream}
  *   An object stream which emits {{ typeLink(method.outputType) }} on 'data' event.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#server-streaming)
+ *   for more details and examples.
+ * @example
+ * const stream = client.{{ method.name.toCamelCase() }}(request);
+ * stream.on('data', (response) => { ... });
+ * stream.on('end', () => { ... });
 {%- endmacro -%}
 
 {%- macro printReturnClientStreamingMethod(method) %}
  * @returns {Stream} - A writable stream which accepts objects representing
  * {{ typeLink(method.inputType) }}.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#client-streaming)
+ *   for more details and examples.
+ * @example
+ * const stream = client.{{ method.name.toCamelCase() }}(callback);
+ * stream.write(request);
+ * stream.end();
 {%- endmacro -%}
 
 {%- macro printReturnBidiStreamingMethod(method) %}
@@ -189,16 +204,43 @@ limitations under the License.
  *   An object stream which is both readable and writable. It accepts objects
  *   representing {{ typeLink(method.inputType) }} for write() method, and
  *   will emit objects representing {{ typeLink(method.outputType) }} on 'data' event asynchronously.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#bi-directional-streaming)
+ *   for more details and examples.
+ * @example
+ * const stream = client.{{ method.name.toCamelCase() }}();
+ * stream.on('data', (response) => { ... });
+ * stream.on('end', () => { ... });
+ * stream.write(request);
+ * stream.end();
 {%- endmacro -%}
 
-{%- macro printReturnPageStream(method) %}
+{%- macro printReturnPageStream(method, generatedAsyncName) %}
  * @returns {Stream}
  *   An object stream which emits an object representing {{ typeLink(method.pagingResponseType) }} on 'data' event.
+ *   The client library will perform auto-pagination by default: it will call the API as many
+ *   times as needed. Note that it can affect your quota.
+ *   We recommend using `{{ generatedAsyncName }}()`
+ *   method described below for async iteration which you can stop as needed.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   for more details and examples.
 {%- endmacro -%}
 
-{%- macro printReturnPageAsync(method) %}
+{%- macro printReturnPageAsync(method, generatedName) %}
  * @returns {Object}
- *   An iterable Object that conforms to @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols.
+ *   An iterable Object that allows [async iteration](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols).
+ *   When you iterate the returned iterable, each element will be an object representing
+ *   {{ typeLink(method.pagingResponseType) }}. The API will be called under the hood as needed, once per the page,
+ *   so you can stop the iteration when you don't need more results.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   for more details and examples.
+ * @example
+ * const iterable = client.{{ generatedName }}(request);
+ * for await (const response of iterable) {
+ *   // process response
+ * }
 {%- endmacro -%}
 
 {%- macro printRequestField(oneComment) %}

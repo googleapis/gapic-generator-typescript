@@ -73,8 +73,10 @@ export class {{ service.name }}Client {
   /**
    * Construct an instance of {{ service.name }}Client.
    *
-   * @param {object} [options] - The configuration object. See the subsequent
-   *   parameters for more details.
+   * @param {object} [options] - The configuration object.
+   * The options accepted by the constructor are described in detail
+   * in [this document](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#creating-the-client-instance).
+   * The common options are:
    * @param {object} [options.credentials] - Credentials object.
    * @param {string} [options.credentials.client_email]
    * @param {string} [options.credentials.private_key]
@@ -102,7 +104,6 @@ export class {{ service.name }}Client {
    *     the fallback mode is enabled automatically; set `options.fallback` to `false`
    *     if you need to override this behavior.
    */
-
   constructor(opts?: ClientOptions) {
     // Ensure that options include all the required fields.
     const staticMembers = this.constructor as typeof {{ service.name }}Client;
@@ -349,6 +350,7 @@ export class {{ service.name }}Client {
 
   /**
    * The DNS address for this API service.
+   * @returns {string} The DNS address for this service.
    */
   static get {{ id.get("servicePath") }}() {
     return '{{ api.hostName }}';
@@ -357,6 +359,7 @@ export class {{ service.name }}Client {
   /**
    * The DNS address for this API service - same as {{ id.get("servicePath") }}(),
    * exists for compatibility reasons.
+   * @returns {string} The DNS address for this service.
    */
   static get {{ id.get("apiEndpoint") }}() {
     return '{{ api.hostName }}';
@@ -364,6 +367,7 @@ export class {{ service.name }}Client {
 
   /**
    * The port for this API service.
+   * @returns {number} The default port for this service.
    */
   static get {{ id.get("port") }}() {
     return {{ api.port }};
@@ -372,6 +376,7 @@ export class {{ service.name }}Client {
   /**
    * The scopes needed to make gRPC calls for every method defined
    * in this service.
+   * @returns {string[]} List of default scopes.
    */
   static get {{ id.get("scopes") }}() {
 {%- if (service.oauthScopes.length == 0) %}
@@ -391,8 +396,7 @@ export class {{ service.name }}Client {
   {{ id.get("getProjectId") }}(callback: Callback<string, undefined, undefined>): void;
   /**
    * Return the project ID used by this class.
-   * @param {function(Error, string)} callback - the callback to
-   *   be called with the current project Id.
+   * @returns {Promise} A promise that resolves to string containing the project ID.
    */
   {{ id.get("getProjectId") }}(callback?: Callback<string, undefined, undefined>):
       Promise<string>|void {
@@ -605,7 +609,7 @@ export class {{ service.name }}Client {
           {{ util.toInterface(method.outputInterface) }}|null|undefined,
           {{ util.toInterface(method.pagingResponseType) }}>): void;
 /**
-{{- util.printComments(method, service) }}
+{{- util.printComments(method, service, id.get(method.name.toCamelCase() + "Async")) }}
  */
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
@@ -637,7 +641,7 @@ export class {{ service.name }}Client {
   }
 
 /**
-{{- util.printCommentsPageStream(method) }}
+{{- util.printCommentsPageStream(method, id.get(method.name.toCamelCase() + "Async")) }}
  */
   {{ id.get(method.name.toCamelCase() + "Stream") }}(
       request?: {{ util.toInterface(method.inputInterface) }},
@@ -655,7 +659,7 @@ export class {{ service.name }}Client {
   }
 
 /**
-{{- util.printCommentsPageAsync(method) }}
+{{- util.printCommentsPageAsync(method, id.get(method.name.toCamelCase() + "Async")) }}
  */
   {{ id.get(method.name.toCamelCase() + "Async") }}(
       request?: {{ util.toInterface(method.inputInterface) }},
@@ -719,9 +723,10 @@ export class {{ service.name }}Client {
 {%- endif %}
 
   /**
-   * Terminate the GRPC channel and close the client.
+   * Terminate the gRPC channel and close the client.
    *
    * The client will no longer be usable and all future behavior is undefined.
+   * @returns {Promise} A promise that resolves when the client is closed.
    */
   {{ id.get("close") }}(): Promise<void> {
     this.{{ id.get("initialize") }}();
