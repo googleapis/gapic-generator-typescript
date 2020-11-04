@@ -99,10 +99,14 @@ export class KeyManagementServiceClient {
     const staticMembers = this.constructor as typeof KeyManagementServiceClient;
     const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.servicePath;
     const port = opts?.port || staticMembers.port;
-    const scopes = opts?.scopes || staticMembers.scopes;
     const clientConfig = opts?.clientConfig ?? {};
     const fallback = opts?.fallback ?? (typeof window !== "undefined");
-    opts = Object.assign({servicePath, port, scopes, clientConfig, fallback}, opts);
+    opts = Object.assign({servicePath, port, clientConfig, fallback}, opts);
+
+    // If scopes are unset in options and we're connecting to a non-default endpoint, set scopes just in case.
+    if (servicePath !== staticMembers.servicePath && !('scopes' in opts)) {
+      opts['scopes'] = staticMembers.scopes;
+    }
 
     // Choose either gRPC or proto-over-HTTP implementation of google-gax.
     this._gaxModule = opts.fallback ? gax.fallback : gax;
@@ -115,6 +119,11 @@ export class KeyManagementServiceClient {
 
     // Save the auth object to the client, for use by other methods.
     this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
+
+    // Set the default scopes in auth client if needed.
+    if (servicePath === staticMembers.servicePath) {
+      this.auth.defaultScopes = staticMembers.scopes;
+    }
     this.iamClient = new IamClient(this._gaxGrpc, opts);
   
 
