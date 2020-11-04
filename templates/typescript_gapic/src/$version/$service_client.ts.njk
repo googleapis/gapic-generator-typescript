@@ -109,10 +109,14 @@ export class {{ service.name }}Client {
     const staticMembers = this.constructor as typeof {{ service.name }}Client;
     const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.{{ id.get("servicePath") }};
     const port = opts?.port || staticMembers.{{ id.get("port") }};
-    const scopes = opts?.scopes || staticMembers.{{ id.get("scopes") }};
     const clientConfig = opts?.clientConfig ?? {};
     const fallback = opts?.fallback ?? (typeof window !== "undefined");
-    opts = Object.assign({servicePath, port, scopes, clientConfig, fallback}, opts);
+    opts = Object.assign({servicePath, port, clientConfig, fallback}, opts);
+
+    // If scopes are unset in options and we're connecting to a non-default endpoint, set scopes just in case.
+    if (servicePath !== staticMembers.{{ id.get("servicePath") }} && !('scopes' in opts)) {
+      opts['scopes'] = staticMembers.{{ id.get("scopes") }};
+    }
 
     // Choose either gRPC or proto-over-HTTP implementation of google-gax.
     this._gaxModule = opts.fallback ? gax.fallback : gax;
@@ -125,6 +129,11 @@ export class {{ service.name }}Client {
 
     // Save the auth object to the client, for use by other methods.
     this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
+
+    // Set the default scopes in auth client if needed.
+    if (servicePath === staticMembers.{{ id.get("servicePath") }}) {
+      this.auth.defaultScopes = staticMembers.{{ id.get("scopes") }};
+    }
   {%- if service.iamService > 0 %}
     this.iamClient = new IamClient(this._gaxGrpc, opts);
   {% endif %}
