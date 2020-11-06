@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.0...v1.2.1) (2020-11-06)
+
+
+### Bug Fixes
+
+* use yarn instead of npm ([#763](https://www.github.com/googleapis/gapic-generator-typescript/issues/763)) ([cfdd475](https://www.github.com/googleapis/gapic-generator-typescript/commit/cfdd475e75a434cc9adc615205c57c79136861b0))
+
 ## [1.2.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.1.0...v1.2.0) (2020-11-05)
 
 
