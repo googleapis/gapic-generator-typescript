@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.1...v1.2.2) (2020-11-17)
+
+
+### Bug Fixes
+
+* better feature detection for fallback, fixed TODO in jsdoc ([#770](https://www.github.com/googleapis/gapic-generator-typescript/issues/770)) ([e0d5cf5](https://www.github.com/googleapis/gapic-generator-typescript/commit/e0d5cf5b74d8bc7740086fa159cc646f7d25dbc8))
+
 ### [1.2.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.0...v1.2.1) (2020-11-06)
 
 
