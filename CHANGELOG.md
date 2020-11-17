@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.3](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.2...v1.2.3) (2020-11-17)
+
+
+### Bug Fixes
+
+* linting errors and better jsdoc ([#773](https://www.github.com/googleapis/gapic-generator-typescript/issues/773)) ([bd7eab8](https://www.github.com/googleapis/gapic-generator-typescript/commit/bd7eab83b8f0b4176765c72f4739089e3233e6fa))
+
 ### [1.2.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.1...v1.2.2) (2020-11-17)
 
 
