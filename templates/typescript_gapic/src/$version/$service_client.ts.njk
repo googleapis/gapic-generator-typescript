@@ -33,6 +33,11 @@ import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
 {%- endif %}
 import * as protos from '../../protos/protos';
+/**
+ * Client JSON configuration object, loaded from
+ * `src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`.
+ * This file defines retry strategy and timeouts for all API methods in this library.
+ */
 import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json';
 {% if service.longRunning.length > 0 -%}
 import { operationsProtos } from 'google-gax';
@@ -96,9 +101,9 @@ export class {{ service.name }}Client {
    *     your project ID will be detected automatically.
    * @param {string} [options.apiEndpoint] - The domain name of the
    *     API remote host.
-   * @param {gax.ClientConfig} [options.clientConfig] - client configuration override.
-   *     Follows the structure of `{{ service.name.toSnakeCase() }}_client_config.json`.
-   * @param {boolean} fallback - Use HTTP fallback mode.
+   * @param {gax.ClientConfig} [options.clientConfig] - Client configuration override.
+   *     Follows the structure of {@link gapicConfig}.
+   * @param {boolean} [options.fallback] - Use HTTP fallback mode.
    *     In fallback mode, a special browser-compatible transport implementation is used
    *     instead of gRPC transport. In browser context (if the `window` object is defined)
    *     the fallback mode is enabled automatically; set `options.fallback` to `false`
@@ -110,6 +115,7 @@ export class {{ service.name }}Client {
     const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.{{ id.get("servicePath") }};
     const port = opts?.port || staticMembers.{{ id.get("port") }};
     const clientConfig = opts?.clientConfig ?? {};
+    // eslint-disable-next-line no-undef
     const fallback = opts?.fallback ?? (typeof window !== 'undefined' && typeof window.fetch !== 'undefined');
     opts = Object.assign({servicePath, port, clientConfig, fallback}, opts);
 
@@ -423,14 +429,14 @@ export class {{ service.name }}Client {
 {%- for method in service.simpleMethods %}
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      options?: gax.CallOptions):
+      options?: CallOptions):
       Promise<[
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
       ]>;
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      options: gax.CallOptions,
+      options: CallOptions,
       callback: Callback<
           {{ util.toInterface(method.outputInterface) }},
           {{ util.toInterface(method.inputInterface) }}|null|undefined,
@@ -446,7 +452,7 @@ export class {{ service.name }}Client {
  */
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      optionsOrCallback?: gax.CallOptions|Callback<
+      optionsOrCallback?: CallOptions|Callback<
           {{ util.toInterface(method.outputInterface) }},
           {{ util.toInterface(method.inputInterface) }}|null|undefined,
           {}|null|undefined>,
@@ -459,13 +465,13 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
       ]>|void {
     request = request || {};
-    let options: gax.CallOptions;
+    let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
       options = {};
     }
     else {
-      options = optionsOrCallback as gax.CallOptions;
+      options = optionsOrCallback as CallOptions;
     }
     {{ util.buildHeaderRequestParam(method) }}
     this.{{ id.get("initialize") }}();
@@ -478,7 +484,7 @@ export class {{ service.name }}Client {
 {{- util.printComments(method, service) }}
  */
   {{ method.name.toCamelCase() }}(
-      options?: gax.CallOptions):
+      options?: CallOptions):
     gax.CancellableStream {
     this.{{ id.get("initialize") }}();
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(options);
@@ -489,7 +495,7 @@ export class {{ service.name }}Client {
  */
   {{ method.name.toCamelCase() }}(
       request?: {{ util.toInterface(method.inputInterface) }},
-      options?: gax.CallOptions):
+      options?: CallOptions):
     gax.CancellableStream{
     request = request || {};
     {{ util.buildHeaderRequestParam(method) }}
@@ -498,7 +504,7 @@ export class {{ service.name }}Client {
   }
 {%- elif method.clientStreaming %}
   {{ method.name.toCamelCase() }}(
-      options?: gax.CallOptions,
+      options?: CallOptions,
       callback?: Callback<
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|null|undefined,
@@ -514,7 +520,7 @@ export class {{ service.name }}Client {
 {{- util.printComments(method, service) }}
  */
   {{ method.name.toCamelCase() }}(
-      optionsOrCallback?: gax.CallOptions|Callback<
+      optionsOrCallback?: CallOptions|Callback<
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|null|undefined,
         {}|null|undefined>,
@@ -527,7 +533,7 @@ export class {{ service.name }}Client {
         callback = optionsOrCallback;
         optionsOrCallback = {};
     }
-    const options = optionsOrCallback as gax.CallOptions;
+    const options = optionsOrCallback as CallOptions;
     this.{{ id.get("initialize") }}();
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(null, options, callback);
   }
@@ -536,14 +542,14 @@ export class {{ service.name }}Client {
 {%- for method in service.longRunning %}
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      options?: gax.CallOptions):
+      options?: CallOptions):
       Promise<[
         LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType) }}>,
         {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
       ]>;
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      options: gax.CallOptions,
+      options: CallOptions,
       callback: Callback<
           LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
           {{ util.toInterface(method.outputInterface) }}|null|undefined,
@@ -559,7 +565,7 @@ export class {{ service.name }}Client {
  */
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      optionsOrCallback?: gax.CallOptions|Callback<
+      optionsOrCallback?: CallOptions|Callback<
           LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType)}}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
           {{ util.toInterface(method.outputInterface) }}|null|undefined,
           {}|null|undefined>,
@@ -572,13 +578,13 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
       ]>|void {
     request = request || {};
-    let options: gax.CallOptions;
+    let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
       options = {};
     }
     else {
-      options = optionsOrCallback as gax.CallOptions;
+      options = optionsOrCallback as CallOptions;
     }
     {{ util.buildHeaderRequestParam(method) }}
     this.{{ id.get("initialize") }}();
@@ -598,7 +604,7 @@ export class {{ service.name }}Client {
 {%- for method in service.paging %}
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      options?: gax.CallOptions):
+      options?: CallOptions):
       Promise<[
         {{ util.toInterface(method.pagingResponseType) }}[],
         {{ util.toInterface(method.inputInterface) }}|null,
@@ -606,7 +612,7 @@ export class {{ service.name }}Client {
       ]>;
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      options: gax.CallOptions,
+      options: CallOptions,
       callback: PaginationCallback<
           {{ util.toInterface(method.inputInterface) }},
           {{ util.toInterface(method.outputInterface) }}|null|undefined,
@@ -622,7 +628,7 @@ export class {{ service.name }}Client {
  */
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
-      optionsOrCallback?: gax.CallOptions|PaginationCallback<
+      optionsOrCallback?: CallOptions|PaginationCallback<
           {{ util.toInterface(method.inputInterface) }},
           {{ util.toInterface(method.outputInterface) }}|null|undefined,
           {{ util.toInterface(method.pagingResponseType) }}>,
@@ -636,13 +642,13 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.outputInterface) }}
       ]>|void {
     request = request || {};
-    let options: gax.CallOptions;
+    let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
       options = {};
     }
     else {
-      options = optionsOrCallback as gax.CallOptions;
+      options = optionsOrCallback as CallOptions;
     }
     {{ util.buildHeaderRequestParam(method) }}
     this.{{ id.get("initialize") }}();
@@ -654,7 +660,7 @@ export class {{ service.name }}Client {
  */
   {{ id.get(method.name.toCamelCase() + "Stream") }}(
       request?: {{ util.toInterface(method.inputInterface) }},
-      options?: gax.CallOptions):
+      options?: CallOptions):
     Transform{
     request = request || {};
     {{ util.buildHeaderRequestParam(method) }}
@@ -672,7 +678,7 @@ export class {{ service.name }}Client {
  */
   {{ id.get(method.name.toCamelCase() + "Async") }}(
       request?: {{ util.toInterface(method.inputInterface) }},
-      options?: gax.CallOptions):
+      options?: CallOptions):
     AsyncIterable<{{ util.toInterface(method.pagingResponseType) }}>{
     request = request || {};
     {{ util.buildHeaderRequestParam(method) }}
