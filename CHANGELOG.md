@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.4](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.3...v1.2.4) (2020-11-18)
+
+
+### Bug Fixes
+
+* use optional chaining for window.fetch ([#777](https://www.github.com/googleapis/gapic-generator-typescript/issues/777)) ([01a6990](https://www.github.com/googleapis/gapic-generator-typescript/commit/01a6990098e6550e2bc64e9c5bda1ec012d6b8eb))
+
 ### [1.2.3](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.2...v1.2.3) (2020-11-17)
 
 
