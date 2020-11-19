@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.6](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.5...v1.2.6) (2020-11-19)
+
+
+### Bug Fixes
+
+* include test method for paginated calls ([#782](https://www.github.com/googleapis/gapic-generator-typescript/issues/782)) ([2bd3af8](https://www.github.com/googleapis/gapic-generator-typescript/commit/2bd3af86951418c908bf302447c0c7130de12179))
+
 ### [1.2.5](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.4...v1.2.5) (2020-11-18)
 
 
