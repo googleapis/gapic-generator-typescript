@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.5](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.4...v1.2.5) (2020-11-18)
+
+
+### Bug Fixes
+
+* global window ([#780](https://www.github.com/googleapis/gapic-generator-typescript/issues/780)) ([2a39deb](https://www.github.com/googleapis/gapic-generator-typescript/commit/2a39deb81ad4e04bc8cf112cee31356fa0bc2c02))
+
 ### [1.2.4](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.3...v1.2.4) (2020-11-18)
 
 
