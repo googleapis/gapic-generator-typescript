@@ -44,56 +44,68 @@ limitations under the License.
     {{- serviceJoiner() -}}
     "{{ service.name }}": {
 {#- TODO(@alexander-fenster): replace hardcoded transports ("grpc", etc.) with an iteration. -#}
-      "grpc": {
-        "libraryClient": "{{ service.name }}Client",
-        "rpcs": {
-{%- set grpcMethodJoiner = joiner(',') -%}
-{%- for method in service.simpleMethods -%}
-          {{- grpcMethodJoiner() -}}
-          "{{ method.name }}": ["{{ method.name.toCamelCase() }}"]
-{%- endfor -%}
-{%- for method in service.streaming -%}
-          {{- grpcMethodJoiner() -}}
-          "{{ method.name }}": ["{{ method.name.toCamelCase() }}"]
-{%- endfor -%}
-{%- for method in service.longRunning -%}
-          {{- grpcMethodJoiner() -}}
-          "{{ method.name }}": [
-                                "{{ method.name.toCamelCase() }}"
-                               ]
-{%- endfor -%}
-{%- for method in service.paging %}
-          {{- grpcMethodJoiner() -}}
-          "{{ method.name }}": [
-                                "{{ method.name.toCamelCase() }}",
-                                "{{ id.get(method.name.toCamelCase() + "Stream", service.name) }}",
-                                "{{ id.get(method.name.toCamelCase() + "Async", service.name) }}"
-                               ]
-{%- endfor -%}
-        }
-      },
-      "grpc-fallback": {
-        "libraryClient": "{{ service.name }}Client",
-        "rpcs": {
-{%- set fallbackMethodJoiner = joiner(',') -%}
-{%- for method in service.simpleMethods -%}
-          {{- fallbackMethodJoiner() -}}
-          "{{ method.name }}": ["{{ method.name.toCamelCase() }}"]
-{%- endfor -%}
-{%- for method in service.longRunning -%}
-          {{- grpcMethodJoiner() -}}
-          "{{ method.name }}": [
-                                "{{ method.name.toCamelCase() }}"
-                               ]
-{%- endfor -%}
-{%- for method in service.paging %}
-          {{- grpcMethodJoiner() -}}
-          "{{ method.name }}": [
-                                "{{ method.name.toCamelCase() }}",
-                                "{{ id.get(method.name.toCamelCase() + "Stream", service.name) }}",
-                                "{{ id.get(method.name.toCamelCase() + "Async", service.name) }}"
-                               ]
-{%- endfor -%}
+      "clients": {
+        "grpc": {
+          "libraryClient": "{{ service.name }}Client",
+          "rpcs": {
+  {%- set grpcMethodJoiner = joiner(',') -%}
+  {%- for method in service.simpleMethods -%}
+            {{- grpcMethodJoiner() -}}
+            "{{ method.name }}": {
+              "methods": ["{{ method.name.toCamelCase() }}"]
+            }
+  {%- endfor -%}
+  {%- for method in service.streaming -%}
+            {{- grpcMethodJoiner() -}}
+            "{{ method.name }}": {
+              "methods": ["{{ method.name.toCamelCase() }}"]
+            }
+  {%- endfor -%}
+  {%- for method in service.longRunning -%}
+            {{- grpcMethodJoiner() -}}
+            "{{ method.name }}": {
+              "methods": ["{{ method.name.toCamelCase() }}"]
+            }
+  {%- endfor -%}
+  {%- for method in service.paging %}
+            {{- grpcMethodJoiner() -}}
+            "{{ method.name }}": {
+              "methods": [
+                            "{{ method.name.toCamelCase() }}",
+                            "{{ id.get(method.name.toCamelCase() + "Stream", service.name) }}",
+                            "{{ id.get(method.name.toCamelCase() + "Async", service.name) }}"
+              ]
+            }
+  {%- endfor -%}
+          }
+        },
+        "grpc-fallback": {
+          "libraryClient": "{{ service.name }}Client",
+          "rpcs": {
+  {%- set fallbackMethodJoiner = joiner(',') -%}
+  {%- for method in service.simpleMethods -%}
+            {{- fallbackMethodJoiner() -}}
+            "{{ method.name }}": {
+              "methods": ["{{ method.name.toCamelCase() }}"]
+            }
+  {%- endfor -%}
+  {%- for method in service.longRunning -%}
+            {{- grpcMethodJoiner() -}}
+            "{{ method.name }}": {
+              "methods": ["{{ method.name.toCamelCase() }}"]
+            }
+  {%- endfor -%}
+  {%- for method in service.paging %}
+            {{- grpcMethodJoiner() -}}
+            "{{ method.name }}": {
+              "methods": [
+                            "{{ method.name.toCamelCase() }}",
+                            "{{ id.get(method.name.toCamelCase() + "Stream", service.name) }}",
+                            "{{ id.get(method.name.toCamelCase() + "Async", service.name) }}"
+              ]
+            }
+  {%- endfor -%}
+          }
         }
       }
     }
