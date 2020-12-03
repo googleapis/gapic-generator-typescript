@@ -99,11 +99,11 @@ if (argv.I) {
 }
 const protoDirsArg = protoDirs.map(dir => `-I${dir}`);
 
-const protoFiles = [];
+const protoFiles: string[] = [];
 if (Array.isArray(argv._)) {
-  protoFiles.push(...argv._);
+  protoFiles.push(...(argv._ as string[]));
 } else {
-  protoFiles.push(argv._);
+  protoFiles.push(argv._ as string);
 }
 
 const commonProtoPath = argv.commonProtoPath || googleGaxProtosDir;
