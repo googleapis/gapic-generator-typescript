@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.2.7](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.6...v1.2.7) (2020-12-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @types/yargs to ^15.0.11 ([#789](https://www.github.com/googleapis/gapic-generator-typescript/issues/789)) ([d7a3689](https://www.github.com/googleapis/gapic-generator-typescript/commit/d7a3689b869aad7299d75808140917c443adf3f6))
+* proper JSON format for GAPIC metadata file ([#791](https://www.github.com/googleapis/gapic-generator-typescript/issues/791)) ([c06f728](https://www.github.com/googleapis/gapic-generator-typescript/commit/c06f7286d517c32e5cd0b680b3d7208a0538ca3e))
+
 ### [1.2.6](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.5...v1.2.6) (2020-11-19)
 
 
