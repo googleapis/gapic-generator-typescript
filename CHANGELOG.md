@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.8](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.7...v1.2.8) (2020-12-04)
+
+
+### Bug Fixes
+
+* use proper joiner in GAPIC metadata JSON template ([#795](https://www.github.com/googleapis/gapic-generator-typescript/issues/795)) ([d66e38a](https://www.github.com/googleapis/gapic-generator-typescript/commit/d66e38a58eea458e73a101b52771594beb7aced9))
+
 ### [1.2.7](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.6...v1.2.7) (2020-12-03)
 
 
