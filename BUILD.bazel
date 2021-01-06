@@ -2,7 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(["tsconfig.json"], visibility = ["//visibility:public"])
 
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "copy_to_bin")
 load("@npm//@bazel/typescript:index.bzl", "ts_project", "ts_config")
 
 filegroup(
@@ -18,6 +18,11 @@ filegroup(
 filegroup(
     name = "baselines",
     srcs = glob(["baselines/**/*.*", "baselines/**/.*"]),
+)
+
+filegroup(
+    name = "protos",
+    srcs = ["//:protos/index.js"],
 )
 
 npm_runtime_dependencies = [
@@ -70,6 +75,14 @@ ts_project(
     deps = npm_compile_dependencies,
 )
 
+copy_to_bin(
+    name = "copy_deps",
+    srcs = [
+        ":protos",
+        ":templates",
+    ],
+)
+
 nodejs_binary(
     name = "protoc_plugin",
     entry_point = "//:src/protoc-plugin.js",
@@ -77,7 +90,7 @@ nodejs_binary(
     data = [
         ":compile",
         ":templates",
-        "//:protos/index.js",
+        ":protos",
     ] + npm_runtime_dependencies,
 )
 
@@ -90,7 +103,7 @@ nodejs_binary(
         ":compile",
         ":templates",
         "@com_google_protobuf//:protoc",
-        "//:protos/index.js",
+        ":protos",
     ] + npm_runtime_dependencies,
 )
 
@@ -103,4 +116,5 @@ nodejs_test(
         ":test_fixtures",
         ":baselines",
     ] + npm_test_dependencies,
+    templated_args = ["--bazel_patch_module_resolver"],
 )
