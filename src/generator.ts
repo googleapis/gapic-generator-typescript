@@ -119,7 +119,7 @@ export class Generator {
         throw new Error(`File ${filename} cannot be opened.`);
       }
       const content = fs.readFileSync(filename, 'utf8');
-      const info = yaml.safeLoad(content);
+      const info = yaml.load(content);
       this.bundleConfigs = new BundleConfigClient().fromObject(info);
     }
   }
