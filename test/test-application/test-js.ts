@@ -33,16 +33,16 @@ const packedLibPath = path.join(showcaseLib, packedLib);
 const testFixtures = path.join(root, 'test-fixtures');
 const protos = path.join(testFixtures, 'protos');
 const jsTestApplication = path.join(testFixtures, 'test-application-js');
-const localJsApplication = path.join(root, '.test-application-js');
+const localJsApplication = path.join(root, 'test-application-js');
 
 describe('Test application for JavaScript users', () => {
   it('unzip showcase test output', async function () {
-    this.timeout(20000);
+    this.timeout(240000);
     process.chdir(root);
     await exec(`unzip -o "${baselineZip}" '.test-out-showcase/*' -d .`);
   });
   it('npm install showcase', async function () {
-    this.timeout(60000);
+    this.timeout(240000);
     // copy protos to generated client library and copy test application to local.
     fs.copySync(protos, path.join(showcaseLib, 'protos'));
     fs.copySync(jsTestApplication, localJsApplication);
@@ -50,21 +50,23 @@ describe('Test application for JavaScript users', () => {
     await exec('npm install');
   });
   it('npm pack showcase library and copy it to test application', async function () {
-    this.timeout(60000);
+    this.timeout(240000);
     await exec('npm pack');
-    process.chdir(localJsApplication);
     fs.copySync(packedLibPath, path.join(localJsApplication, packedLib));
   });
   it('npm install showcase library in test application', async function () {
-    this.timeout(60000);
-    await exec('npm install');
+    this.timeout(240000);
+    process.chdir(localJsApplication);
+    console.log(localJsApplication);
+    console.log(process.cwd());
+    await exec('npm install --legacy-peer-deps');
   });
   it('run integration in test application', async function () {
-    this.timeout(120000);
+    this.timeout(240000);
     await exec('npm test');
   });
   it('run browser test in application', async function () {
-    this.timeout(120000);
+    this.timeout(240000);
     await exec('npm run browser-test');
   });
 });

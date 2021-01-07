@@ -33,16 +33,16 @@ const packedLibPath = path.join(showcaseLib, packedLib);
 const testFixtures = path.join(root, 'test-fixtures');
 const protos = path.join(testFixtures, 'protos');
 const tsTestApplication = path.join(testFixtures, 'test-application-ts');
-const localTsApplication = path.join(root, '.test-application-ts');
+const localTsApplication = path.join(root, 'test-application-ts');
 
 describe('Test application for TypeScript users', () => {
   it('unzip showcase test output', async function () {
-    this.timeout(20000);
+    this.timeout(240000);
     process.chdir(root);
     await exec(`unzip -o "${baselineZip}" '.test-out-showcase/*' -d .`);
   });
   it('npm install showcase', async function () {
-    this.timeout(120000);
+    this.timeout(240000);
     // copy protos to generated client library and copy test application to local.
     if (!fs.existsSync(path.join(showcaseLib, 'protos'))) {
       fs.copySync(protos, path.join(showcaseLib, 'protos'));
@@ -54,21 +54,23 @@ describe('Test application for TypeScript users', () => {
     await exec('npm install');
   });
   it('npm pack showcase library and copy it to test application', async function () {
-    this.timeout(120000);
+    this.timeout(240000);
     await exec('npm pack');
-    process.chdir(localTsApplication);
     fs.copySync(packedLibPath, path.join(localTsApplication, packedLib));
   });
   it('npm install showcase library in test application', async function () {
-    this.timeout(120000);
-    await exec('npm install');
+    this.timeout(240000);
+    process.chdir(localTsApplication);
+    console.log(localTsApplication);
+    console.log(process.cwd());
+    await exec('npm install --legacy-peer-deps');
   });
   it('run integration in test application', async function () {
-    this.timeout(120000);
+    this.timeout(240000);
     await exec('npm test');
   });
   it('run browser test in application', async function () {
-    this.timeout(120000);
+    this.timeout(240000);
     await exec('npm run browser-test');
   });
 });

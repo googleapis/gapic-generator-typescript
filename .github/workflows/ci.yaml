@@ -1,0 +1,144 @@
+name: Test generator
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: gcr.io/gapic-images/googleapis-bazel:20210105
+    # Dockerfile for this image: https://github.com/googleapis/googleapis-discovery/blob/master/Dockerfile
+    # If you update its version, please also update it below in
+    # 'Cache Bazel files' - unfortunately it cannot accept variables at this
+    # time.
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache Bazel files
+      id: cache-bazel
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/bazel
+        key: ${{ runner.os }}-bazel-20210105-${{ secrets.CACHE_VERSION }}
+
+    - name: Cache not found
+      if: steps.cache-bazel.outputs.cache-hit != 'true'
+      run: |
+        echo "No cache found."
+
+    - name: Cache found
+      if: steps.cache-bazel.outputs.cache-hit == 'true'
+      run: |
+        echo -n "Cache found. Cache size: "
+        du -sh ~/.cache/bazel
+        echo "If the cache seems broken, update the CACHE_VERSION secret in"
+        echo "https://github.com/googleapis/googleapis-discovery/settings/secrets/actions"
+        echo "(use any random string, any GUID will work)"
+        echo "and it will start over with a clean cache."
+        echo "The old one will disappear after 7 days."
+
+    - name: Run bazel build
+      run: bazel build '//...'
+
+    - name: Run bazel test
+      run: bazel test '//...'
+
+    - name: Verify error conformance
+      run: |
+        curl -sSL https://github.com/googleapis/gapic-config-validator/releases/download/v0.6.0/gapic-config-validator-0.6.0-linux-amd64.tar.gz > config-validator.tar.gz
+        tar xzf config-validator.tar.gz --no-same-owner
+        chmod +x gapic-error-conformance
+        chmod +x bazel-bin/protoc_plugin.sh
+        ./gapic-error-conformance -plugin="bazel-bin/protoc_plugin.sh"
+
+    - name: Run linting
+      run: bazel run @nodejs//:npm -- run lint
+
+    - name: Prepare baseline artifacts
+      run: |
+        mkdir -p ~/artifacts/test-application-runners
+        tar cfz ~/artifacts/test-protos.tar.gz -C test-fixtures protos
+        cp bazel-bin/test/test-application/test-*.js ~/artifacts/test-application-runners/
+        cp bazel-testlogs/unit_tests/test.outputs/outputs.zip ~/artifacts/
+        tar cfz ~/artifacts/node_modules.tar.gz node_modules
+
+    - name: Save artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: ~/artifacts
+
+  showcase-test-application:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Test on the oldest and the newest supported version just in case
+        node-version: [10.x, 15.x]
+        test: [js, ts]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: artifacts
+        path: ~/artifacts
+
+    - name: Prepare test applications
+      run: |
+        rm -f bazel-testlogs
+        mkdir -p bazel-testlogs/unit_tests/test.outputs
+        mv ~/artifacts/outputs.zip bazel-testlogs/unit_tests/test.outputs/
+        tar xzf ~/artifacts/node_modules.tar.gz
+        mv ~/artifacts/test-application-runners/test-${{ matrix.test }}.js .
+
+    - name: Run ${{ matrix.test }} test application
+      run: npx mocha test-${{ matrix.test }}.js
+      env:
+        NPM_CONFIG_PREFIX: /tmp/.npm-global
+
+  lib-tests:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x]
+        lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech]
+    steps:
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: artifacts
+        path: ~/artifacts
+
+    - name: Prepare ${{ matrix.lib-name }} library to test
+      run: |
+        unzip ~/artifacts/outputs.zip '.test-out-${{ matrix.lib-name }}/*' -d library
+        mv library/.test-out-${{ matrix.lib-name }} library/${{ matrix.lib-name }}
+
+    - name: Test ${{ matrix.lib-name }} library
+      run: |
+        cd library/${{ matrix.lib-name }}
+        pwd
+        npm install
+        npm test
+        npm run fix
+        npm run compile
+        npm run system-test
+        npm run docs
