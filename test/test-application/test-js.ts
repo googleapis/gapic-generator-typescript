@@ -57,8 +57,6 @@ describe('Test application for JavaScript users', () => {
   it('npm install showcase library in test application', async function () {
     this.timeout(240000);
     process.chdir(localJsApplication);
-    console.log(localJsApplication);
-    console.log(process.cwd());
     await exec('npm install --legacy-peer-deps');
   });
   it('run integration in test application', async function () {

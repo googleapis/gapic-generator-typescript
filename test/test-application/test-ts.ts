@@ -61,8 +61,6 @@ describe('Test application for TypeScript users', () => {
   it('npm install showcase library in test application', async function () {
     this.timeout(240000);
     process.chdir(localTsApplication);
-    console.log(localTsApplication);
-    console.log(process.cwd());
     await exec('npm install --legacy-peer-deps');
   });
   it('run integration in test application', async function () {
