@@ -5,8 +5,8 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "build_bazel_rules_nodejs",
-      sha256 = "452bef42c4b2fbe0f509a2699ffeb3ae2c914087736b16314dbd356f3641d7e5",
-      urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.3.0/rules_nodejs-2.3.0.tar.gz"],
+      sha256 = "6142e9586162b179fdd570a55e50d1332e7d9c030efd853453438d607569721d",
+      urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.0.0/rules_nodejs-3.0.0.tar.gz"],
   )
 
   maybe(
