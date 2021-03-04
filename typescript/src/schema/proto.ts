@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from 'gapic_generator_typescript/protos';
+import * as protos from '../../../protos';
 import {CommentsMap, Comment} from './comments';
 import {milliseconds} from '../util';
 import {ResourceDescriptor, ResourceDatabase} from './resource-database';

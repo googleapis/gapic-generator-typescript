@@ -18,11 +18,12 @@ import {execFileSync} from 'child_process';
 import * as path from 'path';
 import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
-const fileSystem = require('file-system'); // eslint-disable-line
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
 const googleGaxProtosDir = path.join(googleGaxPath, '..', '..', 'protos');
-const allTemplates = fs.readdirSync(path.join(__dirname, '..', 'templates'));
+const allTemplates = fs.readdirSync(
+  path.join(__dirname, '..', '..', 'templates')
+);
 
 // If we're built with bazel, we'll have a shell wrapper to be used as a protoc plugin.
 // Just in case if someone builds us without bazel, let's have a fallback to an actual
@@ -78,6 +79,7 @@ yargs.describe(
   'Set to true if GAPIC metadata generation is requested'
 );
 yargs.boolean('metadata');
+yargs.describe('protoc', 'Path to protoc binary');
 yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');
 yargs.usage('  google/example/api/v1/api.proto');
@@ -93,6 +95,7 @@ const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
 const validation = (argv.validation as string | undefined) ?? 'true';
 const metadata = argv.metadata as boolean | undefined;
+const protoc = (argv.protoc as string | undefined) ?? 'protoc';
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
@@ -141,23 +144,11 @@ if (template) {
 if (metadata) {
   protocCommand.push('--typescript_gapic_opt="metadata"');
 }
-protocCommand.push('--experimental_allow_proto3_optional');
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 protocCommand.push(`-I${commonProtoPath}`);
 
-const bazelProtocBinary = path.join(
-  __dirname,
-  '..',
-  '..',
-  'com_google_protobuf',
-  'protoc'
-);
-const protocBinary = fs.existsSync(bazelProtocBinary)
-  ? bazelProtocBinary
-  : 'protoc'; // hope for the best if we're not in bazel
-
-execFileSync(protocBinary, protocCommand, {stdio: 'inherit'});
+execFileSync(protoc, protocCommand, {stdio: 'inherit'});
 
 // create protos folder to copy proto file
 const copyProtoDir = path.join(outputDir, 'protos');
@@ -178,7 +169,9 @@ fs.readFileSync(protoList)
           !fs.existsSync(path.join(googleGaxProtosDir, proto))) &&
         fs.existsSync(protoFile)
       ) {
-        fileSystem.copyFileSync(protoFile, path.join(copyProtoDir, proto));
+        const destination = path.join(copyProtoDir, proto);
+        fs.mkdirpSync(path.dirname(destination));
+        fs.copyFileSync(protoFile, destination);
       }
     });
   });

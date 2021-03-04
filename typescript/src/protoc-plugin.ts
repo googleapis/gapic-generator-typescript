@@ -14,18 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Making bazel build and bazel run work:
-// To allow importing protos as "gapic_generator_typescript/protos"
-// without using `../../`, we define a path alias in `tsconfig.json`:
-//    "paths": {
-//      "gapic_generator_typescript/*": ["*"]
-//    }
-// Then we use this module-alias module that alters behavior of
-// `require` by adding an alias to gapic_generator_typescript.
-// TODO(@alexander-fenster): get rid of module-alias.
-import * as moduleAlias from 'module-alias';
-import * as path from 'path';
-moduleAlias.addAlias('gapic_generator_typescript', path.join(__dirname, '..'));
 import * as yargs from 'yargs';
 import {Generator} from './generator';
 

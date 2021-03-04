@@ -13,8 +13,8 @@
   "license": "Apache-2.0",
   "author": "Google LLC",
   "bin": {
-    "gapic-generator-typescript": "build/src/gapic-generator-typescript.js",
-    "protoc-gen-typescript_gapic": "build/src/protoc-plugin.js"
+    "gapic-generator-typescript": "build/typescript/src/gapic-generator-typescript.js",
+    "protoc-gen-typescript_gapic": "build/typescript/src/protoc-plugin.js"
   },
   "files": [
     "build/src/**/*.js",
@@ -23,31 +23,29 @@
     "build/templates"
   ],
   "scripts": {
-    "baseline": "node bazel-bin/tools/update-baselines.js",
+    "baseline": "node bazel-bin/typescript/tools/update-baselines.js",
     "clean": "bazel clean && rm -rf build",
-    "codecov": "c8 --reporter=lcov mocha bazel-bin/test/unit && c8 report",
+    "codecov": "c8 --reporter=lcov mocha bazel-bin/typescript/test/unit && c8 report",
     "compile": "bazel build //...",
     "compile-protos": "pbjs -t static-module -o protos/index.js -p node_modules/google-gax/build/protos -p protos google/api/annotations.proto google/api/field_behavior.proto google/api/resource.proto google/longrunning/operations.proto google/protobuf/compiler/plugin.proto service_config.proto && pbts protos/index.js -o protos/index.d.ts",
     "docker-test": "sh docker/test.sh",
     "fix": "gts fix",
-    "js-test-application": "mocha bazel-bin/test/test-application/test-js --timeout 600000",
+    "js-test-application": "mocha bazel-bin/typescript/test/test-application/test-js --timeout 600000",
     "lint": "gts check",
-    "prepack": "npm run compile && cd templates/typescript_gapic && rm -f package.json.njk && mv package.json package.json.njk && cd ../.. && mkdir -p build && cp -rf bazel-bin/src templates protos build/",
+    "prepack": "npm run compile && cd templates/typescript_gapic && rm -f package.json.njk && mv package.json package.json.njk && cd ../.. && mkdir -p build && cp -rf bazel-bin/typescript templates protos build/",
     "postpack": "cd templates/typescript_gapic && mv package.json.njk package.json && ln -s package.json package.json.njk",
     "test": "bazel test //:unit_tests",
-    "ts-test-application": "mocha bazel-bin/test/test-application/test-ts --timeout 600000",
+    "ts-test-application": "mocha bazel-bin/typescript/test/test-application/test-ts --timeout 600000",
     "api-extractor": "api-extractor run --local",
     "api-documenter": "api-documenter yaml --input-folder=temp"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.0",
-    "file-system": "^2.2.2",
     "fs-extra": "^9.1.0",
     "get-stdin": "^8.0.0",
     "google-gax": "^2.10.3",
     "js-yaml": "^4.0.0",
     "long": "^4.0.0",
-    "module-alias": "^2.2.2",
     "nunjucks": "^3.2.3",
     "object-hash": "^2.1.1",
     "protobufjs": "^6.10.2",
@@ -56,7 +54,7 @@
   "devDependencies": {
     "@bazel/bazelisk": "^1.7.5",
     "@bazel/buildifier": "^4.0.0",
-    "@bazel/typescript": "^3.2.0",
+    "@bazel/typescript": "^3.2.1",
     "@types/fs-extra": "^9.0.7",
     "@types/get-stdin": "^7.0.0",
     "@types/long": "^4.0.1",

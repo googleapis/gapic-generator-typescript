@@ -17,7 +17,7 @@ import * as nunjucks from 'nunjucks';
 import * as path from 'path';
 import * as util from 'util';
 
-import * as protos from 'gapic_generator_typescript/protos';
+import * as protos from '../../protos';
 
 import {API} from './schema/api';
 
