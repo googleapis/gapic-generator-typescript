@@ -12,14 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as moduleAlias from 'module-alias';
-import * as path from 'path';
-moduleAlias.addAlias(
-  'gapic_generator_typescript',
-  path.join(__dirname, '..', '..')
-);
-import * as protos from 'gapic_generator_typescript/protos';
-import {ResourceDatabase} from 'gapic_generator_typescript/src/schema/resource-database';
+import * as protos from '../../../protos';
+import {ResourceDatabase} from '../../src/schema/resource-database';
 import {describe, it, beforeEach, afterEach} from 'mocha';
 import * as assert from 'assert';
 

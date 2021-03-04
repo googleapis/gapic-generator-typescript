@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import * as objectHash from 'object-hash';
-import * as protos from 'gapic_generator_typescript/protos';
+import * as protos from '../../../protos';
 
 export const defaultNonIdempotentRetryCodesName = 'non_idempotent';
 export const defaultNonIdempotentCodes: protos.google.rpc.Code[] = [];

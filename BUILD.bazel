@@ -26,13 +26,11 @@ filegroup(
 )
 
 npm_runtime_dependencies = [
-    "@npm//file-system",
     "@npm//fs-extra",
     "@npm//get-stdin",
     "@npm//google-gax",
     "@npm//js-yaml",
     "@npm//long",
-    "@npm//module-alias",
     "@npm//nunjucks",
     "@npm//object-hash",
     "@npm//protobufjs",
@@ -62,9 +60,7 @@ npm_compile_dependencies = npm_test_dependencies + [
 ts_project(
     name = "compile",
     srcs = glob([
-            "src/**/*.ts",
-            "test/**/*.ts",
-            "tools/**/*.ts",
+            "typescript/**/*.ts",
             "index.d.ts",
             "protos/index.d.ts",
         ]),
@@ -85,18 +81,19 @@ copy_to_bin(
 
 nodejs_binary(
     name = "protoc_plugin",
-    entry_point = "//:src/protoc-plugin.js",
+    entry_point = "//:typescript/src/protoc-plugin.ts",
     link_workspace_root = True,
     data = [
         ":compile",
         ":templates",
         ":protos",
     ] + npm_runtime_dependencies,
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_binary(
     name = "gapic_generator_typescript",
-    entry_point = "//:src/gapic-generator-typescript.js",
+    entry_point = "//:typescript/src/gapic-generator-typescript.ts",
     link_workspace_root = True,
     data = [
         ":protoc_plugin",
@@ -105,16 +102,18 @@ nodejs_binary(
         "@com_google_protobuf//:protoc",
         ":protos",
     ] + npm_runtime_dependencies,
+    templated_args = ["--bazel_patch_module_resolver"],
 )
 
 nodejs_test(
     name = "unit_tests",
     entry_point = "@npm//:node_modules/mocha/bin/mocha",
-    args = ["test/unit/"],
+    args = ["typescript/test/unit/"],
     data = [
         ":gapic_generator_typescript",
         ":test_fixtures",
         ":baselines",
+        "@com_google_protobuf//:protoc",
     ] + npm_test_dependencies,
     templated_args = ["--bazel_patch_module_resolver"],
 )

@@ -12,16 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as moduleAlias from 'module-alias';
-import * as path from 'path';
-moduleAlias.addAlias(
-  'gapic_generator_typescript',
-  path.join(__dirname, '..', '..')
-);
 import * as assert from 'assert';
 import {describe, it} from 'mocha';
-import * as protos from 'gapic_generator_typescript/protos';
-import {Naming, Options} from 'gapic_generator_typescript/src/schema/naming';
+import * as protos from '../../../protos';
+import {Naming, Options} from '../../src/schema/naming';
 
 describe('src/schema/naming.ts', () => {
   it('parses name correctly', () => {

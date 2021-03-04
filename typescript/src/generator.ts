@@ -17,7 +17,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as util from 'util';
 import * as yaml from 'js-yaml';
-import * as protos from 'gapic_generator_typescript/protos';
+import * as protos from '../../protos';
 
 import {API} from './schema/api';
 import {processTemplates} from './templater';
@@ -32,10 +32,10 @@ const readFile = util.promisify(fs.readFile);
 
 // support both run from Bazel and without it
 const templatesDirectory = fs.existsSync(
-  '../gapic_generator_typescript/templates'
+  '../../gapic_generator_typescript/templates'
 )
-  ? '../gapic_generator_typescript/templates'
-  : path.join(__dirname, '..', 'templates');
+  ? '../../gapic_generator_typescript/templates'
+  : path.join(__dirname, '..', '..', 'templates');
 const defaultTemplates = ['typescript_gapic', 'typescript_packing_test'];
 const metadataTemplate = 'typescript_gapic_metadata';
 

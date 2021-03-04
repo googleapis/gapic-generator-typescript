@@ -5,8 +5,8 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "build_bazel_rules_nodejs",
-      sha256 = "6142e9586162b179fdd570a55e50d1332e7d9c030efd853453438d607569721d",
-      urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.0.0/rules_nodejs-3.0.0.tar.gz"],
+      sha256 = "bfacf15161d96a6a39510e7b3d3b522cf61cb8b82a31e79400a84c5abcab5347",
+      urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.2.1/rules_nodejs-3.2.1.tar.gz"],
   )
 
   maybe(
@@ -23,7 +23,7 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "com_google_protobuf",
-      sha256 = "71030a04aedf9f612d2991c1c552317038c3c5a2b578ac4745267a45e7037c29",
-      strip_prefix = "protobuf-3.12.3",
-      urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.12.3.tar.gz"],
+      sha256 = "07f8a02afc14a657f727ed89a8ec5627b9ecc47116d60acaabaa1da233bd2e8f",
+      strip_prefix = "protobuf-3.15.4",
+      urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.15.4.tar.gz"],
   )

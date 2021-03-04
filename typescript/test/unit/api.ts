@@ -12,18 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as moduleAlias from 'module-alias';
-import * as path from 'path';
-moduleAlias.addAlias(
-  'gapic_generator_typescript',
-  path.join(__dirname, '..', '..')
-);
-import {API} from 'gapic_generator_typescript/src/schema/api';
-import * as protos from 'gapic_generator_typescript/protos';
+import {API} from '../../src/schema/api';
+import * as protos from '../../../protos';
 import * as assert from 'assert';
 import {afterEach, describe, it} from 'mocha';
 import * as sinon from 'sinon';
-import * as proto from 'gapic_generator_typescript/src/schema/proto';
+import * as proto from '../../src/schema/proto';
 
 describe('src/schema/api.ts', () => {
   it('should construct an API object and return list of protos', () => {

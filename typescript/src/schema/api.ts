@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from 'gapic_generator_typescript/protos';
+import * as protos from '../../../protos';
 
 import {Naming, Options as namingOptions} from './naming';
 import {Proto, MessagesMap, ServiceDescriptorProto} from './proto';

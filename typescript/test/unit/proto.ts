@@ -12,23 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as moduleAlias from 'module-alias';
-import * as path from 'path';
-moduleAlias.addAlias(
-  'gapic_generator_typescript',
-  path.join(__dirname, '..', '..')
-);
 import * as assert from 'assert';
 import {describe, it} from 'mocha';
-import * as protos from 'gapic_generator_typescript/protos';
-import {
-  getHeaderRequestParams,
-  MessagesMap,
-} from 'gapic_generator_typescript/src/schema/proto';
-import {Proto} from 'gapic_generator_typescript/src/schema/proto';
-import {Options} from 'gapic_generator_typescript/src/schema/naming';
-import {ResourceDatabase} from 'gapic_generator_typescript/src/schema/resource-database';
-import {CommentsMap} from 'gapic_generator_typescript/src/schema/comments';
+import * as protos from '../../../protos';
+import {getHeaderRequestParams, MessagesMap} from '../../src/schema/proto';
+import {Proto} from '../../src/schema/proto';
+import {Options} from '../../src/schema/naming';
+import {ResourceDatabase} from '../../src/schema/resource-database';
+import {CommentsMap} from '../../src/schema/comments';
 
 describe('src/schema/proto.ts', () => {
   describe('should get header parameters from http rule', () => {
