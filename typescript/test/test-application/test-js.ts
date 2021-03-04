@@ -77,7 +77,7 @@ describe('Test application for JavaScript users', () => {
     fs.copySync(packedLibPath, path.join(localJsApplication, packedLib));
   });
   it('npm install showcase library in test application', async function () {
-    this.timeout(240000);
+    this.timeout(500000);
     process.chdir(localJsApplication);
     await spawn('npm', ['install', '--legacy-peer-deps']);
   });
