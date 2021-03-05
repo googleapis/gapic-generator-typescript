@@ -226,7 +226,7 @@ export class Generator {
       const api = this.buildAPIObject();
       await this.processTemplates(api);
     } catch (err) {
-      this.response.error = err.toString();
+      this.response.error = err instanceof Error ? err.message : err.toString();
     }
 
     const outputBuffer = protos.google.protobuf.compiler.CodeGeneratorResponse.encode(
