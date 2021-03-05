@@ -75,6 +75,23 @@ describe('src/schema/api.ts', () => {
     ]);
   });
 
+  it('should be able to generate google.iam.v1 alone', () => {
+    const fd = new protos.google.protobuf.FileDescriptorProto();
+    fd.name = 'google/iam/v1/iam_policy.proto';
+    fd.package = 'google.iam.v1';
+    fd.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    fd.service[0].name = 'IAMPolicy';
+    fd.service[0].options = {
+      '.google.api.defaultHost': 'iam.googleapis.com',
+    };
+    const api = new API([fd], 'google.iam.v1', {
+      grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+    });
+    assert.deepStrictEqual(api.filesToGenerate, [
+      'google/iam/v1/iam_policy.proto',
+    ]);
+  });
+
   it('should not return common protos in the proto list', () => {
     const fd1 = new protos.google.protobuf.FileDescriptorProto();
     fd1.name = 'google/cloud/test/v1/test.proto';
@@ -93,12 +110,16 @@ describe('src/schema/api.ts', () => {
     const fd4 = new protos.google.protobuf.FileDescriptorProto();
     fd4.name = 'google/cloud/common_resources.proto';
     fd4.package = 'google.cloud';
-    const api = new API([fd1, fd2, fd3, fd4], 'google', {
+    const fd5 = new protos.google.protobuf.FileDescriptorProto();
+    fd5.name = 'google/api/servicemanagement/v1/servicemanager.proto';
+    fd5.package = 'google.api.servicemanager.v1';
+    const api = new API([fd1, fd2, fd3, fd4, fd5], 'google', {
       grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
     });
     assert.deepStrictEqual(api.filesToGenerate, [
       'google/cloud/test/v1/test.proto',
       'google/orgpolicy/v1/orgpolicy.proto',
+      'google/api/servicemanagement/v1/servicemanager.proto',
     ]);
   });
 

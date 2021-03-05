@@ -40,11 +40,7 @@ export class API {
   ): boolean {
     // Some common proto files define common services which we don't want to generate.
     // List them here.
-    return (
-      fd.package === 'google.longrunning' ||
-      fd.package === 'google.iam.v1' ||
-      fd.package === 'google.cloud'
-    );
+    return fd.package === 'google.longrunning' || fd.package === 'google.cloud';
   }
 
   constructor(
@@ -76,25 +72,37 @@ export class API {
     }
     const commentsMap = new CommentsMap(fileDescriptors);
 
-    this.protos = fileDescriptors
+    let filteredProtos = fileDescriptors
       .filter(fd => fd.name)
-      .filter(fd => !API.isIgnoredService(fd))
-      .reduce((map, fd) => {
-        map[fd.name!] = new Proto({
-          fd,
-          packageName,
-          allMessages,
-          allResourceDatabase,
-          resourceDatabase,
-          options,
-          commentsMap,
-        });
-        return map;
-      }, {} as ProtosMap);
+      .filter(fd => !API.isIgnoredService(fd));
+
+    // Special case: google.iam.v1 can be either a separate service to generate,
+    // or a dependency that should be ignored here
+    const packages = filteredProtos.reduce((set, fd) => {
+      set.add(fd.package!);
+      return set;
+    }, new Set<string>());
+    if (packages.size > 1 && packages.has('google.iam.v1')) {
+      filteredProtos = filteredProtos.filter(
+        p => p.package !== 'google.iam.v1'
+      );
+    }
+
+    this.protos = filteredProtos.reduce((map, fd) => {
+      map[fd.name!] = new Proto({
+        fd,
+        packageName,
+        allMessages,
+        allResourceDatabase,
+        resourceDatabase,
+        options,
+        commentsMap,
+      });
+      return map;
+    }, {} as ProtosMap);
 
     const serviceNamesList: string[] = [];
-    fileDescriptors
-      .filter(fd => !API.isIgnoredService(fd))
+    filteredProtos
       .filter(fd => fd.service)
       .reduce((servicesList, fd) => {
         servicesList.push(...fd.service!);
@@ -102,7 +110,7 @@ export class API {
       }, [] as protos.google.protobuf.IServiceDescriptorProto[])
       .filter(service => {
         if (!service.options || !service.options['.google.api.defaultHost']) {
-          throw `service "${packageName}.${service.name}" is missing option google.api.default_host`;
+          throw new Error(`service "${packageName}.${service.name}" is missing option google.api.default_host`);
         }
         const defaultHost = service!.options!['.google.api.defaultHost']!;
         if (defaultHost.length === 0) {

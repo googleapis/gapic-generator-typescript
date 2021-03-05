@@ -649,7 +649,7 @@ export class Proto {
     }
     if (this.fileToGenerate) {
       for (const commonProto of COMMON_PROTO_LIST) {
-        if (protopackage?.startsWith(commonProto)) {
+        if (protopackage === commonProto) {
           this.fileToGenerate = false;
         }
       }
