@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.10](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.9...v1.2.10) (2021-03-06)
+
+
+### Bug Fixes
+
+* fixing naming resolution for IAM v1 ([#832](https://www.github.com/googleapis/gapic-generator-typescript/issues/832)) ([5adcacb](https://www.github.com/googleapis/gapic-generator-typescript/commit/5adcacb5df9cae0a2aca91a61f56312e4a98980d))
+
 ### [1.2.9](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.8...v1.2.9) (2021-03-06)
 
 
