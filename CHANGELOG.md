@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.2.9](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.8...v1.2.9) (2021-03-06)
+
+
+### Bug Fixes
+
+* make it work with bazel nodejs rules v3; update copyright year ([#805](https://www.github.com/googleapis/gapic-generator-typescript/issues/805)) ([c870a30](https://www.github.com/googleapis/gapic-generator-typescript/commit/c870a30c8e0db21648314a1fcd292d8f3a84f7b0))
+* un-blocklist some common package names ([#827](https://www.github.com/googleapis/gapic-generator-typescript/issues/827)) ([7302c58](https://www.github.com/googleapis/gapic-generator-typescript/commit/7302c5875ccb7134c818858d043fac784e661398))
+
 ### [1.2.8](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.7...v1.2.8) (2020-12-04)
 
 
