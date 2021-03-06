@@ -101,6 +101,33 @@ describe('src/schema/naming.ts', () => {
     assert.strictEqual(naming.protoPackage, 'google.namespace.service.v1beta1');
   });
 
+  it('ignores IAM files when determining package name', () => {
+    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
+    descriptor1.package = 'google.namespace.service.v1beta1';
+    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor2.package = 'google.iam.v1';
+    descriptor2.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    const naming = new Naming([descriptor1, descriptor2]);
+    assert.strictEqual(naming.name, 'Service');
+    assert.strictEqual(naming.productName, 'Service');
+    assert.deepStrictEqual(naming.namespace, ['google', 'namespace']);
+    assert.strictEqual(naming.version, 'v1beta1');
+    assert.strictEqual(naming.protoPackage, 'google.namespace.service.v1beta1');
+  });
+
+  it('determines package name for IAM alone', () => {
+    const descriptor = new protos.google.protobuf.FileDescriptorProto();
+    descriptor.package = 'google.iam.v1';
+    descriptor.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    const naming = new Naming([descriptor]);
+    assert.strictEqual(naming.name, 'Iam');
+    assert.strictEqual(naming.productName, 'Iam');
+    assert.deepStrictEqual(naming.namespace, ['google']);
+    assert.strictEqual(naming.version, 'v1');
+    assert.strictEqual(naming.protoPackage, 'google.iam.v1');
+  });
+
   it('fails on bad package name 1', () => {
     const descriptor = new protos.google.protobuf.FileDescriptorProto();
     descriptor.package = 'nonamespace';

@@ -43,6 +43,24 @@ export class API {
     return fd.package === 'google.longrunning' || fd.package === 'google.cloud';
   }
 
+  static filterOutIgnoredServices(
+    fds: protos.google.protobuf.IFileDescriptorProto[]
+  ) {
+    let filteredProtos = fds.filter(fd => !API.isIgnoredService(fd));
+    // Special case: google.iam.v1 can be either a separate service to generate,
+    // or a dependency that should be ignored here
+    const packages = filteredProtos.reduce((set, fd) => {
+      set.add(fd.package!);
+      return set;
+    }, new Set<string>());
+    if (packages.size > 1 && packages.has('google.iam.v1')) {
+      filteredProtos = filteredProtos.filter(
+        p => p.package !== 'google.iam.v1'
+      );
+    }
+    return filteredProtos;
+  }
+
   constructor(
     fileDescriptors: protos.google.protobuf.IFileDescriptorProto[],
     packageName: string,
@@ -72,22 +90,9 @@ export class API {
     }
     const commentsMap = new CommentsMap(fileDescriptors);
 
-    let filteredProtos = fileDescriptors
-      .filter(fd => fd.name)
-      .filter(fd => !API.isIgnoredService(fd));
-
-    // Special case: google.iam.v1 can be either a separate service to generate,
-    // or a dependency that should be ignored here
-    const packages = filteredProtos.reduce((set, fd) => {
-      set.add(fd.package!);
-      return set;
-    }, new Set<string>());
-    if (packages.size > 1 && packages.has('google.iam.v1')) {
-      filteredProtos = filteredProtos.filter(
-        p => p.package !== 'google.iam.v1'
-      );
-    }
-
+    const filteredProtos = API.filterOutIgnoredServices(
+      fileDescriptors.filter(fd => fd.name)
+    );
     this.protos = filteredProtos.reduce((map, fd) => {
       map[fd.name!] = new Proto({
         fd,

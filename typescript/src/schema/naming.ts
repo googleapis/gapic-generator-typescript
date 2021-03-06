@@ -38,10 +38,9 @@ export class Naming {
   ) {
     let rootPackage = '';
     const mainServiceName = options ? options.mainServiceName : '';
-    const protoPackages = fileDescriptors
-      .filter(fd => fd.service && fd.service.length > 0)
-      .filter(fd => !API.isIgnoredService(fd))
-      .map(fd => fd.package || '');
+    const protoPackages = API.filterOutIgnoredServices(
+      fileDescriptors.filter(fd => fd.service && fd.service.length > 0)
+    ).map(fd => fd.package || '');
     const prefix = commonPrefix(protoPackages);
     // common prefix must either end with `.`, or be equal to at least one of
     // the packages' prefix
