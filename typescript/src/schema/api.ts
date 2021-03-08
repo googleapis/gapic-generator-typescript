@@ -40,7 +40,14 @@ export class API {
   ): boolean {
     // Some common proto files define common services which we don't want to generate.
     // List them here.
-    return fd.package === 'google.longrunning' || fd.package === 'google.cloud';
+    return (
+      fd.package === 'google.longrunning' ||
+      fd.package === 'google.cloud' ||
+      fd.package === 'google.protobuf' ||
+      fd.package === 'google.type' ||
+      fd.package === 'google.rpc' ||
+      fd.package === 'google.api'
+    );
   }
 
   static filterOutIgnoredServices(
