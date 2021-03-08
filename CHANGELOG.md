@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.11](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.10...v1.2.11) (2021-03-08)
+
+
+### Bug Fixes
+
+* filter out all common packages ([#835](https://www.github.com/googleapis/gapic-generator-typescript/issues/835)) ([e6c9fe5](https://www.github.com/googleapis/gapic-generator-typescript/commit/e6c9fe501ed384893782514df8af511ee5efa5bf))
+
 ### [1.2.10](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.9...v1.2.10) (2021-03-06)
 
 
