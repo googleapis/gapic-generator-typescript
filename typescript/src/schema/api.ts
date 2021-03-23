@@ -34,6 +34,7 @@ export class API {
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName: string;
   uniqKeywords: string[];
+  packageName: string;
 
   static isIgnoredService(
     fd: protos.google.protobuf.IFileDescriptorProto
@@ -73,6 +74,7 @@ export class API {
     packageName: string,
     options: namingOptions
   ) {
+    this.packageName = packageName;
     this.naming = new Naming(
       fileDescriptors.filter(
         fd => fd.package && fd.package.startsWith(packageName)
@@ -192,6 +194,17 @@ export class API {
       null,
       '  '
     );
+  }
+
+  get dump() {
+    return JSON.stringify({
+      packageName: this.packageName,
+      publishName: this.publishName,
+      naming: this.naming,
+      hostname: this.hostName,
+      port: this.port,
+      services: this.services,
+    });
   }
 }
 
