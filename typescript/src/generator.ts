@@ -190,7 +190,6 @@ export class Generator {
           fd.service.length > 0
       )
     ).forEach(fd => protoPackagesToGenerate.add(fd.package || ''));
-    console.warn(protoPackagesToGenerate);
     const packageNamesToGenerate = Array.from(protoPackagesToGenerate);
     const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
     if (packageName === '') {
