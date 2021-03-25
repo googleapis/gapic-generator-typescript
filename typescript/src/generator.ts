@@ -181,15 +181,16 @@ export class Generator {
   }
 
   private buildAPIObject(): API {
-    const protoFilesToGenerate = this.request.protoFile.filter(
-      pf =>
-        pf.name &&
-        this.request.fileToGenerate.includes(pf.name) &&
-        !API.isIgnoredService(pf)
-    );
-    const packageNamesToGenerate = protoFilesToGenerate.map(
-      pf => pf.package || ''
-    );
+    const protoPackagesToGenerate = new Set<string>();
+    API.filterOutIgnoredServices(
+      this.request.protoFile.filter(
+        fd =>
+          this.request.fileToGenerate.includes(fd.name!) &&
+          fd.service &&
+          fd.service.length > 0
+      )
+    ).forEach(fd => protoPackagesToGenerate.add(fd.package || ''));
+    const packageNamesToGenerate = Array.from(protoPackagesToGenerate);
     const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
     if (packageName === '') {
       throw new Error('Cannot get package name to generate.');
