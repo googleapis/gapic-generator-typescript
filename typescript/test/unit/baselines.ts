@@ -130,4 +130,13 @@ describe('Baseline tests', () => {
     useCommonProto: false,
     metadata: true,
   });
+
+  runBaselineTest({
+    baselineName: 'pubsub-api-dump',
+    outputDir: '.test-out-pubsub-api-dump',
+    protoPath: 'google/pubsub/v1/*.proto;google/iam/v1/*.proto',
+    useCommonProto: true,
+    metadata: false,
+    template: 'api_dump',
+  });
 });

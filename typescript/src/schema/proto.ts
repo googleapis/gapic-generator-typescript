@@ -58,6 +58,7 @@ interface MethodDescriptorProto
   // [ ['request', 'foo'], ['request', 'bar']]
   headerRequestParams: string[][];
   bundleConfig?: BundleConfig;
+  toJSON: Function | undefined;
 }
 
 export interface ServiceDescriptorProto
@@ -82,6 +83,7 @@ export interface ServiceDescriptorProto
   bundleConfigsMethods: MethodDescriptorProto[];
   bundleConfigs?: BundleConfig[];
   iamService: boolean;
+  toJSON: Function | undefined;
 }
 
 export interface ServicesMap {
@@ -440,6 +442,9 @@ function augmentMethod(
   method.headerRequestParams = getHeaderRequestParams(
     method.options?.['.google.api.http']
   );
+  // protobuf.js redefines .toJSON to serialize only known fields,
+  // but we need to serialize the whole augmented object.
+  method.toJSON = undefined;
   return method;
 }
 
@@ -614,6 +619,9 @@ function augmentService(parameters: AugmentServiceParameters) {
       return 0;
     }
   );
+  // protobuf.js redefines .toJSON to serialize only known fields,
+  // but we need to serialize the whole augmented object.
+  augmentedService.toJSON = undefined;
   return augmentedService;
 }
 
