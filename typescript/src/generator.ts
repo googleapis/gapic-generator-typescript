@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as getStdin from 'get-stdin';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as util from 'util';
@@ -24,6 +23,21 @@ import {processTemplates} from './templater';
 import {BundleConfigClient, BundleConfig} from './bundle';
 import {commonPrefix, duration} from './util';
 import * as Long from 'long';
+
+function getStdin() {
+  return new Promise<Buffer>(resolve => {
+    const buffers: Buffer[] = [];
+    process.stdin.on('readable', () => {
+      let chunk: Buffer;
+      while (null !== (chunk = process.stdin.read())) {
+        buffers.push(chunk);
+      }
+    });
+    process.stdin.on('end', () => {
+      resolve(Buffer.concat(buffers));
+    });
+  });
+}
 
 export interface OptionsMap {
   [name: string]: string;
@@ -152,7 +166,7 @@ export class Generator {
   }
 
   async initializeFromStdin() {
-    const inputBuffer = await getStdin.buffer();
+    const inputBuffer = await getStdin();
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.decode(
       inputBuffer
     );
