@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.11...v1.3.0) (2021-04-28)
+
+
+### Features
+
+* api_dump template to use in tests ([#845](https://www.github.com/googleapis/gapic-generator-typescript/issues/845)) ([71f3ed0](https://www.github.com/googleapis/gapic-generator-typescript/commit/71f3ed045b9d3456b10a5539fd998d445acdb97d))
+
+
+### Bug Fixes
+
+* **deps:** update all packages (major), do not use get-stdin ([#855](https://www.github.com/googleapis/gapic-generator-typescript/issues/855)) ([07e645a](https://www.github.com/googleapis/gapic-generator-typescript/commit/07e645aa81e5df1e7582e6940ef911d98c1409a2))
+* name generation when multiple packages are involved ([#847](https://www.github.com/googleapis/gapic-generator-typescript/issues/847)) ([9ab2a61](https://www.github.com/googleapis/gapic-generator-typescript/commit/9ab2a615be761a97d44dd6ed775cbce3842bced7))
+
 ### [1.2.11](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.10...v1.2.11) (2021-03-08)
 
 
