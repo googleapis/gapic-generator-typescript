@@ -34,6 +34,7 @@ import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
 {%- endif %}
 import * as protos from '../../protos/protos';
+import jsonProtos = require('../../protos/protos.json');
 /**
  * Client JSON configuration object, loaded from
  * `src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`.
@@ -161,16 +162,8 @@ export class {{ service.name }}Client {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
     }
     // Load the applicable protos.
-    // For Node.js, pass the path to JSON proto file.
-    // For browsers, pass the JSON content.
+    this._protos = this._gaxGrpc.loadProtoJSON(jsonProtos);
 
-    const nodejsProtoPath = path.join(__dirname, '..', '..', 'protos', 'protos.json');
-    this._protos = this._gaxGrpc.loadProto(
-      opts.fallback ?
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        require("../../protos/protos.json") :
-        nodejsProtoPath
-    );
 {%- if (service.pathTemplates.length > 0) %}
 
     // This API contains "path templates"; forward-slash-separated
@@ -214,16 +207,13 @@ export class {{ service.name }}Client {
 {%- endif %}
 {%- if (service.longRunning.length > 0) or (service.bundleConfigs.length > 0) %}
 
+    const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
+{% endif %}
+{%- if service.longRunning.length > 0 %}
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
-    const protoFilesRoot = opts.fallback ?
-      this._gaxModule.protobuf.Root.fromJSON(
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        require("../../protos/protos.json")) :
-      this._gaxModule.protobuf.loadSync(nodejsProtoPath);
-{% endif %}
-{%- if service.longRunning.length > 0 %}
+
     this.operationsClient = this._gaxModule.lro({
       auth: this.auth,
       grpc: 'grpc' in this._gaxGrpc ? this._gaxGrpc.grpc : undefined
