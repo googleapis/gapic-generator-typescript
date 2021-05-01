@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.3.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.3.0...v1.3.1) (2021-04-30)
+
+
+### Bug Fixes
+
+* **protos:** use require to load protos JSON ([#861](https://www.github.com/googleapis/gapic-generator-typescript/issues/861)) ([d06a4a9](https://www.github.com/googleapis/gapic-generator-typescript/commit/d06a4a9b88182940deba545ff20eefef87be27dd))
+
 ## [1.3.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.2.11...v1.3.0) (2021-04-28)
 
 
