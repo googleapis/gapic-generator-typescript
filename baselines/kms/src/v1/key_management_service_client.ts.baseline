@@ -19,7 +19,6 @@
 /* global window */
 import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback, GaxCall, IamClient, IamProtos} from 'google-gax';
-import * as path from 'path';
 
 import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
