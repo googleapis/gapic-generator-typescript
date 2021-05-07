@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.3.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.3.1...v1.3.2) (2021-05-07)
+
+
+### Bug Fixes
+
+* **deps:** update all packages ([#865](https://www.github.com/googleapis/gapic-generator-typescript/issues/865)) ([4b0ee63](https://www.github.com/googleapis/gapic-generator-typescript/commit/4b0ee630e7de50af3edf8a860f2e1fdd50ebae31))
+* do not import path ([#867](https://www.github.com/googleapis/gapic-generator-typescript/issues/867)) ([c00476c](https://www.github.com/googleapis/gapic-generator-typescript/commit/c00476ca71f341ea127a9d6a57ff1f2f5b9e536d))
+
 ### [1.3.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.3.0...v1.3.1) (2021-04-30)
 
 
