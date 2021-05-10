@@ -101,7 +101,7 @@ $ npm run compile  # build project with Bazel
 To run the generator:
 
 ```sh
-bazel run //:gapic-generator-typescript -- --help
+bazel run //:gapic_generator_typescript -- --help
 ```
 
 **Note:** this section will be updated soon. After updating Bazel rules in `googleapis`,
