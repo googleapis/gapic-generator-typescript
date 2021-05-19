@@ -212,7 +212,6 @@ export class Generator {
           !protoPackagesToGenerate.has(fd.package!)
       )
       .forEach(fd => {
-        console.log('----fd.package::', fd.package);
         protoPackagesToGenerate.add(fd.package || '');
       });
     const packageNamesToGenerate = Array.from(protoPackagesToGenerate);
