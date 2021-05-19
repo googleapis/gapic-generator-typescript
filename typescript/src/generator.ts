@@ -204,6 +204,17 @@ export class Generator {
           fd.service.length > 0
       )
     ).forEach(fd => protoPackagesToGenerate.add(fd.package || ''));
+    this.request.protoFile
+      .filter(
+        fd =>
+          this.request.fileToGenerate.includes(fd.name!) &&
+          (!fd.service || !fd.service.length) &&
+          !protoPackagesToGenerate.has(fd.package!)
+      )
+      .forEach(fd => {
+        console.log('----fd.package::', fd.package);
+        protoPackagesToGenerate.add(fd.package || '');
+      });
     const packageNamesToGenerate = Array.from(protoPackagesToGenerate);
     const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
     if (packageName === '') {

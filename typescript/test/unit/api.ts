@@ -221,6 +221,28 @@ describe('src/schema/api.ts', () => {
     });
   });
 
+  it('should include the protos has no service', () => {
+    const fd1 = new protos.google.protobuf.FileDescriptorProto();
+    fd1.name = 'google/cloud/example/v1/test.proto';
+    fd1.package = 'google.cloud.example.v1';
+
+    fd1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    fd1.service[0].name = 'Service';
+    fd1.service[0].options = {
+      '.google.api.defaultHost': 'hostname.example.com:443',
+    };
+    const fd2 = new protos.google.protobuf.FileDescriptorProto();
+    fd2.name = 'google/cloud/example/v1/error.proto';
+    fd2.package = 'google.cloud.example.v1.errors';
+    const api = new API([fd1, fd2], 'google.cloud.example.v1', {
+      grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+    });
+    assert.deepStrictEqual(JSON.parse(api.protoFilesToGenerateJSON), [
+      '../../protos/google/cloud/example/v1/error.proto',
+      '../../protos/google/cloud/example/v1/test.proto',
+    ]);
+  });
+
   describe('Calling Proto constructor', () => {
     afterEach(() => {
       sinon.restore();
