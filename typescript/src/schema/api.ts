@@ -18,6 +18,7 @@ import {Naming, Options as namingOptions} from './naming';
 import {Proto, MessagesMap, ServiceDescriptorProto} from './proto';
 import {ResourceDatabase, ResourceDescriptor} from './resource-database';
 import {CommentsMap} from './comments';
+import {IFileDescriptorProto} from 'protobufjs/ext/descriptor';
 
 export interface ProtosMap {
   [filename: string]: Proto;
@@ -98,6 +99,17 @@ export class API {
         });
     }
     const commentsMap = new CommentsMap(fileDescriptors);
+
+    // const filteredProtosSet = fileDescriptors.reduce((set, fd) => {
+    //   if (
+    //     (!fd.service || !fd.service.length) &&
+    //     fd.name &&
+    //     API.isIgnoredService(fd)
+    //   ) {
+    //     set.add(fd);
+    //   }
+    //   return set;
+    // }, new Set<protos.google.protobuf.IFileDescriptorProto>());
 
     const filteredProtos = API.filterOutIgnoredServices(
       fileDescriptors.filter(fd => fd.name)
