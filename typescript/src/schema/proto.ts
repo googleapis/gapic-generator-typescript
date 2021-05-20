@@ -658,7 +658,11 @@ export class Proto {
         return map;
       }, {} as MessagesMap);
     const protopackage = parameters.fd.package;
-    if (!protopackage || !protopackage.startsWith(parameters.packageName)) {
+    if (
+      !protopackage ||
+      (parameters.fd.service &&
+        !protopackage.startsWith(parameters.packageName))
+    ) {
       this.fileToGenerate = false;
     }
     if (this.fileToGenerate) {

@@ -197,8 +197,11 @@ export class Generator {
   private buildAPIObject(): API {
     const protoPackagesToGenerate = new Set<string>();
     API.filterOutIgnoredServices(
-      this.request.protoFile.filter(fd =>
-        this.request.fileToGenerate.includes(fd.name!)
+      this.request.protoFile.filter(
+        fd =>
+          this.request.fileToGenerate.includes(fd.name!) &&
+          fd.service &&
+          fd.service.length > 0
       )
     ).forEach(fd => protoPackagesToGenerate.add(fd.package || ''));
     const packageNamesToGenerate = Array.from(protoPackagesToGenerate);
