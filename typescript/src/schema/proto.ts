@@ -658,7 +658,13 @@ export class Proto {
         return map;
       }, {} as MessagesMap);
     const protopackage = parameters.fd.package;
-    if (!protopackage || !protopackage.startsWith(parameters.packageName)) {
+    // Allow to generate if a proto has no service and its package name is differ from its service's.
+    if (
+      !protopackage ||
+      (!protopackage.startsWith(parameters.packageName) &&
+        parameters.fd.service &&
+        parameters.fd.service.length > 0)
+    ) {
       this.fileToGenerate = false;
     }
     if (this.fileToGenerate) {
