@@ -177,6 +177,65 @@ describe('src/schema/proto.ts', () => {
         'next_page_token'
       );
     });
+    it("should allow generate a proto has no service and its package name differ from service's", () => {
+      const fd = new protos.google.protobuf.FileDescriptorProto();
+      fd.name = 'google/cloud/showcase/v1beta1/test.proto';
+      fd.package = 'google.cloud.showcase.v1beta1.errors';
+      const allMessages: MessagesMap = {};
+      fd.messageType
+        .filter(message => message.name)
+        .forEach(message => {
+          allMessages['.' + fd.package! + '.' + message.name!] = message;
+        });
+      const options: Options = {
+        grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+      };
+      const commentsMap = new CommentsMap([fd]);
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.talent.v4beta1',
+        allMessages,
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+        commentsMap,
+      });
+      assert.deepStrictEqual(proto.fileToGenerate, true);
+    });
+    it("should not allow generate a service proto with package name differ from the param's pakage name", () => {
+      const fd = new protos.google.protobuf.FileDescriptorProto();
+      fd.name = 'google/cloud/showcase/v1beta1/test.proto';
+      fd.package = 'google.cloud.showcase.v1beta1.TestService';
+      fd.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        new protos.google.protobuf.MethodDescriptorProto(),
+      ];
+      fd.service[0].method[0] = new protos.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[0].name = 'Test';
+      fd.service[0].method[0].outputType =
+        '.google.cloud.showcase.v1beta1.TestOutput';
+      const options: Options = {
+        grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+      };
+      const allMessages: MessagesMap = {};
+      fd.messageType
+        .filter(message => message.name)
+        .forEach(message => {
+          allMessages['.' + fd.package! + '.' + message.name!] = message;
+        });
+      const commentsMap = new CommentsMap([fd]);
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.showcase.v1beta1.MainService',
+        allMessages,
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+        commentsMap,
+      });
+      assert.deepStrictEqual(proto.fileToGenerate, false);
+    });
   });
   describe('throw error for misconfigured LRO', () => {
     it('throw error if method returns Operation, but without operation_info option', () => {
