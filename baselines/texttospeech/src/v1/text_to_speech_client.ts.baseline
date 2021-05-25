@@ -262,7 +262,7 @@ export class TextToSpeechClient {
   // -- Service calls --
   // -------------------
   listVoices(
-      request: protos.google.cloud.texttospeech.v1.IListVoicesRequest,
+      request?: protos.google.cloud.texttospeech.v1.IListVoicesRequest,
       options?: CallOptions):
       Promise<[
         protos.google.cloud.texttospeech.v1.IListVoicesResponse,
@@ -306,7 +306,7 @@ export class TextToSpeechClient {
  * const [response] = await client.listVoices(request);
  */
   listVoices(
-      request: protos.google.cloud.texttospeech.v1.IListVoicesRequest,
+      request?: protos.google.cloud.texttospeech.v1.IListVoicesRequest,
       optionsOrCallback?: CallOptions|Callback<
           protos.google.cloud.texttospeech.v1.IListVoicesResponse,
           protos.google.cloud.texttospeech.v1.IListVoicesRequest|null|undefined,
@@ -333,7 +333,7 @@ export class TextToSpeechClient {
     return this.innerApiCalls.listVoices(request, options, callback);
   }
   synthesizeSpeech(
-      request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest,
+      request?: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest,
       options?: CallOptions):
       Promise<[
         protos.google.cloud.texttospeech.v1.ISynthesizeSpeechResponse,
@@ -375,7 +375,7 @@ export class TextToSpeechClient {
  * const [response] = await client.synthesizeSpeech(request);
  */
   synthesizeSpeech(
-      request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest,
+      request?: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest,
       optionsOrCallback?: CallOptions|Callback<
           protos.google.cloud.texttospeech.v1.ISynthesizeSpeechResponse,
           protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest|null|undefined,
