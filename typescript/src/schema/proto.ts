@@ -199,8 +199,14 @@ function pagingField(
   const outputType = messages[method.outputType!];
   const hasPageToken =
     inputType && inputType.field!.some(field => field.name === 'page_token');
+  // Support paginated methods defined in Discovery-based APIs,
+  // where it uses "max_results" to define the maximum number of
+  // paginated resources to return.
   const hasPageSize =
-    inputType && inputType.field!.some(field => field.name === 'page_size');
+    inputType &&
+    inputType.field!.some(
+      field => field.name === 'page_size' || field.name === 'max_results'
+    );
   const hasNextPageToken =
     outputType &&
     outputType.field!.some(field => field.name === 'next_page_token');
