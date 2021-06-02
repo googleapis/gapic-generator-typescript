@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.3.2...v1.4.0) (2021-05-25)
+
+
+### Features
+
+* add headers for rest client ([#871](https://www.github.com/googleapis/gapic-generator-typescript/issues/871)) ([6ccc7fa](https://www.github.com/googleapis/gapic-generator-typescript/commit/6ccc7fa9ad52b7f103308b4793fd165f2063a7b0))
+
+
+### Bug Fixes
+
+* missing error from ads ([#878](https://www.github.com/googleapis/gapic-generator-typescript/issues/878)) ([1613b8e](https://www.github.com/googleapis/gapic-generator-typescript/commit/1613b8e8bb7bc4c6bea8b5f98cfe92f52bbc5ae1))
+
 ### [1.3.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.3.1...v1.3.2) (2021-05-07)
 
 
