@@ -84,7 +84,27 @@ yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');
 yargs.usage('  google/example/api/v1/api.proto');
 
-const argv = yargs.argv;
+export interface IArguments {
+  [x: string]: unknown;
+  outputDir?: string;
+  grpcServiceConfig?: string;
+  bundleConfig?: string;
+  iamService?: string;
+  packageName?: string;
+  mainService?: string;
+  template?: string;
+  gapicValidatorOut?: string;
+  validation?: string;
+  metadata?: boolean;
+  protoc?: string;
+  protoDirs?: string[];
+  commonProtoPath?: string;
+  descriptor?: string;
+  _: string[];
+  $0: string;
+}
+
+const argv = yargs.argv as IArguments;
 const outputDir = argv.outputDir as string;
 const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 const bundleConfig = argv.bundleConfig as string | undefined;
