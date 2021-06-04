@@ -38,10 +38,10 @@ interface MethodDescriptorProto
   longRunningResponseType?: string;
   longRunningMetadataType?: string;
   streaming:
-    | 'CLIENT_STREAMING'
-    | 'SERVER_STREAMING'
-    | 'BIDI_STREAMING'
-    | undefined;
+  | 'CLIENT_STREAMING'
+  | 'SERVER_STREAMING'
+  | 'BIDI_STREAMING'
+  | undefined;
   pagingFieldName: string | undefined;
   pagingResponseType?: string;
   inputInterface: string;
@@ -314,6 +314,7 @@ interface AugmentMethodParameters {
   allMessages: MessagesMap;
   localMessages: MessagesMap;
   service: ServiceDescriptorProto;
+  rest?: boolean;
 }
 
 function augmentMethod(
@@ -373,8 +374,8 @@ function augmentMethod(
         const repeatedFields = inputType.field!.filter(
           field =>
             field.label ===
-              protos.google.protobuf.FieldDescriptorProto.Label
-                .LABEL_REPEATED &&
+            protos.google.protobuf.FieldDescriptorProto.Label
+              .LABEL_REPEATED &&
             field.name === bc.batchDescriptor.batched_field
         );
         if (!repeatedFields[0].typeName) {
@@ -510,6 +511,7 @@ function augmentService(parameters: AugmentServiceParameters) {
         allMessages: parameters.allMessages,
         localMessages: parameters.localMessages,
         service: augmentedService,
+        rest: parameters.options.rest,
       },
       method
     )
@@ -641,6 +643,7 @@ export class Proto {
   allMessages: MessagesMap = {};
   localMessages: MessagesMap = {};
   fileToGenerate = true;
+  rest?: boolean;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
@@ -657,6 +660,7 @@ export class Proto {
         map[`.${parameters.fd.package!}.${message.name!}`] = message;
         return map;
       }, {} as MessagesMap);
+    this.rest = parameters.options.rest;
     const protopackage = parameters.fd.package;
     // Allow to generate if a proto has no service and its package name is differ from its service's.
     if (

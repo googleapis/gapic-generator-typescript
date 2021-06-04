@@ -100,6 +100,7 @@ export interface IArguments {
   protoDirs?: string[];
   commonProtoPath?: string;
   descriptor?: string;
+  rest?: boolean;
   _: string[];
   $0: string;
 }
@@ -115,6 +116,7 @@ const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
 const validation = (argv.validation as string | undefined) ?? 'true';
 const metadata = argv.metadata as boolean | undefined;
+const rest = argv.rest as boolean | undefined;
 const protoc = (argv.protoc as string | undefined) ?? 'protoc';
 const protoDirs: string[] = [];
 if (argv.I) {
@@ -163,6 +165,9 @@ if (template) {
 }
 if (metadata) {
   protocCommand.push('--typescript_gapic_opt="metadata"');
+}
+if (rest) {
+  protocCommand.push('--typescript_gapic_opt="rest"');
 }
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
