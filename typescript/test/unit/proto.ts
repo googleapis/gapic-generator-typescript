@@ -20,7 +20,6 @@ import {Proto} from '../../src/schema/proto';
 import {Options} from '../../src/schema/naming';
 import {ResourceDatabase} from '../../src/schema/resource-database';
 import {CommentsMap} from '../../src/schema/comments';
-import {restore} from 'sinon';
 
 describe('src/schema/proto.ts', () => {
   describe('should get header parameters from http rule', () => {

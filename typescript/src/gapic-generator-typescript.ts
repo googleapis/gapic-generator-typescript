@@ -79,6 +79,11 @@ yargs.describe(
   'Set to true if GAPIC metadata generation is requested'
 );
 yargs.boolean('metadata');
+yargs.describe(
+  'rest',
+  'Set to true if API is Google Discovery API, or it requires HTTP transport.'
+);
+yargs.boolean('rest');
 yargs.describe('protoc', 'Path to protoc binary');
 yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');
