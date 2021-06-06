@@ -177,8 +177,6 @@ if (rest) {
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
 protocCommand.push(`-I${commonProtoPath}`);
-// Enable `optional` presence tracking for proto3 messages. This flag is available in protobuf release >=3.12.
-protocCommand.push('--experimental_allow_proto3_optional');
 
 execFileSync(protoc, protocCommand, {stdio: 'inherit'});
 
