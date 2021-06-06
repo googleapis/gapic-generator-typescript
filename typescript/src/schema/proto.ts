@@ -176,7 +176,8 @@ function streaming(method: MethodDescriptorProto) {
 function pagingField(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  service?: ServiceDescriptorProto
+  service?: ServiceDescriptorProto,
+  rest?: boolean
 ) {
   // TODO: remove this once the next version of the Talent API is published.
   //
@@ -205,7 +206,8 @@ function pagingField(
   const hasPageSize =
     inputType &&
     inputType.field!.some(
-      field => field.name === 'page_size' || field.name === 'max_results'
+      field =>
+        field.name === 'page_size' || (rest && field.name === 'max_results')
     );
   const hasNextPageToken =
     outputType &&
@@ -254,17 +256,19 @@ function pagingField(
 function pagingFieldName(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  service?: ServiceDescriptorProto
+  service?: ServiceDescriptorProto,
+  rest?: boolean
 ) {
-  const field = pagingField(messages, method, service);
+  const field = pagingField(messages, method, service, rest);
   return field?.name;
 }
 
 function pagingResponseType(
   messages: MessagesMap,
-  method: MethodDescriptorProto
+  method: MethodDescriptorProto,
+  rest?: boolean
 ) {
-  const field = pagingField(messages, method);
+  const field = pagingField(messages, method, undefined, rest);
   if (!field || !field.type) {
     return undefined;
   }
@@ -342,9 +346,14 @@ function augmentMethod(
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
         method,
-        parameters.service
+        parameters.service,
+        parameters.rest
       ),
-      pagingResponseType: pagingResponseType(parameters.allMessages, method),
+      pagingResponseType: pagingResponseType(
+        parameters.allMessages,
+        method,
+        parameters.rest
+      ),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
       comments: parameters.service.commentsMap.getMethodComments(
