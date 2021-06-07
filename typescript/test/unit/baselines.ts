@@ -139,4 +139,13 @@ describe('Baseline tests', () => {
     metadata: false,
     template: 'api_dump',
   });
+
+  // Adding new baseline test for deprecated service and methods
+  runBaselineTest({
+    baselineName: 'deprecatedtest',
+    outputDir: '.test-out-deprecatedtest',
+    protoPath: 'google/deprecatedtest/v1/*.proto',
+    useCommonProto: true,
+    metadata: false,
+  });
 });
