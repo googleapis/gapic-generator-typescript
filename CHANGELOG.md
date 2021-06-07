@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.4.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.4.0...v1.4.1) (2021-06-04)
+
+
+### Bug Fixes
+
+* make request optional in all cases ([#883](https://www.github.com/googleapis/gapic-generator-typescript/issues/883)) ([f6c73fe](https://www.github.com/googleapis/gapic-generator-typescript/commit/f6c73fec21dfadc81597c6b72f6f1bf222107fdb))
+* yargs update by passing interface to protect the type ([#888](https://www.github.com/googleapis/gapic-generator-typescript/issues/888)) ([e87beaa](https://www.github.com/googleapis/gapic-generator-typescript/commit/e87beaae6431b8eda9654f7be2a1d2a780183db1))
+
 ## [1.4.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.3.2...v1.4.0) (2021-05-25)
 
 
