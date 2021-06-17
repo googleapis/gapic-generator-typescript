@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.4.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.4.1...v1.4.2) (2021-06-17)
+
+
+### Bug Fixes
+
+* **bazel:** Remove monolith Bazel rule deps [typescript] ([#902](https://www.github.com/googleapis/gapic-generator-typescript/issues/902)) ([fff0584](https://www.github.com/googleapis/gapic-generator-typescript/commit/fff058418d0842af71e514876961fa3c6e519ab3))
+* updated typescript version for compiler ([#901](https://www.github.com/googleapis/gapic-generator-typescript/issues/901)) ([99e10c3](https://www.github.com/googleapis/gapic-generator-typescript/commit/99e10c3c94ebf9eab52cf1efac9c6d8b769b32a3))
+
 ### [1.4.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.4.0...v1.4.1) (2021-06-04)
 
 
