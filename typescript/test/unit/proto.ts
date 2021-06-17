@@ -309,4 +309,38 @@ describe('src/schema/proto.ts', () => {
       }, /rpc "google.cloud.showcase.v1beta1.Test" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type/);
     });
   });
+
+  describe('should add rest for Proto class', () => {
+    it('should be false when rest is not set', () => {
+      const fd = new protos.google.protobuf.FileDescriptorProto();
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.example.v1beta1',
+        allMessages: {},
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options: {
+          grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+        },
+        commentsMap: new CommentsMap([fd]),
+      });
+      assert.strictEqual(proto.rest, undefined);
+    });
+    it('should be true when rest is set', () => {
+      const fd = new protos.google.protobuf.FileDescriptorProto();
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.example.v1beta1',
+        allMessages: {},
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options: {
+          grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+          rest: true,
+        },
+        commentsMap: new CommentsMap([fd]),
+      });
+      assert.strictEqual(proto.rest, true);
+    });
+  });
 });

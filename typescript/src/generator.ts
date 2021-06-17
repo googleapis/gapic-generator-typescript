@@ -67,6 +67,7 @@ export class Generator {
   iamService?: boolean;
   templates: string[];
   metadata?: boolean;
+  rest?: boolean;
 
   constructor() {
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.create();
@@ -165,6 +166,12 @@ export class Generator {
     }
   }
 
+  private readRest() {
+    if (this.paramMap['transport'] === 'rest') {
+      this.rest = true;
+    }
+  }
+
   async initializeFromStdin() {
     const inputBuffer = await getStdin();
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.decode(
@@ -178,6 +185,7 @@ export class Generator {
       this.readPublishPackageName();
       this.readMainServiceName();
       this.readTemplates();
+      this.readRest();
     }
   }
 
@@ -215,6 +223,7 @@ export class Generator {
       publishName: this.publishName,
       mainServiceName: this.mainServiceName,
       iamService: this.iamService,
+      rest: this.rest,
     });
     return api;
   }
