@@ -167,7 +167,7 @@ export class Generator {
   }
 
   private readRest() {
-    if (this.paramMap['rest'] === 'true') {
+    if (this.paramMap['transport'] === 'rest') {
       this.rest = true;
     }
   }

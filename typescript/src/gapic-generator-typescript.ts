@@ -80,10 +80,9 @@ yargs.describe(
 );
 yargs.boolean('metadata');
 yargs.describe(
-  'rest',
-  'Set to true if API is Google Discovery API, or it requires HTTP transport.'
+  'transport',
+  'Default transport is gRPC. Set transport=rest for an API requires HTTP transport, or Google Discovery API.'
 );
-yargs.boolean('rest');
 yargs.describe('protoc', 'Path to protoc binary');
 yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');
@@ -105,7 +104,7 @@ export interface IArguments {
   protoDirs?: string[];
   commonProtoPath?: string;
   descriptor?: string;
-  rest?: boolean;
+  transport?: string;
   _: string[];
   $0: string;
 }
@@ -121,7 +120,7 @@ const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
 const validation = (argv.validation as string | undefined) ?? 'true';
 const metadata = argv.metadata as boolean | undefined;
-const rest = argv.rest as boolean | undefined;
+const transport = argv.transport as string | undefined;
 const protoc = (argv.protoc as string | undefined) ?? 'protoc';
 const protoDirs: string[] = [];
 if (argv.I) {
@@ -171,8 +170,8 @@ if (template) {
 if (metadata) {
   protocCommand.push('--typescript_gapic_opt="metadata"');
 }
-if (rest) {
-  protocCommand.push('--typescript_gapic_opt="rest"');
+if (transport && transport === 'rest') {
+  protocCommand.push('--typescript_gapic_opt="transport=rest"');
 }
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
