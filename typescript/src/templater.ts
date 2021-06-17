@@ -73,7 +73,8 @@ function renderFile(
       );
     }
   }
-  const output = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+  const output =
+    protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
   output.name = targetFilename;
   output.content = processed;
   return output;
@@ -85,7 +86,8 @@ function processOneTemplate(
   api: API,
   id: Namer
 ) {
-  const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
+  const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] =
+    [];
   const relativeTemplateName = templateFilename.substr(basePath.length + 1);
   let outputFilename = relativeTemplateName.replace(/\.njk$/, '');
 
@@ -147,7 +149,8 @@ export async function processTemplates(basePath: string, api: API) {
   }
 
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
-  const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
+  const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] =
+    [];
   for (const templateFilename of templateFiles) {
     const generatedFiles = processOneTemplate(
       basePath,

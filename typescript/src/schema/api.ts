@@ -87,9 +87,8 @@ export class API {
       options.publishName || this.naming.productName.toKebabCase();
     this.rest = options.rest;
 
-    const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
-      fileDescriptors
-    );
+    const [allResourceDatabase, resourceDatabase] =
+      getResourceDatabase(fileDescriptors);
 
     const allMessages: MessagesMap = {};
     for (const fd of fileDescriptors) {

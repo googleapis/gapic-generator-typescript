@@ -70,8 +70,10 @@ export class Generator {
   rest?: boolean;
 
   constructor() {
-    this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.create();
-    this.response = protos.google.protobuf.compiler.CodeGeneratorResponse.create();
+    this.request =
+      protos.google.protobuf.compiler.CodeGeneratorRequest.create();
+    this.response =
+      protos.google.protobuf.compiler.CodeGeneratorResponse.create();
     this.grpcServiceConfig = protos.grpc.service_config.ServiceConfig.create();
     this.paramMap = {};
     this.templates = defaultTemplates;
@@ -89,7 +91,7 @@ export class Generator {
     ];
     for (const key of Object.keys(obj)) {
       if (fieldNames.includes(key) && typeof obj[key] === 'string') {
-        obj[key] = duration((obj[key] as unknown) as string);
+        obj[key] = duration(obj[key] as unknown as string);
       } else if (typeof obj[key] === 'object') {
         this.updateDuration(obj[key]);
       }
@@ -121,9 +123,8 @@ export class Generator {
       const content = await readFile(filename);
       const json = JSON.parse(content.toString());
       Generator.updateDuration(json);
-      this.grpcServiceConfig = protos.grpc.service_config.ServiceConfig.fromObject(
-        json
-      );
+      this.grpcServiceConfig =
+        protos.grpc.service_config.ServiceConfig.fromObject(json);
     }
   }
 
@@ -174,9 +175,8 @@ export class Generator {
 
   async initializeFromStdin() {
     const inputBuffer = await getStdin();
-    this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.decode(
-      inputBuffer
-    );
+    this.request =
+      protos.google.protobuf.compiler.CodeGeneratorRequest.decode(inputBuffer);
     if (this.request.parameter) {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig();
@@ -196,7 +196,8 @@ export class Generator {
         protoFilenames.push(proto.name);
       }
     }
-    const protoList = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+    const protoList =
+      protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
     protoList.name = 'proto.list';
     protoList.content = protoFilenames.join('\n') + '\n';
     this.response.file.push(protoList);
@@ -240,7 +241,8 @@ export class Generator {
   }
 
   async generate() {
-    this.response = protos.google.protobuf.compiler.CodeGeneratorResponse.create();
+    this.response =
+      protos.google.protobuf.compiler.CodeGeneratorResponse.create();
     this.response.supportedFeatures = new Long(
       protos.google.protobuf.compiler.CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL
     );
@@ -253,9 +255,10 @@ export class Generator {
       this.response.error = err instanceof Error ? err.message : err.toString();
     }
 
-    const outputBuffer = protos.google.protobuf.compiler.CodeGeneratorResponse.encode(
-      this.response
-    ).finish();
+    const outputBuffer =
+      protos.google.protobuf.compiler.CodeGeneratorResponse.encode(
+        this.response
+      ).finish();
     process.stdout.write(outputBuffer);
   }
 }

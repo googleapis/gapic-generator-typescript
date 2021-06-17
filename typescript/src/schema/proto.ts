@@ -417,9 +417,10 @@ function augmentMethod(
     method.paramComment = paramComment;
   }
   if (method.methodConfig.retryPolicy?.retryableStatusCodes) {
-    method.retryableCodesName = parameters.service.retryableCodeMap.getRetryableCodesName(
-      method.methodConfig.retryPolicy.retryableStatusCodes
-    );
+    method.retryableCodesName =
+      parameters.service.retryableCodeMap.getRetryableCodesName(
+        method.methodConfig.retryPolicy.retryableStatusCodes
+      );
   }
   if (method.methodConfig.retryPolicy) {
     // converting retry parameters to the syntax google-gax supports
@@ -448,9 +449,8 @@ function augmentMethod(
       defaultParameters.max_rpc_timeout_millis;
     retryParams.total_timeout_millis = defaultParameters.total_timeout_millis;
 
-    method.retryParamsName = parameters.service.retryableCodeMap.getParamsName(
-      retryParams
-    );
+    method.retryParamsName =
+      parameters.service.retryableCodeMap.getParamsName(retryParams);
   }
   if (method.methodConfig.timeout) {
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
@@ -560,9 +560,8 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.hostname = '';
   augmentedService.port = 0;
   if (augmentedService.options?.['.google.api.defaultHost']) {
-    const match = augmentedService.options['.google.api.defaultHost'].match(
-      /^(.*):(\d+)$/
-    );
+    const match =
+      augmentedService.options['.google.api.defaultHost'].match(/^(.*):(\d+)$/);
     if (match) {
       augmentedService.hostname = match[1];
       augmentedService.port = Number.parseInt(match[2], 10);
@@ -570,9 +569,8 @@ function augmentService(parameters: AugmentServiceParameters) {
   }
   augmentedService.oauthScopes = [];
   if (augmentedService.options?.['.google.api.oauthScopes']) {
-    augmentedService.oauthScopes = augmentedService.options[
-      '.google.api.oauthScopes'
-    ].split(',');
+    augmentedService.oauthScopes =
+      augmentedService.options['.google.api.oauthScopes'].split(',');
   }
 
   // Build a list of resources referenced by this service
@@ -596,10 +594,11 @@ function augmentService(parameters: AugmentServiceParameters) {
       const resourceReference =
         fieldDescriptor.options?.['.google.api.resourceReference'];
       // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
-      const parentResources = parameters.allResourceDatabase.getParentResourcesByChildType(
-        resourceReference?.childType,
-        errorLocation
-      );
+      const parentResources =
+        parameters.allResourceDatabase.getParentResourcesByChildType(
+          resourceReference?.childType,
+          errorLocation
+        );
       parentResources.forEach(
         resource => (uniqueResources[resource.name] = resource)
       );
@@ -614,9 +613,8 @@ function augmentService(parameters: AugmentServiceParameters) {
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
       // look up pattern map for all resources.
       for (const pattern of resourceByType!.pattern!) {
-        const resourceByPattern = parameters.allResourceDatabase.getResourceByPattern(
-          pattern
-        );
+        const resourceByPattern =
+          parameters.allResourceDatabase.getResourceByPattern(pattern);
         if (!resourceByPattern) continue;
         uniqueResources[resourceByPattern.name] = resourceByPattern;
       }
