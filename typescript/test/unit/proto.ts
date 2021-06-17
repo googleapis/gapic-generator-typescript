@@ -324,7 +324,7 @@ describe('src/schema/proto.ts', () => {
         },
         commentsMap: new CommentsMap([fd]),
       });
-      assert.strictEqual(proto.transport, undefined);
+      assert.strictEqual(proto.rest, undefined);
     });
     it('should be true when rest is set', () => {
       const fd = new protos.google.protobuf.FileDescriptorProto();
