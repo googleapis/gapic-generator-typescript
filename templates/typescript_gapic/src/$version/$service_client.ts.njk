@@ -121,6 +121,14 @@ export class {{ service.name }}Client {
     this._customServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
     const port = opts?.port || staticMembers.{{ id.get("port") }};
     const clientConfig = opts?.clientConfig ?? {};
+    {% if api.rest -%}
+    // Implicitely set 'rest' value for the apis use rest as transport (eg. googleapis-discovery apis).
+    if (!opts) {
+      opts = {fallback: 'rest'};
+    } else {
+      opts.fallback = opts.fallback ?? 'rest';
+    }
+    {% endif -%}
     const fallback = opts?.fallback ?? (typeof window !== 'undefined' && typeof window?.fetch === 'function');
     opts = Object.assign({servicePath, port, clientConfig, fallback}, opts);
 

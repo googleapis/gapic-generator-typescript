@@ -35,6 +35,7 @@ export class API {
   mainServiceName: string;
   uniqKeywords: string[];
   packageName: string;
+  rest?: boolean;
 
   static isIgnoredService(
     fd: protos.google.protobuf.IFileDescriptorProto
@@ -84,6 +85,7 @@ export class API {
     // users specify the actual package name, if not, set it to product name.
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
+    this.rest = options.rest;
 
     const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
       fileDescriptors
@@ -204,6 +206,7 @@ export class API {
       hostname: this.hostName,
       port: this.port,
       services: this.services,
+      rest: this.rest,
     });
   }
 }

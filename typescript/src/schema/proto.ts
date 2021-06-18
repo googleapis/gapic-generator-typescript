@@ -176,7 +176,8 @@ function streaming(method: MethodDescriptorProto) {
 function pagingField(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  service?: ServiceDescriptorProto
+  service?: ServiceDescriptorProto,
+  rest?: boolean
 ) {
   // TODO: remove this once the next version of the Talent API is published.
   //
@@ -199,8 +200,15 @@ function pagingField(
   const outputType = messages[method.outputType!];
   const hasPageToken =
     inputType && inputType.field!.some(field => field.name === 'page_token');
+  // Support paginated methods defined in Discovery-based APIs,
+  // where it uses "max_results" to define the maximum number of
+  // paginated resources to return.
   const hasPageSize =
-    inputType && inputType.field!.some(field => field.name === 'page_size');
+    inputType &&
+    inputType.field!.some(
+      field =>
+        field.name === 'page_size' || (rest && field.name === 'max_results')
+    );
   const hasNextPageToken =
     outputType &&
     outputType.field!.some(field => field.name === 'next_page_token');
@@ -248,17 +256,19 @@ function pagingField(
 function pagingFieldName(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  service?: ServiceDescriptorProto
+  service?: ServiceDescriptorProto,
+  rest?: boolean
 ) {
-  const field = pagingField(messages, method, service);
+  const field = pagingField(messages, method, service, rest);
   return field?.name;
 }
 
 function pagingResponseType(
   messages: MessagesMap,
-  method: MethodDescriptorProto
+  method: MethodDescriptorProto,
+  rest?: boolean
 ) {
-  const field = pagingField(messages, method);
+  const field = pagingField(messages, method, undefined, rest);
   if (!field || !field.type) {
     return undefined;
   }
@@ -314,6 +324,7 @@ interface AugmentMethodParameters {
   allMessages: MessagesMap;
   localMessages: MessagesMap;
   service: ServiceDescriptorProto;
+  rest?: boolean;
 }
 
 function augmentMethod(
@@ -335,9 +346,14 @@ function augmentMethod(
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
         method,
-        parameters.service
+        parameters.service,
+        parameters.rest
       ),
-      pagingResponseType: pagingResponseType(parameters.allMessages, method),
+      pagingResponseType: pagingResponseType(
+        parameters.allMessages,
+        method,
+        parameters.rest
+      ),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
       comments: parameters.service.commentsMap.getMethodComments(
@@ -510,6 +526,7 @@ function augmentService(parameters: AugmentServiceParameters) {
         allMessages: parameters.allMessages,
         localMessages: parameters.localMessages,
         service: augmentedService,
+        rest: parameters.options.rest,
       },
       method
     )
@@ -641,6 +658,7 @@ export class Proto {
   allMessages: MessagesMap = {};
   localMessages: MessagesMap = {};
   fileToGenerate = true;
+  rest?: boolean;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
@@ -657,6 +675,7 @@ export class Proto {
         map[`.${parameters.fd.package!}.${message.name!}`] = message;
         return map;
       }, {} as MessagesMap);
+    this.rest = parameters.options.rest;
     const protopackage = parameters.fd.package;
     // Allow to generate if a proto has no service and its package name is differ from its service's.
     if (
