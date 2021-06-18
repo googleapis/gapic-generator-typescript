@@ -23,6 +23,7 @@ export interface Options {
   publishName?: string;
   mainServiceName?: string;
   iamService?: boolean;
+  rest?: boolean;
 }
 
 export class Naming {

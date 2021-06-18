@@ -16,9 +16,10 @@
 
 import * as yargs from 'yargs';
 import {Generator} from './generator';
+import {IArguments} from './gapic-generator-typescript';
 
 async function main() {
-  const argv = yargs.argv;
+  const argv = yargs.argv as IArguments;
 
   if (argv.descriptor) {
     throw new Error('Descriptor option is not yet supported.');
