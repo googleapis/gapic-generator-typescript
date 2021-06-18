@@ -55,6 +55,7 @@ const version = require('../../../package.json').version;
 export class CloudRedisClient {
   private _terminated = false;
   private _opts: ClientOptions;
+  private _customServicePath: boolean;
   private _gaxModule: typeof gax | typeof gax.fallback;
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
@@ -108,7 +109,8 @@ export class CloudRedisClient {
   constructor(opts?: ClientOptions) {
     // Ensure that options include all the required fields.
     const staticMembers = this.constructor as typeof CloudRedisClient;
-    const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.servicePath;
+    const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.servicePath;    this._customServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
+    this._customServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
     const port = opts?.port || staticMembers.port;
     const clientConfig = opts?.clientConfig ?? {};
     const fallback = opts?.fallback ?? (typeof window !== 'undefined' && typeof window?.fetch === 'function');
@@ -262,8 +264,6 @@ export class CloudRedisClient {
    * @returns {Promise} A promise that resolves to an authenticated service stub.
    */
   initialize() {
-    const staticMembers = this.constructor as typeof CloudRedisClient;
-
     // If the client stub promise is already initialized, return immediately.
     if (this.cloudRedisStub) {
       return this.cloudRedisStub;
@@ -276,7 +276,7 @@ export class CloudRedisClient {
           (this._protos as protobuf.Root).lookupService('google.cloud.redis.v1beta1.CloudRedis') :
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).google.cloud.redis.v1beta1.CloudRedis,
-        this._opts, staticMembers.servicePath) as Promise<{[method: string]: Function}>;
+        this._opts, this._customServicePath) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.

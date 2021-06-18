@@ -56,6 +56,7 @@ const version = require('../../../package.json').version;
 export class {{ service.name }}Client {
   private _terminated = false;
   private _opts: ClientOptions;
+  private _customServicePath: boolean;
   private _gaxModule: typeof gax | typeof gax.fallback;
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
@@ -116,7 +117,8 @@ export class {{ service.name }}Client {
   constructor(opts?: ClientOptions) {
     // Ensure that options include all the required fields.
     const staticMembers = this.constructor as typeof {{ service.name }}Client;
-    const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.{{ id.get("servicePath") }};
+    const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.{{ id.get("servicePath") }};    this._customServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
+    this._customServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
     const port = opts?.port || staticMembers.{{ id.get("port") }};
     const clientConfig = opts?.clientConfig ?? {};
     const fallback = opts?.fallback ?? (typeof window !== 'undefined' && typeof window?.fetch === 'function');
@@ -294,8 +296,6 @@ export class {{ service.name }}Client {
    * @returns {Promise} A promise that resolves to an authenticated service stub.
    */
   {{ id.get("initialize") }}() {
-    const staticMembers = this.constructor as typeof {{ service.name }}Client;
-
     // If the client stub promise is already initialized, return immediately.
     if (this.{{ service.name.toCamelCase() }}Stub) {
       {%- if service.options and service.options.deprecated %}
@@ -311,7 +311,7 @@ export class {{ service.name }}Client {
           (this._protos as protobuf.Root).lookupService('{{api.naming.protoPackage}}.{{ service.name }}') :
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).{{api.naming.protoPackage}}.{{ service.name }},
-        this._opts, staticMembers.{{ id.get("servicePath") }}) as Promise<{[method: string]: Function}>;
+        this._opts, this._customServicePath) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
