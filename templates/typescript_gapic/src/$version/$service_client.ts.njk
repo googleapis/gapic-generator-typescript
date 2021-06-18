@@ -294,6 +294,8 @@ export class {{ service.name }}Client {
    * @returns {Promise} A promise that resolves to an authenticated service stub.
    */
   {{ id.get("initialize") }}() {
+    const staticMembers = this.constructor as typeof {{ service.name }}Client;
+
     // If the client stub promise is already initialized, return immediately.
     if (this.{{ service.name.toCamelCase() }}Stub) {
       {%- if service.options and service.options.deprecated %}
@@ -309,7 +311,7 @@ export class {{ service.name }}Client {
           (this._protos as protobuf.Root).lookupService('{{api.naming.protoPackage}}.{{ service.name }}') :
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).{{api.naming.protoPackage}}.{{ service.name }},
-        this._opts) as Promise<{[method: string]: Function}>;
+        this._opts, staticMembers.{{ id.get("servicePath") }}) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
