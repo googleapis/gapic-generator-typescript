@@ -79,12 +79,37 @@ yargs.describe(
   'Set to true if GAPIC metadata generation is requested'
 );
 yargs.boolean('metadata');
+yargs.describe(
+  'transport',
+  'Default transport is gRPC. Set transport=rest for an API requires HTTP transport, or Google Discovery API.'
+);
 yargs.describe('protoc', 'Path to protoc binary');
 yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');
 yargs.usage('  google/example/api/v1/api.proto');
 
-const argv = yargs.argv;
+export interface IArguments {
+  [x: string]: unknown;
+  outputDir?: string;
+  grpcServiceConfig?: string;
+  bundleConfig?: string;
+  iamService?: string;
+  packageName?: string;
+  mainService?: string;
+  template?: string;
+  gapicValidatorOut?: string;
+  validation?: string;
+  metadata?: boolean;
+  protoc?: string;
+  protoDirs?: string[];
+  commonProtoPath?: string;
+  descriptor?: string;
+  transport?: string;
+  _: string[];
+  $0: string;
+}
+
+const argv = yargs.argv as IArguments;
 const outputDir = argv.outputDir as string;
 const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 const bundleConfig = argv.bundleConfig as string | undefined;
@@ -95,6 +120,7 @@ const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
 const validation = (argv.validation as string | undefined) ?? 'true';
 const metadata = argv.metadata as boolean | undefined;
+const transport = argv.transport as string | undefined;
 const protoc = (argv.protoc as string | undefined) ?? 'protoc';
 const protoDirs: string[] = [];
 if (argv.I) {
@@ -143,6 +169,9 @@ if (template) {
 }
 if (metadata) {
   protocCommand.push('--typescript_gapic_opt="metadata"');
+}
+if (transport && transport === 'rest') {
+  protocCommand.push('--typescript_gapic_opt="transport=rest"');
 }
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);

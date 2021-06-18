@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.5.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.4.1...v1.5.0) (2021-06-17)
+
+
+### Features
+
+* Add input option for google discovery api [pg1/3] ([#891](https://www.github.com/googleapis/gapic-generator-typescript/issues/891)) ([f94ae3f](https://www.github.com/googleapis/gapic-generator-typescript/commit/f94ae3f92963ff7f0f174f3f7c2b802b31797b25))
+* support max_results field name for discovery-api pagination [pg2/3] ([#887](https://www.github.com/googleapis/gapic-generator-typescript/issues/887)) ([c5a2a7e](https://www.github.com/googleapis/gapic-generator-typescript/commit/c5a2a7eeee79493a6068d034b204590745741f9a))
+
+
+### Bug Fixes
+
+* **bazel:** Remove monolith Bazel rule deps [typescript] ([#902](https://www.github.com/googleapis/gapic-generator-typescript/issues/902)) ([fff0584](https://www.github.com/googleapis/gapic-generator-typescript/commit/fff058418d0842af71e514876961fa3c6e519ab3))
+* updated typescript version for compiler ([#901](https://www.github.com/googleapis/gapic-generator-typescript/issues/901)) ([99e10c3](https://www.github.com/googleapis/gapic-generator-typescript/commit/99e10c3c94ebf9eab52cf1efac9c6d8b769b32a3))
+
+### [1.4.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.4.0...v1.4.1) (2021-06-04)
+
+
+### Bug Fixes
+
+* make request optional in all cases ([#883](https://www.github.com/googleapis/gapic-generator-typescript/issues/883)) ([f6c73fe](https://www.github.com/googleapis/gapic-generator-typescript/commit/f6c73fec21dfadc81597c6b72f6f1bf222107fdb))
+* yargs update by passing interface to protect the type ([#888](https://www.github.com/googleapis/gapic-generator-typescript/issues/888)) ([e87beaa](https://www.github.com/googleapis/gapic-generator-typescript/commit/e87beaae6431b8eda9654f7be2a1d2a780183db1))
+
+## [1.4.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.3.2...v1.4.0) (2021-05-25)
+
+
+### Features
+
+* add headers for rest client ([#871](https://www.github.com/googleapis/gapic-generator-typescript/issues/871)) ([6ccc7fa](https://www.github.com/googleapis/gapic-generator-typescript/commit/6ccc7fa9ad52b7f103308b4793fd165f2063a7b0))
+
+
+### Bug Fixes
+
+* missing error from ads ([#878](https://www.github.com/googleapis/gapic-generator-typescript/issues/878)) ([1613b8e](https://www.github.com/googleapis/gapic-generator-typescript/commit/1613b8e8bb7bc4c6bea8b5f98cfe92f52bbc5ae1))
+
 ### [1.3.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.3.1...v1.3.2) (2021-05-07)
 
 

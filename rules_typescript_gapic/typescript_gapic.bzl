@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@com_google_api_codegen//rules_gapic:gapic.bzl", "proto_custom_library", "unzipped_srcjar")
+load("@rules_gapic//:gapic.bzl", "proto_custom_library", "unzipped_srcjar")
 
 def typescript_gapic_library(
   name,
