@@ -54,10 +54,6 @@ yargs.alias('grpc-service-config', 'grpc_service_config');
 yargs.describe('grpc-service-config', 'Path to gRPC service config JSON');
 yargs.alias('bundle-config', 'bundle_config');
 yargs.describe('bundle-config', 'Path to bundle request config JSON');
-// should be able to remove those once confirmed yaml works
-yargs.alias('iam-service', 'iam_service');
-yargs.describe('iam-service', 'Include IAM service to the generated client');
-// adding in mixin
 yargs.alias('service-yaml', 'service_yaml');
 yargs.describe('service-yaml', 'Path to service yaml');
 yargs.alias('package-name', 'package_name');
@@ -97,9 +93,6 @@ export interface IArguments {
   outputDir?: string;
   grpcServiceConfig?: string;
   bundleConfig?: string;
-  // should be able to remove this line
-  iamService?: string;
-  // adding in serviceYaml for mixin
   serviceYaml?: string;
   packageName?: string;
   mainService?: string;
@@ -120,10 +113,7 @@ const argv = yargs.argv as IArguments;
 const outputDir = argv.outputDir as string;
 const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 const bundleConfig = argv.bundleConfig as string | undefined;
-// adding in mixin
 const serviceYaml = argv.serviceYaml as string | undefined;
-// should be able to delete this
-const iamService = argv.iamService as string | undefined;
 const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
@@ -163,13 +153,8 @@ if (grpcServiceConfig) {
 if (bundleConfig) {
   protocCommand.push(`--typescript_gapic_opt="bundle-config=${bundleConfig}"`);
 }
-// adding in for mixin
 if (serviceYaml) {
   protocCommand.push(`--typescript_gapic_opt="service-yaml=${serviceYaml}"`);
-}
-// should be able to delete
-if (iamService) {
-  protocCommand.push(`--typescript_gapic_opt="iam-service=${iamService}"`);
 }
 if (packageName) {
   protocCommand.push(`--typescript_gapic_opt="package-name=${packageName}"`);

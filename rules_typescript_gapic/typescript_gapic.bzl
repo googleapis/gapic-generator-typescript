@@ -32,10 +32,6 @@ def typescript_gapic_library(
     plugin_args_dict["package-name"] = package_name
   if main_service:
     plugin_args_dict["main-service"] = main_service
-  # should be able to remove these lines once confirmed yaml works
-  if iam_service:
-    plugin_args_dict["iam-service"] = iam_service
-  
   file_args = {} # note: keys are filenames, values are parameter name, aligned with the prior art
   for key, value in extra_protoc_file_parameters:
     file_args[key] = value
@@ -43,7 +39,6 @@ def typescript_gapic_library(
     file_args[grpc_service_config] = "grpc-service-config"
   if bundle_config:
     file_args[bundle_config] = "bundle-config"
-  # adding in service yaml as file to read
   if service_yaml:
     file_args[service_yaml] = "service-yaml"
 
