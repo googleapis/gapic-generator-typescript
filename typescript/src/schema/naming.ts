@@ -24,7 +24,6 @@ export interface Options {
   publishName?: string;
   mainServiceName?: string;
   serviceYaml?: ServiceYaml;
-  iamService?: boolean;
   rest?: boolean;
 }
 

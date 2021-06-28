@@ -142,10 +142,8 @@ export class Generator {
     }
   }
 
-  // Determines if there are any apis listed in the service yaml file
-  // If there are apis listed, then it filters for the 3 supported mixin services
-  // if `--iam-service` is not specified, or set it as `false`, we will not generated IAM methods for the client.
-  // if `--iam-service` is true, we will include all IAM methods in the client.
+  // This method determines if there are any APIs listed in the service yaml file.
+  // If there are APIs listed, then it filters for the supported mixin services (currently only IAMPolicy)
   private readServiceYaml() {
     if (this.paramMap?.['service-yaml']) {
       const filename = this.paramMap['service-yaml'];
