@@ -158,8 +158,7 @@ export class Generator {
       for (let i = 0; i < info.apis.length; i++) {
         const api = info.apis[i];
         for (const [, value] of Object.entries(api)) {
-          const apiStr = value;
-          serviceMixins.push(apiStr);
+          serviceMixins.push(value);
         }
       }
       this.serviceYaml.apis = serviceMixins;
