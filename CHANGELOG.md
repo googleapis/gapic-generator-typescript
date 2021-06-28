@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.4.1...v1.5.0) (2021-06-17)
+
+
+### Features
+
+* Add input option for google discovery api [pg1/3] ([#891](https://www.github.com/googleapis/gapic-generator-typescript/issues/891)) ([f94ae3f](https://www.github.com/googleapis/gapic-generator-typescript/commit/f94ae3f92963ff7f0f174f3f7c2b802b31797b25))
+* support max_results field name for discovery-api pagination [pg2/3] ([#887](https://www.github.com/googleapis/gapic-generator-typescript/issues/887)) ([c5a2a7e](https://www.github.com/googleapis/gapic-generator-typescript/commit/c5a2a7eeee79493a6068d034b204590745741f9a))
+
+
+### Bug Fixes
+
+* **bazel:** Remove monolith Bazel rule deps [typescript] ([#902](https://www.github.com/googleapis/gapic-generator-typescript/issues/902)) ([fff0584](https://www.github.com/googleapis/gapic-generator-typescript/commit/fff058418d0842af71e514876961fa3c6e519ab3))
+* updated typescript version for compiler ([#901](https://www.github.com/googleapis/gapic-generator-typescript/issues/901)) ([99e10c3](https://www.github.com/googleapis/gapic-generator-typescript/commit/99e10c3c94ebf9eab52cf1efac9c6d8b769b32a3))
+
 ### [1.4.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.4.0...v1.4.1) (2021-06-04)
 
 

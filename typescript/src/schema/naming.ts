@@ -25,6 +25,7 @@ export interface Options {
   mainServiceName?: string;
   serviceYaml?: ServiceYaml;
   iamService?: boolean;
+  rest?: boolean;
 }
 
 export class Naming {

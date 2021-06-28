@@ -309,4 +309,182 @@ describe('src/schema/proto.ts', () => {
       }, /rpc "google.cloud.showcase.v1beta1.Test" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type/);
     });
   });
+
+  describe('should add rest for Proto class', () => {
+    it('should be false when rest is not set', () => {
+      const fd = new protos.google.protobuf.FileDescriptorProto();
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.example.v1beta1',
+        allMessages: {},
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options: {
+          grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+        },
+        commentsMap: new CommentsMap([fd]),
+      });
+      assert.strictEqual(proto.rest, undefined);
+    });
+    it('should be true when rest is set', () => {
+      const fd = new protos.google.protobuf.FileDescriptorProto();
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.example.v1beta1',
+        allMessages: {},
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options: {
+          grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+          rest: true,
+        },
+        commentsMap: new CommentsMap([fd]),
+      });
+      assert.strictEqual(proto.rest, true);
+    });
+  });
+
+  describe('should support pagination for Discovery-based APIs', () => {
+    it('should be page field if api require rest transport and use "max_results" as field name', () => {
+      const fd = new protos.google.protobuf.FileDescriptorProto();
+      fd.name = 'google/cloud/showcase/v1beta1/test.proto';
+      fd.package = 'google.cloud.showcase.v1beta1';
+      fd.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        new protos.google.protobuf.MethodDescriptorProto(),
+      ];
+      fd.service[0].method[0] = new protos.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[0].name = 'List';
+      fd.service[0].method[0].outputType =
+        '.google.cloud.showcase.v1beta1.AddressList';
+      fd.service[0].method[0].inputType =
+        '.google.cloud.showcase.v1beta1.ListAddressesRequest';
+
+      fd.messageType = [new protos.google.protobuf.DescriptorProto()];
+      fd.messageType[0] = new protos.google.protobuf.DescriptorProto();
+      fd.messageType[1] = new protos.google.protobuf.DescriptorProto();
+
+      fd.messageType[0].name = 'AddressList';
+      fd.messageType[1].name = 'ListAddressesRequest';
+
+      fd.messageType[0].field = [
+        new protos.google.protobuf.FieldDescriptorProto(),
+      ];
+      fd.messageType[0].field[0] = new protos.google.protobuf.FieldDescriptorProto();
+      fd.messageType[0].field[0].name = 'next_page_token';
+      fd.messageType[0].field[0].label =
+        protos.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED;
+      fd.messageType[0].field[0].type =
+        protos.google.protobuf.FieldDescriptorProto.Type.TYPE_MESSAGE;
+      fd.messageType[0].field[0].typeName =
+        '.google.cloud.showcase.v1beta1.Address';
+      fd.messageType[1].field = [
+        new protos.google.protobuf.FieldDescriptorProto(),
+      ];
+      fd.messageType[1].field[0] = new protos.google.protobuf.FieldDescriptorProto();
+      fd.messageType[1].field[0].name = 'max_results';
+      fd.messageType[1].field[1] = new protos.google.protobuf.FieldDescriptorProto();
+      fd.messageType[1].field[1].name = 'page_token';
+      const options: Options = {
+        grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+        rest: true,
+      };
+      const allMessages: MessagesMap = {};
+      fd.messageType
+        .filter(message => message.name)
+        .forEach(message => {
+          allMessages['.' + fd.package! + '.' + message.name!] = message;
+        });
+      const commentsMap = new CommentsMap([fd]);
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.showcase.v1beta1',
+        allMessages,
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+        commentsMap,
+      });
+      assert.deepStrictEqual(
+        proto.services['service'].method[0].pagingFieldName,
+        'next_page_token'
+      );
+      assert.deepStrictEqual(proto.services['service'].paging[0].name, 'List');
+      assert.deepStrictEqual(
+        proto.services['service'].paging[0].inputType,
+        '.google.cloud.showcase.v1beta1.ListAddressesRequest'
+      );
+      assert.deepStrictEqual(
+        proto.services['service'].paging[0].outputType,
+        '.google.cloud.showcase.v1beta1.AddressList'
+      );
+      assert.deepStrictEqual(
+        proto.services['service'].paging[0].pagingResponseType,
+        '.google.cloud.showcase.v1beta1.Address'
+      );
+    });
+    it('should not be page field if api is not google discovery api but use "max_result"', () => {
+      const fd = new protos.google.protobuf.FileDescriptorProto();
+      fd.name = 'google/cloud/showcase/v1beta1/test.proto';
+      fd.package = 'google.cloud.showcase.v1beta1';
+      fd.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        new protos.google.protobuf.MethodDescriptorProto(),
+      ];
+      fd.service[0].method[0] = new protos.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[0].name = 'List';
+      fd.service[0].method[0].outputType =
+        '.google.cloud.showcase.v1beta1.AddressList';
+      fd.service[0].method[0].inputType =
+        '.google.cloud.showcase.v1beta1.ListAddressesRequest';
+
+      fd.messageType = [new protos.google.protobuf.DescriptorProto()];
+      fd.messageType[0] = new protos.google.protobuf.DescriptorProto();
+      fd.messageType[1] = new protos.google.protobuf.DescriptorProto();
+
+      fd.messageType[0].name = 'AddressList';
+      fd.messageType[1].name = 'ListAddressesRequest';
+
+      fd.messageType[0].field = [
+        new protos.google.protobuf.FieldDescriptorProto(),
+      ];
+      fd.messageType[0].field[0] = new protos.google.protobuf.FieldDescriptorProto();
+      fd.messageType[0].field[0].name = 'next_page_token';
+      fd.messageType[0].field[0].label =
+        protos.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED;
+      fd.messageType[1].field = [
+        new protos.google.protobuf.FieldDescriptorProto(),
+      ];
+      fd.messageType[1].field[0] = new protos.google.protobuf.FieldDescriptorProto();
+      fd.messageType[1].field[0].name = 'max_results';
+      fd.messageType[1].field[1] = new protos.google.protobuf.FieldDescriptorProto();
+      fd.messageType[1].field[1].name = 'page_token';
+      const options: Options = {
+        grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+      };
+      const allMessages: MessagesMap = {};
+      fd.messageType
+        .filter(message => message.name)
+        .forEach(message => {
+          allMessages['.' + fd.package! + '.' + message.name!] = message;
+        });
+      const commentsMap = new CommentsMap([fd]);
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.showcase.v1beta1',
+        allMessages,
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+        commentsMap,
+      });
+      assert.deepStrictEqual(
+        proto.services['service'].method[0].pagingFieldName,
+        undefined
+      );
+      assert.deepStrictEqual(proto.services['service'].paging.length, 0);
+    });
+  });
 });
