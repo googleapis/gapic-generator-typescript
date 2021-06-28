@@ -24,6 +24,7 @@ import {
 } from './retryable-code-map';
 import {BundleConfig} from '../bundle';
 import {Options} from './naming';
+import { ServiceYaml } from '../serviceyaml';
 
 const COMMON_PROTO_LIST = [
   'google.api',
@@ -82,7 +83,7 @@ export interface ServiceDescriptorProto
   grpcServiceConfig: protos.grpc.service_config.ServiceConfig;
   bundleConfigsMethods: MethodDescriptorProto[];
   bundleConfigs?: BundleConfig[];
-  iamService: boolean;
+  serviceYaml: ServiceYaml;
   toJSON: Function | undefined;
 }
 
@@ -494,7 +495,7 @@ interface AugmentServiceParameters {
 function augmentService(parameters: AugmentServiceParameters) {
   const augmentedService = parameters.service as ServiceDescriptorProto;
   augmentedService.packageName = parameters.packageName;
-  augmentedService.iamService = parameters.options.iamService ?? false;
+  augmentedService.serviceYaml = parameters.options.serviceYaml!;
   augmentedService.comments = parameters.commentsMap.getServiceComment(
     parameters.service.name!
   );

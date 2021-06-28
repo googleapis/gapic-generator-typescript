@@ -45,7 +45,7 @@ describe('Baseline tests', () => {
     outputDir: '.test-out-kms',
     protoPath: 'google/cloud/kms/v1/*.proto',
     useCommonProto: false,
-    iamService: true,
+    serviceYaml: 'google/cloud/kms/v1/cloudkms_v1.yaml',
   });
 
   runBaselineTest({

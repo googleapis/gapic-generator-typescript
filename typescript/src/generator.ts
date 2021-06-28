@@ -21,6 +21,7 @@ import * as protos from '../../protos';
 import {API} from './schema/api';
 import {processTemplates} from './templater';
 import {BundleConfigClient, BundleConfig} from './bundle';
+import {ServiceYaml} from './serviceyaml';
 import {commonPrefix, duration} from './util';
 import * as Long from 'long';
 
@@ -64,7 +65,9 @@ export class Generator {
   // For historical reasons, Webpack library name matches "the main" service of the client library.
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName?: string;
-  iamService?: boolean;
+  // This is for services using mixin services (e.g. google.iam.v1.Policy).
+  // As long as the mixin service is defined under 'apis' in the service yaml file, the generator will include it in the client library.
+  serviceYaml?: ServiceYaml;
   templates: string[];
   metadata?: boolean;
 
@@ -138,12 +141,38 @@ export class Generator {
     }
   }
 
-  private readIamService() {
-    // if `--iam-service` is not specified, or set it as `false`, we will not generated IAM methods for the client.
-    // if `--iam-service` is true, we will include all IAM methods in the client.
-    if (this.paramMap?.['iam-service']) {
-      const iamService = this.paramMap['iam-service'];
-      this.iamService = iamService === 'true' ? true : false;
+  // Determines if there are any apis listed in the service yaml file
+  // If there are apis listed, then it filters for the 3 supported mixin services
+  // if `--iam-service` is not specified, or set it as `false`, we will not generated IAM methods for the client.
+  // if `--iam-service` is true, we will include all IAM methods in the client.
+  private readServiceYaml() {
+    if (this.paramMap?.['service-yaml']) {
+      const filename = this.paramMap['service-yaml'];
+      if (!fs.existsSync(filename)) {
+        throw new Error(`File ${filename} cannot be opened.`);
+      }
+      const content = fs.readFileSync(filename, 'utf8');
+      const info = yaml.load(content) as ServiceYaml;
+      if (!info || !info.mixinApis) {
+        return;
+      }
+      this.serviceYaml = info;
+      const supportedMixins = [
+        // Test with IAM first
+        'google.iam.v1.IAMPolicy',
+        //'google.cloud.location.Locations',
+        //'google.longrunning.Operations',
+      ];
+      const serviceMixins = [];
+      const apis = info.mixinApis;
+      for (let i = 0; i < apis.length; i++) {
+        const api = JSON.stringify(apis[i]);
+        const apiStr = api.replace(/"|}|{/g, '').split(':')[1];
+        if (supportedMixins.includes(apiStr)) {
+          serviceMixins.push(apiStr);
+        }
+      }
+      this.serviceYaml.mixinApis = serviceMixins;
     }
   }
 
@@ -174,7 +203,7 @@ export class Generator {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig();
       this.readBundleConfig();
-      this.readIamService();
+      this.readServiceYaml();
       this.readPublishPackageName();
       this.readMainServiceName();
       this.readTemplates();
@@ -214,7 +243,7 @@ export class Generator {
       bundleConfigs: this.bundleConfigs,
       publishName: this.publishName,
       mainServiceName: this.mainServiceName,
-      iamService: this.iamService,
+      serviceYaml: this.serviceYaml,
     });
     return api;
   }
