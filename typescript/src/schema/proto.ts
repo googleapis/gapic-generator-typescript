@@ -24,7 +24,7 @@ import {
 } from './retryable-code-map';
 import {BundleConfig} from '../bundle';
 import {Options} from './naming';
-import { ServiceYaml } from '../serviceyaml';
+import {ServiceYaml} from '../serviceyaml';
 
 const COMMON_PROTO_LIST = [
   'google.api',

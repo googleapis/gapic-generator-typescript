@@ -78,7 +78,9 @@ export function runBaselineTest(options: BaselineOptions) {
   const bundleConfig = options.bundleConfig
     ? path.join(protosDirRoot, options.bundleConfig.split('/').join(path.sep))
     : undefined;
-  const serviceYaml = options.serviceYaml;
+  const serviceYaml = options.serviceYaml
+    ? path.join(protosDirRoot, options.serviceYaml.split('/').join(path.sep))
+    : undefined;
   it(options.baselineName, async function () {
     this.timeout(60000);
     if (fs.existsSync(outputDir)) {
