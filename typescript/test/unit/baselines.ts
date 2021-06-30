@@ -79,7 +79,6 @@ describe('Baseline tests', () => {
     protoPath: 'google/showcase/v1beta1/echo.proto',
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
-    template: 'typescript_gapic',
     legacyProtoLoad: true,
   });
 
