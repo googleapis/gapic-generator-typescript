@@ -88,7 +88,7 @@ yargs.describe(
   'Load protos from *.proto directly at runtime, without compiling a proto JSON file. May speed up loading huge proto trees. Disables all fallback modes.'
 );
 yargs.boolean('legacy-proto-load');
-yargs.alias('legacy-proto-load', 'legacy_proto_load')
+yargs.alias('legacy-proto-load', 'legacy_proto_load');
 yargs.describe('protoc', 'Path to protoc binary');
 yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');

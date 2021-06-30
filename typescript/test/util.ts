@@ -116,7 +116,7 @@ export function runBaselineTest(options: BaselineOptions) {
     if (options.metadata) {
       commandLine += ' --metadata';
     }
-    if (options.legacyProtoLoad) {
+    if (legacyProtoLoad) {
       commandLine += ' --legacy-proto-load';
     }
     execSync(commandLine);
