@@ -74,7 +74,7 @@ describe('Baseline tests', () => {
   });
 
   runBaselineTest({
-    baselineName: 'showcase',
+    baselineName: 'showcase-legacy',
     outputDir: '.test-out-showcase-legacy',
     protoPath: 'google/showcase/v1beta1/*.proto',
     useCommonProto: false,
