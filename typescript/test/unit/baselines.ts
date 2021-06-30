@@ -76,7 +76,7 @@ describe('Baseline tests', () => {
   runBaselineTest({
     baselineName: 'showcase-legacy',
     outputDir: '.test-out-showcase-legacy',
-    protoPath: 'google/showcase/v1beta1/*.proto',
+    protoPath: 'google/showcase/v1beta1/echo.proto',
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
     template: 'typescript_gapic',
