@@ -13,7 +13,6 @@
 // limitations under the License.
 
 export interface ServiceYaml {
-  serviceName: string;
   title: string;
-  mixinApis?: string[];
+  apis: string[];
 }

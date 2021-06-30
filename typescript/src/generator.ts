@@ -152,26 +152,14 @@ export class Generator {
       }
       const content = fs.readFileSync(filename, 'utf8');
       const info = yaml.load(content) as ServiceYaml;
-      if (!info || !info.mixinApis) {
-        return;
-      }
       this.serviceYaml = info;
-      const supportedMixins = [
-        // Test with IAM first
-        'google.iam.v1.IAMPolicy',
-        //'google.cloud.location.Locations',
-        //'google.longrunning.Operations',
-      ];
       const serviceMixins = [];
-      const apis = info.mixinApis;
-      for (let i = 0; i < apis.length; i++) {
-        const api = JSON.stringify(apis[i]);
+      for (let i = 0; i < info.apis.length; i++) {
+        const api = JSON.stringify(info.apis[i]);
         const apiStr = api.replace(/"|}|{/g, '').split(':')[1];
-        if (supportedMixins.includes(apiStr)) {
-          serviceMixins.push(apiStr);
-        }
+        serviceMixins.push(apiStr);
       }
-      this.serviceYaml.mixinApis = serviceMixins;
+      this.serviceYaml.apis = serviceMixins;
     }
   }
 

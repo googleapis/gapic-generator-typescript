@@ -33,7 +33,7 @@ import {protobuf
 {%- if (service.longRunning.length > 0) -%}
 , LROperation, operationsProtos
 {%- endif -%}
-{%- if (service.serviceYaml.mixinApis or []).indexOf('google.iam.v1.IAMPolicy') > -1 %}, IamProtos{%- endif -%}
+{%- if (service.IAMPolicyMixin) > 0 %}, IamProtos{%- endif -%}
 } from 'google-gax';
 
 function generateSampleMessage<T extends object>(instance: T) {
@@ -771,7 +771,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
     });
 {%- endfor %}
-{%- if (service.serviceYaml.mixinApis or []).indexOf('google.iam.v1.IAMPolicy') > -1 %}
+{%- if (service.IAMPolicyMixin) > 0 %}
 {%- set IAMmethods = ['getIamPolicy', 'setIamPolicy', 'testIamPermissions'] %}
 {%- for method in IAMmethods %}
     describe('{{ method }}', () => {

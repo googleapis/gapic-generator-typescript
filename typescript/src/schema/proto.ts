@@ -85,6 +85,7 @@ export interface ServiceDescriptorProto
   bundleConfigs?: BundleConfig[];
   serviceYaml: ServiceYaml;
   toJSON: Function | undefined;
+  IAMPolicyMixin: number;
 }
 
 export interface ServicesMap {
@@ -512,6 +513,11 @@ function augmentService(parameters: AugmentServiceParameters) {
   const augmentedService = parameters.service as ServiceDescriptorProto;
   augmentedService.packageName = parameters.packageName;
   augmentedService.serviceYaml = parameters.options.serviceYaml!;
+  if (
+    parameters.options.serviceYaml?.apis.includes('google.iam.v1.IAMPolicy')
+  ) {
+    augmentedService.IAMPolicyMixin = 1;
+  }
   augmentedService.comments = parameters.commentsMap.getServiceComment(
     parameters.service.name!
   );
