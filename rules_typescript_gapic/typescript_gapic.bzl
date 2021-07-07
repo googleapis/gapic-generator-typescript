@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_gapic//:gapic.bzl", "proto_custom_library", "unzipped_srcjar")
+load("@rules_gapic//:gapic.bzl", "proto_custom_library")
 
 def typescript_gapic_library(
   name,
@@ -23,6 +23,8 @@ def typescript_gapic_library(
   main_service = None,
   bundle_config = None,
   service_yaml = None,
+  metadata = None,
+  legacy_proto_load = None,
   extra_protoc_parameters = [],
   extra_protoc_file_parameters = {},
   **kwargs):
@@ -32,6 +34,11 @@ def typescript_gapic_library(
     plugin_args_dict["package-name"] = package_name
   if main_service:
     plugin_args_dict["main-service"] = main_service
+  if metadata:
+    plugin_args_dict["metadata"] = "true"
+  if legacy_proto_load:
+    plugin_args_dict["legacy-proto-load"] = "true"
+
   file_args = {} # note: keys are filenames, values are parameter name, aligned with the prior art
   for key, value in extra_protoc_file_parameters:
     file_args[key] = value

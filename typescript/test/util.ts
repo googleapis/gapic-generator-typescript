@@ -36,6 +36,7 @@ export interface BaselineOptions {
   bundleConfig?: string;
   serviceYaml?: string;
   metadata?: boolean;
+  legacyProtoLoad?: boolean;
 }
 
 const cwd = process.cwd();
@@ -81,6 +82,7 @@ export function runBaselineTest(options: BaselineOptions) {
   const serviceYaml = options.serviceYaml
     ? path.join(protosDirRoot, options.serviceYaml.split('/').join(path.sep))
     : undefined;
+  const legacyProtoLoad = options.legacyProtoLoad ?? false;
   it(options.baselineName, async function () {
     this.timeout(60000);
     if (fs.existsSync(outputDir)) {
@@ -115,6 +117,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (options.metadata) {
       commandLine += ' --metadata';
+    }
+    if (legacyProtoLoad) {
+      commandLine += ' --legacy-proto-load';
     }
     execSync(commandLine);
     assert(equalToBaseline(outputDir, baselineDir));

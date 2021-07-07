@@ -25,6 +25,7 @@ export interface Options {
   mainServiceName?: string;
   serviceYaml?: ServiceYaml;
   rest?: boolean;
+  legacyProtoLoad?: boolean;
 }
 
 export class Naming {
