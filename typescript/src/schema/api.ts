@@ -36,6 +36,7 @@ export class API {
   uniqKeywords: string[];
   packageName: string;
   rest?: boolean;
+  legacyProtoLoad: boolean;
 
   static isIgnoredService(
     fd: protos.google.protobuf.IFileDescriptorProto
@@ -86,6 +87,7 @@ export class API {
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
     this.rest = options.rest;
+    this.legacyProtoLoad = options.legacyProtoLoad ?? false;
 
     const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
       fileDescriptors
@@ -207,6 +209,7 @@ export class API {
       port: this.port,
       services: this.services,
       rest: this.rest,
+      legacyProtoLoad: this.legacyProtoLoad,
     });
   }
 }
