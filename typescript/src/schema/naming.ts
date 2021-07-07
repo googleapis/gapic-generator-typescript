@@ -24,6 +24,7 @@ export interface Options {
   mainServiceName?: string;
   iamService?: boolean;
   rest?: boolean;
+  legacyProtoLoad?: boolean;
 }
 
 export class Naming {
