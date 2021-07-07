@@ -237,11 +237,20 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         assert.strictEqual(result, fakeProjectId);
     });
 
+  const proxyquire = require('proxyquire');
+  const stub = sinon.stub().returns('deprecated');
+  const { {{ service.name.toPascalCase() }}Client} = proxyquire(
+    '../src/{{api.naming.version}}/{{service.name.toSnakeCase()}}_client.js',
+    {
+      'google-gax': {warn: stub},
+    }
+  );
+
 {%- for method in service.simpleMethods %}
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -251,13 +260,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCall(expectedResponse);
             const [response] = await client.{{ method.name.toCamelCase() }}(request);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -284,7 +296,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -303,7 +315,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -314,13 +326,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(expectedResponse);
             const [operation] = await client.{{ method.name.toCamelCase() }}(request);
             const [response] = await operation.promise();
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -344,13 +359,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             });
             const operation = await promise as LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>;
             const [response] = await operation.promise();
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes {{ method.name.toCamelCase() }} with call error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -360,12 +378,15 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes {{ method.name.toCamelCase() }} with LRO error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -375,13 +396,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             await assert.rejects(operation.promise(), expectedError);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -393,13 +417,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
             client.operationsClient.getOperation = stubSimpleCall(expectedResponse);
             const decodedOperation = await client.{{ id.get("check" + method.name.toPascalCase() + "Progress") }}(expectedResponse.name);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(decodedOperation.name, expectedResponse.name);
             assert(decodedOperation.metadata);
             assert((client.operationsClient.getOperation as SinonStub).getCall(0));
         });
 
         it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -407,6 +434,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const expectedError = new Error('expected');
 
             client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             await assert.rejects(client.{{ id.get("check" + method.name.toPascalCase() + "Progress") }}(''), expectedError);
             assert((client.operationsClient.getOperation as SinonStub)
                 .getCall(0));
@@ -417,7 +447,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -436,13 +466,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 });
             });
             const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions));
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -460,6 +493,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     reject(err);
                 });
             });
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions));
@@ -470,7 +506,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -490,6 +526,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 stream.end();
             });
             const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWithExactly(undefined));
@@ -498,7 +537,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -518,6 +557,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 stream.end();
             });
             await assert.rejects(promise, expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWithExactly(undefined));
             assert.deepStrictEqual(((stream as unknown as PassThrough)
@@ -529,7 +571,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -551,6 +593,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 stream.end();
             });
             const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(null, {} /*, callback defined above */));
@@ -558,7 +603,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -579,6 +624,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 stream.write(request);
                 stream.end();
             });
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(null, {} /*, callback defined above */));
@@ -589,7 +637,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -599,13 +647,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {{ util.initPagingResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCall(expectedResponse);
             const [response] = await client.{{ method.name.toCamelCase() }}(request);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+           const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -626,13 +677,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     });
             });
             const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -641,13 +695,16 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {{ util.initRequestOptions(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCall(undefined, expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes {{ id.get(method.name.toCamelCase() + "Stream") }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -669,6 +726,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 });
             });
             const responses = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.{{ method.name.toCamelCase() }}, request));
@@ -682,7 +742,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ id.get(method.name.toCamelCase() + "Stream") }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -703,6 +763,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     reject(err);
                 });
             });
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.{{ method.name.toCamelCase() }}, request));
@@ -716,7 +779,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('uses async iteration with {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -729,6 +792,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             for await (const resource of iterable) {
                 responses.push(resource!);
             }
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(responses, expectedResponse);
             assert.deepStrictEqual(
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
@@ -743,7 +809,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('uses async iteration with {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -752,6 +818,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const expectedError = new Error('expected');
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.{{ id.get(method.name.toCamelCase() + "Async") }}(request);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             await assert.rejects(async () => {
                 const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
                 for await (const resource of iterable) {
@@ -776,7 +845,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- for method in IAMmethods %}
     describe('{{ method }}', () => {
         it('invokes {{ method }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -802,12 +871,15 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             );
             client.iamClient.{{ method }} = stubSimpleCall(expectedResponse);
             const response = await client.{{ method }}(request, expectedOptions);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, [expectedResponse]);
             assert((client.iamClient.{{ method }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
         it('invokes {{ method }} without error using callback', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -849,12 +921,15 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     });
             });
             const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.iamClient.{{ method }} as SinonStub)
                 .getCall(0));
         });
         it('invokes {{ method }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -873,6 +948,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             };
             const expectedError = new Error('expected');
             client.iamClient.{{ method }} = stubSimpleCall(undefined, expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             await assert.rejects(client.{{ method }}(request, expectedOptions), expectedError);
             assert((client.iamClient.{{ method }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
@@ -895,7 +973,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- set callParameters = callParameters + callParametersJoiner() + '"' + param.toCamelCase() + 'Value"' %}
 {%- endfor %}
             };
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+            const client = new {{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
