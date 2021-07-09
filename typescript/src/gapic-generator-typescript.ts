@@ -79,6 +79,16 @@ yargs.describe(
   'Set to true if GAPIC metadata generation is requested'
 );
 yargs.boolean('metadata');
+yargs.describe(
+  'transport',
+  'Default transport is gRPC. Set transport=rest for an API requires HTTP transport, or Google Discovery API.'
+);
+yargs.describe(
+  'legacy_proto_load',
+  'Load protos from *.proto directly at runtime, without compiling a proto JSON file. May speed up loading huge proto trees. Disables all fallback modes.'
+);
+yargs.boolean('legacy-proto-load');
+yargs.alias('legacy-proto-load', 'legacy_proto_load');
 yargs.describe('protoc', 'Path to protoc binary');
 yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');
@@ -100,6 +110,8 @@ export interface IArguments {
   protoDirs?: string[];
   commonProtoPath?: string;
   descriptor?: string;
+  transport?: string;
+  legacyProtoLoad?: boolean;
   _: string[];
   $0: string;
 }
@@ -115,6 +127,8 @@ const template = argv.template as string | undefined;
 const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
 const validation = (argv.validation as string | undefined) ?? 'true';
 const metadata = argv.metadata as boolean | undefined;
+const transport = argv.transport as string | undefined;
+const legacyProtoLoad = argv.legacyProtoLoad as boolean | undefined;
 const protoc = (argv.protoc as string | undefined) ?? 'protoc';
 const protoDirs: string[] = [];
 if (argv.I) {
@@ -163,6 +177,12 @@ if (template) {
 }
 if (metadata) {
   protocCommand.push('--typescript_gapic_opt="metadata"');
+}
+if (transport && transport === 'rest') {
+  protocCommand.push('--typescript_gapic_opt="transport=rest"');
+}
+if (legacyProtoLoad) {
+  protocCommand.push('--typescript_gapic_opt="legacy-proto-load"');
 }
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);
