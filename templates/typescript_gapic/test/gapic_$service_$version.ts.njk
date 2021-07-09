@@ -237,23 +237,15 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         assert.strictEqual(result, fakeProjectId);
     });
 
-  const proxyquire = require('proxyquire');
-  const stub = sinon.stub().returns('deprecated');
-  const { {{ service.name.toPascalCase() }}Client} = proxyquire(
-    '../src/{{api.naming.version}}/{{service.name.toSnakeCase()}}_client.js',
-    {
-      'google-gax': {warn: stub},
-    }
-  );
-
 {%- for method in service.simpleMethods %}
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
@@ -269,10 +261,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
@@ -290,22 +283,29 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     });
             });
             const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -315,10 +315,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
@@ -335,10 +336,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
@@ -368,10 +370,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with call error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
@@ -386,29 +389,31 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with LRO error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+            await assert.rejects(operation.promise(), expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            await assert.rejects(operation.promise(), expectedError);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
             expectedResponse.name = 'test';
@@ -426,18 +431,19 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} with error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             const expectedError = new Error('expected');
 
             client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.{{ id.get("check" + method.name.toPascalCase() + "Progress") }}(''), expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            await assert.rejects(client.{{ id.get("check" + method.name.toPascalCase() + "Progress") }}(''), expectedError);
             assert((client.operationsClient.getOperation as SinonStub)
                 .getCall(0));
         });
@@ -447,10 +453,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
@@ -475,10 +482,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
@@ -493,10 +501,10 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     reject(err);
                 });
             });
+            await assert.rejects(promise, expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions));
         });
@@ -506,10 +514,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
             {{ util.initResponse(method) }}
@@ -537,10 +546,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             const expectedError = new Error('expected');
@@ -571,10 +581,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
             {{ util.initResponse(method) }}
@@ -603,10 +614,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
             const expectedError = new Error('expected');
@@ -624,10 +636,10 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 stream.write(request);
                 stream.end();
             });
+            await assert.rejects(promise, expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(null, {} /*, callback defined above */));
         });
@@ -637,10 +649,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
@@ -656,10 +669,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
-           const client = new {{ service.name }}Client({
+           const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
@@ -686,28 +700,30 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initRequestOptions(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase() }} = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes {{ id.get(method.name.toCamelCase() + "Stream") }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             {{ util.initPagingResponse(method) }}
@@ -742,10 +758,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ id.get(method.name.toCamelCase() + "Stream") }} with error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
@@ -763,10 +780,10 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     reject(err);
                 });
             });
+            await assert.rejects(promise, expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.{{ method.name.toCamelCase() }}, request));
 {%- if method.headerRequestParams.length > 0 %}
@@ -779,11 +796,12 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('uses async iteration with {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
             client.{{ id.get("initialize") }}();
+            const stub = sinon.stub(client, 'warn');
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initPagingResponse(method) }}
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(expectedResponse);
@@ -809,24 +827,25 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('uses async iteration with {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             const expectedError = new Error('expected');
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.{{ id.get(method.name.toCamelCase() + "Async") }}(request);
-            {%- if method.options and method.options.deprecated %}
-            assert(stub.calledOnce);
-            {%- endif %}
             await assert.rejects(async () => {
                 const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
                 for await (const resource of iterable) {
                     responses.push(resource!);
                 }
             });
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
             assert.deepStrictEqual(
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
@@ -845,10 +864,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- for method in IAMmethods %}
     describe('{{ method }}', () => {
         it('invokes {{ method }} without error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
@@ -879,7 +899,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
         it('invokes {{ method }} without error using callback', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
@@ -929,10 +949,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 .getCall(0));
         });
         it('invokes {{ method }} with error', async () => {
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
@@ -948,10 +969,10 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             };
             const expectedError = new Error('expected');
             client.iamClient.{{ method }} = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.{{ method }}(request, expectedOptions), expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            await assert.rejects(client.{{ method }}(request, expectedOptions), expectedError);
             assert((client.iamClient.{{ method }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -973,7 +994,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- set callParameters = callParameters + callParametersJoiner() + '"' + param.toCamelCase() + 'Value"' %}
 {%- endfor %}
             };
-            const client = new {{ service.name }}Client({
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });

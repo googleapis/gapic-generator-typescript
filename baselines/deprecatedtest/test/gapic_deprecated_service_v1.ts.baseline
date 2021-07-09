@@ -118,21 +118,13 @@ describe('v1.DeprecatedServiceClient', () => {
         assert.strictEqual(result, fakeProjectId);
     });
 
-  const proxyquire = require('proxyquire');
-  const stub = sinon.stub().returns('deprecated');
-  const { DeprecatedServiceClient} = proxyquire(
-    '../src/v1/deprecated_service_client.js',
-    {
-      'google-gax': {warn: stub},
-    }
-  );
-
     describe('fastFibonacci', () => {
         it('invokes fastFibonacci without error', async () => {
-            const client = new DeprecatedServiceClient({
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.initialize();
             const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
             const expectedOptions = {};
@@ -145,10 +137,11 @@ describe('v1.DeprecatedServiceClient', () => {
         });
 
         it('invokes fastFibonacci without error using callback', async () => {
-            const client = new DeprecatedServiceClient({
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.initialize();
             const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
             const expectedOptions = {};
@@ -172,10 +165,11 @@ describe('v1.DeprecatedServiceClient', () => {
         });
 
         it('invokes fastFibonacci with error', async () => {
-            const client = new DeprecatedServiceClient({
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.initialize();
             const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
             const expectedOptions = {};
@@ -189,10 +183,11 @@ describe('v1.DeprecatedServiceClient', () => {
 
     describe('slowFibonacci', () => {
         it('invokes slowFibonacci without error', async () => {
-            const client = new DeprecatedServiceClient({
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.initialize();
             const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
             const expectedOptions = {};
@@ -206,10 +201,11 @@ describe('v1.DeprecatedServiceClient', () => {
         });
 
         it('invokes slowFibonacci without error using callback', async () => {
-            const client = new DeprecatedServiceClient({
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.initialize();
             const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
             const expectedOptions = {};
@@ -227,22 +223,25 @@ describe('v1.DeprecatedServiceClient', () => {
                     });
             });
             const response = await promise;
+            assert(stub.calledOnce);
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.slowFibonacci as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes slowFibonacci with error', async () => {
-            const client = new DeprecatedServiceClient({
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.initialize();
             const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
             const expectedOptions = {};
             const expectedError = new Error('expected');
             client.innerApiCalls.slowFibonacci = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.slowFibonacci(request), expectedError);
+            assert(stub.calledOnce);
             assert((client.innerApiCalls.slowFibonacci as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });

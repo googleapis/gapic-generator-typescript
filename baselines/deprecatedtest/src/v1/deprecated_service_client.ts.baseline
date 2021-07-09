@@ -53,6 +53,7 @@ export class DeprecatedServiceClient {
     batching: {},
   };
   innerApiCalls: {[name: string]: Function};
+  warn: (code: string, message: string, warnType?: string) => void;
   deprecatedServiceStub?: Promise<{[name: string]: Function}>;
 
   /**
@@ -150,6 +151,9 @@ export class DeprecatedServiceClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
+
+    // Add a warn function to the client constructor so it can be easily tested.
+    this.warn = gax.warn;
   }
 
   /**
@@ -166,7 +170,7 @@ export class DeprecatedServiceClient {
   initialize() {
     // If the client stub promise is already initialized, return immediately.
     if (this.deprecatedServiceStub) {
-      gax.warn('DEP$DeprecatedService', 'DeprecatedService is deprecated and may be removed in a future version.', 'DeprecationWarning');
+      this.warn('DEP$DeprecatedService', 'DeprecatedService is deprecated and may be removed in a future version.', 'DeprecationWarning');
       return this.deprecatedServiceStub;
     }
 
@@ -206,7 +210,7 @@ export class DeprecatedServiceClient {
 
       this.innerApiCalls[methodName] = apiCall;
     }
-    gax.warn('DEP$DeprecatedService', 'DeprecatedService is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP$DeprecatedService', 'DeprecatedService is deprecated and may be removed in a future version.', 'DeprecationWarning');
 
     return this.deprecatedServiceStub;
   }
@@ -392,7 +396,7 @@ export class DeprecatedServiceClient {
     }
     options = options || {};
     this.initialize();
-    gax.warn('DEP$DeprecatedService-$SlowFibonacci','SlowFibonacci is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP$DeprecatedService-$SlowFibonacci','SlowFibonacci is deprecated and may be removed in a future version.', 'DeprecationWarning');
     return this.innerApiCalls.slowFibonacci(request, options, callback);
   }
 
