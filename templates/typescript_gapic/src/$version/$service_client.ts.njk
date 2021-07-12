@@ -17,7 +17,9 @@ limitations under the License.
 -#}
 {% import "../../_license.njk" as license -%}
 {{license.license(commonParameters.copyrightYear)}}
+{%- if not api.legacyProtoLoad %}
 /* global window */
+{%- endif %}
 {% import "../../_util.njk" as util -%}
 {% import "../../_iam.njk" as iam -%}
 {% import "../../_namer.njk" as namer -%}
@@ -33,7 +35,11 @@ import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
 {%- endif %}
 import * as protos from '../../protos/protos';
+{%- if api.legacyProtoLoad %}
+import * as path from 'path';
+{%- else %}
 import jsonProtos = require('../../protos/protos.json');
+{%- endif %}
 /**
  * Client JSON configuration object, loaded from
  * `src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`.
@@ -56,8 +62,8 @@ const version = require('../../../package.json').version;
 export class {{ service.name }}Client {
   private _terminated = false;
   private _opts: ClientOptions;
-  private _gaxModule: typeof gax | typeof gax.fallback;
-  private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
+  private _gaxModule: typeof gax{% if not api.legacyProtoLoad %} | typeof gax.fallback{% endif %};
+  private _gaxGrpc: gax.GrpcClient{% if not api.legacyProtoLoad %} | gax.fallback.GrpcClient{% endif %};
   private _protos: {};
   private _defaults: {[method: string]: gax.CallSettings};
   auth: gax.GoogleAuth;
@@ -107,11 +113,13 @@ export class {{ service.name }}Client {
    *     API remote host.
    * @param {gax.ClientConfig} [options.clientConfig] - Client configuration override.
    *     Follows the structure of {@link gapicConfig}.
+{%- if not api.legacyProtoLoad %}
    * @param {boolean} [options.fallback] - Use HTTP fallback mode.
    *     In fallback mode, a special browser-compatible transport implementation is used
    *     instead of gRPC transport. In browser context (if the `window` object is defined)
    *     the fallback mode is enabled automatically; set `options.fallback` to `false`
    *     if you need to override this behavior.
+{%- endif %}
    */
   constructor(opts?: ClientOptions) {
     // Ensure that options include all the required fields.
@@ -119,16 +127,20 @@ export class {{ service.name }}Client {
     const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.{{ id.get("servicePath") }};
     const port = opts?.port || staticMembers.{{ id.get("port") }};
     const clientConfig = opts?.clientConfig ?? {};
-    {% if api.rest -%}
+    {%- if api.rest %}
     // Implicitely set 'rest' value for the apis use rest as transport (eg. googleapis-discovery apis).
     if (!opts) {
       opts = {fallback: 'rest'};
     } else {
       opts.fallback = opts.fallback ?? 'rest';
     }
-    {% endif -%}
+    {%- endif %}
+    {%- if api.legacyProtoLoad %}
+    opts = Object.assign({servicePath, port, clientConfig}, opts);
+    {%- else %}
     const fallback = opts?.fallback ?? (typeof window !== 'undefined' && typeof window?.fetch === 'function');
     opts = Object.assign({servicePath, port, clientConfig, fallback}, opts);
+    {%- endif %}
 
     // If scopes are unset in options and we're connecting to a non-default endpoint, set scopes just in case.
     if (servicePath !== staticMembers.{{ id.get("servicePath") }} && !('scopes' in opts)) {
@@ -136,7 +148,7 @@ export class {{ service.name }}Client {
     }
 
     // Choose either gRPC or proto-over-HTTP implementation of google-gax.
-    this._gaxModule = opts.fallback ? gax.fallback : gax;
+    this._gaxModule = {% if not api.legacyProtoLoad %}opts.fallback ? gax.fallback : {% endif %}gax;
 
     // Create a `gaxGrpc` object, with any grpc-specific options sent to the client.
     this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
@@ -165,16 +177,32 @@ export class {{ service.name }}Client {
     } else {
       clientHeader.push(`gl-web/${this._gaxModule.version}`);
     }
+{%- if api.legacyProtoLoad %}
+    clientHeader.push(`grpc/${this._gaxGrpc.grpcVersion}`);
+{%- else %}
     if (!opts.fallback) {
       clientHeader.push(`grpc/${this._gaxGrpc.grpcVersion}`);
     } else if (opts.fallback === 'rest' ) {
       clientHeader.push(`rest/${this._gaxGrpc.grpcVersion}`);
     }
+{%- endif %}
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
     }
     // Load the applicable protos.
+{%- if api.legacyProtoLoad %}
+    this._protos = Object.assign(
+        {},
+{%- set protosJoiner = joiner() %}
+{%- for filename in api.filesToGenerate %}
+      {{- protosJoiner() }}
+        this._gaxGrpc.loadProto(
+            path.join(__dirname, '..', '..', 'protos'),
+            '{{ filename }}')
+    );
+{%- endfor -%}{%- else %}
     this._protos = this._gaxGrpc.loadProtoJSON(jsonProtos);
+{%- endif %}
 
 {%- if (service.pathTemplates.length > 0) %}
 
@@ -218,8 +246,18 @@ export class {{ service.name }}Client {
     };
 {%- endif %}
 {%- if (service.longRunning.length > 0) or (service.bundleConfigs.length > 0) %}
+{%- if api.legacyProtoLoad %}
+
+    let protoFilesRoot = new this._gaxModule.GoogleProtoFilesRoot();
+{%- for filename in api.filesToGenerate %}
+    protoFilesRoot = this._gaxModule.protobuf.loadSync(
+      path.join(__dirname, '..', '..', 'protos', '{{ filename }}'),
+      protoFilesRoot) as (typeof protoFilesRoot);
+{%- endfor %}
+{%- else %}
 
     const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
+{%- endif %}
 {% endif %}
 {%- if service.longRunning.length > 0 %}
     // This API contains "long-running operations", which return a
@@ -313,8 +351,10 @@ export class {{ service.name }}Client {
     // Put together the "service stub" for
     // {{api.naming.protoPackage}}.{{ service.name }}.
     this.{{ service.name.toCamelCase() }}Stub = this._gaxGrpc.createStub(
+{%- if not api.legacyProtoLoad %}
         this._opts.fallback ?
           (this._protos as protobuf.Root).lookupService('{{api.naming.protoPackage}}.{{ service.name }}') :
+{%- endif %}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).{{api.naming.protoPackage}}.{{ service.name }},
         this._opts) as Promise<{[method: string]: Function}>;

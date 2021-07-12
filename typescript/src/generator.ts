@@ -68,6 +68,7 @@ export class Generator {
   templates: string[];
   metadata?: boolean;
   rest?: boolean;
+  legacyProtoLoad?: boolean;
 
   constructor() {
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.create();
@@ -172,6 +173,12 @@ export class Generator {
     }
   }
 
+  private readLegacyProtoLoad() {
+    if (this.paramMap['legacy-proto-load'] === 'true') {
+      this.legacyProtoLoad = true;
+    }
+  }
+
   async initializeFromStdin() {
     const inputBuffer = await getStdin();
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.decode(
@@ -186,6 +193,7 @@ export class Generator {
       this.readMainServiceName();
       this.readTemplates();
       this.readRest();
+      this.readLegacyProtoLoad();
     }
   }
 
@@ -224,6 +232,7 @@ export class Generator {
       mainServiceName: this.mainServiceName,
       iamService: this.iamService,
       rest: this.rest,
+      legacyProtoLoad: this.legacyProtoLoad,
     });
     return api;
   }

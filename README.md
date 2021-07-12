@@ -90,11 +90,18 @@ Good news is that you don't really need to learn Bazel to make a quick fix. All 
 hidden under the hood, so just use regular `npm` commands and just don't be surprised to see a lot of extra
 output.
 
-To compile the code:
+To compile the code, if you have [Bazel](https://bazel.build/)
+
+```sh
+bazel build //...
+```
+
+If you don't have Bazel:
 
 ```sh
 # in gapic-generator-typescript folder
-$ npm install      # install dependencies
+$ npm install --global yarn # install yarn if you haven't already
+$ yarn install      # install dependencies
 $ npm run compile  # build project with Bazel
 ```
 
