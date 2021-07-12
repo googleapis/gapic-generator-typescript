@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.5.0...v1.6.0) (2021-07-12)
+
+
+### Features
+
+* --legacy-proto-load to load proto files at runtime ([#916](https://www.github.com/googleapis/gapic-generator-typescript/issues/916)) ([898b575](https://www.github.com/googleapis/gapic-generator-typescript/commit/898b5751408f089b9d3711543bdf2b08c130bf4d))
+* use stub for warn method in test ([#921](https://www.github.com/googleapis/gapic-generator-typescript/issues/921)) ([0c8479e](https://www.github.com/googleapis/gapic-generator-typescript/commit/0c8479efb2b9f915b97b47dfe821d602efedce75))
+
 ## [1.5.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.4.1...v1.5.0) (2021-06-17)
 
 
