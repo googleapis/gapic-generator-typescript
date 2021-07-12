@@ -38,12 +38,13 @@ interface MethodDescriptorProto
   longRunningResponseType?: string;
   longRunningMetadataType?: string;
   streaming:
-    | 'CLIENT_STREAMING'
-    | 'SERVER_STREAMING'
-    | 'BIDI_STREAMING'
-    | undefined;
+  | 'CLIENT_STREAMING'
+  | 'SERVER_STREAMING'
+  | 'BIDI_STREAMING'
+  | undefined;
   pagingFieldName: string | undefined;
   pagingResponseType?: string;
+  pagingMapResponseType?: string | undefined;
   inputInterface: string;
   outputInterface: string;
   comments: string[];
@@ -282,6 +283,50 @@ function pagingResponseType(
   return '.google.protobuf.FieldDescriptorProto.Type.' + type;
 }
 
+// Support DIREGAPIC google-discovery API pagination response with map field.
+function pagingMapResponseType(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  rest?: boolean
+) {
+  const pagingfield = pagingField(messages, method, undefined, rest);
+  const outputType = messages[method.outputType!];
+  if (!pagingfield || !pagingfield.type || !rest || !outputType.nestedType) {
+    return undefined;
+  }
+  const mapResponses = outputType.nestedType.filter(desProto => {
+    return desProto.options && desProto.options.mapEntry;
+  });
+  if (mapResponses.length === 0) {
+    return undefined;
+  }
+  if (mapResponses.length > 1) {
+    throw new Error(
+      `Paginated "${method.name}" method can only have one map field`
+    );
+  }
+  const pagingMapResponse = mapResponses[0];
+  if (pagingMapResponse.name !== pagingfield.typeName?.split('.').pop()) {
+    throw new Error(
+      `Paginated "${method.name}" method map response field name "${pagingMapResponse.name}" is not matching the paging field name "${pagingfield.typeName}"`
+    );
+  }
+  if (pagingMapResponse.field) {
+    if (
+      pagingMapResponse.field.length === 2 &&
+      pagingMapResponse.field[0] === 'key' &&
+      pagingMapResponse.field[0].type !==
+        protos.google.protobuf.FieldDescriptorProto.Type.TYPE_STRING
+    ) {
+      throw new Error(
+        `Paginated "${method.name}" method map response field key's type should be string`
+      );
+    }
+    return pagingMapResponse.field[1].typeName;
+  }
+  return undefined;
+}
+
 export function getSingleHeaderParam(
   rule: protos.google.api.IHttpRule
 ): string[] {
@@ -354,6 +399,11 @@ function augmentMethod(
         method,
         parameters.rest
       ),
+      pagingMapResponseType: pagingMapResponseType(
+        parameters.allMessages,
+        method,
+        parameters.rest
+      ),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
       comments: parameters.service.commentsMap.getMethodComments(
@@ -389,8 +439,8 @@ function augmentMethod(
         const repeatedFields = inputType.field!.filter(
           field =>
             field.label ===
-              protos.google.protobuf.FieldDescriptorProto.Label
-                .LABEL_REPEATED &&
+            protos.google.protobuf.FieldDescriptorProto.Label
+              .LABEL_REPEATED &&
             field.name === bc.batchDescriptor.batched_field
         );
         if (!repeatedFields[0].typeName) {
