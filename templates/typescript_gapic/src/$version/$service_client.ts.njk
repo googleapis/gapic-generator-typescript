@@ -683,15 +683,12 @@ export class {{ service.name }}Client {
   }
 {%- endfor %}
 {%- for method in service.paging %}
+  {%- if not method.pagingMapResponseType %}
   {{ method.name.toCamelCase() }}(
       request?: {{ util.toInterface(method.inputInterface) }},
       options?: CallOptions):
       Promise<[
-        {%- if method.pagingMapResponseType %}
-        {{ util.toInterface(method.pagingMapResponseType) }}[],
-        {%- else %}
         {{ util.toInterface(method.pagingResponseType) }}[],
-        {%- endif %}
         {{ util.toInterface(method.inputInterface) }}|null,
         {{ util.toInterface(method.outputInterface) }}
       ]>;
@@ -701,21 +698,13 @@ export class {{ service.name }}Client {
       callback: PaginationCallback<
           {{ util.toInterface(method.inputInterface) }},
           {{ util.toInterface(method.outputInterface) }}|null|undefined,
-          {%- if method.pagingMapResponseType %}
-          {{ util.toInterface(method.pagingMapResponseType) }}>): void;
-          {%- else %}
           {{ util.toInterface(method.pagingResponseType) }}>): void;
-          {%- endif %}
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
       callback: PaginationCallback<
           {{ util.toInterface(method.inputInterface) }},
           {{ util.toInterface(method.outputInterface) }}|null|undefined,
-          {%- if method.pagingMapResponseType %}
-          {{ util.toInterface(method.pagingMapResponseType) }}>): void;
-          {%- else %}
           {{ util.toInterface(method.pagingResponseType) }}>): void;
-          {%- endif %}
 /**
 {{- util.printComments(method, service, id.get(method.name.toCamelCase() + "Async")) }}
  {%- if method.options and method.options.deprecated %}
@@ -727,25 +716,13 @@ export class {{ service.name }}Client {
       optionsOrCallback?: CallOptions|PaginationCallback<
           {{ util.toInterface(method.inputInterface) }},
           {{ util.toInterface(method.outputInterface) }}|null|undefined,
-          {%- if method.pagingMapResponseType %}
-          {{ util.toInterface(method.pagingMapResponseType) }}>,
-          {%- else %}
           {{ util.toInterface(method.pagingResponseType) }}>,
-          {%- endif %}
       callback?: PaginationCallback<
           {{ util.toInterface(method.inputInterface) }},
           {{ util.toInterface(method.outputInterface) }}|null|undefined,
-          {%- if method.pagingMapResponseType %}
-          {{ util.toInterface(method.pagingMapResponseType) }}>):
-          {%- else %}
           {{ util.toInterface(method.pagingResponseType) }}>):
-          {%- endif %}
       Promise<[
-        {%- if method.pagingMapResponseType %}
-        {{ util.toInterface(method.pagingMapResponseType) }}[],
-        {%- else %}
         {{ util.toInterface(method.pagingResponseType) }}[],
-        {%- endif %}
         {{ util.toInterface(method.inputInterface) }}|null,
         {{ util.toInterface(method.outputInterface) }}
       ]>|void {
@@ -789,7 +766,7 @@ export class {{ service.name }}Client {
       callSettings
     );
   }
-
+{%- endif %}
 /**
 {{- util.printCommentsPageAsync(method, id.get(method.name.toCamelCase() + "Async")) }}
  {%- if method.options and method.options.deprecated %}
@@ -817,7 +794,7 @@ export class {{ service.name }}Client {
       request as unknown as RequestType,
       callSettings
     {%- if method.pagingMapResponseType %}
-    ) as AsyncIterable<[string, {{ util.toInterface(method.pagingMapResponseType) }}]>;
+    ) as AsyncIterable<[string, {{ util.toInterface(method.pagingResponseType) }}]>;
     {%- else %}
     ) as AsyncIterable<{{ util.toInterface(method.pagingResponseType) }}>;
     {%- endif %}
