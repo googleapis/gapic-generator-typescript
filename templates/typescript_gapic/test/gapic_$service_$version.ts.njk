@@ -590,6 +590,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- for method in service.paging %}
 
     describe('{{ method.name.toCamelCase() }}', () => {
+        {%- if not method.pagingMapResponseType %}
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
@@ -716,6 +717,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             );
 {%- endif %}
         });
+        {%- endif %}
 
         it('uses async iteration with {{ method.name.toCamelCase() }} without error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
@@ -724,9 +726,17 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             });
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
+            {%- if method.pagingMapResponseType %}
+            {{ util.initPagingMapResponse(method) }}
+            {%- else %}
             {{ util.initPagingResponse(method) }}
+            {%- endif %}
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            {%- if method.pagingMapResponseType %}
+            const responses: Array<[string, {{ util.toInterface(method.pagingMapResponseType) }}]> = [];
+            {%- else %}
             const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
+            {%- endif %}
             const iterable = client.{{ id.get(method.name.toCamelCase() + "Async") }}(request);
             for await (const resource of iterable) {
                 responses.push(resource!);
@@ -755,7 +765,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.{{ id.get(method.name.toCamelCase() + "Async") }}(request);
             await assert.rejects(async () => {
+                {%- if method.pagingMapResponseType %}
+                const responses: Array<[string, {{ util.toInterface(method.pagingMapResponseType) }}]> = [];
+                {%- else %}
                 const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
+                {%- endif %}
                 for await (const resource of iterable) {
                     responses.push(resource!);
                 }
