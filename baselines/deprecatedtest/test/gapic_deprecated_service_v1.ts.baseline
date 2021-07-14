@@ -184,12 +184,14 @@ describe('v1.DeprecatedServiceClient', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.initialize();
             const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
             const expectedOptions = {};
             const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
             client.innerApiCalls.slowFibonacci = stubSimpleCall(expectedResponse);
             const [response] = await client.slowFibonacci(request);
+            assert(stub.calledOnce);
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.slowFibonacci as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
@@ -200,6 +202,7 @@ describe('v1.DeprecatedServiceClient', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.initialize();
             const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
             const expectedOptions = {};
@@ -217,6 +220,7 @@ describe('v1.DeprecatedServiceClient', () => {
                     });
             });
             const response = await promise;
+            assert(stub.calledOnce);
             assert.deepStrictEqual(response, expectedResponse);
             assert((client.innerApiCalls.slowFibonacci as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
@@ -227,12 +231,14 @@ describe('v1.DeprecatedServiceClient', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
+            const stub = sinon.stub(client, 'warn');
             client.initialize();
             const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
             const expectedOptions = {};
             const expectedError = new Error('expected');
             client.innerApiCalls.slowFibonacci = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.slowFibonacci(request), expectedError);
+            assert(stub.calledOnce);
             assert((client.innerApiCalls.slowFibonacci as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });

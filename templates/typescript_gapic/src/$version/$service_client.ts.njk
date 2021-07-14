@@ -62,6 +62,7 @@ const version = require('../../../package.json').version;
 export class {{ service.name }}Client {
   private _terminated = false;
   private _opts: ClientOptions;
+  private _providedCustomServicePath: boolean;
   private _gaxModule: typeof gax{% if not api.legacyProtoLoad %} | typeof gax.fallback{% endif %};
   private _gaxGrpc: gax.GrpcClient{% if not api.legacyProtoLoad %} | gax.fallback.GrpcClient{% endif %};
   private _protos: {};
@@ -73,6 +74,7 @@ export class {{ service.name }}Client {
     longrunning: {},
     batching: {},
   };
+  warn: (code: string, message: string, warnType?: string) => void;
   innerApiCalls: {[name: string]: Function};
   {%- if service.iamService > 0 %}
   iamClient: IamClient;
@@ -125,6 +127,7 @@ export class {{ service.name }}Client {
     // Ensure that options include all the required fields.
     const staticMembers = this.constructor as typeof {{ service.name }}Client;
     const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.{{ id.get("servicePath") }};
+    this._providedCustomServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
     const port = opts?.port || staticMembers.{{ id.get("port") }};
     const clientConfig = opts?.clientConfig ?? {};
     {%- if api.rest %}
@@ -199,8 +202,9 @@ export class {{ service.name }}Client {
         this._gaxGrpc.loadProto(
             path.join(__dirname, '..', '..', 'protos'),
             '{{ filename }}')
+{%- endfor -%}
     );
-{%- endfor -%}{%- else %}
+{%- else %}
     this._protos = this._gaxGrpc.loadProtoJSON(jsonProtos);
 {%- endif %}
 
@@ -326,6 +330,9 @@ export class {{ service.name }}Client {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
+
+    // Add a warn function to the client constructor so it can be easily tested.
+    this.warn = gax.warn;
   }
 
   /**
@@ -343,7 +350,7 @@ export class {{ service.name }}Client {
     // If the client stub promise is already initialized, return immediately.
     if (this.{{ service.name.toCamelCase() }}Stub) {
       {%- if service.options and service.options.deprecated %}
-      gax.warn('DEP${{service.name}}', '{{service.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+      this.warn('DEP${{service.name}}', '{{service.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
       {%- endif %}
       return this.{{ service.name.toCamelCase() }}Stub;
     }
@@ -357,7 +364,7 @@ export class {{ service.name }}Client {
 {%- endif %}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).{{api.naming.protoPackage}}.{{ service.name }},
-        this._opts) as Promise<{[method: string]: Function}>;
+        this._opts, this._providedCustomServicePath) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
@@ -405,7 +412,7 @@ export class {{ service.name }}Client {
       this.innerApiCalls[methodName] = apiCall;
     }
     {%- if service.options and service.options.deprecated %}
-    gax.warn('DEP${{service.name}}', '{{service.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP${{service.name}}', '{{service.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
 
     return this.{{ service.name.toCamelCase() }}Stub;
@@ -527,7 +534,7 @@ export class {{ service.name }}Client {
     {{ util.buildHeaderRequestParam(method) }}
     this.{{ id.get("initialize") }}();
     {%- if method.options and method.options.deprecated %}
-    gax.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
@@ -545,7 +552,7 @@ export class {{ service.name }}Client {
     gax.CancellableStream {
     this.{{ id.get("initialize") }}();
     {%- if method.options and method.options.deprecated %}
-    gax.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(options);
   }
@@ -564,7 +571,7 @@ export class {{ service.name }}Client {
     {{ util.buildHeaderRequestParam(method) }}
     this.{{ id.get("initialize") }}();
     {%- if method.options and method.options.deprecated %}
-    gax.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options);
   }
@@ -605,7 +612,7 @@ export class {{ service.name }}Client {
     const options = optionsOrCallback as CallOptions;
     this.{{ id.get("initialize") }}();
     {%- if method.options and method.options.deprecated %}
-    gax.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(null, options, callback);
   }
@@ -664,7 +671,7 @@ export class {{ service.name }}Client {
     {{ util.buildHeaderRequestParam(method) }}
     this.{{ id.get("initialize") }}();
     {%- if method.options and method.options.deprecated %}
-    gax.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
@@ -738,7 +745,7 @@ export class {{ service.name }}Client {
     {{ util.buildHeaderRequestParam(method) }}
     this.{{ id.get("initialize") }}();
     {%- if method.options and method.options.deprecated %}
-    gax.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
@@ -758,7 +765,7 @@ export class {{ service.name }}Client {
     const callSettings = new gax.CallSettings(options);
     this.{{ id.get("initialize") }}();
     {%- if method.options and method.options.deprecated %}
-    gax.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     return this.descriptors.page.{{ method.name.toCamelCase() }}.createStream(
       this.innerApiCalls.{{ method.name.toCamelCase() }} as gax.GaxCall,
@@ -788,7 +795,7 @@ export class {{ service.name }}Client {
     const callSettings = new gax.CallSettings(options);
     this.{{ id.get("initialize") }}();
     {%- if method.options and method.options.deprecated %}
-    gax.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     return this.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate(
       this.innerApiCalls['{{ method.name.toCamelCase() }}'] as GaxCall,

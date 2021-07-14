@@ -44,6 +44,7 @@ const version = require('../../../package.json').version;
 export class EchoClient {
   private _terminated = false;
   private _opts: ClientOptions;
+  private _providedCustomServicePath: boolean;
   private _gaxModule: typeof gax;
   private _gaxGrpc: gax.GrpcClient;
   private _protos: {};
@@ -55,6 +56,7 @@ export class EchoClient {
     longrunning: {},
     batching: {},
   };
+  warn: (code: string, message: string, warnType?: string) => void;
   innerApiCalls: {[name: string]: Function};
   operationsClient: gax.OperationsClient;
   echoStub?: Promise<{[name: string]: Function}>;
@@ -92,6 +94,7 @@ export class EchoClient {
     // Ensure that options include all the required fields.
     const staticMembers = this.constructor as typeof EchoClient;
     const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.servicePath;
+    this._providedCustomServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
     const port = opts?.port || staticMembers.port;
     const clientConfig = opts?.clientConfig ?? {};
     opts = Object.assign({servicePath, port, clientConfig}, opts);
@@ -137,8 +140,7 @@ export class EchoClient {
         {},
         this._gaxGrpc.loadProto(
             path.join(__dirname, '..', '..', 'protos'),
-            'google/showcase/v1beta1/echo.proto')
-    );
+            'google/showcase/v1beta1/echo.proto'));
 
     // Some of the methods on this service return "paged" results,
     // (e.g. 50 results at a time, with tokens to get subsequent
@@ -190,6 +192,9 @@ export class EchoClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
+
+    // Add a warn function to the client constructor so it can be easily tested.
+    this.warn = gax.warn;
   }
 
   /**
@@ -214,7 +219,7 @@ export class EchoClient {
     this.echoStub = this._gaxGrpc.createStub(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).google.showcase.v1beta1.Echo,
-        this._opts) as Promise<{[method: string]: Function}>;
+        this._opts, this._providedCustomServicePath) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
