@@ -34,7 +34,7 @@ export interface BaselineOptions {
   packageName?: string;
   template?: string;
   bundleConfig?: string;
-  iamService?: boolean;
+  serviceYaml?: string;
   metadata?: boolean;
   legacyProtoLoad?: boolean;
 }
@@ -79,7 +79,9 @@ export function runBaselineTest(options: BaselineOptions) {
   const bundleConfig = options.bundleConfig
     ? path.join(protosDirRoot, options.bundleConfig.split('/').join(path.sep))
     : undefined;
-  const iamService = options.iamService ?? false;
+  const serviceYaml = options.serviceYaml
+    ? path.join(protosDirRoot, options.serviceYaml.split('/').join(path.sep))
+    : undefined;
   const legacyProtoLoad = options.legacyProtoLoad ?? false;
   it(options.baselineName, async function () {
     this.timeout(60000);
@@ -110,8 +112,8 @@ export function runBaselineTest(options: BaselineOptions) {
     if (options.bundleConfig) {
       commandLine += ` --bundle-config="${bundleConfig}"`;
     }
-    if (options.iamService) {
-      commandLine += ` --iam-service="${iamService}"`;
+    if (options.serviceYaml) {
+      commandLine += ` --service-yaml="${serviceYaml}"`;
     }
     if (options.metadata) {
       commandLine += ' --metadata';

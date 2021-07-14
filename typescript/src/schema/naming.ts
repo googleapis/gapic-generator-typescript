@@ -16,13 +16,14 @@ import * as protos from '../../../protos';
 import {commonPrefix} from '../util';
 import {API} from './api';
 import {BundleConfig} from '../bundle';
+import {ServiceYaml} from '../serviceyaml';
 
 export interface Options {
   grpcServiceConfig: protos.grpc.service_config.ServiceConfig;
   bundleConfigs?: BundleConfig[];
   publishName?: string;
   mainServiceName?: string;
-  iamService?: boolean;
+  serviceYaml?: ServiceYaml;
   rest?: boolean;
   legacyProtoLoad?: boolean;
 }
