@@ -25,7 +25,6 @@ def typescript_gapic_library(
   service_yaml = None,
   metadata = None,
   legacy_proto_load = None,
-  service_yaml = None,
   extra_protoc_parameters = [],
   extra_protoc_file_parameters = {},
   **kwargs):
