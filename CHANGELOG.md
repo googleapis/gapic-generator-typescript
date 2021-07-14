@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.0.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.0.0...v2.0.1) (2021-07-14)
+
+
+### Bug Fixes
+
+* remove duplicate service_yaml parameter ([#932](https://www.github.com/googleapis/gapic-generator-typescript/issues/932)) ([78fd850](https://www.github.com/googleapis/gapic-generator-typescript/commit/78fd850094c2517aeea76640a9821d62ba999579))
+
 ## [2.0.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.6.0...v2.0.0) (2021-07-14)
 
 
