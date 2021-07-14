@@ -38,13 +38,13 @@ interface MethodDescriptorProto
   longRunningResponseType?: string;
   longRunningMetadataType?: string;
   streaming:
-    | 'CLIENT_STREAMING'
-    | 'SERVER_STREAMING'
-    | 'BIDI_STREAMING'
-    | undefined;
+  | 'CLIENT_STREAMING'
+  | 'SERVER_STREAMING'
+  | 'BIDI_STREAMING'
+  | undefined;
   pagingFieldName: string | undefined;
   pagingResponseType?: string;
-  pagingMapResponseType?: string | undefined;
+  pagingMapResponseType?: string;
   inputInterface: string;
   outputInterface: string;
   comments: string[];
@@ -291,7 +291,7 @@ function pagingMapResponseType(
 ) {
   const pagingfield = pagingField(messages, method, undefined, rest);
   const outputType = messages[method.outputType!];
-  if (!pagingfield || !pagingfield.type || !rest || !outputType.nestedType) {
+  if (!pagingfield?.type || !rest || !outputType.nestedType) {
     return undefined;
   }
   const mapResponses = outputType.nestedType.filter(desProto => {
@@ -306,6 +306,7 @@ function pagingMapResponseType(
     );
   }
   const pagingMapResponse = mapResponses[0];
+  // convert paging.field typeName .google.cloud.compute.v1.ItemEntry to ItemEntry
   if (pagingMapResponse.name !== pagingfield.typeName?.split('.').pop()) {
     throw new Error(
       `Paginated "${method.name}" method map response field name "${pagingMapResponse.name}" is not matching the paging field name "${pagingfield.typeName}"`
@@ -439,8 +440,8 @@ function augmentMethod(
         const repeatedFields = inputType.field!.filter(
           field =>
             field.label ===
-              protos.google.protobuf.FieldDescriptorProto.Label
-                .LABEL_REPEATED &&
+            protos.google.protobuf.FieldDescriptorProto.Label
+              .LABEL_REPEATED &&
             field.name === bc.batchDescriptor.batched_field
         );
         if (!repeatedFields[0].typeName) {
