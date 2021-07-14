@@ -38,10 +38,10 @@ interface MethodDescriptorProto
   longRunningResponseType?: string;
   longRunningMetadataType?: string;
   streaming:
-  | 'CLIENT_STREAMING'
-  | 'SERVER_STREAMING'
-  | 'BIDI_STREAMING'
-  | undefined;
+    | 'CLIENT_STREAMING'
+    | 'SERVER_STREAMING'
+    | 'BIDI_STREAMING'
+    | undefined;
   pagingFieldName: string | undefined;
   pagingResponseType?: string;
   pagingMapResponseType?: string;
@@ -440,8 +440,8 @@ function augmentMethod(
         const repeatedFields = inputType.field!.filter(
           field =>
             field.label ===
-            protos.google.protobuf.FieldDescriptorProto.Label
-              .LABEL_REPEATED &&
+              protos.google.protobuf.FieldDescriptorProto.Label
+                .LABEL_REPEATED &&
             field.name === bc.batchDescriptor.batched_field
         );
         if (!repeatedFields[0].typeName) {
