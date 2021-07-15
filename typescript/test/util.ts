@@ -37,6 +37,7 @@ export interface BaselineOptions {
   iamService?: boolean;
   metadata?: boolean;
   legacyProtoLoad?: boolean;
+  transport?: string;
 }
 
 const cwd = process.cwd();
@@ -118,6 +119,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (legacyProtoLoad) {
       commandLine += ' --legacy-proto-load';
+    }
+    if (options.transport && options.transport === 'rest') {
+      commandLine += ' --transport=rest';
     }
     execSync(commandLine);
     assert(equalToBaseline(outputDir, baselineDir));
