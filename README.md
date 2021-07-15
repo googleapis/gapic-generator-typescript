@@ -131,6 +131,7 @@ $ bazel run //:gapic-generator-typescript -- \
     --output-dir /tmp/translate-v3-typescript \
     -I "$GOOGLEAPIS" \
     --grpc-service-config "$GOOGLEAPIS/google/cloud/translate/v3/translate_grpc_service_config.json" \
+    --service-yaml "$GOOGLEAPIS/google/cloud/translate/v3/translate_v3.yaml" \
     `find "$GOOGLEAPIS/google/cloud/translate/v3" -name '*.proto'` \
     "$GOOGLEAPIS/google/cloud/common_resources.proto"
 ```
@@ -140,6 +141,7 @@ Line by line:
 * `--output-dir /tmp/translate-v3-typescript` is where to put the result
 * `--grpc-service-config "$GOOGLEAPIS/google/cloud/translate/v3/translate_grpc_service_config.json"`
 is an optional configuration file for timeouts and stuff
+* `--service-yaml "$GOOGLEAPIS/google/cloud/translate/v3/translate_v3.yaml"` is the file that lists any mixin apis that should be generated into the library
 * Then we add all the `translate` `v3` proto file to the command line, as well as the
 proto file that defines common resources (some APIs need it, some others don't).
 

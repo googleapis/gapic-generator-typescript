@@ -1,5 +1,30 @@
 # Changelog
 
+### [2.0.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.0.0...v2.0.1) (2021-07-14)
+
+
+### Bug Fixes
+
+* remove duplicate service_yaml parameter ([#932](https://www.github.com/googleapis/gapic-generator-typescript/issues/932)) ([78fd850](https://www.github.com/googleapis/gapic-generator-typescript/commit/78fd850094c2517aeea76640a9821d62ba999579))
+
+## [2.0.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.6.0...v2.0.0) (2021-07-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update IAMPolicy mixin to use <$service>.yaml file instead of explicit generator flag (#909)
+
+### Features
+
+* **mtls:** pass variable to indicate whether default service endpoint used ([#900](https://www.github.com/googleapis/gapic-generator-typescript/issues/900)) ([af309c6](https://www.github.com/googleapis/gapic-generator-typescript/commit/af309c6fa97f92773887163bb91211e7577f56af))
+* Update IAMPolicy mixin to use <$service>.yaml file instead of explicit generator flag ([#909](https://www.github.com/googleapis/gapic-generator-typescript/issues/909)) ([73199f5](https://www.github.com/googleapis/gapic-generator-typescript/commit/73199f50920a36aaf1aa46d1757b4c254f36be1f))
+
+
+### Bug Fixes
+
+* multiple proto listing for legacy loading ([#926](https://www.github.com/googleapis/gapic-generator-typescript/issues/926)) ([63dfcbe](https://www.github.com/googleapis/gapic-generator-typescript/commit/63dfcbeb0a5b33c0b2e01abf7372312cdf1ad34a))
+* only invoke stub for methods that are deprecated ([#927](https://www.github.com/googleapis/gapic-generator-typescript/issues/927)) ([0fdbf16](https://www.github.com/googleapis/gapic-generator-typescript/commit/0fdbf16ccc134b124b5a7f8ce9d8935ed58b8595))
+
 ## [1.6.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.5.0...v1.6.0) (2021-07-12)
 
 

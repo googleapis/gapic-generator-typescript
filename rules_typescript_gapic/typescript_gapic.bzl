@@ -22,7 +22,7 @@ def typescript_gapic_library(
   package_name = None,
   main_service = None,
   bundle_config = None,
-  iam_service = None,
+  service_yaml = None,
   metadata = None,
   legacy_proto_load = None,
   extra_protoc_parameters = [],
@@ -34,8 +34,6 @@ def typescript_gapic_library(
     plugin_args_dict["package-name"] = package_name
   if main_service:
     plugin_args_dict["main-service"] = main_service
-  if iam_service:
-    plugin_args_dict["iam-service"] = iam_service
   if metadata:
     plugin_args_dict["metadata"] = "true"
   if legacy_proto_load:
@@ -48,6 +46,9 @@ def typescript_gapic_library(
     file_args[grpc_service_config] = "grpc-service-config"
   if bundle_config:
     file_args[bundle_config] = "bundle-config"
+  if service_yaml:
+    file_args[service_yaml] = "service-yaml"
+
 
   plugin_args = []
   for parameter in extra_protoc_parameters:

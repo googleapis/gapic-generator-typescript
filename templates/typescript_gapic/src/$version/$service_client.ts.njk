@@ -28,9 +28,9 @@ import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.longRunning.length > 0 %}, LROperation{%- endif -%}
 {%- if service.paging.length > 0 %}, PaginationCallback, GaxCall{%- endif -%}
-{%- if service.iamService > 0 %}, IamClient, IamProtos{%- endif -%}
+{%- if service.IAMPolicyMixin > 0 %}, IamClient, IamProtos{%- endif -%}
 } from 'google-gax';
-{% if (service.paging.length > 0) %}
+{% if service.paging.length > 0 %}
 import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
 {%- endif %}
@@ -76,13 +76,13 @@ export class {{ service.name }}Client {
   };
   warn: (code: string, message: string, warnType?: string) => void;
   innerApiCalls: {[name: string]: Function};
-  {%- if service.iamService > 0 %}
+  {%- if service.IAMPolicyMixin > 0 %}
   iamClient: IamClient;
   {%- endif %}
-  {%- if (service.pathTemplates.length > 0) %}
+  {%- if service.pathTemplates.length > 0 %}
   pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
-{%- if (service.longRunning.length > 0) %}
+{%- if service.longRunning.length > 0 %}
   operationsClient: gax.OperationsClient;
 {%- endif %}
   {{ service.name.toCamelCase() }}Stub?: Promise<{[name: string]: Function}>;
@@ -166,7 +166,7 @@ export class {{ service.name }}Client {
     if (servicePath === staticMembers.{{ id.get("servicePath") }}) {
       this.auth.defaultScopes = staticMembers.{{ id.get("scopes") }};
     }
-  {%- if service.iamService > 0 %}
+  {%- if service.IAMPolicyMixin > 0 %}
     this.iamClient = new IamClient(this._gaxGrpc, opts);
   {% endif %}
 
@@ -208,7 +208,7 @@ export class {{ service.name }}Client {
     this._protos = this._gaxGrpc.loadProtoJSON(jsonProtos);
 {%- endif %}
 
-{%- if (service.pathTemplates.length > 0) %}
+{%- if service.pathTemplates.length > 0 %}
 
     // This API contains "path templates"; forward-slash-separated
     // identifiers to uniquely identify resources within the API.
@@ -222,7 +222,7 @@ export class {{ service.name }}Client {
     };
 {%- endif %}
 
-{%- if (service.paging.length > 0) %}
+{%- if service.paging.length > 0 %}
 
     // Some of the methods on this service return "paged" results,
     // (e.g. 50 results at a time, with tokens to get subsequent
@@ -237,7 +237,7 @@ export class {{ service.name }}Client {
     };
 {%- endif %}
 
-{%- if (service.streaming.length > 0) %}
+{%- if service.streaming.length > 0 %}
 
     // Some of the methods on this service provide streaming responses.
     // Provide descriptors for these.
@@ -292,7 +292,7 @@ export class {{ service.name }}Client {
     };
 {%- endif %}
 
-{%- if (service.bundleConfigs.length > 0) %}
+{%- if service.bundleConfigs.length > 0 %}
     // Some methods on this API support automatically batching
     // requests; denote this.
 
@@ -808,10 +808,10 @@ export class {{ service.name }}Client {
     {%- endif %}
   }
 {%- endfor %}
-{%- if service.iamService %}
+{%- if service.IAMPolicyMixin > 0 %}
 {{ iam.iamServiceMethods()}}
 {% endif -%}
-{%- if (service.pathTemplates.length > 0) %}
+{%- if service.pathTemplates.length > 0 %}
   // --------------------
   // -- Path templates --
   // --------------------

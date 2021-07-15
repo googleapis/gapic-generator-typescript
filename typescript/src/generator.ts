@@ -21,6 +21,7 @@ import * as protos from '../../protos';
 import {API} from './schema/api';
 import {processTemplates} from './templater';
 import {BundleConfigClient, BundleConfig} from './bundle';
+import {ServiceYaml} from './serviceyaml';
 import {commonPrefix, duration} from './util';
 import * as Long from 'long';
 
@@ -64,7 +65,9 @@ export class Generator {
   // For historical reasons, Webpack library name matches "the main" service of the client library.
   // Sometimes it's hard to figure out automatically, so making this an option.
   mainServiceName?: string;
-  iamService?: boolean;
+  // This is for services using mixin services (e.g. google.iam.v1.Policy).
+  // As long as the mixin service is defined under 'apis' in the service yaml file, the generator will include it in the client library.
+  serviceYaml?: ServiceYaml;
   templates: string[];
   metadata?: boolean;
   rest?: boolean;
@@ -140,12 +143,25 @@ export class Generator {
     }
   }
 
-  private readIamService() {
-    // if `--iam-service` is not specified, or set it as `false`, we will not generated IAM methods for the client.
-    // if `--iam-service` is true, we will include all IAM methods in the client.
-    if (this.paramMap?.['iam-service']) {
-      const iamService = this.paramMap['iam-service'];
-      this.iamService = iamService === 'true' ? true : false;
+  // This method determines if there are any APIs listed in the service yaml file.
+  // If there are APIs listed, then it filters for the supported mixin services (currently only IAMPolicy)
+  private readServiceYaml() {
+    if (this.paramMap?.['service-yaml']) {
+      const filename = this.paramMap['service-yaml'];
+      if (!fs.existsSync(filename)) {
+        throw new Error(`File ${filename} cannot be opened.`);
+      }
+      const content = fs.readFileSync(filename, 'utf8');
+      const info = yaml.load(content) as ServiceYaml;
+      this.serviceYaml = info;
+      const serviceMixins = [];
+      for (let i = 0; i < info.apis.length; i++) {
+        const api = info.apis[i];
+        for (const [, value] of Object.entries(api)) {
+          serviceMixins.push(value);
+        }
+      }
+      this.serviceYaml.apis = serviceMixins;
     }
   }
 
@@ -188,7 +204,7 @@ export class Generator {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig();
       this.readBundleConfig();
-      this.readIamService();
+      this.readServiceYaml();
       this.readPublishPackageName();
       this.readMainServiceName();
       this.readTemplates();
@@ -230,7 +246,7 @@ export class Generator {
       bundleConfigs: this.bundleConfigs,
       publishName: this.publishName,
       mainServiceName: this.mainServiceName,
-      iamService: this.iamService,
+      serviceYaml: this.serviceYaml,
       rest: this.rest,
       legacyProtoLoad: this.legacyProtoLoad,
     });

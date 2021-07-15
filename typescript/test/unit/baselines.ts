@@ -45,7 +45,7 @@ describe('Baseline tests', () => {
     outputDir: '.test-out-kms',
     protoPath: 'google/cloud/kms/v1/*.proto',
     useCommonProto: false,
-    iamService: true,
+    serviceYaml: 'google/cloud/kms/v1/cloudkms_v1.yaml',
   });
 
   runBaselineTest({
@@ -69,6 +69,7 @@ describe('Baseline tests', () => {
     protoPath: 'google/showcase/v1beta1/*.proto',
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
+    serviceYaml: 'google/showcase/v1beta1/showcase_v1beta1.yaml',
     template: 'typescript_gapic;typescript_packing_test',
     metadata: true,
   });

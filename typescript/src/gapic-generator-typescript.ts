@@ -54,8 +54,8 @@ yargs.alias('grpc-service-config', 'grpc_service_config');
 yargs.describe('grpc-service-config', 'Path to gRPC service config JSON');
 yargs.alias('bundle-config', 'bundle_config');
 yargs.describe('bundle-config', 'Path to bundle request config JSON');
-yargs.alias('iam-service', 'iam_service');
-yargs.describe('iam-service', 'Include IAM service to the generated client');
+yargs.alias('service-yaml', 'service_yaml');
+yargs.describe('service-yaml', 'Path to service yaml');
 yargs.alias('package-name', 'package_name');
 yargs.describe('package-name', 'Publish package name');
 yargs.alias('main-service', 'main_service');
@@ -99,7 +99,7 @@ export interface IArguments {
   outputDir?: string;
   grpcServiceConfig?: string;
   bundleConfig?: string;
-  iamService?: string;
+  serviceYaml?: string;
   packageName?: string;
   mainService?: string;
   template?: string;
@@ -120,7 +120,7 @@ const argv = yargs.argv as IArguments;
 const outputDir = argv.outputDir as string;
 const grpcServiceConfig = argv.grpcServiceConfig as string | undefined;
 const bundleConfig = argv.bundleConfig as string | undefined;
-const iamService = argv.iamService as string | undefined;
+const serviceYaml = argv.serviceYaml as string | undefined;
 const packageName = argv.packageName as string | undefined;
 const mainServiceName = argv.mainService as string | undefined;
 const template = argv.template as string | undefined;
@@ -161,8 +161,8 @@ if (grpcServiceConfig) {
 if (bundleConfig) {
   protocCommand.push(`--typescript_gapic_opt="bundle-config=${bundleConfig}"`);
 }
-if (iamService) {
-  protocCommand.push(`--typescript_gapic_opt="iam-service=${iamService}"`);
+if (serviceYaml) {
+  protocCommand.push(`--typescript_gapic_opt="service-yaml=${serviceYaml}"`);
 }
 if (packageName) {
   protocCommand.push(`--typescript_gapic_opt="package-name=${packageName}"`);
