@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it, before, afterEach } from 'mocha';
+import { describe, it, beforeEach } from 'mocha';
 import * as addressesModule from '../src';
 
 import {PassThrough} from 'stream';
@@ -88,14 +88,12 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 
 describe('v1.AddressesClient', () => {
   let googleAuth: GoogleAuth;
-  before(() => {
-    googleAuth = new GoogleAuth();
-    sinon
-      .stub(googleAuth, 'getRequestHeaders')
-      .resolves({Authorization: 'Bearer SOME_TOKEN'});
-    sinon
-      .stub(googleAuth, 'getApplicationDefault')
-      .resolves({client_email: 'bogus', private_key: 'bogus'});
+  beforeEach(() => {
+    googleAuth = {
+      getClient: sinon.stub().resolves({
+        getRequestHeaders: sinon.stub().resolves({Authorization: 'Bearer SOME_TOKEN'}),
+      })
+    } as unknown as GoogleAuth;
   });
   afterEach(() => {
     sinon.restore();
