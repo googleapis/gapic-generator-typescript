@@ -231,14 +231,22 @@ limitations under the License.
  * @returns {Object}
  *   An iterable Object that allows [async iteration](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols).
  *   When you iterate the returned iterable, each element will be an object representing
+ {%- if method.pagingMapResponseType %}
+ *   as tuple [string, {{ typeLink(method.pagingMapResponseType) }}]. The API will be called under the hood as needed, once per the page,
+ {%- else %}
  *   {{ typeLink(method.pagingResponseType) }}. The API will be called under the hood as needed, once per the page,
+ {%- endif %}
  *   so you can stop the iteration when you don't need more results.
  *   Please see the
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
  *   for more details and examples.
  * @example
  * const iterable = client.{{ generatedName }}(request);
+ {%- if method.pagingMapResponseType %}
+ * for await (const [key, value] of iterable) {
+ {%- else %}
  * for await (const response of iterable) {
+ {%- endif %}
  *   // process response
  * }
 {%- endmacro -%}
@@ -337,6 +345,14 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endif %}
 {%- endmacro -%}
 
+{%- macro initPagingMapResponse(method) -%}
+            const expectedResponse = [
+              ['tuple_key_1', generateSampleMessage(new protos{{ method.pagingMapResponseType }}())],
+              ['tuple_key_2', generateSampleMessage(new protos{{ method.pagingMapResponseType }}())],
+              ['tuple_key_3', generateSampleMessage(new protos{{ method.pagingMapResponseType }}())],
+            ];
+{%- endmacro -%}
+
 {%- macro typescriptType(protobufType) -%}
 {%- if protobufType.includes('TYPE_BYTES') -%}
 {%- set type = 'Buffer' -%}
@@ -378,4 +394,15 @@ protos{{ type.substring(0, index + 1) + 'I' + type.substring(index + 1) }}
 {%- else -%}
 protos{{ method.pagingResponseType }}
 {%- endif -%}
+{%- endmacro -%}
+
+{%- macro initClientOptions(rest) -%}
+        {
+{%- if rest %}
+              auth: googleAuth,
+{%- else %}
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+{%- endif %}
+              projectId: 'bogus',
+        }
 {%- endmacro -%}

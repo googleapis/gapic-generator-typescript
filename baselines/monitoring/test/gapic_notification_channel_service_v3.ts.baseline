@@ -117,8 +117,8 @@ describe('v3.NotificationChannelServiceClient', () => {
 
     it('has initialize method and supports deferred initialization', async () => {
         const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         assert.strictEqual(client.notificationChannelServiceStub, undefined);
         await client.initialize();
@@ -127,8 +127,8 @@ describe('v3.NotificationChannelServiceClient', () => {
 
     it('has close method', () => {
         const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.close();
     });
@@ -136,8 +136,8 @@ describe('v3.NotificationChannelServiceClient', () => {
     it('has getProjectId method', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
         const result = await client.getProjectId();
@@ -148,8 +148,8 @@ describe('v3.NotificationChannelServiceClient', () => {
     it('has getProjectId method with callback', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
@@ -168,9 +168,9 @@ describe('v3.NotificationChannelServiceClient', () => {
     describe('getNotificationChannelDescriptor', () => {
         it('invokes getNotificationChannelDescriptor without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetNotificationChannelDescriptorRequest());
             request.name = '';
@@ -192,9 +192,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes getNotificationChannelDescriptor without error using callback', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetNotificationChannelDescriptorRequest());
             request.name = '';
@@ -227,9 +227,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes getNotificationChannelDescriptor with error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetNotificationChannelDescriptorRequest());
             request.name = '';
@@ -252,9 +252,9 @@ describe('v3.NotificationChannelServiceClient', () => {
     describe('getNotificationChannel', () => {
         it('invokes getNotificationChannel without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetNotificationChannelRequest());
             request.name = '';
@@ -276,9 +276,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes getNotificationChannel without error using callback', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetNotificationChannelRequest());
             request.name = '';
@@ -311,9 +311,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes getNotificationChannel with error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetNotificationChannelRequest());
             request.name = '';
@@ -336,9 +336,9 @@ describe('v3.NotificationChannelServiceClient', () => {
     describe('createNotificationChannel', () => {
         it('invokes createNotificationChannel without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateNotificationChannelRequest());
             request.name = '';
@@ -360,9 +360,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes createNotificationChannel without error using callback', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateNotificationChannelRequest());
             request.name = '';
@@ -395,9 +395,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes createNotificationChannel with error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateNotificationChannelRequest());
             request.name = '';
@@ -420,9 +420,9 @@ describe('v3.NotificationChannelServiceClient', () => {
     describe('updateNotificationChannel', () => {
         it('invokes updateNotificationChannel without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateNotificationChannelRequest());
             request.notificationChannel = {};
@@ -445,9 +445,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes updateNotificationChannel without error using callback', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateNotificationChannelRequest());
             request.notificationChannel = {};
@@ -481,9 +481,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes updateNotificationChannel with error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateNotificationChannelRequest());
             request.notificationChannel = {};
@@ -507,9 +507,9 @@ describe('v3.NotificationChannelServiceClient', () => {
     describe('deleteNotificationChannel', () => {
         it('invokes deleteNotificationChannel without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteNotificationChannelRequest());
             request.name = '';
@@ -531,9 +531,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes deleteNotificationChannel without error using callback', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteNotificationChannelRequest());
             request.name = '';
@@ -566,9 +566,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes deleteNotificationChannel with error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteNotificationChannelRequest());
             request.name = '';
@@ -591,9 +591,9 @@ describe('v3.NotificationChannelServiceClient', () => {
     describe('sendNotificationChannelVerificationCode', () => {
         it('invokes sendNotificationChannelVerificationCode without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.SendNotificationChannelVerificationCodeRequest());
             request.name = '';
@@ -615,9 +615,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes sendNotificationChannelVerificationCode without error using callback', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.SendNotificationChannelVerificationCodeRequest());
             request.name = '';
@@ -650,9 +650,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes sendNotificationChannelVerificationCode with error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.SendNotificationChannelVerificationCodeRequest());
             request.name = '';
@@ -675,9 +675,9 @@ describe('v3.NotificationChannelServiceClient', () => {
     describe('getNotificationChannelVerificationCode', () => {
         it('invokes getNotificationChannelVerificationCode without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetNotificationChannelVerificationCodeRequest());
             request.name = '';
@@ -699,9 +699,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes getNotificationChannelVerificationCode without error using callback', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetNotificationChannelVerificationCodeRequest());
             request.name = '';
@@ -734,9 +734,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes getNotificationChannelVerificationCode with error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetNotificationChannelVerificationCodeRequest());
             request.name = '';
@@ -759,9 +759,9 @@ describe('v3.NotificationChannelServiceClient', () => {
     describe('verifyNotificationChannel', () => {
         it('invokes verifyNotificationChannel without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.VerifyNotificationChannelRequest());
             request.name = '';
@@ -783,9 +783,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes verifyNotificationChannel without error using callback', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.VerifyNotificationChannelRequest());
             request.name = '';
@@ -818,9 +818,9 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('invokes verifyNotificationChannel with error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.VerifyNotificationChannelRequest());
             request.name = '';
@@ -1006,13 +1006,14 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('uses async iteration with listNotificationChannelDescriptors without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListNotificationChannelDescriptorsRequest());
             request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+            const expectedHeaderRequestParams = "name=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.NotificationChannelDescriptor()),
               generateSampleMessage(new protos.google.monitoring.v3.NotificationChannelDescriptor()),
               generateSampleMessage(new protos.google.monitoring.v3.NotificationChannelDescriptor()),
@@ -1228,13 +1229,14 @@ describe('v3.NotificationChannelServiceClient', () => {
 
         it('uses async iteration with listNotificationChannels without error', async () => {
             const client = new notificationchannelserviceModule.v3.NotificationChannelServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListNotificationChannelsRequest());
             request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+            const expectedHeaderRequestParams = "name=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.NotificationChannel()),
               generateSampleMessage(new protos.google.monitoring.v3.NotificationChannel()),
               generateSampleMessage(new protos.google.monitoring.v3.NotificationChannel()),

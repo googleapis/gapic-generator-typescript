@@ -117,8 +117,8 @@ describe('v3.AlertPolicyServiceClient', () => {
 
     it('has initialize method and supports deferred initialization', async () => {
         const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         assert.strictEqual(client.alertPolicyServiceStub, undefined);
         await client.initialize();
@@ -127,8 +127,8 @@ describe('v3.AlertPolicyServiceClient', () => {
 
     it('has close method', () => {
         const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.close();
     });
@@ -136,8 +136,8 @@ describe('v3.AlertPolicyServiceClient', () => {
     it('has getProjectId method', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
         const result = await client.getProjectId();
@@ -148,8 +148,8 @@ describe('v3.AlertPolicyServiceClient', () => {
     it('has getProjectId method with callback', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
@@ -168,9 +168,9 @@ describe('v3.AlertPolicyServiceClient', () => {
     describe('getAlertPolicy', () => {
         it('invokes getAlertPolicy without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
             request.name = '';
@@ -192,9 +192,9 @@ describe('v3.AlertPolicyServiceClient', () => {
 
         it('invokes getAlertPolicy without error using callback', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
             request.name = '';
@@ -227,9 +227,9 @@ describe('v3.AlertPolicyServiceClient', () => {
 
         it('invokes getAlertPolicy with error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
             request.name = '';
@@ -252,9 +252,9 @@ describe('v3.AlertPolicyServiceClient', () => {
     describe('createAlertPolicy', () => {
         it('invokes createAlertPolicy without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
             request.name = '';
@@ -276,9 +276,9 @@ describe('v3.AlertPolicyServiceClient', () => {
 
         it('invokes createAlertPolicy without error using callback', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
             request.name = '';
@@ -311,9 +311,9 @@ describe('v3.AlertPolicyServiceClient', () => {
 
         it('invokes createAlertPolicy with error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
             request.name = '';
@@ -336,9 +336,9 @@ describe('v3.AlertPolicyServiceClient', () => {
     describe('deleteAlertPolicy', () => {
         it('invokes deleteAlertPolicy without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
             request.name = '';
@@ -360,9 +360,9 @@ describe('v3.AlertPolicyServiceClient', () => {
 
         it('invokes deleteAlertPolicy without error using callback', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
             request.name = '';
@@ -395,9 +395,9 @@ describe('v3.AlertPolicyServiceClient', () => {
 
         it('invokes deleteAlertPolicy with error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
             request.name = '';
@@ -420,9 +420,9 @@ describe('v3.AlertPolicyServiceClient', () => {
     describe('updateAlertPolicy', () => {
         it('invokes updateAlertPolicy without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
             request.alertPolicy = {};
@@ -445,9 +445,9 @@ describe('v3.AlertPolicyServiceClient', () => {
 
         it('invokes updateAlertPolicy without error using callback', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
             request.alertPolicy = {};
@@ -481,9 +481,9 @@ describe('v3.AlertPolicyServiceClient', () => {
 
         it('invokes updateAlertPolicy with error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
             request.alertPolicy = {};
@@ -670,13 +670,14 @@ describe('v3.AlertPolicyServiceClient', () => {
 
         it('uses async iteration with listAlertPolicies without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
             request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+            const expectedHeaderRequestParams = "name=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),

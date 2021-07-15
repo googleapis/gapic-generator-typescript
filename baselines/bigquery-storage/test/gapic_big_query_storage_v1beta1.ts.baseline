@@ -84,8 +84,8 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
     it('has initialize method and supports deferred initialization', async () => {
         const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         assert.strictEqual(client.bigQueryStorageStub, undefined);
         await client.initialize();
@@ -94,8 +94,8 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
     it('has close method', () => {
         const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.close();
     });
@@ -103,8 +103,8 @@ describe('v1beta1.BigQueryStorageClient', () => {
     it('has getProjectId method', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
         const result = await client.getProjectId();
@@ -115,8 +115,8 @@ describe('v1beta1.BigQueryStorageClient', () => {
     it('has getProjectId method with callback', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
@@ -135,9 +135,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
     describe('createReadSession', () => {
         it('invokes createReadSession without error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest());
             request.tableReference = {};
@@ -162,9 +162,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
         it('invokes createReadSession without error using callback', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest());
             request.tableReference = {};
@@ -200,9 +200,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
         it('invokes createReadSession with error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest());
             request.tableReference = {};
@@ -228,9 +228,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
     describe('batchCreateReadSessionStreams', () => {
         it('invokes batchCreateReadSessionStreams without error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest());
             request.session = {};
@@ -253,9 +253,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
         it('invokes batchCreateReadSessionStreams without error using callback', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest());
             request.session = {};
@@ -289,9 +289,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
         it('invokes batchCreateReadSessionStreams with error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest());
             request.session = {};
@@ -315,9 +315,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
     describe('finalizeStream', () => {
         it('invokes finalizeStream without error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest());
             request.stream = {};
@@ -340,9 +340,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
         it('invokes finalizeStream without error using callback', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest());
             request.stream = {};
@@ -376,9 +376,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
         it('invokes finalizeStream with error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest());
             request.stream = {};
@@ -402,9 +402,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
     describe('splitReadStream', () => {
         it('invokes splitReadStream without error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest());
             request.originalStream = {};
@@ -427,9 +427,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
         it('invokes splitReadStream without error using callback', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest());
             request.originalStream = {};
@@ -463,9 +463,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
         it('invokes splitReadStream with error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest());
             request.originalStream = {};
@@ -489,9 +489,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
     describe('readRows', () => {
         it('invokes readRows without error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest());
             request.readPosition = {};
@@ -524,9 +524,9 @@ describe('v1beta1.BigQueryStorageClient', () => {
 
         it('invokes readRows with error', async () => {
             const client = new bigquerystorageModule.v1beta1.BigQueryStorageClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest());
             request.readPosition = {};
