@@ -117,8 +117,8 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
     it('has initialize method and supports deferred initialization', async () => {
         const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         assert.strictEqual(client.serviceMonitoringServiceStub, undefined);
         await client.initialize();
@@ -127,8 +127,8 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
     it('has close method', () => {
         const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.close();
     });
@@ -136,8 +136,8 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     it('has getProjectId method', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
         const result = await client.getProjectId();
@@ -148,8 +148,8 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     it('has getProjectId method with callback', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
@@ -168,9 +168,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     describe('createService', () => {
         it('invokes createService without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
             request.parent = '';
@@ -192,9 +192,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes createService without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
             request.parent = '';
@@ -227,9 +227,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes createService with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
             request.parent = '';
@@ -252,9 +252,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     describe('getService', () => {
         it('invokes getService without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
             request.name = '';
@@ -276,9 +276,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes getService without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
             request.name = '';
@@ -311,9 +311,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes getService with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
             request.name = '';
@@ -336,9 +336,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     describe('updateService', () => {
         it('invokes updateService without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
             request.service = {};
@@ -361,9 +361,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes updateService without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
             request.service = {};
@@ -397,9 +397,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes updateService with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
             request.service = {};
@@ -423,9 +423,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     describe('deleteService', () => {
         it('invokes deleteService without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
             request.name = '';
@@ -447,9 +447,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes deleteService without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
             request.name = '';
@@ -482,9 +482,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes deleteService with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
             request.name = '';
@@ -507,9 +507,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     describe('createServiceLevelObjective', () => {
         it('invokes createServiceLevelObjective without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
             request.parent = '';
@@ -531,9 +531,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes createServiceLevelObjective without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
             request.parent = '';
@@ -566,9 +566,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes createServiceLevelObjective with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
             request.parent = '';
@@ -591,9 +591,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     describe('getServiceLevelObjective', () => {
         it('invokes getServiceLevelObjective without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
             request.name = '';
@@ -615,9 +615,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes getServiceLevelObjective without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
             request.name = '';
@@ -650,9 +650,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes getServiceLevelObjective with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
             request.name = '';
@@ -675,9 +675,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     describe('updateServiceLevelObjective', () => {
         it('invokes updateServiceLevelObjective without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
             request.serviceLevelObjective = {};
@@ -700,9 +700,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes updateServiceLevelObjective without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
             request.serviceLevelObjective = {};
@@ -736,9 +736,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes updateServiceLevelObjective with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
             request.serviceLevelObjective = {};
@@ -762,9 +762,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
     describe('deleteServiceLevelObjective', () => {
         it('invokes deleteServiceLevelObjective without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
             request.name = '';
@@ -786,9 +786,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes deleteServiceLevelObjective without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
             request.name = '';
@@ -821,9 +821,9 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('invokes deleteServiceLevelObjective with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
             request.name = '';
@@ -1009,13 +1009,14 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('uses async iteration with listServices without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
             request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+            const expectedHeaderRequestParams = "parent=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
@@ -1231,13 +1232,14 @@ describe('v3.ServiceMonitoringServiceClient', () => {
 
         it('uses async iteration with listServiceLevelObjectives without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
             request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+            const expectedHeaderRequestParams = "parent=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),

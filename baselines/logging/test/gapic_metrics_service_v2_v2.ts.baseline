@@ -117,8 +117,8 @@ describe('v2.MetricsServiceV2Client', () => {
 
     it('has initialize method and supports deferred initialization', async () => {
         const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         assert.strictEqual(client.metricsServiceV2Stub, undefined);
         await client.initialize();
@@ -127,8 +127,8 @@ describe('v2.MetricsServiceV2Client', () => {
 
     it('has close method', () => {
         const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.close();
     });
@@ -136,8 +136,8 @@ describe('v2.MetricsServiceV2Client', () => {
     it('has getProjectId method', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
         const result = await client.getProjectId();
@@ -148,8 +148,8 @@ describe('v2.MetricsServiceV2Client', () => {
     it('has getProjectId method with callback', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
@@ -168,9 +168,9 @@ describe('v2.MetricsServiceV2Client', () => {
     describe('getLogMetric', () => {
         it('invokes getLogMetric without error', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetLogMetricRequest());
             request.metricName = '';
@@ -192,9 +192,9 @@ describe('v2.MetricsServiceV2Client', () => {
 
         it('invokes getLogMetric without error using callback', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetLogMetricRequest());
             request.metricName = '';
@@ -227,9 +227,9 @@ describe('v2.MetricsServiceV2Client', () => {
 
         it('invokes getLogMetric with error', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetLogMetricRequest());
             request.metricName = '';
@@ -252,9 +252,9 @@ describe('v2.MetricsServiceV2Client', () => {
     describe('createLogMetric', () => {
         it('invokes createLogMetric without error', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.CreateLogMetricRequest());
             request.parent = '';
@@ -276,9 +276,9 @@ describe('v2.MetricsServiceV2Client', () => {
 
         it('invokes createLogMetric without error using callback', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.CreateLogMetricRequest());
             request.parent = '';
@@ -311,9 +311,9 @@ describe('v2.MetricsServiceV2Client', () => {
 
         it('invokes createLogMetric with error', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.CreateLogMetricRequest());
             request.parent = '';
@@ -336,9 +336,9 @@ describe('v2.MetricsServiceV2Client', () => {
     describe('updateLogMetric', () => {
         it('invokes updateLogMetric without error', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateLogMetricRequest());
             request.metricName = '';
@@ -360,9 +360,9 @@ describe('v2.MetricsServiceV2Client', () => {
 
         it('invokes updateLogMetric without error using callback', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateLogMetricRequest());
             request.metricName = '';
@@ -395,9 +395,9 @@ describe('v2.MetricsServiceV2Client', () => {
 
         it('invokes updateLogMetric with error', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateLogMetricRequest());
             request.metricName = '';
@@ -420,9 +420,9 @@ describe('v2.MetricsServiceV2Client', () => {
     describe('deleteLogMetric', () => {
         it('invokes deleteLogMetric without error', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteLogMetricRequest());
             request.metricName = '';
@@ -444,9 +444,9 @@ describe('v2.MetricsServiceV2Client', () => {
 
         it('invokes deleteLogMetric without error using callback', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteLogMetricRequest());
             request.metricName = '';
@@ -479,9 +479,9 @@ describe('v2.MetricsServiceV2Client', () => {
 
         it('invokes deleteLogMetric with error', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteLogMetricRequest());
             request.metricName = '';
@@ -667,13 +667,14 @@ describe('v2.MetricsServiceV2Client', () => {
 
         it('uses async iteration with listLogMetrics without error', async () => {
             const client = new metricsservicev2Module.v2.MetricsServiceV2Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListLogMetricsRequest());
             request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+            const expectedHeaderRequestParams = "parent=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),

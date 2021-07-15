@@ -117,8 +117,8 @@ describe('v3.GroupServiceClient', () => {
 
     it('has initialize method and supports deferred initialization', async () => {
         const client = new groupserviceModule.v3.GroupServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         assert.strictEqual(client.groupServiceStub, undefined);
         await client.initialize();
@@ -127,8 +127,8 @@ describe('v3.GroupServiceClient', () => {
 
     it('has close method', () => {
         const client = new groupserviceModule.v3.GroupServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.close();
     });
@@ -136,8 +136,8 @@ describe('v3.GroupServiceClient', () => {
     it('has getProjectId method', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new groupserviceModule.v3.GroupServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
         const result = await client.getProjectId();
@@ -148,8 +148,8 @@ describe('v3.GroupServiceClient', () => {
     it('has getProjectId method with callback', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new groupserviceModule.v3.GroupServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
@@ -168,9 +168,9 @@ describe('v3.GroupServiceClient', () => {
     describe('getGroup', () => {
         it('invokes getGroup without error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetGroupRequest());
             request.name = '';
@@ -192,9 +192,9 @@ describe('v3.GroupServiceClient', () => {
 
         it('invokes getGroup without error using callback', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetGroupRequest());
             request.name = '';
@@ -227,9 +227,9 @@ describe('v3.GroupServiceClient', () => {
 
         it('invokes getGroup with error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetGroupRequest());
             request.name = '';
@@ -252,9 +252,9 @@ describe('v3.GroupServiceClient', () => {
     describe('createGroup', () => {
         it('invokes createGroup without error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateGroupRequest());
             request.name = '';
@@ -276,9 +276,9 @@ describe('v3.GroupServiceClient', () => {
 
         it('invokes createGroup without error using callback', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateGroupRequest());
             request.name = '';
@@ -311,9 +311,9 @@ describe('v3.GroupServiceClient', () => {
 
         it('invokes createGroup with error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateGroupRequest());
             request.name = '';
@@ -336,9 +336,9 @@ describe('v3.GroupServiceClient', () => {
     describe('updateGroup', () => {
         it('invokes updateGroup without error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateGroupRequest());
             request.group = {};
@@ -361,9 +361,9 @@ describe('v3.GroupServiceClient', () => {
 
         it('invokes updateGroup without error using callback', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateGroupRequest());
             request.group = {};
@@ -397,9 +397,9 @@ describe('v3.GroupServiceClient', () => {
 
         it('invokes updateGroup with error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateGroupRequest());
             request.group = {};
@@ -423,9 +423,9 @@ describe('v3.GroupServiceClient', () => {
     describe('deleteGroup', () => {
         it('invokes deleteGroup without error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteGroupRequest());
             request.name = '';
@@ -447,9 +447,9 @@ describe('v3.GroupServiceClient', () => {
 
         it('invokes deleteGroup without error using callback', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteGroupRequest());
             request.name = '';
@@ -482,9 +482,9 @@ describe('v3.GroupServiceClient', () => {
 
         it('invokes deleteGroup with error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteGroupRequest());
             request.name = '';
@@ -670,13 +670,14 @@ describe('v3.GroupServiceClient', () => {
 
         it('uses async iteration with listGroups without error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListGroupsRequest());
             request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+            const expectedHeaderRequestParams = "name=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Group()),
               generateSampleMessage(new protos.google.monitoring.v3.Group()),
               generateSampleMessage(new protos.google.monitoring.v3.Group()),
@@ -892,13 +893,14 @@ describe('v3.GroupServiceClient', () => {
 
         it('uses async iteration with listGroupMembers without error', async () => {
             const client = new groupserviceModule.v3.GroupServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListGroupMembersRequest());
             request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+            const expectedHeaderRequestParams = "name=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.api.MonitoredResource()),
               generateSampleMessage(new protos.google.api.MonitoredResource()),
               generateSampleMessage(new protos.google.api.MonitoredResource()),

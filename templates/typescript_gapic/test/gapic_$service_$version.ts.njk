@@ -24,12 +24,20 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
+{%- if api.rest %}
+import { describe, it, beforeEach, afterEach } from 'mocha';
+{%- else %}
 import { describe, it } from 'mocha';
+{%- endif %}
 import * as {{ service.name.toLowerCase() }}Module from '../src';
 {% if (service.streaming.length + service.paging.length > 0) %}
 import {PassThrough} from 'stream';
 {% endif %}
+{%- if api.rest %}
+import {GoogleAuth, protobuf
+{%- else %}
 import {protobuf
+{%- endif %}
 {%- if (service.longRunning.length > 0) -%}
 , LROperation, operationsProtos
 {%- endif -%}
@@ -159,6 +167,19 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 {%- endif %}
 
 describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
+{%- if api.rest %}
+  let googleAuth: GoogleAuth;
+  beforeEach(() => {
+    googleAuth = {
+      getClient: sinon.stub().resolves({
+        getRequestHeaders: sinon.stub().resolves({Authorization: 'Bearer SOME_TOKEN'}),
+      })
+    } as unknown as GoogleAuth;
+  });
+  afterEach(() => {
+    sinon.restore();
+  });
+{%- endif %}
     it('has servicePath', () => {
         const servicePath = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.{{ id.get("servicePath") }};
         assert(servicePath);
@@ -190,29 +211,20 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- endif %}
 
     it('has initialize method and supports deferred initialization', async () => {
-        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
-        });
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
         assert.strictEqual(client.{{ service.name.toCamelCase() }}Stub, undefined);
         await client.{{ id.get("initialize") }}();
         assert(client.{{ service.name.toCamelCase() }}Stub);
     });
 
     it('has close method', () => {
-        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
-        });
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
         client.{{ id.get("close") }}();
     });
 
     it('has getProjectId method', async () => {
         const fakeProjectId = 'fake-project-id';
-        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
-        });
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
         const result = await client.{{ id.get("getProjectId") }}();
         assert.strictEqual(result, fakeProjectId);
@@ -221,10 +233,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     it('has getProjectId method with callback', async () => {
         const fakeProjectId = 'fake-project-id';
-        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
-        });
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
             client.{{ id.get("getProjectId") }}((err?: Error|null, projectId?: string|null) => {
@@ -243,10 +252,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -265,10 +271,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client(
+                {{- util.initClientOptions(api.rest) -}}
+            );
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -298,10 +303,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client(
+                {{- util.initClientOptions(api.rest) -}}
+            );
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -323,10 +327,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -346,10 +347,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -382,10 +380,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with call error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -403,10 +398,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with LRO error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -425,10 +417,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -449,10 +438,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -473,10 +459,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -504,10 +487,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -538,10 +518,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -572,10 +549,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -609,10 +583,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -644,10 +615,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -680,6 +648,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- for method in service.paging %}
 
     describe('{{ method.name.toCamelCase() }}', () => {
+{%- if not method.pagingMapResponseType %}
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
@@ -836,20 +805,26 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             );
 {%- endif %}
         });
+{%- endif %}
 
         it('uses async iteration with {{ method.name.toCamelCase() }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
+            {%- if method.pagingMapResponseType %}
+            {{ util.initPagingMapResponse(method) }}
+            {%- else %}
             {{ util.initPagingResponse(method) }}
+            {%- endif %}
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            {%- if method.pagingMapResponseType %}
+            const responses: Array<[string, {{ util.toInterface(method.pagingMapResponseType) }}]> = [];
+            {%- else %}
             const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
+            {%- endif %}
             const iterable = client.{{ id.get(method.name.toCamelCase() + "Async") }}(request);
             for await (const resource of iterable) {
                 responses.push(resource!);
@@ -884,7 +859,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.{{ id.get(method.name.toCamelCase() + "Async") }}(request);
             await assert.rejects(async () => {
+                {%- if method.pagingMapResponseType %}
+                const responses: Array<[string, {{ util.toInterface(method.pagingMapResponseType) }}]> = [];
+                {%- else %}
                 const responses: {{ util.toInterface(method.pagingResponseType) }}[] = [];
+                {%- endif %}
                 for await (const resource of iterable) {
                     responses.push(resource!);
                 }
@@ -910,10 +889,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- for method in IAMmethods %}
     describe('{{ method }}', () => {
         it('invokes {{ method }} without error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client(
+            {{- util.initClientOptions(api.rest) -}}
+            );
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -947,10 +925,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
         it('invokes {{ method }} without error using callback', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
@@ -1000,10 +975,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 .getCall(0));
         });
         it('invokes {{ method }} with error', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}

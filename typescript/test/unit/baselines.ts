@@ -158,4 +158,13 @@ describe('Baseline tests', () => {
     useCommonProto: true,
     metadata: false,
   });
+
+  runBaselineTest({
+    baselineName: 'compute',
+    outputDir: '.test-out-compute',
+    protoPath: 'google/cloud/compute/v1/*.proto',
+    useCommonProto: false,
+    packageName: '@google-cloud/compute',
+    transport: 'rest',
+  });
 });

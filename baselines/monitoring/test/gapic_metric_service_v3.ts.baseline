@@ -117,8 +117,8 @@ describe('v3.MetricServiceClient', () => {
 
     it('has initialize method and supports deferred initialization', async () => {
         const client = new metricserviceModule.v3.MetricServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         assert.strictEqual(client.metricServiceStub, undefined);
         await client.initialize();
@@ -127,8 +127,8 @@ describe('v3.MetricServiceClient', () => {
 
     it('has close method', () => {
         const client = new metricserviceModule.v3.MetricServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.close();
     });
@@ -136,8 +136,8 @@ describe('v3.MetricServiceClient', () => {
     it('has getProjectId method', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new metricserviceModule.v3.MetricServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
         const result = await client.getProjectId();
@@ -148,8 +148,8 @@ describe('v3.MetricServiceClient', () => {
     it('has getProjectId method with callback', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new metricserviceModule.v3.MetricServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
@@ -168,9 +168,9 @@ describe('v3.MetricServiceClient', () => {
     describe('getMonitoredResourceDescriptor', () => {
         it('invokes getMonitoredResourceDescriptor without error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetMonitoredResourceDescriptorRequest());
             request.name = '';
@@ -192,9 +192,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes getMonitoredResourceDescriptor without error using callback', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetMonitoredResourceDescriptorRequest());
             request.name = '';
@@ -227,9 +227,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes getMonitoredResourceDescriptor with error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetMonitoredResourceDescriptorRequest());
             request.name = '';
@@ -252,9 +252,9 @@ describe('v3.MetricServiceClient', () => {
     describe('getMetricDescriptor', () => {
         it('invokes getMetricDescriptor without error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetMetricDescriptorRequest());
             request.name = '';
@@ -276,9 +276,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes getMetricDescriptor without error using callback', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetMetricDescriptorRequest());
             request.name = '';
@@ -311,9 +311,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes getMetricDescriptor with error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetMetricDescriptorRequest());
             request.name = '';
@@ -336,9 +336,9 @@ describe('v3.MetricServiceClient', () => {
     describe('createMetricDescriptor', () => {
         it('invokes createMetricDescriptor without error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateMetricDescriptorRequest());
             request.name = '';
@@ -360,9 +360,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes createMetricDescriptor without error using callback', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateMetricDescriptorRequest());
             request.name = '';
@@ -395,9 +395,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes createMetricDescriptor with error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateMetricDescriptorRequest());
             request.name = '';
@@ -420,9 +420,9 @@ describe('v3.MetricServiceClient', () => {
     describe('deleteMetricDescriptor', () => {
         it('invokes deleteMetricDescriptor without error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteMetricDescriptorRequest());
             request.name = '';
@@ -444,9 +444,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes deleteMetricDescriptor without error using callback', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteMetricDescriptorRequest());
             request.name = '';
@@ -479,9 +479,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes deleteMetricDescriptor with error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteMetricDescriptorRequest());
             request.name = '';
@@ -504,9 +504,9 @@ describe('v3.MetricServiceClient', () => {
     describe('createTimeSeries', () => {
         it('invokes createTimeSeries without error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateTimeSeriesRequest());
             request.name = '';
@@ -528,9 +528,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes createTimeSeries without error using callback', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateTimeSeriesRequest());
             request.name = '';
@@ -563,9 +563,9 @@ describe('v3.MetricServiceClient', () => {
 
         it('invokes createTimeSeries with error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateTimeSeriesRequest());
             request.name = '';
@@ -751,13 +751,14 @@ describe('v3.MetricServiceClient', () => {
 
         it('uses async iteration with listMonitoredResourceDescriptors without error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListMonitoredResourceDescriptorsRequest());
             request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+            const expectedHeaderRequestParams = "name=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.api.MonitoredResourceDescriptor()),
               generateSampleMessage(new protos.google.api.MonitoredResourceDescriptor()),
               generateSampleMessage(new protos.google.api.MonitoredResourceDescriptor()),
@@ -973,13 +974,14 @@ describe('v3.MetricServiceClient', () => {
 
         it('uses async iteration with listMetricDescriptors without error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListMetricDescriptorsRequest());
             request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+            const expectedHeaderRequestParams = "name=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.api.MetricDescriptor()),
               generateSampleMessage(new protos.google.api.MetricDescriptor()),
               generateSampleMessage(new protos.google.api.MetricDescriptor()),
@@ -1195,13 +1197,14 @@ describe('v3.MetricServiceClient', () => {
 
         it('uses async iteration with listTimeSeries without error', async () => {
             const client = new metricserviceModule.v3.MetricServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListTimeSeriesRequest());
             request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+            const expectedHeaderRequestParams = "name=";
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.TimeSeries()),
               generateSampleMessage(new protos.google.monitoring.v3.TimeSeries()),
               generateSampleMessage(new protos.google.monitoring.v3.TimeSeries()),
