@@ -70,8 +70,8 @@ describe('v1.TextToSpeechClient', () => {
 
     it('has initialize method and supports deferred initialization', async () => {
         const client = new texttospeechModule.v1.TextToSpeechClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         assert.strictEqual(client.textToSpeechStub, undefined);
         await client.initialize();
@@ -80,8 +80,8 @@ describe('v1.TextToSpeechClient', () => {
 
     it('has close method', () => {
         const client = new texttospeechModule.v1.TextToSpeechClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.close();
     });
@@ -89,8 +89,8 @@ describe('v1.TextToSpeechClient', () => {
     it('has getProjectId method', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new texttospeechModule.v1.TextToSpeechClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
         const result = await client.getProjectId();
@@ -101,8 +101,8 @@ describe('v1.TextToSpeechClient', () => {
     it('has getProjectId method with callback', async () => {
         const fakeProjectId = 'fake-project-id';
         const client = new texttospeechModule.v1.TextToSpeechClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
         });
         client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
         const promise = new Promise((resolve, reject) => {
@@ -121,9 +121,9 @@ describe('v1.TextToSpeechClient', () => {
     describe('listVoices', () => {
         it('invokes listVoices without error', async () => {
             const client = new texttospeechModule.v1.TextToSpeechClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.texttospeech.v1.ListVoicesRequest());
             const expectedOptions = {};
@@ -137,9 +137,9 @@ describe('v1.TextToSpeechClient', () => {
 
         it('invokes listVoices without error using callback', async () => {
             const client = new texttospeechModule.v1.TextToSpeechClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.texttospeech.v1.ListVoicesRequest());
             const expectedOptions = {};
@@ -164,9 +164,9 @@ describe('v1.TextToSpeechClient', () => {
 
         it('invokes listVoices with error', async () => {
             const client = new texttospeechModule.v1.TextToSpeechClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.texttospeech.v1.ListVoicesRequest());
             const expectedOptions = {};
@@ -181,9 +181,9 @@ describe('v1.TextToSpeechClient', () => {
     describe('synthesizeSpeech', () => {
         it('invokes synthesizeSpeech without error', async () => {
             const client = new texttospeechModule.v1.TextToSpeechClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.texttospeech.v1.SynthesizeSpeechRequest());
             const expectedOptions = {};
@@ -197,9 +197,9 @@ describe('v1.TextToSpeechClient', () => {
 
         it('invokes synthesizeSpeech without error using callback', async () => {
             const client = new texttospeechModule.v1.TextToSpeechClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.texttospeech.v1.SynthesizeSpeechRequest());
             const expectedOptions = {};
@@ -224,9 +224,9 @@ describe('v1.TextToSpeechClient', () => {
 
         it('invokes synthesizeSpeech with error', async () => {
             const client = new texttospeechModule.v1.TextToSpeechClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
-            });
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.texttospeech.v1.SynthesizeSpeechRequest());
             const expectedOptions = {};
