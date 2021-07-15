@@ -97,6 +97,43 @@ describe('src/schema/proto.ts', () => {
     });
   });
 
+  describe('AugmentService', () => {
+    it('should pass proto file name to the service', () => {
+      const fd = new protos.google.protobuf.FileDescriptorProto();
+      fd.name = 'google/cloud/showcase/v1beta1/test.proto';
+      fd.package = 'google.cloud.showcase.v1beta1';
+      fd.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+      fd.service[0].name = 'TestService';
+      fd.service[0].method = [
+        new protos.google.protobuf.MethodDescriptorProto(),
+      ];
+      fd.service[0].method[0] = new protos.google.protobuf.MethodDescriptorProto();
+      fd.service[0].method[0].name = 'Test';
+      fd.service[0].method[0].outputType =
+        '.google.cloud.showcase.v1beta1.TestOutput';
+      const options: Options = {
+        grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
+      };
+      const allMessages: MessagesMap = {};
+      fd.messageType
+        .filter(message => message.name)
+        .forEach(message => {
+          allMessages['.' + fd.package! + '.' + message.name!] = message;
+        });
+      const commentsMap = new CommentsMap([fd]);
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.showcase.v1beta1',
+        allMessages,
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+        commentsMap,
+      });
+      assert.strictEqual(proto.services[fd.service[0].name].protoFile, fd.name);
+    });
+  });
+
   describe('special work around for talent API', () => {
     it('The pagingFieldName should be undefined for SearchJobs & SearchProfiles rpc', () => {
       const fd = new protos.google.protobuf.FileDescriptorProto();
