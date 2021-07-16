@@ -87,6 +87,7 @@ export interface ServiceDescriptorProto
   serviceYaml: ServiceYaml;
   toJSON: Function | undefined;
   IAMPolicyMixin: number;
+  protoFile: string;
 }
 
 export interface ServicesMap {
@@ -558,12 +559,14 @@ interface AugmentServiceParameters {
   allResourceDatabase: ResourceDatabase;
   resourceDatabase: ResourceDatabase;
   options: Options;
+  protoFile: string;
 }
 
 function augmentService(parameters: AugmentServiceParameters) {
   const augmentedService = parameters.service as ServiceDescriptorProto;
   augmentedService.packageName = parameters.packageName;
   augmentedService.serviceYaml = parameters.options.serviceYaml!;
+  augmentedService.protoFile = parameters.protoFile;
   if (
     parameters.options.serviceYaml?.apis.includes('google.iam.v1.IAMPolicy')
   ) {
@@ -763,6 +766,7 @@ export class Proto {
           allResourceDatabase: parameters.allResourceDatabase,
           resourceDatabase: parameters.resourceDatabase,
           options: parameters.options,
+          protoFile: parameters.fd.name!,
         })
       )
       .reduce((map, service) => {
