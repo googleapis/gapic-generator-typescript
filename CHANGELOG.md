@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.0.1...v2.1.0) (2021-07-16)
+
+
+### Features
+
+* support paging map response type ([#922](https://www.github.com/googleapis/gapic-generator-typescript/issues/922)) ([693732f](https://www.github.com/googleapis/gapic-generator-typescript/commit/693732f593227295e6d06e80c1d3e95ff6067671))
+
+
+### Bug Fixes
+
+* **legacy proto load:** use single proto file ([#936](https://www.github.com/googleapis/gapic-generator-typescript/issues/936)) ([41c4651](https://www.github.com/googleapis/gapic-generator-typescript/commit/41c46518d11908df0be8ef98a060a9e203017fef))
+
 ### [2.0.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.0.0...v2.0.1) (2021-07-14)
 
 
