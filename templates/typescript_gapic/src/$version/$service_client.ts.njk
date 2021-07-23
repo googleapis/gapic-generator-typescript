@@ -22,6 +22,7 @@ limitations under the License.
 {%- endif %}
 {% import "../../_util.njk" as util -%}
 {% import "../../_iam.njk" as iam -%}
+{% import "../../_locations.njk" as location -%}
 {% import "../../_namer.njk" as namer -%}
 {{- namer.initialize(id, service) -}}
 import * as gax from 'google-gax';
@@ -29,6 +30,7 @@ import {Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.longRunning.length > 0 %}, LROperation{%- endif -%}
 {%- if service.paging.length > 0 %}, PaginationCallback, GaxCall{%- endif -%}
 {%- if service.IAMPolicyMixin > 0 %}, IamClient, IamProtos{%- endif -%}
+{%- if service.LocationMixin > 0 %}, LocationsClient, LocationProtos{%- endif -%}
 } from 'google-gax';
 {% if service.paging.length > 0 %}
 import { Transform } from 'stream';
@@ -79,6 +81,9 @@ export class {{ service.name }}Client {
   {%- if service.IAMPolicyMixin > 0 %}
   iamClient: IamClient;
   {%- endif %}
+  {%- if service.LocationMixin > 0 %}
+  locationsClient: LocationsClient;
+  {%- endif -%}
   {%- if service.pathTemplates.length > 0 %}
   pathTemplates: {[name: string]: gax.PathTemplate};
   {%- endif %}
@@ -168,6 +173,10 @@ export class {{ service.name }}Client {
     }
   {%- if service.IAMPolicyMixin > 0 %}
     this.iamClient = new IamClient(this._gaxGrpc, opts);
+  {% endif %}
+
+  {%- if service.LocationMixin > 0 %}
+    this.locationsClient = new LocationsClient(this._gaxGrpc, opts);
   {% endif %}
 
     // Determine the client header string.
@@ -805,6 +814,9 @@ export class {{ service.name }}Client {
 {%- endfor %}
 {%- if service.IAMPolicyMixin > 0 %}
 {{ iam.iamServiceMethods()}}
+{% endif -%}
+{%- if service.LocationMixin > 0 %}
+{{ location.locationServiceMethods()}}
 {% endif -%}
 {%- if service.pathTemplates.length > 0 %}
   // --------------------

@@ -127,7 +127,7 @@ Pick some API, how about `translate` `v3`?
 ```sh
 $ mkdir -p /tmp/translate-v3-typescript  # where to put the result
 # from gapic-generator-typescript folder:
-$ bazel run //:gapic-generator-typescript -- \
+$ bazel run //:gapic_generator_typescript -- \
     --output-dir /tmp/translate-v3-typescript \
     -I "$GOOGLEAPIS" \
     --grpc-service-config "$GOOGLEAPIS/google/cloud/translate/v3/translate_grpc_service_config.json" \
