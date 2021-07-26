@@ -675,6 +675,9 @@ export class {{ service.name }}Client {
  {%- endif %}
  */
   async {{ decodeMethodName }}(name: string): Promise<LROperation<protos{{ method.longRunningResponseType }}, protos{{ method.longRunningMetadataType }}>>{
+    {%- if method.options and method.options.deprecated %}
+    this.warn('DEP${{service.name}}-${{decodeMethodName}}','{{decodeMethodName}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    {%- endif %}
     const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
     const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, gax.createDefaultBackoffSettings());
