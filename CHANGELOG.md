@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.1.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.0...v2.1.1) (2021-07-26)
+
+
+### Bug Fixes
+
+* missing call warn() in lro method ([#939](https://www.github.com/googleapis/gapic-generator-typescript/issues/939)) ([af8ce2f](https://www.github.com/googleapis/gapic-generator-typescript/commit/af8ce2f59c005f300aaa8b43383317c88f91bc6a))
+
 ## [2.1.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.0.1...v2.1.0) (2021-07-16)
 
 
