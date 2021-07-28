@@ -1,9 +1,9 @@
 {%- macro operationsServiceMethods() -%}
 {#-
   This part will be added into src/version/client.ts.
-  If the --service-yaml contains "google.longrunning.Operations", it means the client requires Operations methods [getOperation, listOperations, cancelOperation, deleteOperation].
+  If the --service-yaml contains "google.longrunning.Operations", it means the client requires Operations methods [getOperation, listOperationsAsync, cancelOperation, deleteOperation].
   OperationsClient is created for the client in the constructor.
-  [getOperation, deleteOperation, cancelOperation, listOperations] methods are created which is calling the corresponding methods from OperationsClient in google-gax. Note that since the listOperations method is a paginated
+  [getOperation, deleteOperation, cancelOperation, listOperationsAsync] methods are created which is calling the corresponding methods from OperationsClient in google-gax. Note that since the listOperations method is a paginated
   method, we default to using listOperationsAsync for ease of use. 
 -#}
 /**
@@ -55,9 +55,10 @@
     return this.operationsClient.getOperation(request, options, callback);
   }
   /**
-   * Equivalent to {@link listOperations}, but returns an iterable object.
+   * Lists operations that match the specified filter in the request. If the
+   * server doesn't support this method, it returns `UNIMPLEMENTED`. Returns an iterable object.
    *
-   * for-await-of syntax is used with the iterable to recursively get response element on-demand.
+   * For-await-of syntax is used with the iterable to recursively get response element on-demand.
    *
    * @param {Object} request - The request object that will be sent.
    * @param {string} request.name - The name of the operation collection.
@@ -75,6 +76,13 @@
    *   details.
    * @returns {Object}
    *   An iterable Object that conforms to @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols.
+   *
+   * @example
+   *
+   * const client = longrunning.operationsClient();
+   * for await (const response of client.listOperationsAsync(request));
+   * // doThingsWith(response)
+   */
    */
   listOperationsAsync(
     request: protos.google.longrunning.ListOperationsRequest,
