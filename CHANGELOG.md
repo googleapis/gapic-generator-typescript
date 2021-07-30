@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.1.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.1...v2.1.2) (2021-07-30)
+
+
+### Bug Fixes
+
+* add bazel option for transport ([#945](https://www.github.com/googleapis/gapic-generator-typescript/issues/945)) ([3835239](https://www.github.com/googleapis/gapic-generator-typescript/commit/3835239be746751679a65e8602fbeaf4c91cc437))
+
 ### [2.1.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.0...v2.1.1) (2021-07-26)
 
 
