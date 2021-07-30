@@ -38,7 +38,7 @@ def typescript_gapic_library(
   if metadata:
     plugin_args_dict["metadata"] = "true"
   if transport:
-    plugin_args_dict["transport"] = tranposrt
+    plugin_args_dict["transport"] = transport
   if legacy_proto_load:
     plugin_args_dict["legacy-proto-load"] = "true"
 
