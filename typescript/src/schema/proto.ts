@@ -87,6 +87,7 @@ export interface ServiceDescriptorProto
   serviceYaml: ServiceYaml;
   toJSON: Function | undefined;
   IAMPolicyMixin: number;
+  LocationMixin: number;
   protoFile: string;
 }
 
@@ -571,6 +572,13 @@ function augmentService(parameters: AugmentServiceParameters) {
     parameters.options.serviceYaml?.apis.includes('google.iam.v1.IAMPolicy')
   ) {
     augmentedService.IAMPolicyMixin = 1;
+  }
+  if (
+    parameters.options.serviceYaml?.apis.includes(
+      'google.cloud.location.Locations'
+    )
+  ) {
+    augmentedService.LocationMixin = 1;
   }
   augmentedService.comments = parameters.commentsMap.getServiceComment(
     parameters.service.name!
