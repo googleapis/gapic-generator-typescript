@@ -144,7 +144,7 @@ export class Generator {
   }
 
   // This method determines if there are any APIs listed in the service yaml file.
-  // If there are APIs listed, then it filters for the supported mixin services (currently only IAMPolicy and Locations)
+  // If there are APIs listed, then it filters for the supported mixin services (IAMPolicy, Locations, Operations).
   private readServiceYaml() {
     if (this.paramMap?.['service-yaml']) {
       const filename = this.paramMap['service-yaml'];

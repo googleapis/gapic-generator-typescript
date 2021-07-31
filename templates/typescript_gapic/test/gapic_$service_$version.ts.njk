@@ -1,19 +1,14 @@
 {#-
-
 Copyright 2019 Google LLC
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     https://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
 -#}
 {% import "../_license.njk" as license -%}
 {% import "../_util.njk" as util -%}
@@ -38,10 +33,10 @@ import {GoogleAuth, protobuf
 {%- else %}
 import {protobuf
 {%- endif %}
-{%- if (service.longRunning.length > 0) -%}
+{%- if service.longRunning.length > 0 or service.LongRunningOperationsMixin > 0 -%}
 , LROperation, operationsProtos
 {%- endif -%}
-{%- if (service.IAMPolicyMixin) > 0 %}, IamProtos{%- endif -%}
+{%- if service.IAMPolicyMixin > 0 %}, IamProtos{%- endif -%}
 {%- if service.LocationMixin > 0 %}, LocationProtos{%- endif -%}
 } from 'google-gax';
 
@@ -1192,6 +1187,165 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             );
         });
     });
+{%- endif %}
+{%- if (service.LongRunningOperationsMixin) > 0 %}
+{%- set Operationsmethods = ['getOperation', 'cancelOperation', 'deleteOperation'] %}
+{%- for method in Operationsmethods %}
+    describe('{{ method }}', () => {
+        it('invokes {{ method }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client(
+            {{- util.initClientOptions(api.rest) -}}
+            );
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.{{ id.get("initialize") }}();
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedResponse = generateSampleMessage(
+            {%- if method === 'getOperation' %}
+                new operationsProtos.google.longrunning.Operation()
+            {%- else %}
+                new protos.google.protobuf.Empty()
+            {%- endif %}
+            );
+            client.operationsClient.{{ method }} = stubSimpleCall(expectedResponse);
+            const response = await client.{{ method }}(request);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(response, [expectedResponse]);
+            assert((client.operationsClient.{{ method }} as SinonStub)
+                .getCall(0).calledWith(request)
+            );        
+        });
+        it('invokes {{ method }} without error using callback', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedResponse = generateSampleMessage(
+            {%- if method === 'getOperation' %}
+                new operationsProtos.google.longrunning.Operation()
+            {%- else %}
+                new protos.google.protobuf.Empty()
+            {%- endif %}
+            );
+            client.operationsClient.{{ method }} = sinon.stub().callsArgWith(2, null, expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.operationsClient.{{ method }}(
+                    request,
+                    undefined,
+                    (
+                        err?: Error | null,
+                        {%- if method === 'getOperation' %}
+                        result?: operationsProtos.google.longrunning.Operation | null
+                        {%- else %}
+                        result?: protos.google.protobuf.Empty | null
+                        {%- endif %}
+                    ) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.operationsClient.{{ method }} as SinonStub)
+                .getCall(0));
+        });
+        it('invokes {{ method }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedError = new Error('expected');
+            client.operationsClient.{{ method }} = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(async () => {await client.{{ method }}(request)}, expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert((client.operationsClient.{{ method }} as SinonStub)
+                .getCall(0).calledWith(request));
+        });
+    });
+{%- endfor %}
+{%- set method = 'listOperations' %}
+    describe('{{ method }}Async', () => {
+        it('uses async iteration with {{method}} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedResponse = [
+                generateSampleMessage(
+                    new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response()
+                ),
+                generateSampleMessage(
+                    new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response()
+                ),
+                generateSampleMessage(
+                    new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response()
+                ),
+            ];
+            client.operationsClient.descriptor.{{ method}}.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response[] = [];
+            const iterable = client.operationsClient.{{ method}}Async(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.operationsClient.descriptor.{{ method }}.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
+        it('uses async iteration with {{ method }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.initialize();
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedError = new Error('expected');
+            client.operationsClient.descriptor.{{ method }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.operationsClient.{{method}}Async(request);
+            await assert.rejects(async () => {
+                const responses: operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(
+                (client.operationsClient.descriptor.{{method}}.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
+    });    
 {%- endif %}
 {%- if (service.pathTemplates.length > 0) %}
 

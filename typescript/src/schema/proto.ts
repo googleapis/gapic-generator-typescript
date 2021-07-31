@@ -88,6 +88,7 @@ export interface ServiceDescriptorProto
   toJSON: Function | undefined;
   IAMPolicyMixin: number;
   LocationMixin: number;
+  LongRunningOperationsMixin: number;
   protoFile: string;
 }
 
@@ -579,6 +580,13 @@ function augmentService(parameters: AugmentServiceParameters) {
     )
   ) {
     augmentedService.LocationMixin = 1;
+  }
+  if (
+    parameters.options.serviceYaml?.apis.includes(
+      'google.longrunning.Operations'
+    )
+  ) {
+    augmentedService.LongRunningOperationsMixin = 1;
   }
   augmentedService.comments = parameters.commentsMap.getServiceComment(
     parameters.service.name!
