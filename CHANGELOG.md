@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.1...v2.2.0) (2021-07-31)
+
+
+### Features
+
+* adding location service mixin ([#941](https://www.github.com/googleapis/gapic-generator-typescript/issues/941)) ([c9705d3](https://www.github.com/googleapis/gapic-generator-typescript/commit/c9705d3ec1a43b9b49bc20c8f3f748a20214f59a))
+* adding operations mixin service ([#942](https://www.github.com/googleapis/gapic-generator-typescript/issues/942)) ([747f7b5](https://www.github.com/googleapis/gapic-generator-typescript/commit/747f7b5920832adde1388a587de1a64c09103d1e))
+
+
+### Bug Fixes
+
+* add bazel option for transport ([#945](https://www.github.com/googleapis/gapic-generator-typescript/issues/945)) ([3835239](https://www.github.com/googleapis/gapic-generator-typescript/commit/3835239be746751679a65e8602fbeaf4c91cc437))
+
 ### [2.1.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.0...v2.1.1) (2021-07-26)
 
 
