@@ -1,3 +1,4 @@
+{% import "../_util.njk"  as util -%}
 {%- if method.longRunning %}
 * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing
@@ -21,9 +22,9 @@ CLIENT STREAMING
 {%- set commentsMap = method.paramComment -%}
 {%- for oneComment in commentsMap -%}
 {%- if oneComment.fieldBehavior and oneComment.fieldBehavior !== 1 -%}
-{{ oneComment.paramName.toCamelCase() }}
-{{ oneComment.paramType }}
-{{ oneComment.paramComment }}
+param name: {{ oneComment.paramName.toCamelCase() }}
+param type: {{ oneComment.paramType }}
+param comment: {{ oneComment.paramComment }}
 {%- endif -%}
 {%- endfor -%}
 
@@ -49,58 +50,51 @@ CLIENT STREAMING
 
 'use strict';
 
-function main(
-  projectId = 'YOUR_PROJECT_ID',
-  stringToInspect = 'My name is Gary and my email is gary@example.com'
-) {
-  // [START dlp_inspect_string]
+function main() {
+  // [START {{ api.naming.productName.toCamelCase() }}_{{ method.name.toCamelCase() }}_sample]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
-  // const projectId = 'YOUR_PROJECT_ID';
-  // const stringToInspect = 'My name is Gary and my email is gary@example.com';
+   {# {{- util.printCommentsForService(service) }} #}
 
-  // Imports the Google Cloud Data Loss Prevention library
-  const {DlpServiceClient} = require('@google-cloud/dlp');
+  {{- util.printCommentsForParams(method) -}}
+
+  {%- for oneComment in commentsMap -%}
+  {%- if oneComment.fieldBehavior and oneComment.fieldBehavior !== 1 -%}
+  // const {{ oneComment.paramName.toCamelCase() }} = {%- if oneComment.paramType === 'TYPE_STRING' -%} 'my-string'
+
+  {%- elif oneComment.paramType === 'TYPE_NUMBER' -%} 12345
+
+  {%- else -%} {{  oneComment.paramType }}
+
+  {%- endif -%}
+  {%- endif -%}
+  {%- endfor -%}
+
+  // Imports the {{ api.naming.productName }} library
+  const {{ api.naming.productName.toKebabCase()}} = require('{{ api.publishName }}');
 
   // Instantiates a client
-  const dlpServiceClient = new DlpServiceClient();
+  const {{ service.name.toCamelCase() }}Client = new {{ api.naming.productName.toKebabCase() }}.{{ service.name.toPascalCase() + 'Client' }}();
 
-  async function inspectString() {
+  async function {{ method.name.toCamelCase() }}() {
     // Construct request
     const request = {
-      parent: dlpServiceClient.projectPath(projectId),
-      item: {
-        value: stringToInspect,
-      },
-      inspectConfig: {
-        // The infoTypes of information to match
-        infoTypes: [
-          {name: 'PHONE_NUMBER'},
-          {name: 'EMAIL_ADDRESS'},
-          {name: 'CREDIT_CARD_NUMBER'},
-        ],
-        // Whether to include the matching string
-        includeQuote: true,
-      },
-    };
+  {%- for oneComment in commentsMap -%}
+  {%- if oneComment.fieldBehavior and oneComment.fieldBehavior !== 1 -%}
+  {{ oneComment.paramName.toCamelCase() }},
+  {%- endif -%}
+  {%- endfor -%}
+    }
 
     // Run request
-    const [response] = await client.inspectContent(request);
-    const findings = response.result.findings;
-    console.log(`Findings: ${findings.length}`);
-    for (const finding of findings) {
-      console.log(`Quote: ${finding.quote}`);
-      console.log(`Info type: ${finding.infoType.name}`);
-      console.log(`Likelihood: ${finding.likelihood}\n`);
-    }
+    const response = await {{ service.name.toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+    console.log(`Response: ${response}`);
   }
 
-  inspectString();
-  // [END dlp_inspect_string]
+  {{ method.name.toCamelCase() }}();
+  // [END {{ service.name.toCamelCase() }}_{{ method.name.toCamelCase() }}_sample]
 }
 
 main(...process.argv.slice(2));
-
-RETURN SIMPLE METHOD
 {%- endif -%}

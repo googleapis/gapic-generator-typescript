@@ -93,9 +93,96 @@ function processOneTemplate(
   // with their actual values. Currently supported: $service, $version Note:
   // $version is unique (defined in api.naming), but there can be multiple
   // services.
+  // api.naming.version
   outputFilename = outputFilename.replace(/\$version/, api.naming.version);
   // {api, commonParameters}
-  if (outputFilename.match(/\$service/)) {
+
+  if (outputFilename.match(/\$method/)) {
+    //const service = api.services[0];
+    for (const service of api.services) {
+
+      // service method
+       for (const method of service.method) {
+         const pushFilename = outputFilename.replace(/\.njk$/, '').replace(
+           /\$method/, method.name!.toSnakeCase()).replace(/\$service/, service.name!.toSnakeCase()); 
+
+      //if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
+        result.push(
+          renderFile(
+            pushFilename,
+            relativeTemplateName,
+            {method, api, commonParameters, service, id}
+          )
+        );
+      //};
+    }
+  }
+
+//     // simple methods
+//     for (const method of service.simpleMethods) {
+//       outputFilename = outputFilename.replace(
+//         /\$method/, method.name!.toSnakeCase()); 
+
+//    if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
+//      result.push(
+//        renderFile(
+//          outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
+//          relativeTemplateName,
+//          {method, api, commonParameters, service, id}
+//        )
+//      );
+//    };
+//  }
+
+//  // service paging
+//     for (const method of service.paging) {
+//       outputFilename = outputFilename.replace(
+//         /\$method/, method.name!.toSnakeCase()  
+//       );
+//       if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
+//       result.push(
+//         renderFile(
+//           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
+//           relativeTemplateName,
+//           {method, api, commonParameters, service, id, methodType: 'paginated'}
+//         )
+//       );   
+//       }
+//     }
+
+//     // service long running
+//     for (const method of service.longRunning) {
+//       outputFilename = outputFilename.replace(
+//         /\$method/, method.name!.toSnakeCase()  
+//       );
+//       if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
+//       result.push(
+//         renderFile(
+//           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
+//           relativeTemplateName,
+//           {method, api, commonParameters, service, id, methodType: 'paginated'}
+//         )
+//       );   
+//       };    
+//     }
+
+//     // service streaming
+//     for (const method of service.streaming) {
+//       outputFilename = outputFilename.replace(
+//         /\$method/, method.name!.toSnakeCase()  
+//       );
+//       if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
+//       result.push(
+//         renderFile(
+//           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
+//           relativeTemplateName,
+//           {method, api, commonParameters, service, id, methodType: 'paginated'}
+//         )
+//       );   
+//       };    
+//     }
+  //}
+  } else if (outputFilename.match(/\$service/)) {
     for (const service of api.services) {
       result.push(
         renderFile(
@@ -104,8 +191,8 @@ function processOneTemplate(
           {api, commonParameters, service, id}
         )
       );
-    }
-  } else {
+        }
+    } else {
     result.push(
       renderFile(outputFilename, relativeTemplateName, {
         api,
@@ -149,6 +236,7 @@ export async function processTemplates(basePath: string, api: API) {
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
   for (const templateFilename of templateFiles) {
+    //console.log(templateFilename);
     const generatedFiles = processOneTemplate(
       basePath,
       templateFilename,
