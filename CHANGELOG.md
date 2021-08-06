@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.2.0...v2.3.0) (2021-08-06)
+
+
+### Features
+
+* Add diregapic option in command line ([#948](https://www.github.com/googleapis/gapic-generator-typescript/issues/948)) ([a3525d4](https://www.github.com/googleapis/gapic-generator-typescript/commit/a3525d49a2cf777ee927f1f92bc7190bd72586b6))
+
 ## [2.2.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.1...v2.2.0) (2021-07-31)
 
 
