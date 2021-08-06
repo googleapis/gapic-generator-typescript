@@ -100,88 +100,23 @@ function processOneTemplate(
   if (outputFilename.match(/\$method/)) {
     //const service = api.services[0];
     for (const service of api.services) {
+      for (const method of service.method) {
+        const pushFilename = outputFilename
+          .replace(/\.njk$/, '')
+          .replace(/\$method/, method.name!.toSnakeCase())
+          .replace(/\$service/, service.name!.toSnakeCase());
 
-      // service method
-       for (const method of service.method) {
-         const pushFilename = outputFilename.replace(/\.njk$/, '').replace(
-           /\$method/, method.name!.toSnakeCase()).replace(/\$service/, service.name!.toSnakeCase()); 
-
-      //if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
         result.push(
-          renderFile(
-            pushFilename,
-            relativeTemplateName,
-            {method, api, commonParameters, service, id}
-          )
+          renderFile(pushFilename, relativeTemplateName, {
+            method,
+            api,
+            commonParameters,
+            service,
+            id,
+          })
         );
-      //};
+      }
     }
-  }
-
-//     // simple methods
-//     for (const method of service.simpleMethods) {
-//       outputFilename = outputFilename.replace(
-//         /\$method/, method.name!.toSnakeCase()); 
-
-//    if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
-//      result.push(
-//        renderFile(
-//          outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
-//          relativeTemplateName,
-//          {method, api, commonParameters, service, id}
-//        )
-//      );
-//    };
-//  }
-
-//  // service paging
-//     for (const method of service.paging) {
-//       outputFilename = outputFilename.replace(
-//         /\$method/, method.name!.toSnakeCase()  
-//       );
-//       if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
-//       result.push(
-//         renderFile(
-//           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
-//           relativeTemplateName,
-//           {method, api, commonParameters, service, id, methodType: 'paginated'}
-//         )
-//       );   
-//       }
-//     }
-
-//     // service long running
-//     for (const method of service.longRunning) {
-//       outputFilename = outputFilename.replace(
-//         /\$method/, method.name!.toSnakeCase()  
-//       );
-//       if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
-//       result.push(
-//         renderFile(
-//           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
-//           relativeTemplateName,
-//           {method, api, commonParameters, service, id, methodType: 'paginated'}
-//         )
-//       );   
-//       };    
-//     }
-
-//     // service streaming
-//     for (const method of service.streaming) {
-//       outputFilename = outputFilename.replace(
-//         /\$method/, method.name!.toSnakeCase()  
-//       );
-//       if (!result.find(x => x.name === outputFilename.replace(/\$service/, service.name!.toSnakeCase()))) {
-//       result.push(
-//         renderFile(
-//           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
-//           relativeTemplateName,
-//           {method, api, commonParameters, service, id, methodType: 'paginated'}
-//         )
-//       );   
-//       };    
-//     }
-  //}
   } else if (outputFilename.match(/\$service/)) {
     for (const service of api.services) {
       result.push(
@@ -191,8 +126,8 @@ function processOneTemplate(
           {api, commonParameters, service, id}
         )
       );
-        }
-    } else {
+    }
+  } else {
     result.push(
       renderFile(outputFilename, relativeTemplateName, {
         api,
