@@ -25,6 +25,7 @@ def typescript_gapic_library(
   service_yaml = None,
   metadata = None,
   transport = None,
+  diregapic = None,
   legacy_proto_load = None,
   extra_protoc_parameters = [],
   extra_protoc_file_parameters = {},
@@ -39,6 +40,8 @@ def typescript_gapic_library(
     plugin_args_dict["metadata"] = "true"
   if transport:
     plugin_args_dict["transport"] = transport
+  if diregapic:
+    plugin_args_dict["diregapic"] = "true"
   if legacy_proto_load:
     plugin_args_dict["legacy-proto-load"] = "true"
 

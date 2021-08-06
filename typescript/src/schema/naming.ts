@@ -25,6 +25,7 @@ export interface Options {
   mainServiceName?: string;
   serviceYaml?: ServiceYaml;
   rest?: boolean;
+  diregapic?: boolean;
   legacyProtoLoad?: boolean;
 }
 
