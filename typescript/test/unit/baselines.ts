@@ -165,6 +165,6 @@ describe('Baseline tests', () => {
     protoPath: 'google/cloud/compute/v1/*.proto',
     useCommonProto: false,
     packageName: '@google-cloud/compute',
-    transport: 'rest',
+    diregapic: true,
   });
 });

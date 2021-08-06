@@ -38,6 +38,7 @@ export interface BaselineOptions {
   metadata?: boolean;
   legacyProtoLoad?: boolean;
   transport?: string;
+  diregapic?: boolean;
 }
 
 const cwd = process.cwd();
@@ -124,6 +125,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (options.transport && options.transport === 'rest') {
       commandLine += ' --transport=rest';
+    }
+    if (options.diregapic) {
+      commandLine += ' --diregapic';
     }
     execSync(commandLine);
     assert(equalToBaseline(outputDir, baselineDir));

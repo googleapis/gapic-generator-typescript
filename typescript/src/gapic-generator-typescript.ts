@@ -81,7 +81,11 @@ yargs.describe(
 yargs.boolean('metadata');
 yargs.describe(
   'transport',
-  'Default transport is gRPC. Set transport=rest for an API requires HTTP transport, or Google Discovery API.'
+  'Default transport is gRPC. Set transport=rest for gRPC or non-gRPC API requires REST transport with http annotation in proto3 files.'
+);
+yargs.describe(
+  'diregapic',
+  'DIREGAPIC represents Discovery Rest GAPICs. Set to true for GCE API or non-gRPC APIs with a Discovery doc description.'
 );
 yargs.describe(
   'legacy_proto_load',
@@ -111,6 +115,7 @@ export interface IArguments {
   commonProtoPath?: string;
   descriptor?: string;
   transport?: string;
+  diregapic?: boolean;
   legacyProtoLoad?: boolean;
   _: string[];
   $0: string;
@@ -128,6 +133,7 @@ const gapicValidatorOut = argv.gapicValidatorOut as string | undefined;
 const validation = (argv.validation as string | undefined) ?? 'true';
 const metadata = argv.metadata as boolean | undefined;
 const transport = argv.transport as string | undefined;
+const diregapic = argv.diregapic as boolean | undefined;
 const legacyProtoLoad = argv.legacyProtoLoad as boolean | undefined;
 const protoc = (argv.protoc as string | undefined) ?? 'protoc';
 const protoDirs: string[] = [];
@@ -177,6 +183,9 @@ if (template) {
 }
 if (metadata) {
   protocCommand.push('--typescript_gapic_opt="metadata"');
+}
+if (diregapic) {
+  protocCommand.push('--typescript_gapic_opt="diregapic"');
 }
 if (transport && transport === 'rest') {
   protocCommand.push('--typescript_gapic_opt="transport=rest"');

@@ -71,6 +71,7 @@ export class Generator {
   templates: string[];
   metadata?: boolean;
   rest?: boolean;
+  diregapic?: boolean;
   legacyProtoLoad?: boolean;
 
   constructor() {
@@ -189,6 +190,13 @@ export class Generator {
     }
   }
 
+  private readDiregapic() {
+    if (this.paramMap['diregapic'] === 'true') {
+      this.diregapic = true;
+      this.rest = true;
+    }
+  }
+
   private readLegacyProtoLoad() {
     if (this.paramMap['legacy-proto-load'] === 'true') {
       this.legacyProtoLoad = true;
@@ -209,6 +217,7 @@ export class Generator {
       this.readMainServiceName();
       this.readTemplates();
       this.readRest();
+      this.readDiregapic();
       this.readLegacyProtoLoad();
     }
   }
@@ -248,6 +257,7 @@ export class Generator {
       mainServiceName: this.mainServiceName,
       serviceYaml: this.serviceYaml,
       rest: this.rest,
+      diregapic: this.diregapic,
       legacyProtoLoad: this.legacyProtoLoad,
     });
     return api;

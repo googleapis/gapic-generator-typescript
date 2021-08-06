@@ -183,7 +183,7 @@ function pagingField(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
   // TODO: remove this once the next version of the Talent API is published.
   //
@@ -213,7 +213,8 @@ function pagingField(
     inputType &&
     inputType.field!.some(
       field =>
-        field.name === 'page_size' || (rest && field.name === 'max_results')
+        field.name === 'page_size' ||
+        (diregapic && field.name === 'max_results')
     );
   const hasNextPageToken =
     outputType &&
@@ -263,18 +264,18 @@ function pagingFieldName(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
-  const field = pagingField(messages, method, service, rest);
+  const field = pagingField(messages, method, service, diregapic);
   return field?.name;
 }
 
 function pagingResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
-  const field = pagingField(messages, method, undefined, rest);
+  const field = pagingField(messages, method, undefined, diregapic);
   if (!field || !field.type) {
     return undefined;
   }
@@ -292,11 +293,11 @@ function pagingResponseType(
 function pagingMapResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
-  const pagingfield = pagingField(messages, method, undefined, rest);
+  const pagingfield = pagingField(messages, method, undefined, diregapic);
   const outputType = messages[method.outputType!];
-  if (!pagingfield?.type || !rest || !outputType.nestedType) {
+  if (!pagingfield?.type || !diregapic || !outputType.nestedType) {
     return undefined;
   }
   const mapResponses = outputType.nestedType.filter(desProto => {
@@ -375,7 +376,7 @@ interface AugmentMethodParameters {
   allMessages: MessagesMap;
   localMessages: MessagesMap;
   service: ServiceDescriptorProto;
-  rest?: boolean;
+  diregapic?: boolean;
 }
 
 function augmentMethod(
@@ -398,17 +399,17 @@ function augmentMethod(
         parameters.allMessages,
         method,
         parameters.service,
-        parameters.rest
+        parameters.diregapic
       ),
       pagingResponseType: pagingResponseType(
         parameters.allMessages,
         method,
-        parameters.rest
+        parameters.diregapic
       ),
       pagingMapResponseType: pagingMapResponseType(
         parameters.allMessages,
         method,
-        parameters.rest
+        parameters.diregapic
       ),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
@@ -603,7 +604,7 @@ function augmentService(parameters: AugmentServiceParameters) {
         allMessages: parameters.allMessages,
         localMessages: parameters.localMessages,
         service: augmentedService,
-        rest: parameters.options.rest,
+        diregapic: parameters.options.diregapic,
       },
       method
     )
@@ -735,7 +736,7 @@ export class Proto {
   allMessages: MessagesMap = {};
   localMessages: MessagesMap = {};
   fileToGenerate = true;
-  rest?: boolean;
+  diregapic?: boolean;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
@@ -752,7 +753,7 @@ export class Proto {
         map[`.${parameters.fd.package!}.${message.name!}`] = message;
         return map;
       }, {} as MessagesMap);
-    this.rest = parameters.options.rest;
+    this.diregapic = parameters.options.diregapic;
     const protopackage = parameters.fd.package;
     // Allow to generate if a proto has no service and its package name is differ from its service's.
     if (
