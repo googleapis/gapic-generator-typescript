@@ -12,6 +12,8 @@ echo 1>&2
 # Make it easier to pass gRPC service config relative to it, e.g.
 # --grpc-service-config google/cloud/texttospeech/v1/texttospeech_grpc_service_config.json
 
+cd /gapic-generator-typescript && bazel run //:gapic_generator_typescript
+
 cd /in
 gapic-generator-typescript \
   --gapic-validator_out=. \

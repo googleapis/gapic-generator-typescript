@@ -21,8 +21,8 @@ SCRIPTDIR=`dirname "$0"`
 cd "$SCRIPTDIR"
 cd ..   # now in the package.json directory
 
-git checkout master
-git pull
+# git checkout master
+# git pull
 sh docker/build.sh
 sh docker/test.sh
 docker tag gapic-generator-typescript gcr.io/gapic-images/gapic-generator-typescript
