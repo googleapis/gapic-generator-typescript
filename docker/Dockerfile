@@ -38,7 +38,7 @@ RUN rm -rf /root/files
 # Print versions for debugging purposes
 RUN gapic-generator-typescript --version
 RUN protoc --version
-Run bazel --version
+RUN bazel --version
 
 # Save git log output for debugging purposes
 COPY ./gitlog.txt /
