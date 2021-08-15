@@ -25,19 +25,24 @@ cd ..   # now in the package.json directory
 
 # Docker image tag: gapic-generator-typescript:latest.
 DIR_NAME=$TMPDIR/.showcase-typescript
+GENERATOR=/gapic-generator-typescript
+DOCKER_ROOT=$PWD/docker
+CACHE_ROOT=$TMPDIR/.cache
 # Remove test directory if it already exists
 rm -rf $DIR_NAME
+rm -rf $CACHE_ROOT
 # Create new directory showcase-typescript.
 mkdir $DIR_NAME
+mkdir $CACHE_ROOT
 # Use Docker Image for generating showcase client library
-docker run --rm \
+docker run --rm -it --user $UID --privileged \
+  --env USER=${UID} --env ${DOCKER_ROOT} \
+  --tmpfs ${CACHE_ROOT}:exec \
   --mount type=bind,source=`pwd`/test-fixtures/protos/google/showcase/v1beta1,destination=/in/google/showcase/v1beta1,readonly \
-  --mount type=bind,source=$DIR_NAME,destination=/out \
-  --user $UID \
-  gapic-generator-typescript:latest --output_user_root=$BAZEL_ROOT \
-  build //:gapic_generator_typescript
-  --validation false
-  
+  --mount type=bind,source=${DIR_NAME},destination=/out \
+  --mount type=bind,source=${CACHE_ROOT},destination=/.cache \
+  gapic-generator-typescript:latest --validation false
+
 # Test generated client library
 cd $DIR_NAME
 npm install  # install dependencies

@@ -11,16 +11,26 @@ echo 1>&2
 # Change directory to the input directory.
 # Make it easier to pass gRPC service config relative to it, e.g.
 # --grpc-service-config google/cloud/texttospeech/v1/texttospeech_grpc_service_config.json
+protoc --version
+echo '---------------after protoc version-------------------'
+printenv
+echo '---------------after print env------------------------'
+bazel --version
+echo '---------------after bazel version------------------------'
+npm --version
+node --version
+echo '---------------after npm --version------------------------'
+cd $GENERATOR
+pwd
+echo '---------------after ls command------------------------'
+npm link
+bazel run //:gapic_generator_typescript -- -I /in --output_dir /out \
+`find /in -name '*.proto'` --common-proto-path /protos/api-common-protos-master
 
-cd /gapic-generator-typescript && bazel run //:gapic_generator_typescript
+echo '---------------after bazel run------------------------'
+ls $TEST_TMPDIR
 
-cd /in
-gapic-generator-typescript \
-  --gapic-validator_out=. \
-  --common-proto-path /protos/api-common-protos-master \
-  -I /in \
-  --output-dir /out \
-  $* \
-  `find /in -name '*.proto'`
-
+cd /out
+pwd
+ls
 exit 0

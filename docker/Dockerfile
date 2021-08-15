@@ -1,12 +1,15 @@
 FROM node:12
 
+RUN apt-get update && apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN apt-get update && apt-get install -y nodejs
+
 # Create folder structure
 RUN mkdir -p /in
 RUN mkdir -p /out
 RUN mkdir -p /protos
 RUN mkdir -p /root/files
-RUN git clone https://github.com/googleapis/gapic-generator-typescript.git
-RUN mkdir -p /bazel_root
+RUN mkdir -p /.cache
 
 # Download and install protoc
 RUN cd /root/files && \
@@ -16,15 +19,17 @@ RUN chmod -R ugo+rX /usr/local
 RUN chmod ugo+rx /usr/local/bin/protoc
 
 # Download and install bazel
+RUN mkdir -p /tools
 WORKDIR /tools
-RUN wget https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64 -O bazelisk
-RUN chmod ugo+rx /tools/bazelisk
-Run wget https://github.com/bazelbuild/bazel/releases/download/4.0.0/bazel-4.0.0-linux-x86_64 -O bazel
-RUN chmod ugo+rx /tools/bazel
+RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64 -o bazelisk
+RUN chmod +x bazelisk
+RUN curl -L https://github.com/bazelbuild/bazel/releases/download/4.0.0/bazel-4.0.0-linux-x86_64 -o bazel
+RUN chmod +x bazel
+WORKDIR /
 ENV PATH="/tools:${PATH}"
 ENV BAZELISK_BIN=/tools/bazelisk
-ENV BAZEL_BIN=/tools/bazelisk
-ENV BAZEL_ROOT=/bazel_root
+ENV BAZEL_BIN=/tools/bazel
+
 
 # Download a copy of API common protos
 RUN cd /root/files && \
@@ -34,8 +39,15 @@ RUN cd /protos && unzip /root/files/master.zip && chmod -R a+rx /protos
 # Add gapic-config-validator plugin
 COPY --from=gcr.io/gapic-images/gapic-config-validator /usr/local/bin/protoc-gen-gapic-validator /usr/local/bin/protoc-gen-gapic-validator
 
-# Install the generator
-RUN cd /gapic-generator-typescript && bazel build //:gapic_generator_typescript
+# Bazel build the generator
+RUN cd /root/files && \
+    wget https://github.com/googleapis/gapic-generator-typescript/archive/v2.3.0.tar.gz
+RUN cd /usr/local && tar -xf /root/files/v2.3.0.tar.gz
+RUN chmod -R ugo+rX /usr/local/gapic-generator-typescript-2.3.0
+ENV GENERATOR=/usr/local/gapic-generator-typescript-2.3.0
+WORKDIR $GENERATOR
+RUN bazel build //...
+WORKDIR /
 
 # Copy the start script
 COPY ./start.sh /usr/local/bin/
@@ -45,7 +57,6 @@ RUN chmod +x /usr/local/bin/start.sh
 RUN rm -rf /root/files
 
 # Print versions for debugging purposes
-RUN gapic-generator-typescript --version
 RUN protoc --version
 RUN bazel --version
 
