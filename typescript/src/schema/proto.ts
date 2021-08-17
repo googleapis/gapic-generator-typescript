@@ -159,6 +159,26 @@ function longRunningMetadataType(
   );
 }
 
+// Detect non-AIP-compliant LRO method for DIREGAPIC, where the response type is customized Operation and the method is not polling method.
+function isUnaryLRO(
+  service: ServiceDescriptorProto,
+  method: MethodDescriptorProto,
+  isDiregapic?: boolean
+): boolean {
+  const unaryLROutputType = toFullyQualifiedName(
+    service.packageName,
+    'Operation'
+  );
+  return isDiregapic &&
+    method.outputType &&
+    method.outputType === unaryLROutputType &&
+    method.outputType === unaryLROutputType &&
+    method.options?.['.google.api.http'] &&
+    !method.options?.['.google.api.http'].get
+    ? true
+    : false;
+}
+
 // convert from input interface to message name
 // eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
 function toMessageName(messageType: string): string {
@@ -438,6 +458,11 @@ function augmentMethod(
       );
     }
   }
+  // Rename the unary LRO method
+  if (isUnaryLRO(parameters.service, method, parameters.diregapic)) {
+    method.name = 'Unary' + method.name;
+  }
+
   const bundleConfigs = parameters.service.bundleConfigs;
   if (bundleConfigs) {
     for (const bc of bundleConfigs) {
