@@ -93,12 +93,9 @@ function processOneTemplate(
   // with their actual values. Currently supported: $service, $version Note:
   // $version is unique (defined in api.naming), but there can be multiple
   // services.
-  // api.naming.version
   outputFilename = outputFilename.replace(/\$version/, api.naming.version);
-  // {api, commonParameters}
 
   if (outputFilename.match(/\$method/)) {
-    //const service = api.services[0];
     for (const service of api.services) {
       for (const method of service.method) {
         const pushFilename = outputFilename
@@ -171,7 +168,6 @@ export async function processTemplates(basePath: string, api: API) {
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
   for (const templateFilename of templateFiles) {
-    //console.log(templateFilename);
     const generatedFiles = processOneTemplate(
       basePath,
       templateFilename,
