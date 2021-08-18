@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.3.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.3.0...v2.3.1) (2021-08-18)
+
+
+### Bug Fixes
+
+* closing mixin clients ([#957](https://www.github.com/googleapis/gapic-generator-typescript/issues/957)) ([7a543bf](https://www.github.com/googleapis/gapic-generator-typescript/commit/7a543bf0c16ff2a99d8e731cca5e40fe43dbb9ed))
+
 ## [2.3.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.2.0...v2.3.0) (2021-08-06)
 
 
