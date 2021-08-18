@@ -118,6 +118,29 @@ limitations under the License.
 {%- endif %}
 {%- endmacro -%}
 
+{%- macro printCommentsForSample(method) -%}
+{%- set commentsMap = method.paramComment -%}
+{%- for oneComment in commentsMap -%}
+{%- set lines = oneComment.comments -%}
+{{ \n }}
+  /**
+{%- for line in lines %}
+{%- set trimmed = line.replace(r/\s+$/, '') -%}
+{%- if trimmed.length > 0 %}
+   * {{ trimmed.replaceAll('*/', '* /') | safe }}
+{%- endif -%}
+{%- endfor -%}
+{{ \n }}
+   */
+{%- set type = oneComment.paramType -%}
+{%- if type.startsWith('.') %}
+  // const {{ printParamFieldSample(oneComment) }} = {{- printTypeExample(type.substring(1)) -}} {{-\n-}}
+{%- else %}
+  // const {{ printParamFieldSample(oneComment) }} = {{- printTypeExample(convertParamType(oneComment.paramType)) -}}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+
 {%- macro printOptions(type) %}
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -259,6 +282,14 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endif -%}
 {%- endmacro -%}
 
+{%- macro printParamFieldSample(oneComment) %}
+{%- if oneComment.fieldBehavior and oneComment.fieldBehavior === 1 -%}
+[{{ oneComment.paramName.toCamelCase() }}]
+{%- else -%}
+{{ oneComment.paramName.toCamelCase() }}
+{%- endif -%}
+{%- endmacro -%}
+
 {%- macro typeLink(type) -%}
 {%- set tsType = typescriptType(type) -%}
 {%- if tsType.length > 0 -%}
@@ -370,6 +401,23 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {{ type }}[]
 {%- else -%}
 {{ type }}
+{%- endif -%}
+{%- endmacro -%}
+
+
+{%- macro printTypeExample(type) -%}
+{%- if type.includes('Buffer') -%}
+            'Buffer'
+{%- elif type.includes('boolean') -%}
+            true
+{%- elif type.includes('string') -%}
+            'abc123'
+{%- elif type.includes('number') -%}
+            1234
+{%- elif type.includes('[]') -%}
+            [1,2,3,4]
+{%- else -%}
+            ''
 {%- endif -%}
 {%- endmacro -%}
 
