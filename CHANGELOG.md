@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.4.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.3.0...v2.4.0) (2021-08-19)
+
+
+### Features
+
+* add variables for self-signed auth to generator ([#908](https://www.github.com/googleapis/gapic-generator-typescript/issues/908)) ([09aa195](https://www.github.com/googleapis/gapic-generator-typescript/commit/09aa19561703e66ec7ad2eb57e8f7f5e506627a1))
+
+
+### Bug Fixes
+
+* closing mixin clients ([#957](https://www.github.com/googleapis/gapic-generator-typescript/issues/957)) ([7a543bf](https://www.github.com/googleapis/gapic-generator-typescript/commit/7a543bf0c16ff2a99d8e731cca5e40fe43dbb9ed))
+
 ## [2.3.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.2.0...v2.3.0) (2021-08-06)
 
 
