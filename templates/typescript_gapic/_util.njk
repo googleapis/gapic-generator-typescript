@@ -162,6 +162,20 @@ limitations under the License.
 {%- endif -%}
 {%- endmacro -%}
 
+{%- macro printInlineSamplesHeader %}
+ * const { {{- service.name.toPascalCase() }}Client} = require('{{ api.publishName }}');
+ * const {{ (api.naming.productName).toCamelCase() }}Client = new {{ service.name.toPascalCase() }}Client();
+ * async function {{ method.name.toCamelCase() }}() {
+ *  const request = {
+ *  {%- set commentsMap = method.paramComment -%}
+ *  {%- for oneComment in commentsMap -%}
+ *  {%- if oneComment.fieldBehavior and oneComment.fieldBehavior !== 1 -%}
+ *  {{ "\n  " }}{{  oneComment.paramName.toCamelCase() | indent(4, true) }},
+ *  {%- endif -%}
+ *  {% endfor %}
+ * };
+{%- endmacro -%}
+
 {%- macro printReturnLROMethod(method) %}
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing
@@ -171,8 +185,12 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
  *   for more details and examples.
  * @example
- * const [operation] = await client.{{ method.name.toCamelCase() }}(request);
- * const [response] = await operation.promise();
+  {{- printInlineSamplesHeader -}}
+ *  const [operation] = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  const [response] = await operation.promise();
+ *  console.log(`Response: ${response}`);
+ *  }
+ * }
 {%- endmacro -%}
 
 {%- macro printReturnSimpleMethod(method) %}
@@ -182,7 +200,11 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
  *   for more details and examples.
  * @example
- * const [response] = await client.{{ method.name.toCamelCase() }}(request);
+    {{- printInlineSamplesHeader -}}
+ *  const response = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  console.log(`Response: ${response}`);
+ *  }
+ * }
 {%- endmacro -%}
 
 {%- macro printReturnPagingServerMethod(method, generatedAsyncName) %}
@@ -205,9 +227,11 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#server-streaming)
  *   for more details and examples.
  * @example
- * const stream = client.{{ method.name.toCamelCase() }}(request);
- * stream.on('data', (response) => { ... });
- * stream.on('end', () => { ... });
+    {{- printInlineSamplesHeader -}}
+ *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  console.log(`Response: ${response}`);
+ * }
 {%- endmacro -%}
 
 {%- macro printReturnClientStreamingMethod(method) %}
@@ -217,9 +241,11 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#client-streaming)
  *   for more details and examples.
  * @example
- * const stream = client.{{ method.name.toCamelCase() }}(callback);
- * stream.write(request);
- * stream.end();
+    {{- printInlineSamplesHeader -}}
+ *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  console.log(`Response: ${response}`);
+ * }
 {%- endmacro -%}
 
 {%- macro printReturnBidiStreamingMethod(method) %}
@@ -231,11 +257,11 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#bi-directional-streaming)
  *   for more details and examples.
  * @example
- * const stream = client.{{ method.name.toCamelCase() }}();
- * stream.on('data', (response) => { ... });
- * stream.on('end', () => { ... });
- * stream.write(request);
- * stream.end();
+    {{- printInlineSamplesHeader -}}
+ *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  console.log(`Response: ${response}`);
+ * }
 {%- endmacro -%}
 
 {%- macro printReturnPageStream(method, generatedAsyncName) %}
@@ -248,6 +274,12 @@ limitations under the License.
  *   Please see the
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
  *   for more details and examples.
+ *  @example
+    {{- printInlineSamplesHeader -}}
+ *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  console.log(`Response: ${response}`);
+ * }
 {%- endmacro -%}
 
 {%- macro printReturnPageAsync(method, generatedName) %}
@@ -264,13 +296,11 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
  *   for more details and examples.
  * @example
- * const iterable = client.{{ generatedName }}(request);
- {%- if method.pagingMapResponseType %}
- * for await (const [key, value] of iterable) {
- {%- else %}
- * for await (const response of iterable) {
- {%- endif %}
- *   // process response
+    {{- printInlineSamplesHeader -}}
+ *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+ *  for await (const response of iterable) {
+ *      console.log(response);
+ *  }
  * }
 {%- endmacro -%}
 
