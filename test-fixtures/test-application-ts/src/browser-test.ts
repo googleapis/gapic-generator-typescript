@@ -28,8 +28,8 @@ describe('BrowserTest for showcase library', () => {
         await exec('karma start');
       } catch (err) {
         console.log('execSync error:', err);
-        console.log('stdout:', err.stdout.toString());
-        console.log('stderr:', err.stderr.toString());
+        console.log('stdout:', (err as unknown as {stdout: Buffer}).stdout.toString());
+        console.log('stderr:', (err as unknown as {stderr: Buffer}).stderr.toString());
       }
       // Kill server process
       server.kill();
