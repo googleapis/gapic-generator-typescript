@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.4.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.4.0...v2.4.1) (2021-08-27)
+
+
+### Bug Fixes
+
+* google.cloud.location is a common proto package ([#963](https://www.github.com/googleapis/gapic-generator-typescript/issues/963)) ([7da9ba9](https://www.github.com/googleapis/gapic-generator-typescript/commit/7da9ba9962e8d4e5340741b724d04a8478bd093a))
+
 ## [2.4.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.3.0...v2.4.0) (2021-08-19)
 
 
