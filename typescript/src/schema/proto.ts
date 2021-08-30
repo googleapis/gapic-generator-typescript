@@ -175,7 +175,7 @@ function isDiregapicLRO(
     method.options?.['.google.api.http'] &&
     !(
       method.options?.['.google.api.http'].get ||
-      (method.name === 'Wait' && method.options?.['.google.api.http']?.post)
+      (method.name === 'Wait' && method.options?.['.google.api.http'].post)
     )
     ? true
     : false;
