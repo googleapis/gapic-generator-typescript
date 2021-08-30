@@ -266,7 +266,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
+            {%- if method.isDiregapicLRO %}
+            assert.deepStrictEqual(response.latestResponse, expectedResponse);
+            {%- else %}
             assert.deepStrictEqual(response, expectedResponse);
+            {%- endif %}
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -1223,7 +1227,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert.deepStrictEqual(response, [expectedResponse]);
             assert((client.operationsClient.{{ method }} as SinonStub)
                 .getCall(0).calledWith(request)
-            );        
+            );
         });
         it('invokes {{ method }} without error using callback', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
@@ -1350,7 +1354,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 (client.operationsClient.descriptor.{{method}}.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
         });
-    });    
+    });
 {%- endif %}
 {%- if (service.pathTemplates.length > 0) %}
 

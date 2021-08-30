@@ -61,6 +61,7 @@ interface MethodDescriptorProto
   headerRequestParams: string[][];
   bundleConfig?: BundleConfig;
   toJSON: Function | undefined;
+  isDiregapicLRO?: boolean;
 }
 
 export interface ServiceDescriptorProto
@@ -90,6 +91,7 @@ export interface ServiceDescriptorProto
   LocationMixin: number;
   LongRunningOperationsMixin: number;
   protoFile: string;
+  diregapicLRO?: MethodDescriptorProto[];
 }
 
 export interface ServicesMap {
@@ -157,6 +159,26 @@ function longRunningMetadataType(
     packageName,
     method.options?.['.google.longrunning.operationInfo']?.metadataType
   );
+}
+
+// Detect non-AIP-compliant LRO method for DIREGAPIC, where the response type is customized Operation and the method is not polling method.
+// (TODO: summerji) Update the detector when DIREGAPIC LRO annotation merged in googleapis-discovery.
+function isDiregapicLRO(
+  packageName: string,
+  method: MethodDescriptorProto,
+  isDiregapic?: boolean
+): boolean {
+  const operationOutputType = toFullyQualifiedName(packageName, 'Operation');
+  return isDiregapic &&
+    method.outputType &&
+    method.outputType === operationOutputType &&
+    method.options?.['.google.api.http'] &&
+    !(
+      method.options?.['.google.api.http'].get ||
+      (method.name === 'Wait' && method.options?.['.google.api.http']?.post)
+    )
+    ? true
+    : false;
 }
 
 // convert from input interface to message name
@@ -394,6 +416,11 @@ function augmentMethod(
         parameters.service.packageName,
         method
       ),
+      isDiregapicLRO: isDiregapicLRO(
+        parameters.service.packageName,
+        method,
+        parameters.diregapic
+      ),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
@@ -618,6 +645,9 @@ function augmentService(parameters: AugmentServiceParameters) {
   );
   augmentedService.longRunning = augmentedService.method.filter(
     method => method.longRunning
+  );
+  augmentedService.diregapicLRO = augmentedService.method.filter(
+    method => method.isDiregapicLRO
   );
   augmentedService.streaming = augmentedService.method.filter(
     method => method.streaming
