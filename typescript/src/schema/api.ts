@@ -47,6 +47,7 @@ export class API {
     return (
       fd.package === 'google.longrunning' ||
       fd.package === 'google.cloud' ||
+      fd.package === 'google.cloud.location' ||
       fd.package === 'google.protobuf' ||
       fd.package === 'google.type' ||
       fd.package === 'google.rpc' ||
