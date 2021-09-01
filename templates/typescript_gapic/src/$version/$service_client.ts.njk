@@ -561,23 +561,14 @@ export class {{ service.name }}Client {
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     {%- if method.isDiregapicLRO %}
-    return new Promise<[
-        LROperation<{{ util.toInterface(method.outputInterface) }}, null>,
-        {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
-      ]>((resolve, reject) => {
-      this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then(([response, next, rawResponse]: [any, any, any]) => {
-        resolve([
-          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}} as LROperation<protos.google.cloud.compute.v1.IOperation, null>,
+    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .then(([response, next, rawResponse]: [any, any, any]) => {
+      return [
+          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
           next,
           rawResponse
-        ]);
-      })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .catch((err: any) => {
-        reject(err);
-      })
+        ];
     });
     {%- else %}
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
