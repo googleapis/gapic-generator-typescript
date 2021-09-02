@@ -212,4 +212,88 @@ describe('v1.RegionOperationsClient', () => {
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
     });
+
+    describe('wait', () => {
+        it('invokes wait without error', async () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.compute.v1.WaitRegionOperationRequest());
+            request.project = '';
+            const expectedHeaderRequestParams = "project=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1.Operation());
+            client.innerApiCalls.wait = stubSimpleCall(expectedResponse);
+            const [response] = await client.wait(request);
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.wait as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes wait without error using callback', async () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.compute.v1.WaitRegionOperationRequest());
+            request.project = '';
+            const expectedHeaderRequestParams = "project=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1.Operation());
+            client.innerApiCalls.wait = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.wait(
+                    request,
+                    (err?: Error|null, result?: protos.google.cloud.compute.v1.IOperation|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.wait as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+        });
+
+        it('invokes wait with error', async () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.compute.v1.WaitRegionOperationRequest());
+            request.project = '';
+            const expectedHeaderRequestParams = "project=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedError = new Error('expected');
+            client.innerApiCalls.wait = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.wait(request), expectedError);
+            assert((client.innerApiCalls.wait as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+    });
 });

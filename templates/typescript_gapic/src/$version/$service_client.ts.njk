@@ -28,7 +28,7 @@ limitations under the License.
 {{- namer.initialize(id, service) -}}
 import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions
-{%- if service.longRunning.length > 0 %}, LROperation{%- endif -%}
+{%- if service.longRunning.length > 0 or service.diregapicLRO.length > 0 %}, LROperation{%- endif -%}
 {%- if service.paging.length > 0 %}, PaginationCallback, GaxCall{%- endif -%}
 {%- if service.IAMPolicyMixin > 0 %}, IamClient, IamProtos{%- endif -%}
 {%- if service.LocationMixin > 0 %}, LocationsClient, LocationProtos{%- endif -%}
@@ -167,7 +167,7 @@ export class {{ service.name }}Client {
 
     // Save the auth object to the client, for use by other methods.
     this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
-  
+
 {%- if not api.diregapic %}
 
     // Set useJWTAccessWithScope on the auth object.
@@ -496,10 +496,17 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}(
       request?: {{ util.toInterface(method.inputInterface) }},
       options?: CallOptions):
+{%- if method.isDiregapicLRO %}
+      Promise<[
+        LROperation<{{ util.toInterface(method.outputInterface) }}, null>,
+        {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
+      ]>;
+{%- else %}
       Promise<[
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
       ]>;
+{%- endif %}
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
       options: CallOptions,
@@ -529,9 +536,15 @@ export class {{ service.name }}Client {
           {{ util.toInterface(method.outputInterface) }},
           {{ util.toInterface(method.inputInterface) }}|null|undefined,
           {}|null|undefined>):
+{%- if method.isDiregapicLRO %}
+      Promise<[
+        LROperation<{{ util.toInterface(method.outputInterface) }}, null>,
+        {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
+{%- else %}
       Promise<[
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
+{%- endif %}
       ]>|void {
     request = request || {};
     let options: CallOptions;
@@ -547,7 +560,18 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    {%- if method.isDiregapicLRO %}
+    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback)
+    .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
+      return [
+          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
+          operation,
+          rawResponse
+        ];
+    });
+    {%- else %}
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+    {%- endif %}
   }
 {%- endfor %}
 {% for method in service.streaming %}

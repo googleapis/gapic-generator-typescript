@@ -194,7 +194,7 @@ export class RegionOperationsClient {
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
     const regionOperationsStubMethods =
-        ['get'];
+        ['get', 'wait'];
     for (const methodName of regionOperationsStubMethods) {
       const callPromise = this.regionOperationsStub.then(
         stub => (...args: Array<{}>) => {
@@ -352,6 +352,85 @@ export class RegionOperationsClient {
     });
     this.initialize();
     return this.innerApiCalls.get(request, options, callback);
+  }
+  wait(
+      request?: protos.google.cloud.compute.v1.IWaitRegionOperationRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IWaitRegionOperationRequest|undefined, {}|undefined
+      ]>;
+  wait(
+      request: protos.google.cloud.compute.v1.IWaitRegionOperationRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.cloud.compute.v1.IOperation,
+          protos.google.cloud.compute.v1.IWaitRegionOperationRequest|null|undefined,
+          {}|null|undefined>): void;
+  wait(
+      request: protos.google.cloud.compute.v1.IWaitRegionOperationRequest,
+      callback: Callback<
+          protos.google.cloud.compute.v1.IOperation,
+          protos.google.cloud.compute.v1.IWaitRegionOperationRequest|null|undefined,
+          {}|null|undefined>): void;
+/**
+ * Waits for the specified Operation resource to return as `DONE` or for the request to approach the 2 minute deadline, and retrieves the specified Operation resource. This method differs from the `GET` method in that it waits for no more than the default deadline (2 minutes) and then returns the current state of the operation, which might be `DONE` or still in progress.
+ *
+ * This method is called on a best-effort basis. Specifically:
+ * - In uncommon cases, when the server is overloaded, the request might return before the default deadline is reached, or might return after zero seconds.
+ * - If the default deadline is reached, there is no guarantee that the operation is actually done when the method returns. Be prepared to retry if the operation is not `DONE`.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.operation
+ *   Name of the Operations resource to return.
+ * @param {string} request.project
+ *   Project ID for this request.
+ * @param {string} request.region
+ *   Name of the region for this request.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [Operation]{@link google.cloud.compute.v1.Operation}.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   for more details and examples.
+ * @example
+ * const [response] = await client.wait(request);
+ */
+  wait(
+      request?: protos.google.cloud.compute.v1.IWaitRegionOperationRequest,
+      optionsOrCallback?: CallOptions|Callback<
+          protos.google.cloud.compute.v1.IOperation,
+          protos.google.cloud.compute.v1.IWaitRegionOperationRequest|null|undefined,
+          {}|null|undefined>,
+      callback?: Callback<
+          protos.google.cloud.compute.v1.IOperation,
+          protos.google.cloud.compute.v1.IWaitRegionOperationRequest|null|undefined,
+          {}|null|undefined>):
+      Promise<[
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IWaitRegionOperationRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+      'project': request.project || '',
+    });
+    this.initialize();
+    return this.innerApiCalls.wait(request, options, callback);
   }
 
 
