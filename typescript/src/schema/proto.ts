@@ -167,9 +167,10 @@ function isDiregapicLRO(
   packageName: string,
   method: MethodDescriptorProto,
   isDiregapic?: boolean
-): boolean {
+): boolean | '' | null | undefined {
   const operationOutputType = toFullyQualifiedName(packageName, 'Operation');
-  return isDiregapic &&
+  return (
+    isDiregapic &&
     method.outputType &&
     method.outputType === operationOutputType &&
     method.options?.['.google.api.http'] &&
@@ -177,8 +178,7 @@ function isDiregapicLRO(
       method.options?.['.google.api.http'].get ||
       (method.name === 'Wait' && method.options?.['.google.api.http'].post)
     )
-    ? true
-    : false;
+  );
 }
 
 // convert from input interface to message name
