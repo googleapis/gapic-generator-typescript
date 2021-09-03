@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.4.1...v2.5.0) (2021-09-03)
+
+
+### Features
+
+* Add minimum wrapper for mitigate future full-implementation diregapic LRO change ([#967](https://www.github.com/googleapis/gapic-generator-typescript/issues/967)) ([e12a72d](https://www.github.com/googleapis/gapic-generator-typescript/commit/e12a72d821cc2cb70c2471bc81f3656c5231f7ea))
+
+
+### Bug Fixes
+
+* **build:** migrate to main branch ([#972](https://www.github.com/googleapis/gapic-generator-typescript/issues/972)) ([faf3819](https://www.github.com/googleapis/gapic-generator-typescript/commit/faf3819e16bc916b274f52b9f63883defd824db4))
+
 ### [2.4.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.4.0...v2.4.1) (2021-08-27)
 
 
