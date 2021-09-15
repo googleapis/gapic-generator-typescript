@@ -38,10 +38,11 @@ import {GoogleAuth, protobuf
 {%- else %}
 import {protobuf
 {%- endif %}
-{%- if (service.longRunning.length > 0) -%}
+{%- if service.longRunning.length > 0 or service.LongRunningOperationsMixin > 0 -%}
 , LROperation, operationsProtos
 {%- endif -%}
-{%- if (service.IAMPolicyMixin) > 0 %}, IamProtos{%- endif -%}
+{%- if service.IAMPolicyMixin > 0 %}, IamProtos{%- endif -%}
+{%- if service.LocationMixin > 0 %}, LocationProtos{%- endif -%}
 } from 'google-gax';
 
 function generateSampleMessage<T extends object>(instance: T) {
@@ -265,7 +266,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
+            {%- if method.isDiregapicLRO %}
+            assert.deepStrictEqual(response.latestResponse, expectedResponse);
+            {%- else %}
             assert.deepStrictEqual(response, expectedResponse);
+            {%- endif %}
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -1003,6 +1008,353 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
     });
 {%- endfor %}
+{%- endif %}
+{%- if service.LocationMixin > 0 %}
+{%- set method = 'getLocation' %}
+    describe('{{ method }}', () => {
+        it('invokes {{ method }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client(
+            {{- util.initClientOptions(api.rest) -}}
+            );
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.{{ id.get("initialize") }}();
+            const request = generateSampleMessage(
+                new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
+            );
+            request.name = '';
+            const expectedHeaderRequestParams = 'name=';
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedResponse = generateSampleMessage(
+                new LocationProtos.google.cloud.location.Location()
+            );
+            client.locationsClient.{{ method }} = stubSimpleCall(expectedResponse);
+            const response = await client.{{ method }}(request, expectedOptions);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(response, [expectedResponse]);
+            assert((client.locationsClient.{{ method }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+        it('invokes {{ method }} without error using callback', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.{{ id.get("initialize") }}();
+            const request = generateSampleMessage(
+                new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
+            );
+            request.name = '';
+            const expectedHeaderRequestParams = 'name=';
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedResponse = generateSampleMessage(
+                new LocationProtos.google.cloud.location.Location()
+            );
+            client.locationsClient.{{ method }} = sinon.stub().callsArgWith(2, null, expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.{{ method }}(
+                    request,
+                    expectedOptions,
+                    (
+                        err?: Error | null,
+                        result?: LocationProtos.google.cloud.location.ILocation | null
+                    ) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.locationsClient.{{ method }} as SinonStub)
+                .getCall(0));
+        });
+        it('invokes {{ method }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.{{ id.get("initialize") }}();
+            const request = generateSampleMessage(
+                new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
+            );
+            request.name = '';
+            const expectedHeaderRequestParams = 'name=';
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+            const expectedError = new Error('expected');
+            client.locationsClient.{{ method }} = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.{{ method }}(request, expectedOptions), expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert((client.locationsClient.{{ method }} as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+    });
+{%- set method = 'listLocations' %}
+    describe('{{ method }}Async', () => {
+        it('uses async iteration with {{method}} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.initialize();
+            const request = generateSampleMessage(
+                new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
+            );
+            request.name = '';
+            const expectedHeaderRequestParams = 'name=';
+            const expectedResponse = [
+                generateSampleMessage(
+                    new LocationProtos.google.cloud.location.Location()
+                ),
+                generateSampleMessage(
+                    new LocationProtos.google.cloud.location.Location()
+                ),
+                generateSampleMessage(
+                    new LocationProtos.google.cloud.location.Location()
+                ),
+            ];
+            client.locationsClient.descriptors.page.{{ method}}.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: LocationProtos.google.cloud.location.ILocation[] = [];
+            const iterable = client.{{ method}}Async(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.locationsClient.descriptors.page.{{ method }}.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.locationsClient.descriptors.page.{{ method }}.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+        it('uses async iteration with {{ method }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.initialize();
+            const request = generateSampleMessage(
+                new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
+            );
+            request.name = '';
+            const expectedHeaderRequestParams = 'name=';
+            const expectedError = new Error('expected');
+            client.locationsClient.descriptors.page.{{ method }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.{{method}}Async(request);
+            await assert.rejects(async () => {
+                const responses: LocationProtos.google.cloud.location.ILocation[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(
+                (client.locationsClient.descriptors.page.{{method}}.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+            assert.strictEqual(
+                (client.locationsClient.descriptors.page.{{method}}.asyncIterate as SinonStub)
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
+                expectedHeaderRequestParams
+            );
+        });
+    });
+{%- endif %}
+{%- if (service.LongRunningOperationsMixin) > 0 %}
+{%- set Operationsmethods = ['getOperation', 'cancelOperation', 'deleteOperation'] %}
+{%- for method in Operationsmethods %}
+    describe('{{ method }}', () => {
+        it('invokes {{ method }} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client(
+            {{- util.initClientOptions(api.rest) -}}
+            );
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.{{ id.get("initialize") }}();
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedResponse = generateSampleMessage(
+            {%- if method === 'getOperation' %}
+                new operationsProtos.google.longrunning.Operation()
+            {%- else %}
+                new protos.google.protobuf.Empty()
+            {%- endif %}
+            );
+            client.operationsClient.{{ method }} = stubSimpleCall(expectedResponse);
+            const response = await client.{{ method }}(request);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(response, [expectedResponse]);
+            assert((client.operationsClient.{{ method }} as SinonStub)
+                .getCall(0).calledWith(request)
+            );
+        });
+        it('invokes {{ method }} without error using callback', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedResponse = generateSampleMessage(
+            {%- if method === 'getOperation' %}
+                new operationsProtos.google.longrunning.Operation()
+            {%- else %}
+                new protos.google.protobuf.Empty()
+            {%- endif %}
+            );
+            client.operationsClient.{{ method }} = sinon.stub().callsArgWith(2, null, expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.operationsClient.{{ method }}(
+                    request,
+                    undefined,
+                    (
+                        err?: Error | null,
+                        {%- if method === 'getOperation' %}
+                        result?: operationsProtos.google.longrunning.Operation | null
+                        {%- else %}
+                        result?: protos.google.protobuf.Empty | null
+                        {%- endif %}
+                    ) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.operationsClient.{{ method }} as SinonStub)
+                .getCall(0));
+        });
+        it('invokes {{ method }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedError = new Error('expected');
+            client.operationsClient.{{ method }} = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(async () => {await client.{{ method }}(request)}, expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert((client.operationsClient.{{ method }} as SinonStub)
+                .getCall(0).calledWith(request));
+        });
+    });
+{%- endfor %}
+{%- set method = 'listOperations' %}
+    describe('{{ method }}Async', () => {
+        it('uses async iteration with {{method}} without error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedResponse = [
+                generateSampleMessage(
+                    new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response()
+                ),
+                generateSampleMessage(
+                    new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response()
+                ),
+                generateSampleMessage(
+                    new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response()
+                ),
+            ];
+            client.operationsClient.descriptor.{{ method}}.asyncIterate = stubAsyncIterationCall(expectedResponse);
+            const responses: operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response[] = [];
+            const iterable = client.operationsClient.{{ method}}Async(request);
+            for await (const resource of iterable) {
+                responses.push(resource!);
+            }
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(responses, expectedResponse);
+            assert.deepStrictEqual(
+                (client.operationsClient.descriptor.{{ method }}.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
+        it('uses async iteration with {{ method }} with error', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.initialize();
+            const request = generateSampleMessage(
+                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+            );
+            const expectedError = new Error('expected');
+            client.operationsClient.descriptor.{{ method }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
+            const iterable = client.operationsClient.{{method}}Async(request);
+            await assert.rejects(async () => {
+                const responses: operationsProtos.google.longrunning.{{ method.toPascalCase() }}Response[] = [];
+                for await (const resource of iterable) {
+                    responses.push(resource!);
+                }
+            });
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(
+                (client.operationsClient.descriptor.{{method}}.asyncIterate as SinonStub)
+                    .getCall(0).args[1], request);
+        });
+    });
 {%- endif %}
 {%- if (service.pathTemplates.length > 0) %}
 

@@ -36,6 +36,7 @@ export class API {
   uniqKeywords: string[];
   packageName: string;
   rest?: boolean;
+  diregapic?: boolean;
   legacyProtoLoad: boolean;
 
   static isIgnoredService(
@@ -46,6 +47,7 @@ export class API {
     return (
       fd.package === 'google.longrunning' ||
       fd.package === 'google.cloud' ||
+      fd.package === 'google.cloud.location' ||
       fd.package === 'google.protobuf' ||
       fd.package === 'google.type' ||
       fd.package === 'google.rpc' ||
@@ -87,6 +89,7 @@ export class API {
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
     this.rest = options.rest;
+    this.diregapic = options.diregapic ?? false;
     this.legacyProtoLoad = options.legacyProtoLoad ?? false;
 
     const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
@@ -209,6 +212,7 @@ export class API {
       port: this.port,
       services: this.services,
       rest: this.rest,
+      diregapic: this.diregapic,
       legacyProtoLoad: this.legacyProtoLoad,
     });
   }

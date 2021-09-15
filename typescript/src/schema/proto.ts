@@ -61,6 +61,7 @@ interface MethodDescriptorProto
   headerRequestParams: string[][];
   bundleConfig?: BundleConfig;
   toJSON: Function | undefined;
+  isDiregapicLRO?: boolean;
 }
 
 export interface ServiceDescriptorProto
@@ -87,7 +88,10 @@ export interface ServiceDescriptorProto
   serviceYaml: ServiceYaml;
   toJSON: Function | undefined;
   IAMPolicyMixin: number;
+  LocationMixin: number;
+  LongRunningOperationsMixin: number;
   protoFile: string;
+  diregapicLRO?: MethodDescriptorProto[];
 }
 
 export interface ServicesMap {
@@ -157,6 +161,26 @@ function longRunningMetadataType(
   );
 }
 
+// Detect non-AIP-compliant LRO method for DIREGAPIC, where the response type is customized Operation and the method is not polling method.
+// (TODO: summerji) Update the detector when DIREGAPIC LRO annotation merged in googleapis-discovery.
+function isDiregapicLRO(
+  packageName: string,
+  method: MethodDescriptorProto,
+  isDiregapic?: boolean
+): boolean | '' | null | undefined {
+  const operationOutputType = toFullyQualifiedName(packageName, 'Operation');
+  return (
+    isDiregapic &&
+    method.outputType &&
+    method.outputType === operationOutputType &&
+    method.options?.['.google.api.http'] &&
+    !(
+      method.options?.['.google.api.http'].get ||
+      (method.name === 'Wait' && method.options?.['.google.api.http'].post)
+    )
+  );
+}
+
 // convert from input interface to message name
 // eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
 function toMessageName(messageType: string): string {
@@ -181,7 +205,7 @@ function pagingField(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
   // TODO: remove this once the next version of the Talent API is published.
   //
@@ -211,7 +235,8 @@ function pagingField(
     inputType &&
     inputType.field!.some(
       field =>
-        field.name === 'page_size' || (rest && field.name === 'max_results')
+        field.name === 'page_size' ||
+        (diregapic && field.name === 'max_results')
     );
   const hasNextPageToken =
     outputType &&
@@ -261,18 +286,18 @@ function pagingFieldName(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
-  const field = pagingField(messages, method, service, rest);
+  const field = pagingField(messages, method, service, diregapic);
   return field?.name;
 }
 
 function pagingResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
-  const field = pagingField(messages, method, undefined, rest);
+  const field = pagingField(messages, method, undefined, diregapic);
   if (!field || !field.type) {
     return undefined;
   }
@@ -290,11 +315,11 @@ function pagingResponseType(
 function pagingMapResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
-  const pagingfield = pagingField(messages, method, undefined, rest);
+  const pagingfield = pagingField(messages, method, undefined, diregapic);
   const outputType = messages[method.outputType!];
-  if (!pagingfield?.type || !rest || !outputType.nestedType) {
+  if (!pagingfield?.type || !diregapic || !outputType.nestedType) {
     return undefined;
   }
   const mapResponses = outputType.nestedType.filter(desProto => {
@@ -373,7 +398,7 @@ interface AugmentMethodParameters {
   allMessages: MessagesMap;
   localMessages: MessagesMap;
   service: ServiceDescriptorProto;
-  rest?: boolean;
+  diregapic?: boolean;
 }
 
 function augmentMethod(
@@ -391,22 +416,27 @@ function augmentMethod(
         parameters.service.packageName,
         method
       ),
+      isDiregapicLRO: isDiregapicLRO(
+        parameters.service.packageName,
+        method,
+        parameters.diregapic
+      ),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
         method,
         parameters.service,
-        parameters.rest
+        parameters.diregapic
       ),
       pagingResponseType: pagingResponseType(
         parameters.allMessages,
         method,
-        parameters.rest
+        parameters.diregapic
       ),
       pagingMapResponseType: pagingMapResponseType(
         parameters.allMessages,
         method,
-        parameters.rest
+        parameters.diregapic
       ),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
@@ -572,6 +602,20 @@ function augmentService(parameters: AugmentServiceParameters) {
   ) {
     augmentedService.IAMPolicyMixin = 1;
   }
+  if (
+    parameters.options.serviceYaml?.apis.includes(
+      'google.cloud.location.Locations'
+    )
+  ) {
+    augmentedService.LocationMixin = 1;
+  }
+  if (
+    parameters.options.serviceYaml?.apis.includes(
+      'google.longrunning.Operations'
+    )
+  ) {
+    augmentedService.LongRunningOperationsMixin = 1;
+  }
   augmentedService.comments = parameters.commentsMap.getServiceComment(
     parameters.service.name!
   );
@@ -587,7 +631,7 @@ function augmentService(parameters: AugmentServiceParameters) {
         allMessages: parameters.allMessages,
         localMessages: parameters.localMessages,
         service: augmentedService,
-        rest: parameters.options.rest,
+        diregapic: parameters.options.diregapic,
       },
       method
     )
@@ -601,6 +645,9 @@ function augmentService(parameters: AugmentServiceParameters) {
   );
   augmentedService.longRunning = augmentedService.method.filter(
     method => method.longRunning
+  );
+  augmentedService.diregapicLRO = augmentedService.method.filter(
+    method => method.isDiregapicLRO
   );
   augmentedService.streaming = augmentedService.method.filter(
     method => method.streaming
@@ -719,7 +766,7 @@ export class Proto {
   allMessages: MessagesMap = {};
   localMessages: MessagesMap = {};
   fileToGenerate = true;
-  rest?: boolean;
+  diregapic?: boolean;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
@@ -736,7 +783,7 @@ export class Proto {
         map[`.${parameters.fd.package!}.${message.name!}`] = message;
         return map;
       }, {} as MessagesMap);
-    this.rest = parameters.options.rest;
+    this.diregapic = parameters.options.diregapic;
     const protopackage = parameters.fd.package;
     // Allow to generate if a proto has no service and its package name is differ from its service's.
     if (

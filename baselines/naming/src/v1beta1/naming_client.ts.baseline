@@ -119,6 +119,12 @@ export class NamingClient {
     // Save the auth object to the client, for use by other methods.
     this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
 
+    // Set useJWTAccessWithScope on the auth object.
+    this.auth.useJWTAccessWithScope = true;
+
+    // Set defaultServicePath on the auth object.
+    this.auth.defaultServicePath = staticMembers.servicePath1;
+
     // Set the default scopes in auth client if needed.
     if (servicePath === staticMembers.servicePath1) {
       this.auth.defaultScopes = staticMembers.scopes1;
@@ -1096,6 +1102,7 @@ export class NamingClient {
       return this.namingStub!.then(stub => {
         this._terminated = true;
         stub.close();
+        this.operationsClient.close();
       });
     }
     return Promise.resolve();

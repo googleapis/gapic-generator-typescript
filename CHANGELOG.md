@@ -1,5 +1,63 @@
 # Changelog
 
+## [2.5.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.4.1...v2.5.0) (2021-09-03)
+
+
+### Features
+
+* Add minimum wrapper for mitigate future full-implementation diregapic LRO change ([#967](https://www.github.com/googleapis/gapic-generator-typescript/issues/967)) ([e12a72d](https://www.github.com/googleapis/gapic-generator-typescript/commit/e12a72d821cc2cb70c2471bc81f3656c5231f7ea))
+
+
+### Bug Fixes
+
+* **build:** migrate to main branch ([#972](https://www.github.com/googleapis/gapic-generator-typescript/issues/972)) ([faf3819](https://www.github.com/googleapis/gapic-generator-typescript/commit/faf3819e16bc916b274f52b9f63883defd824db4))
+
+### [2.4.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.4.0...v2.4.1) (2021-08-27)
+
+
+### Bug Fixes
+
+* google.cloud.location is a common proto package ([#963](https://www.github.com/googleapis/gapic-generator-typescript/issues/963)) ([7da9ba9](https://www.github.com/googleapis/gapic-generator-typescript/commit/7da9ba9962e8d4e5340741b724d04a8478bd093a))
+
+## [2.4.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.3.0...v2.4.0) (2021-08-19)
+
+
+### Features
+
+* add variables for self-signed auth to generator ([#908](https://www.github.com/googleapis/gapic-generator-typescript/issues/908)) ([09aa195](https://www.github.com/googleapis/gapic-generator-typescript/commit/09aa19561703e66ec7ad2eb57e8f7f5e506627a1))
+
+
+### Bug Fixes
+
+* closing mixin clients ([#957](https://www.github.com/googleapis/gapic-generator-typescript/issues/957)) ([7a543bf](https://www.github.com/googleapis/gapic-generator-typescript/commit/7a543bf0c16ff2a99d8e731cca5e40fe43dbb9ed))
+
+## [2.3.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.2.0...v2.3.0) (2021-08-06)
+
+
+### Features
+
+* Add diregapic option in command line ([#948](https://www.github.com/googleapis/gapic-generator-typescript/issues/948)) ([a3525d4](https://www.github.com/googleapis/gapic-generator-typescript/commit/a3525d49a2cf777ee927f1f92bc7190bd72586b6))
+
+## [2.2.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.1...v2.2.0) (2021-07-31)
+
+
+### Features
+
+* adding location service mixin ([#941](https://www.github.com/googleapis/gapic-generator-typescript/issues/941)) ([c9705d3](https://www.github.com/googleapis/gapic-generator-typescript/commit/c9705d3ec1a43b9b49bc20c8f3f748a20214f59a))
+* adding operations mixin service ([#942](https://www.github.com/googleapis/gapic-generator-typescript/issues/942)) ([747f7b5](https://www.github.com/googleapis/gapic-generator-typescript/commit/747f7b5920832adde1388a587de1a64c09103d1e))
+
+
+### Bug Fixes
+
+* add bazel option for transport ([#945](https://www.github.com/googleapis/gapic-generator-typescript/issues/945)) ([3835239](https://www.github.com/googleapis/gapic-generator-typescript/commit/3835239be746751679a65e8602fbeaf4c91cc437))
+
+### [2.1.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.0...v2.1.1) (2021-07-26)
+
+
+### Bug Fixes
+
+* missing call warn() in lro method ([#939](https://www.github.com/googleapis/gapic-generator-typescript/issues/939)) ([af8ce2f](https://www.github.com/googleapis/gapic-generator-typescript/commit/af8ce2f59c005f300aaa8b43383317c88f91bc6a))
+
 ## [2.1.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.0.1...v2.1.0) (2021-07-16)
 
 

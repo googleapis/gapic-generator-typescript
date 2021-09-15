@@ -347,8 +347,8 @@ describe('src/schema/proto.ts', () => {
     });
   });
 
-  describe('should add rest for Proto class', () => {
-    it('should be false when rest is not set', () => {
+  describe('should add diregapic option for Proto class', () => {
+    it('should be false when diregapic is not set', () => {
       const fd = new protos.google.protobuf.FileDescriptorProto();
       const proto = new Proto({
         fd,
@@ -361,9 +361,9 @@ describe('src/schema/proto.ts', () => {
         },
         commentsMap: new CommentsMap([fd]),
       });
-      assert.strictEqual(proto.rest, undefined);
+      assert.strictEqual(proto.diregapic, undefined);
     });
-    it('should be true when rest is set', () => {
+    it('should be true when diregapic is set', () => {
       const fd = new protos.google.protobuf.FileDescriptorProto();
       const proto = new Proto({
         fd,
@@ -373,16 +373,16 @@ describe('src/schema/proto.ts', () => {
         resourceDatabase: new ResourceDatabase(),
         options: {
           grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
-          rest: true,
+          diregapic: true,
         },
         commentsMap: new CommentsMap([fd]),
       });
-      assert.strictEqual(proto.rest, true);
+      assert.strictEqual(proto.diregapic, true);
     });
   });
 
-  describe('should support pagination for Discovery-based APIs', () => {
-    it('should be page field if api require rest transport and use "max_results" as field name', () => {
+  describe('should support pagination for non-gRPC APIs, diregapic mode', () => {
+    it('should be page field if diregapic mode and use "max_results" as field name', () => {
       const fd = new protos.google.protobuf.FileDescriptorProto();
       fd.name = 'google/cloud/showcase/v1beta1/test.proto';
       fd.package = 'google.cloud.showcase.v1beta1';
@@ -425,7 +425,7 @@ describe('src/schema/proto.ts', () => {
       fd.messageType[1].field[1].name = 'page_token';
       const options: Options = {
         grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
-        rest: true,
+        diregapic: true,
       };
       const allMessages: MessagesMap = {};
       fd.messageType
