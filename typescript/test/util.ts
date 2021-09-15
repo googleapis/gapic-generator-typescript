@@ -126,8 +126,6 @@ export function runBaselineTest(options: BaselineOptions) {
       commandLine += ' --transport=rest';
     }
     execSync(commandLine);
-    console.log(outputDir);
-    console.log(baselineDir);
     assert(equalToBaseline(outputDir, baselineDir));
   });
 }
