@@ -13,10 +13,12 @@
 {{ \n }}
    */
 {%- set type = oneComment.paramType -%}
-{%- if type.startsWith('.') %}
-  // const {{ printParamFieldSample(oneComment) }} = {{- printTypeExample(type.substring(1)) -}} {{-\n-}}
+{%- if printParamFieldSample(oneComment) == 'project' %}
+  // const {{ printParamFieldSample(oneComment) }} = 'my-project'
+{%- elif type.startsWith('.') %}
+  // const {{ printParamFieldSample(oneComment) }} = {{ printTypeExample(type.substring(1)) -}} {{-\n-}}
 {%- else %}
-  // const {{ printParamFieldSample(oneComment) }} = {{- printTypeExample(convertParamType(oneComment.paramType)) -}}
+  // const {{ printParamFieldSample(oneComment) }} = {{ printTypeExample(convertParamType(oneComment.paramType)) -}}
 {%- endif -%}
 {%- endfor -%}
 {%- endmacro -%}
@@ -52,7 +54,7 @@
 
 {%- macro printTypeExample(type) -%}
 {%- if type.includes('Buffer') -%}
-            'Buffer'
+            'Buffer.from('string')'
 {%- elif type.includes('boolean') -%}
             true
 {%- elif type.includes('string') -%}
