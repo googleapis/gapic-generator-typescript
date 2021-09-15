@@ -1,19 +1,14 @@
 {#-
-
 Copyright 2019 Google LLC
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     https://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
 -#}
 
 {% set markdownReferenceRegex = r/\[(.*?)\]\[(.*?)\]/g %}
@@ -118,29 +113,6 @@ limitations under the License.
 {%- endif %}
 {%- endmacro -%}
 
-{%- macro printCommentsForSample(method) -%}
-{%- set commentsMap = method.paramComment -%}
-{%- for oneComment in commentsMap -%}
-{%- set lines = oneComment.comments -%}
-{{ \n }}
-  /**
-{%- for line in lines %}
-{%- set trimmed = line.replace(r/\s+$/, '') -%}
-{%- if trimmed.length > 0 %}
-   * {{ trimmed.replaceAll('*/', '* /') | safe }}
-{%- endif -%}
-{%- endfor -%}
-{{ \n }}
-   */
-{%- set type = oneComment.paramType -%}
-{%- if type.startsWith('.') %}
-  // const {{ printParamFieldSample(oneComment) }} = {{- printTypeExample(type.substring(1)) -}} {{-\n-}}
-{%- else %}
-  // const {{ printParamFieldSample(oneComment) }} = {{- printTypeExample(convertParamType(oneComment.paramType)) -}}
-{%- endif -%}
-{%- endfor -%}
-{%- endmacro -%}
-
 {%- macro printOptions(type) %}
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -162,20 +134,6 @@ limitations under the License.
 {%- endif -%}
 {%- endmacro -%}
 
-{%- macro printInlineSamplesHeader %}
- * const { {{- service.name.toPascalCase() }}Client} = require('{{ api.publishName }}');
- * const {{ (api.naming.productName).toCamelCase() }}Client = new {{ service.name.toPascalCase() }}Client();
- * async function {{ method.name.toCamelCase() }}() {
- *  const request = {
- *  {%- set commentsMap = method.paramComment -%}
- *  {%- for oneComment in commentsMap -%}
- *  {%- if oneComment.fieldBehavior and oneComment.fieldBehavior !== 1 -%}
- *  {{ "\n  " }}{{  oneComment.paramName.toCamelCase() | indent(4, true) }},
- *  {%- endif -%}
- *  {% endfor %}
- * };
-{%- endmacro -%}
-
 {%- macro printReturnLROMethod(method) %}
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing
@@ -185,26 +143,33 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
  *   for more details and examples.
  * @example
-  {{- printInlineSamplesHeader -}}
- *  const [operation] = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  const [response] = await operation.promise();
- *  console.log(`Response: ${response}`);
- *  }
- * }
+ * const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+ * const [response] = await operation.promise();
 {%- endmacro -%}
 
 {%- macro printReturnSimpleMethod(method) %}
+{%- if method.isDiregapicLRO %}
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing
+ *   a long running operation.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   for more details and examples.
+ *   This method is considered to be in beta. This means while
+ *   stable it is still a work-in-progress and under active development,
+ *   and might get backwards-incompatible changes at any time.
+ *   `.promise()` is not supported yet.
+ * @example
+ * const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+{%- else %}
  * @returns {Promise} - The promise which resolves to an array.
  *   The first element of the array is an object representing {{ typeLink(method.outputType) }}.
  *   Please see the
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
  *   for more details and examples.
  * @example
-    {{- printInlineSamplesHeader -}}
- *  const response = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  console.log(`Response: ${response}`);
- *  }
- * }
+ * const [response] = await client.{{ method.name.toCamelCase() }}(request);
+{%- endif %}
 {%- endmacro -%}
 
 {%- macro printReturnPagingServerMethod(method, generatedAsyncName) %}
@@ -227,11 +192,9 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#server-streaming)
  *   for more details and examples.
  * @example
-    {{- printInlineSamplesHeader -}}
- *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  console.log(`Response: ${response}`);
- * }
+ * const stream = client.{{ method.name.toCamelCase() }}(request);
+ * stream.on('data', (response) => { ... });
+ * stream.on('end', () => { ... });
 {%- endmacro -%}
 
 {%- macro printReturnClientStreamingMethod(method) %}
@@ -241,11 +204,9 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#client-streaming)
  *   for more details and examples.
  * @example
-    {{- printInlineSamplesHeader -}}
- *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  console.log(`Response: ${response}`);
- * }
+ * const stream = client.{{ method.name.toCamelCase() }}(callback);
+ * stream.write(request);
+ * stream.end();
 {%- endmacro -%}
 
 {%- macro printReturnBidiStreamingMethod(method) %}
@@ -257,11 +218,11 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#bi-directional-streaming)
  *   for more details and examples.
  * @example
-    {{- printInlineSamplesHeader -}}
- *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  console.log(`Response: ${response}`);
- * }
+ * const stream = client.{{ method.name.toCamelCase() }}();
+ * stream.on('data', (response) => { ... });
+ * stream.on('end', () => { ... });
+ * stream.write(request);
+ * stream.end();
 {%- endmacro -%}
 
 {%- macro printReturnPageStream(method, generatedAsyncName) %}
@@ -274,12 +235,6 @@ limitations under the License.
  *   Please see the
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
  *   for more details and examples.
- *  @example
-    {{- printInlineSamplesHeader -}}
- *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  console.log(`Response: ${response}`);
- * }
 {%- endmacro -%}
 
 {%- macro printReturnPageAsync(method, generatedName) %}
@@ -296,11 +251,13 @@ limitations under the License.
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
  *   for more details and examples.
  * @example
-    {{- printInlineSamplesHeader -}}
- *  const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
- *  for await (const response of iterable) {
- *      console.log(response);
- *  }
+ * const iterable = client.{{ generatedName }}(request);
+ {%- if method.pagingMapResponseType %}
+ * for await (const [key, value] of iterable) {
+ {%- else %}
+ * for await (const response of iterable) {
+ {%- endif %}
+ *   // process response
  * }
 {%- endmacro -%}
 
@@ -309,14 +266,6 @@ limitations under the License.
 [request.{{ oneComment.paramName.toCamelCase() }}]
 {%- else -%}
 request.{{ oneComment.paramName.toCamelCase() }}
-{%- endif -%}
-{%- endmacro -%}
-
-{%- macro printParamFieldSample(oneComment) %}
-{%- if oneComment.fieldBehavior and oneComment.fieldBehavior === 1 -%}
-[{{ oneComment.paramName.toCamelCase() }}]
-{%- else -%}
-{{ oneComment.paramName.toCamelCase() }}
 {%- endif -%}
 {%- endmacro -%}
 
@@ -431,23 +380,6 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {{ type }}[]
 {%- else -%}
 {{ type }}
-{%- endif -%}
-{%- endmacro -%}
-
-
-{%- macro printTypeExample(type) -%}
-{%- if type.includes('Buffer') -%}
-            'Buffer'
-{%- elif type.includes('boolean') -%}
-            true
-{%- elif type.includes('string') -%}
-            'abc123'
-{%- elif type.includes('number') -%}
-            1234
-{%- elif type.includes('[]') -%}
-            [1,2,3,4]
-{%- else -%}
-            ''
 {%- endif -%}
 {%- endmacro -%}
 

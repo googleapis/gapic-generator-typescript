@@ -1,5 +1,4 @@
-{% import "./_util.njk"  as util -%}
-// Copyright 2018 Google LLC
+{# // Copyright 2018 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +10,9 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.
+// limitations under the License. #}
 
+{% import "./_util.njk" as util%}
 'use strict';
 
 function main() {
@@ -46,12 +46,16 @@ function main() {
   }
 {% elif method.serverStreaming and method.clientStreaming %}
     // Run request
-    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
-    console.log(`Response: ${response}`);
+    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}();
+    stream.on('data', (response) => { console.log(`Response: ${response}`) });
+    stream.on('error', (err) => { throw(err) });
+    stream.on('end', () => { /* API call completed */ });
+    stream.write(request);
+    stream.end(); 
   }
 {% elif method in service.paging %}
     // Run request
-    const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
+    const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}Async(request);
     for await (const response of iterable) {
         console.log(response);
     }
@@ -59,12 +63,15 @@ function main() {
 {% elif method.serverStreaming %}
     // Run request
     const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
-    console.log(`Response: ${response}`);
+    stream.on('data', (response) => { console.log(`Response: ${response}`) });
+    stream.on('error', (err) => { throw(err) });
+    stream.on('end', () => { /* API call completed */ });
   }
 {% elif method.clientStreaming %}
     // Run request
-    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
-    console.log(`Response: ${response}`);
+    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}((response) => console.log(response));
+    stream.write(request);
+    stream.end();
   }
 {% else %}
     // Run request
