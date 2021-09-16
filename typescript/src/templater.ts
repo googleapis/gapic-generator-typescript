@@ -94,8 +94,27 @@ function processOneTemplate(
   // $version is unique (defined in api.naming), but there can be multiple
   // services.
   outputFilename = outputFilename.replace(/\$version/, api.naming.version);
-  // {api, commonParameters}
-  if (outputFilename.match(/\$service/)) {
+
+  if (outputFilename.match(/\$method/)) {
+    for (const service of api.services) {
+      for (const method of service.method) {
+        const pushFilename = outputFilename
+          .replace(/\.njk$/, '')
+          .replace(/\$method/, method.name!.toSnakeCase())
+          .replace(/\$service/, service.name!.toSnakeCase());
+
+        result.push(
+          renderFile(pushFilename, relativeTemplateName, {
+            method,
+            api,
+            commonParameters,
+            service,
+            id,
+          })
+        );
+      }
+    }
+  } else if (outputFilename.match(/\$service/)) {
     for (const service of api.services) {
       result.push(
         renderFile(

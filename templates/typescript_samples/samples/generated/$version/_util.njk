@@ -1,0 +1,75 @@
+{%- macro printCommentsForSample(method) -%}
+{%- set commentsMap = method.paramComment -%}
+{%- for oneComment in commentsMap -%}
+{%- set lines = oneComment.comments -%}
+{{ \n }}
+  /**
+{%- for line in lines %}
+{%- set trimmed = line.replace(r/\s+$/, '') -%}
+{%- if trimmed.length > 0 %}
+   * {{ trimmed.replaceAll('*/', '* /') | safe }}
+{%- endif -%}
+{%- endfor -%}
+{{ \n }}
+   */
+{%- set type = oneComment.paramType -%}
+{%- if printParamFieldSample(oneComment) == 'project' %}
+  // const {{ printParamFieldSample(oneComment) }} = 'my-project'
+{%- elif printParamFieldSample(oneComment) == 'region' %}
+  // const {{ printParamFieldSample(oneComment) }} = 'us-central1'
+{%- elif type.startsWith('.') %}
+  // const {{ printParamFieldSample(oneComment) | replace('[', '') | replace(']', '') }} = {{ printTypeExample(type.substring(1)) -}} {{-\n-}}
+{%- else %}
+  // const {{ printParamFieldSample(oneComment) | replace('[', '') | replace(']', '') }} = {{ printTypeExample(convertParamType(oneComment.paramType)) -}}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+
+{%- macro printParamFieldSample(oneComment) %}
+{%- if oneComment.fieldBehavior and oneComment.fieldBehavior === 1 -%}
+[{{ oneComment.paramName.toCamelCase() }}]
+{%- else -%}
+{{ oneComment.paramName.toCamelCase() }}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro typescriptType(protobufType) -%}
+{%- if protobufType.includes('TYPE_BYTES') -%}
+{%- set type = 'Buffer' -%}
+{%- elif protobufType.includes('TYPE_BOOL') -%}
+{%- set type = 'boolean' -%}
+{%- elif protobufType.includes('TYPE_STRING') -%}
+{%- set type = 'string' -%}
+{%- elif protobufType.includes('TYPE_') -%}
+{#- any other type is essentially a number: int32, uint32, etc. -#}
+{%- set type = 'number' -%}
+{%- else -%}
+{%- set type = '' -%}
+{%- endif -%}
+{%- if protobufType.includes('[]') -%}
+{{ type }}[]
+{%- else -%}
+{{ type }}
+{%- endif -%}
+{%- endmacro -%}
+
+
+{%- macro printTypeExample(type) -%}
+{%- if type.includes('Buffer') -%}
+            'Buffer.from('string')'
+{%- elif type.includes('boolean') -%}
+            true
+{%- elif type.includes('string') -%}
+            'abc123'
+{%- elif type.includes('number') -%}
+            1234
+{%- elif type.includes('[]') -%}
+            [1,2,3,4]
+{%- else -%}
+            ''
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro convertParamType(paramType) -%}
+          {{- typescriptType(paramType) -}}
+{%- endmacro -%}
