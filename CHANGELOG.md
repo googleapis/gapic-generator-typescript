@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.5.0...v2.6.0) (2021-09-16)
+
+
+### Features
+
+* auto generate samples for each method ([#952](https://www.github.com/googleapis/gapic-generator-typescript/issues/952)) ([68fdeaa](https://www.github.com/googleapis/gapic-generator-typescript/commit/68fdeaa9c3fbb1bb04475acf149b523b82f600e4))
+* update retry and timeout logic for generated async/stream methods ([#973](https://www.github.com/googleapis/gapic-generator-typescript/issues/973)) ([5f61bd1](https://www.github.com/googleapis/gapic-generator-typescript/commit/5f61bd1cf42512e4cb3bc67bd6439aedb5ab974b))
+
 ## [2.5.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.4.1...v2.5.0) (2021-09-03)
 
 
