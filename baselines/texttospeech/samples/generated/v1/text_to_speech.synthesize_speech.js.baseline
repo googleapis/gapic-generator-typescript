@@ -16,7 +16,7 @@
 'use strict';
 
 function main(input, voice, audioConfig) {
-  // [START texttospeech_synthesize_speech_sample]
+  // [START texttospeech_v1_generated_TextToSpeech_SynthesizeSpeech_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -53,7 +53,7 @@ function main(input, voice, audioConfig) {
   }
 
   synthesizeSpeech();
-  // [END texttospeech_synthesize_speech_sample]
+  // [END texttospeech_v1_generated_TextToSpeech_SynthesizeSpeech_async]
 }
 
 process.on('unhandledRejection', err => {

@@ -16,7 +16,7 @@
 'use strict';
 
 function main(group) {
-  // [START monitoring_update_group_sample]
+  // [START monitoring_v3_generated_GroupService_UpdateGroup_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -48,7 +48,7 @@ function main(group) {
   }
 
   updateGroup();
-  // [END monitoring_update_group_sample]
+  // [END monitoring_v3_generated_GroupService_UpdateGroup_async]
 }
 
 process.on('unhandledRejection', err => {

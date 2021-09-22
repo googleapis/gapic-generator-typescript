@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START redis_failover_instance_sample]
+  // [START redis_v1beta1_generated_CloudRedis_FailoverInstance_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -51,7 +51,7 @@ function main(name) {
   }
 
   failoverInstance();
-  // [END redis_failover_instance_sample]
+  // [END redis_v1beta1_generated_CloudRedis_FailoverInstance_async]
 }
 
 process.on('unhandledRejection', err => {

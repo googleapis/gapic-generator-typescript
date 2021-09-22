@@ -16,7 +16,7 @@
 'use strict';
 
 function main() {
-  // [START monitoring_list_uptime_check_ips_sample]
+  // [START monitoring_v3_generated_UptimeCheckService_ListUptimeCheckIps_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -55,7 +55,7 @@ function main() {
   }
 
   listUptimeCheckIps();
-  // [END monitoring_list_uptime_check_ips_sample]
+  // [END monitoring_v3_generated_UptimeCheckService_ListUptimeCheckIps_async]
 }
 
 process.on('unhandledRejection', err => {

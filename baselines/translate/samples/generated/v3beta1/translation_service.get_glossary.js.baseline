@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START translation_get_glossary_sample]
+  // [START translation_v3beta1_generated_TranslationService_GetGlossary_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -43,7 +43,7 @@ function main(name) {
   }
 
   getGlossary();
-  // [END translation_get_glossary_sample]
+  // [END translation_v3beta1_generated_TranslationService_GetGlossary_async]
 }
 
 process.on('unhandledRejection', err => {

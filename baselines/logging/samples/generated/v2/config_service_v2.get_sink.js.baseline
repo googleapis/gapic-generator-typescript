@@ -16,7 +16,7 @@
 'use strict';
 
 function main(sinkName) {
-  // [START logging_get_sink_sample]
+  // [START logging_v2_generated_ConfigServiceV2_GetSink_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -48,7 +48,7 @@ function main(sinkName) {
   }
 
   getSink();
-  // [END logging_get_sink_sample]
+  // [END logging_v2_generated_ConfigServiceV2_GetSink_async]
 }
 
 process.on('unhandledRejection', err => {

@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START logging_delete_exclusion_sample]
+  // [START logging_v2_generated_ConfigServiceV2_DeleteExclusion_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -48,7 +48,7 @@ function main(name) {
   }
 
   deleteExclusion();
-  // [END logging_delete_exclusion_sample]
+  // [END logging_v2_generated_ConfigServiceV2_DeleteExclusion_async]
 }
 
 process.on('unhandledRejection', err => {

@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent, serviceLevelObjective) {
-  // [START monitoring_create_service_level_objective_sample]
+  // [START monitoring_v3_generated_ServiceMonitoringService_CreateServiceLevelObjective_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -57,7 +57,7 @@ function main(parent, serviceLevelObjective) {
   }
 
   createServiceLevelObjective();
-  // [END monitoring_create_service_level_objective_sample]
+  // [END monitoring_v3_generated_ServiceMonitoringService_CreateServiceLevelObjective_async]
 }
 
 process.on('unhandledRejection', err => {

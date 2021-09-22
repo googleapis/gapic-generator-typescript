@@ -16,7 +16,7 @@
 'use strict';
 
 function main(service) {
-  // [START monitoring_update_service_sample]
+  // [START monitoring_v3_generated_ServiceMonitoringService_UpdateService_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -48,7 +48,7 @@ function main(service) {
   }
 
   updateService();
-  // [END monitoring_update_service_sample]
+  // [END monitoring_v3_generated_ServiceMonitoringService_UpdateService_async]
 }
 
 process.on('unhandledRejection', err => {

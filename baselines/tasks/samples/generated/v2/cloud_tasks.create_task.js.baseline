@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent, task) {
-  // [START tasks_create_task_sample]
+  // [START tasks_v2_generated_CloudTasks_CreateTask_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -90,7 +90,7 @@ function main(parent, task) {
   }
 
   createTask();
-  // [END tasks_create_task_sample]
+  // [END tasks_v2_generated_CloudTasks_CreateTask_async]
 }
 
 process.on('unhandledRejection', err => {

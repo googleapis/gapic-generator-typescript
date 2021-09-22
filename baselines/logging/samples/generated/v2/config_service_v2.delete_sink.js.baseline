@@ -16,7 +16,7 @@
 'use strict';
 
 function main(sinkName) {
-  // [START logging_delete_sink_sample]
+  // [START logging_v2_generated_ConfigServiceV2_DeleteSink_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -49,7 +49,7 @@ function main(sinkName) {
   }
 
   deleteSink();
-  // [END logging_delete_sink_sample]
+  // [END logging_v2_generated_ConfigServiceV2_DeleteSink_async]
 }
 
 process.on('unhandledRejection', err => {

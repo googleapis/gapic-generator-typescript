@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START dlp_update_stored_info_type_sample]
+  // [START dlp_v2_generated_DlpService_UpdateStoredInfoType_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -55,7 +55,7 @@ function main(name) {
   }
 
   updateStoredInfoType();
-  // [END dlp_update_stored_info_type_sample]
+  // [END dlp_v2_generated_DlpService_UpdateStoredInfoType_async]
 }
 
 process.on('unhandledRejection', err => {
