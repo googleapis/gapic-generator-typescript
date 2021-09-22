@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START logging_get_bucket_sample]
+  // [START logging_v2_generated_ConfigServiceV2_GetBucket_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -49,7 +49,7 @@ function main(name) {
   }
 
   getBucket();
-  // [END logging_get_bucket_sample]
+  // [END logging_v2_generated_ConfigServiceV2_GetBucket_async]
 }
 
 process.on('unhandledRejection', err => {

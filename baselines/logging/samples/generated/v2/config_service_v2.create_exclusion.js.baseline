@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent, exclusion) {
-  // [START logging_create_exclusion_sample]
+  // [START logging_v2_generated_ConfigServiceV2_CreateExclusion_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -54,7 +54,7 @@ function main(parent, exclusion) {
   }
 
   createExclusion();
-  // [END logging_create_exclusion_sample]
+  // [END logging_v2_generated_ConfigServiceV2_CreateExclusion_async]
 }
 
 process.on('unhandledRejection', err => {

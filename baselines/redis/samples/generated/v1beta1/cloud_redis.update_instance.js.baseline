@@ -16,7 +16,7 @@
 'use strict';
 
 function main(updateMask, instance) {
-  // [START redis_update_instance_sample]
+  // [START redis_v1beta1_generated_CloudRedis_UpdateInstance_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -56,7 +56,7 @@ function main(updateMask, instance) {
   }
 
   updateInstance();
-  // [END redis_update_instance_sample]
+  // [END redis_v1beta1_generated_CloudRedis_UpdateInstance_async]
 }
 
 process.on('unhandledRejection', err => {

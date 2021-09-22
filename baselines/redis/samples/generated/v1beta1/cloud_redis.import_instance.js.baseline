@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name, inputConfig) {
-  // [START redis_import_instance_sample]
+  // [START redis_v1beta1_generated_CloudRedis_ImportInstance_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -51,7 +51,7 @@ function main(name, inputConfig) {
   }
 
   importInstance();
-  // [END redis_import_instance_sample]
+  // [END redis_v1beta1_generated_CloudRedis_ImportInstance_async]
 }
 
 process.on('unhandledRejection', err => {

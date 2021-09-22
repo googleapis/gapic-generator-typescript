@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START dlp_delete_deidentify_template_sample]
+  // [START dlp_v2_generated_DlpService_DeleteDeidentifyTemplate_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -45,7 +45,7 @@ function main(name) {
   }
 
   deleteDeidentifyTemplate();
-  // [END dlp_delete_deidentify_template_sample]
+  // [END dlp_v2_generated_DlpService_DeleteDeidentifyTemplate_async]
 }
 
 process.on('unhandledRejection', err => {

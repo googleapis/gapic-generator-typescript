@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START monitoring_delete_service_sample]
+  // [START monitoring_v3_generated_ServiceMonitoringService_DeleteService_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -44,7 +44,7 @@ function main(name) {
   }
 
   deleteService();
-  // [END monitoring_delete_service_sample]
+  // [END monitoring_v3_generated_ServiceMonitoringService_DeleteService_async]
 }
 
 process.on('unhandledRejection', err => {

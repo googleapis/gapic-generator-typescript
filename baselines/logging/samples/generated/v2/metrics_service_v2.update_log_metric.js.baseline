@@ -16,7 +16,7 @@
 'use strict';
 
 function main(metricName, metric) {
-  // [START logging_update_log_metric_sample]
+  // [START logging_v2_generated_MetricsServiceV2_UpdateLogMetric_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -52,7 +52,7 @@ function main(metricName, metric) {
   }
 
   updateLogMetric();
-  // [END logging_update_log_metric_sample]
+  // [END logging_v2_generated_MetricsServiceV2_UpdateLogMetric_async]
 }
 
 process.on('unhandledRejection', err => {

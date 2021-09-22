@@ -16,7 +16,7 @@
 'use strict';
 
 function main(logName) {
-  // [START logging_delete_log_sample]
+  // [START logging_v2_generated_LoggingServiceV2_DeleteLog_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -52,7 +52,7 @@ function main(logName) {
   }
 
   deleteLog();
-  // [END logging_delete_log_sample]
+  // [END logging_v2_generated_LoggingServiceV2_DeleteLog_async]
 }
 
 process.on('unhandledRejection', err => {

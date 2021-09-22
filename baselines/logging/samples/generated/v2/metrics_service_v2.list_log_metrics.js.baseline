@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent) {
-  // [START logging_list_log_metrics_sample]
+  // [START logging_v2_generated_MetricsServiceV2_ListLogMetrics_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -59,7 +59,7 @@ function main(parent) {
   }
 
   listLogMetrics();
-  // [END logging_list_log_metrics_sample]
+  // [END logging_v2_generated_MetricsServiceV2_ListLogMetrics_async]
 }
 
 process.on('unhandledRejection', err => {

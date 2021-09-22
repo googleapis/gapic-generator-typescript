@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name, outputConfig) {
-  // [START redis_export_instance_sample]
+  // [START redis_v1beta1_generated_CloudRedis_ExportInstance_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -51,7 +51,7 @@ function main(name, outputConfig) {
   }
 
   exportInstance();
-  // [END redis_export_instance_sample]
+  // [END redis_v1beta1_generated_CloudRedis_ExportInstance_async]
 }
 
 process.on('unhandledRejection', err => {

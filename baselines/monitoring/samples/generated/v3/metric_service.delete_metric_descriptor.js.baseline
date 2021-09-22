@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START monitoring_delete_metric_descriptor_sample]
+  // [START monitoring_v3_generated_MetricService_DeleteMetricDescriptor_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -46,7 +46,7 @@ function main(name) {
   }
 
   deleteMetricDescriptor();
-  // [END monitoring_delete_metric_descriptor_sample]
+  // [END monitoring_v3_generated_MetricService_DeleteMetricDescriptor_async]
 }
 
 process.on('unhandledRejection', err => {

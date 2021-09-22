@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START logging_get_cmek_settings_sample]
+  // [START logging_v2_generated_ConfigServiceV2_GetCmekSettings_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -51,7 +51,7 @@ function main(name) {
   }
 
   getCmekSettings();
-  // [END logging_get_cmek_settings_sample]
+  // [END logging_v2_generated_ConfigServiceV2_GetCmekSettings_async]
 }
 
 process.on('unhandledRejection', err => {

@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START asset_delete_feed_sample]
+  // [START asset_v1_generated_AssetService_DeleteFeed_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -46,7 +46,7 @@ function main(name) {
   }
 
   deleteFeed();
-  // [END asset_delete_feed_sample]
+  // [END asset_v1_generated_AssetService_DeleteFeed_async]
 }
 
 process.on('unhandledRejection', err => {

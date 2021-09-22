@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START dlp_cancel_dlp_job_sample]
+  // [START dlp_v2_generated_DlpService_CancelDlpJob_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -43,7 +43,7 @@ function main(name) {
   }
 
   cancelDlpJob();
-  // [END dlp_cancel_dlp_job_sample]
+  // [END dlp_v2_generated_DlpService_CancelDlpJob_async]
 }
 
 process.on('unhandledRejection', err => {

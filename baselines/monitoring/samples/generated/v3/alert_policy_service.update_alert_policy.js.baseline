@@ -16,7 +16,7 @@
 'use strict';
 
 function main(alertPolicy) {
-  // [START monitoring_update_alert_policy_sample]
+  // [START monitoring_v3_generated_AlertPolicyService_UpdateAlertPolicy_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -67,7 +67,7 @@ function main(alertPolicy) {
   }
 
   updateAlertPolicy();
-  // [END monitoring_update_alert_policy_sample]
+  // [END monitoring_v3_generated_AlertPolicyService_UpdateAlertPolicy_async]
 }
 
 process.on('unhandledRejection', err => {

@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START monitoring_send_notification_channel_verification_code_sample]
+  // [START monitoring_v3_generated_NotificationChannelService_SendNotificationChannelVerificationCode_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -43,7 +43,7 @@ function main(name) {
   }
 
   sendNotificationChannelVerificationCode();
-  // [END monitoring_send_notification_channel_verification_code_sample]
+  // [END monitoring_v3_generated_NotificationChannelService_SendNotificationChannelVerificationCode_async]
 }
 
 process.on('unhandledRejection', err => {

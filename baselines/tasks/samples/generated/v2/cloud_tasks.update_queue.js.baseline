@@ -16,7 +16,7 @@
 'use strict';
 
 function main(queue) {
-  // [START tasks_update_queue_sample]
+  // [START tasks_v2_generated_CloudTasks_UpdateQueue_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -52,7 +52,7 @@ function main(queue) {
   }
 
   updateQueue();
-  // [END tasks_update_queue_sample]
+  // [END tasks_v2_generated_CloudTasks_UpdateQueue_async]
 }
 
 process.on('unhandledRejection', err => {

@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START monitoring_get_notification_channel_descriptor_sample]
+  // [START monitoring_v3_generated_NotificationChannelService_GetNotificationChannelDescriptor_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -44,7 +44,7 @@ function main(name) {
   }
 
   getNotificationChannelDescriptor();
-  // [END monitoring_get_notification_channel_descriptor_sample]
+  // [END monitoring_v3_generated_NotificationChannelService_GetNotificationChannelDescriptor_async]
 }
 
 process.on('unhandledRejection', err => {

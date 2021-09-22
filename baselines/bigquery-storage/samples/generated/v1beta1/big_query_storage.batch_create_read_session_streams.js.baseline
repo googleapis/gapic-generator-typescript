@@ -16,7 +16,7 @@
 'use strict';
 
 function main(session, requestedStreams) {
-  // [START storage_batch_create_read_session_streams_sample]
+  // [START storage_v1beta1_generated_BigQueryStorage_BatchCreateReadSessionStreams_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -51,7 +51,7 @@ function main(session, requestedStreams) {
   }
 
   batchCreateReadSessionStreams();
-  // [END storage_batch_create_read_session_streams_sample]
+  // [END storage_v1beta1_generated_BigQueryStorage_BatchCreateReadSessionStreams_async]
 }
 
 process.on('unhandledRejection', err => {

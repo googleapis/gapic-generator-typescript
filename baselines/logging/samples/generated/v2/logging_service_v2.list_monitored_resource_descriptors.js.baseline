@@ -16,7 +16,7 @@
 'use strict';
 
 function main() {
-  // [START logging_list_monitored_resource_descriptors_sample]
+  // [START logging_v2_generated_LoggingServiceV2_ListMonitoredResourceDescriptors_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -53,7 +53,7 @@ function main() {
   }
 
   listMonitoredResourceDescriptors();
-  // [END logging_list_monitored_resource_descriptors_sample]
+  // [END logging_v2_generated_LoggingServiceV2_ListMonitoredResourceDescriptors_async]
 }
 
 process.on('unhandledRejection', err => {

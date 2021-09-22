@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent, feedId, feed) {
-  // [START asset_create_feed_sample]
+  // [START asset_v1_generated_AssetService_CreateFeed_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -62,7 +62,7 @@ function main(parent, feedId, feed) {
   }
 
   createFeed();
-  // [END asset_create_feed_sample]
+  // [END asset_v1_generated_AssetService_CreateFeed_async]
 }
 
 process.on('unhandledRejection', err => {

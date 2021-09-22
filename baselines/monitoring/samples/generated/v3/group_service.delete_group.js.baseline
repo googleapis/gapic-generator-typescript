@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START monitoring_delete_group_sample]
+  // [START monitoring_v3_generated_GroupService_DeleteGroup_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -50,7 +50,7 @@ function main(name) {
   }
 
   deleteGroup();
-  // [END monitoring_delete_group_sample]
+  // [END monitoring_v3_generated_GroupService_DeleteGroup_async]
 }
 
 process.on('unhandledRejection', err => {

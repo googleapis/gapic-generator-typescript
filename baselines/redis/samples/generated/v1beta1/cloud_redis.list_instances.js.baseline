@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent) {
-  // [START redis_list_instances_sample]
+  // [START redis_v1beta1_generated_CloudRedis_ListInstances_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -61,7 +61,7 @@ function main(parent) {
   }
 
   listInstances();
-  // [END redis_list_instances_sample]
+  // [END redis_v1beta1_generated_CloudRedis_ListInstances_async]
 }
 
 process.on('unhandledRejection', err => {

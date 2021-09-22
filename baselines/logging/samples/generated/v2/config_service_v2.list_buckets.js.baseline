@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent) {
-  // [START logging_list_buckets_sample]
+  // [START logging_v2_generated_ConfigServiceV2_ListBuckets_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -65,7 +65,7 @@ function main(parent) {
   }
 
   listBuckets();
-  // [END logging_list_buckets_sample]
+  // [END logging_v2_generated_ConfigServiceV2_ListBuckets_async]
 }
 
 process.on('unhandledRejection', err => {

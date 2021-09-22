@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START monitoring_get_group_sample]
+  // [START monitoring_v3_generated_GroupService_GetGroup_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -44,7 +44,7 @@ function main(name) {
   }
 
   getGroup();
-  // [END monitoring_get_group_sample]
+  // [END monitoring_v3_generated_GroupService_GetGroup_async]
 }
 
 process.on('unhandledRejection', err => {

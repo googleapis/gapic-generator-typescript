@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START monitoring_delete_notification_channel_sample]
+  // [START monitoring_v3_generated_NotificationChannelService_DeleteNotificationChannel_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -51,7 +51,7 @@ function main(name) {
   }
 
   deleteNotificationChannel();
-  // [END monitoring_delete_notification_channel_sample]
+  // [END monitoring_v3_generated_NotificationChannelService_DeleteNotificationChannel_async]
 }
 
 process.on('unhandledRejection', err => {
