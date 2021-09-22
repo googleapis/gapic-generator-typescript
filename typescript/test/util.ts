@@ -93,7 +93,7 @@ export function runBaselineTest(options: BaselineOptions) {
     fs.mkdirSync(outputDir);
 
     let commandLine =
-      `${entryPointPath} --protoc=./external/com_google_protobuf/protoc ` +
+      `${entryPointPath} ` +
       `--output_dir=${outputDir} ` +
       `-I${protosDirRoot} ${protoPaths.join(' ')}`;
     if (options.useCommonProto) {
