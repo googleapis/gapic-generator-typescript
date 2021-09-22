@@ -1,5 +1,13 @@
 # Changelog
 
+### [2.6.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.0...v2.6.1) (2021-09-22)
+
+
+### Bug Fixes
+
+* find protoc based on its bazel location ([#978](https://www.github.com/googleapis/gapic-generator-typescript/issues/978)) ([4a68f0c](https://www.github.com/googleapis/gapic-generator-typescript/commit/4a68f0c71efd0b073b80c03f9467493094a518e3))
+* update region tags for generated samples ([#981](https://www.github.com/googleapis/gapic-generator-typescript/issues/981)) ([4d5f9f0](https://www.github.com/googleapis/gapic-generator-typescript/commit/4d5f9f09c9f9641881a0414f576342ac39400ee9))
+
 ## [2.6.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.5.0...v2.6.0) (2021-09-16)
 
 
