@@ -135,7 +135,14 @@ const metadata = argv.metadata as boolean | undefined;
 const transport = argv.transport as string | undefined;
 const diregapic = argv.diregapic as boolean | undefined;
 const legacyProtoLoad = argv.legacyProtoLoad as boolean | undefined;
-const protoc = (argv.protoc as string | undefined) ?? 'protoc';
+
+// --protoc can be passed from BUILD.bazel and overridden from the command line
+let protocParameter = argv.protoc as string | string[] | undefined;
+if (Array.isArray(protocParameter)) {
+  protocParameter = protocParameter[protocParameter.length - 1];
+}
+const protoc = protocParameter ?? 'protoc';
+
 const protoDirs: string[] = [];
 if (argv.I) {
   protoDirs.push(...(argv.I as string[]));
