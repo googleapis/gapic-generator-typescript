@@ -16,7 +16,7 @@
 'use strict';
 
 function main(resource) {
-  // [START tasks_v2_generated_CloudTasks_GetIamPolicy_async]
+  // [START cloudtasks_v2_generated_CloudTasks_GetIamPolicy_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -49,7 +49,7 @@ function main(resource) {
   }
 
   getIamPolicy();
-  // [END tasks_v2_generated_CloudTasks_GetIamPolicy_async]
+  // [END cloudtasks_v2_generated_CloudTasks_GetIamPolicy_async]
 }
 
 process.on('unhandledRejection', err => {

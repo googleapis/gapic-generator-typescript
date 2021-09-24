@@ -16,7 +16,7 @@
 'use strict';
 
 function main(tableReference, parent) {
-  // [START storage_v1beta1_generated_BigQueryStorage_CreateReadSession_async]
+  // [START bigquerystorage_v1beta1_generated_BigQueryStorage_CreateReadSession_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -76,7 +76,7 @@ function main(tableReference, parent) {
   }
 
   createReadSession();
-  // [END storage_v1beta1_generated_BigQueryStorage_CreateReadSession_async]
+  // [END bigquerystorage_v1beta1_generated_BigQueryStorage_CreateReadSession_async]
 }
 
 process.on('unhandledRejection', err => {
