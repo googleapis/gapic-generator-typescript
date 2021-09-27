@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START tasks_v2_generated_CloudTasks_DeleteQueue_async]
+  // [START cloudtasks_v2_generated_CloudTasks_DeleteQueue_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -44,7 +44,7 @@ function main(name) {
   }
 
   deleteQueue();
-  // [END tasks_v2_generated_CloudTasks_DeleteQueue_async]
+  // [END cloudtasks_v2_generated_CloudTasks_DeleteQueue_async]
 }
 
 process.on('unhandledRejection', err => {

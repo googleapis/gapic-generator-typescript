@@ -16,7 +16,7 @@
 'use strict';
 
 function main(name) {
-  // [START translation_v3beta1_generated_TranslationService_DeleteGlossary_async]
+  // [START translate_v3beta1_generated_TranslationService_DeleteGlossary_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -44,7 +44,7 @@ function main(name) {
   }
 
   deleteGlossary();
-  // [END translation_v3beta1_generated_TranslationService_DeleteGlossary_async]
+  // [END translate_v3beta1_generated_TranslationService_DeleteGlossary_async]
 }
 
 process.on('unhandledRejection', err => {

@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent, glossary) {
-  // [START translation_v3beta1_generated_TranslationService_CreateGlossary_async]
+  // [START translate_v3beta1_generated_TranslationService_CreateGlossary_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -49,7 +49,7 @@ function main(parent, glossary) {
   }
 
   createGlossary();
-  // [END translation_v3beta1_generated_TranslationService_CreateGlossary_async]
+  // [END translate_v3beta1_generated_TranslationService_CreateGlossary_async]
 }
 
 process.on('unhandledRejection', err => {

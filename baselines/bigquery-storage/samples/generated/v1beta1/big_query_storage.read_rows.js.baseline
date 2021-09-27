@@ -16,7 +16,7 @@
 'use strict';
 
 function main(readPosition) {
-  // [START storage_v1beta1_generated_BigQueryStorage_ReadRows_async]
+  // [START bigquerystorage_v1beta1_generated_BigQueryStorage_ReadRows_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -47,7 +47,7 @@ function main(readPosition) {
   }
 
   readRows();
-  // [END storage_v1beta1_generated_BigQueryStorage_ReadRows_async]
+  // [END bigquerystorage_v1beta1_generated_BigQueryStorage_ReadRows_async]
 }
 
 process.on('unhandledRejection', err => {

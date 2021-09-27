@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent) {
-  // [START translation_v3beta1_generated_TranslationService_DetectLanguage_async]
+  // [START translate_v3beta1_generated_TranslationService_DetectLanguage_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -77,7 +77,7 @@ function main(parent) {
   }
 
   detectLanguage();
-  // [END translation_v3beta1_generated_TranslationService_DetectLanguage_async]
+  // [END translate_v3beta1_generated_TranslationService_DetectLanguage_async]
 }
 
 process.on('unhandledRejection', err => {

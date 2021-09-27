@@ -16,7 +16,7 @@
 'use strict';
 
 function main(resource, permissions) {
-  // [START tasks_v2_generated_CloudTasks_TestIamPermissions_async]
+  // [START cloudtasks_v2_generated_CloudTasks_TestIamPermissions_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -52,7 +52,7 @@ function main(resource, permissions) {
   }
 
   testIamPermissions();
-  // [END tasks_v2_generated_CloudTasks_TestIamPermissions_async]
+  // [END cloudtasks_v2_generated_CloudTasks_TestIamPermissions_async]
 }
 
 process.on('unhandledRejection', err => {

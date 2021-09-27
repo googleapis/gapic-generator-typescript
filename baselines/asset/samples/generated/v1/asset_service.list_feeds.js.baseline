@@ -16,7 +16,7 @@
 'use strict';
 
 function main(parent) {
-  // [START asset_v1_generated_AssetService_ListFeeds_async]
+  // [START cloudasset_v1_generated_AssetService_ListFeeds_async]
   /**
    * TODO(developer): Uncomment these variables before running the sample.
    */
@@ -45,7 +45,7 @@ function main(parent) {
   }
 
   listFeeds();
-  // [END asset_v1_generated_AssetService_ListFeeds_async]
+  // [END cloudasset_v1_generated_AssetService_ListFeeds_async]
 }
 
 process.on('unhandledRejection', err => {
