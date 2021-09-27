@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.6.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.1...v2.6.2) (2021-09-27)
+
+
+### Bug Fixes
+
+* add api short name to generated sample region tag ([#987](https://www.github.com/googleapis/gapic-generator-typescript/issues/987)) ([4656468](https://www.github.com/googleapis/gapic-generator-typescript/commit/4656468eaa57390369a21d71f5ead776ebaa6148))
+
 ### [2.6.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.0...v2.6.1) (2021-09-22)
 
 
