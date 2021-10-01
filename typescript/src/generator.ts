@@ -292,6 +292,8 @@ export class Generator {
     } catch (err) {
       if (err instanceof Error) {
         this.response.error = err.message;
+      } else {
+        throw err;
       }
     }
 

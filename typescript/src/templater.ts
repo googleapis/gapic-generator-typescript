@@ -72,6 +72,8 @@ function renderFile(
         console.warn(
           `The generated JSON file ${targetFilename} does not look like a valid JSON: ${err.toString()}`
         );
+      } else {
+        throw err;
       }
     }
   }
