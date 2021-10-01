@@ -288,8 +288,13 @@ export class Generator {
       this.addProtosToResponse();
       const api = this.buildAPIObject();
       await this.processTemplates(api);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err) {
-      this.response.error = err instanceof Error ? err.message : err.toString();
+      if (err instanceof Error) {
+        this.response.error = err.message;
+      } else {
+        throw err;
+      }
     }
 
     const outputBuffer = protos.google.protobuf.compiler.CodeGeneratorResponse.encode(
