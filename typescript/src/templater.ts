@@ -68,9 +68,11 @@ function renderFile(
       const pretty = JSON.stringify(json, null, '  ') + '\n';
       processed = pretty;
     } catch (err) {
-      console.warn(
-        `The generated JSON file ${targetFilename} does not look like a valid JSON: ${err.toString()}`
-      );
+      if (err instanceof Error) {
+        console.warn(
+          `The generated JSON file ${targetFilename} does not look like a valid JSON: ${err.toString()}`
+        );
+      }
     }
   }
   const output = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
