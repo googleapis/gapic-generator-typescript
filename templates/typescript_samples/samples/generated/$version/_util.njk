@@ -6,8 +6,11 @@
   /**
 {%- for line in lines %}
 {%- set trimmed = line.replace(r/\s+$/, '') -%}
-{%- if trimmed.length > 0 %}
-   * {{ trimmed.replaceAll('*/', '* /') | safe }}
+{%- if trimmed.length > 0 -%}
+{%- set regExp = r/\[(.*?)\]\(.*?\)/g -%}
+{%- set formattedLine = trimmed.replaceAll('*/', '* /') -%}
+{%- set urlString = formattedLine.match(regExp)[1] %}
+   * {{- formattedLine.replaceAll('[', '').replaceAll(']', ' ') | safe -}}
 {%- endif -%}
 {%- endfor -%}
 {{ \n }}
@@ -23,6 +26,13 @@
   // const {{ printParamFieldSample(oneComment) | replace('[', '') | replace(']', '') }} = {{ printTypeExample(convertParamType(oneComment.paramType)) -}}
 {%- endif -%}
 {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro markDownStuff(formattedLine) %}
+{%- set regExp = r/\[.*?\](\(.*?\))/g %}
+{%- set urlString = formattedLine.match(regExp)[0] %}
+URL STRING: {{urlString}}
+{%- set returnLine = formattedLine.replace(regExp, urlString) %}
 {%- endmacro -%}
 
 {%- macro printParamFieldSample(oneComment) %}
@@ -66,7 +76,7 @@
 {%- elif type.includes('[]') -%}
             [1,2,3,4]
 {%- else -%}
-            ''
+            {}
 {%- endif -%}
 {%- endmacro -%}
 
