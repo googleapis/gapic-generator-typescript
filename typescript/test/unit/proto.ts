@@ -15,7 +15,12 @@
 import * as assert from 'assert';
 import {describe, it} from 'mocha';
 import * as protos from '../../../protos';
-import {getHeaderRequestParams, MessagesMap} from '../../src/schema/proto';
+import {
+  getDynamicHeaderRequestParams,
+  getHeaderRequestParams,
+  getSingleRoutingHeaderParam,
+  MessagesMap,
+} from '../../src/schema/proto';
 import {Proto} from '../../src/schema/proto';
 import {Options} from '../../src/schema/naming';
 import {ResourceDatabase} from '../../src/schema/resource-database';
@@ -93,6 +98,219 @@ describe('src/schema/proto.ts', () => {
           ['foo1', 'foo2'],
         ],
         getHeaderRequestParams(httpRule)
+      );
+    });
+  });
+
+  describe('should get all the dynamic routing header parameters from routing parameters rule', () => {
+    it('returns empty array if an annotation is malformed', () => {
+      const routingParameters: protos.google.api.IRoutingParameter[] = [
+        {
+          field: 'name',
+          pathTemplate: 'test/database',
+        },
+      ];
+      const expectedArrayOfRoutingParameters: string[] = [];
+      assert.deepStrictEqual(
+        expectedArrayOfRoutingParameters,
+        getDynamicHeaderRequestParams(routingParameters)
+      );
+    });
+    it('works with no rules', () => {
+      const routingParameters: protos.google.api.IRoutingParameter[] = [];
+      const expectedArrayOfRoutingParameters: string[] = [];
+      assert.deepStrictEqual(
+        expectedArrayOfRoutingParameters,
+        getDynamicHeaderRequestParams(routingParameters)
+      );
+    });
+    it('works with a couple rules with the same parameter', () => {
+      const routingParameters: protos.google.api.IRoutingParameter[] = [
+        {
+          field: 'name',
+          pathTemplate: '{routing_id=projects/*}/**}',
+        },
+        {
+          field: 'database',
+          pathTemplate: '{routing_id=**}',
+        },
+        {
+          field: 'database',
+          pathTemplate: '{routing_id=projects/*/databases/*}/documents/*/**',
+        },
+      ];
+      const expectedArrayOfRoutingParameters = [
+        [
+          [
+            'database',
+            'routing_id',
+            '(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
+            '(?<routing_id>projects/[^/]+/databases/[^/]+)',
+          ],
+          [
+            'database',
+            'routing_id',
+            '(?<routing_id>(?:/.*)?)',
+            '(?<routing_id>.*)',
+          ],
+          [
+            'name',
+            'routing_id',
+            '(?<routing_id>projects)/[^/]+(?:/.*)?',
+            '(?<routing_id>projects/[^/]+)',
+          ],
+        ],
+      ];
+      assert.deepStrictEqual(
+        expectedArrayOfRoutingParameters,
+        getDynamicHeaderRequestParams(routingParameters)
+      );
+    });
+    it('works with a couple rules with different parameters', () => {
+      const routingParameters: protos.google.api.IRoutingParameter[] = [
+        {
+          field: 'name',
+          pathTemplate: '{routing_id=projects/*}/**}',
+        },
+        {
+          field: 'app_profile_id',
+          pathTemplate: '{profile_id=projects/*}/**',
+        },
+      ];
+      const expectedArrayOfRoutingParameters = [
+        [
+          [
+            'name',
+            'routing_id',
+            '(?<routing_id>projects)/[^/]+(?:/.*)?',
+            '(?<routing_id>projects/[^/]+)',
+          ],
+        ],
+        [
+          [
+            'app_profile_id',
+            'profile_id',
+            '(?<profile_id>projects)/[^/]+(?:/.*)?',
+            '(?<profile_id>projects/[^/]+)',
+          ],
+        ],
+      ];
+      assert.deepStrictEqual(
+        expectedArrayOfRoutingParameters,
+        getDynamicHeaderRequestParams(routingParameters)
+      );
+    });
+    it('works with a several rules with different parameters', () => {
+      const routingParameters: protos.google.api.IRoutingParameter[] = [
+        {
+          field: 'name',
+          pathTemplate: '{routing_id=projects/*}/**}',
+        },
+        {
+          field: 'name',
+          pathTemplate:
+            'test/{routing_id=projects/*/databases/*}/documents/*/**',
+        },
+        {
+          field: 'app_profile_id',
+          pathTemplate: '{profile_id=projects/*}/**',
+        },
+      ];
+      const expectedArrayOfRoutingParameters = [
+        [
+          [
+            'name',
+            'routing_id',
+            'test/(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
+            '(?<routing_id>projects/[^/]+/databases/[^/]+)',
+          ],
+          [
+            'name',
+            'routing_id',
+            '(?<routing_id>projects)/[^/]+(?:/.*)?',
+            '(?<routing_id>projects/[^/]+)',
+          ],
+        ],
+        [
+          [
+            'app_profile_id',
+            'profile_id',
+            '(?<profile_id>projects)/[^/]+(?:/.*)?',
+            '(?<profile_id>projects/[^/]+)',
+          ],
+        ],
+      ];
+      assert.deepStrictEqual(
+        expectedArrayOfRoutingParameters,
+        getDynamicHeaderRequestParams(routingParameters)
+      );
+    });
+  });
+
+  describe('should get return an array from a single routing parameters rule', () => {
+    it('should throw an error if there are no named segments in a URI path pattern, unless it is a wildcard', () => {
+      const err = Error(
+        'Path template must contain exactly one named segment - e.g. {foo=bar}.'
+      );
+      const routingRule: protos.google.api.IRoutingParameter = {
+        field: 'name',
+        pathTemplate: 'test/database',
+      };
+      assert.throws(() => getSingleRoutingHeaderParam(routingRule), err);
+    });
+    it('works with no parameters', () => {
+      const routingRule: protos.google.api.IRoutingParameter = {};
+      const expectedArrayOfRoutingParameters: string[] = [];
+      assert.deepStrictEqual(
+        expectedArrayOfRoutingParameters,
+        getSingleRoutingHeaderParam(routingRule)
+      );
+    });
+    it('works with no path template', () => {
+      const routingRule: protos.google.api.IRoutingParameter = {
+        field: 'name',
+      };
+      const expectedArrayOfRoutingParameters = [
+        'name',
+        'name',
+        '[^/]+',
+        '[^/]+',
+      ];
+      assert.deepStrictEqual(
+        expectedArrayOfRoutingParameters,
+        getSingleRoutingHeaderParam(routingRule)
+      );
+    });
+    it('works with a basic path template', () => {
+      const routingRule: protos.google.api.IRoutingParameter = {
+        field: 'app_profile_id',
+        pathTemplate: '{routing_id=**}',
+      };
+      const expectedArrayOfRoutingParameters = [
+        'app_profile_id',
+        'routing_id',
+        '(?<routing_id>(?:/.*)?)',
+        '(?<routing_id>.*)',
+      ];
+      assert.deepStrictEqual(
+        expectedArrayOfRoutingParameters,
+        getSingleRoutingHeaderParam(routingRule)
+      );
+    });
+    it('works with a standard path template', () => {
+      const routingRule: protos.google.api.IRoutingParameter = {
+        field: 'app_profile_id',
+        pathTemplate: '{routing_id=projects/*}/**',
+      };
+      const expectedArrayOfRoutingParameters = [
+        'app_profile_id',
+        'routing_id',
+        '(?<routing_id>projects)/[^/]+(?:/.*)?',
+        '(?<routing_id>projects/[^/]+)',
+      ];
+      assert.deepStrictEqual(
+        expectedArrayOfRoutingParameters,
+        getSingleRoutingHeaderParam(routingRule)
       );
     });
   });

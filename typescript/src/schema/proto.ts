@@ -14,7 +14,7 @@
 
 import * as protos from '../../../protos';
 import {CommentsMap, Comment} from './comments';
-import {milliseconds} from '../util';
+import {convertTemplateToRegex, getNamedSegment, milliseconds} from '../util';
 import {ResourceDescriptor, ResourceDatabase} from './resource-database';
 import {
   RetryableCodeMap,
@@ -59,6 +59,13 @@ interface MethodDescriptorProto
   // into x-goog-request-params header, the array will contain
   // [ ['request', 'foo'], ['request', 'bar']]
   headerRequestParams: string[][];
+  // if 1; send implicit header request. If 2, send dynamic header request. If 3, do not send a header at all.
+  headerRequest: number;
+  // if there are multiple parameters to be sent in the dynamic routing header, then this will be an array of an
+  // array of headerParams (e.g. an array of an array of an array), where the first array is the array of headerParams to
+  // attempt to find a match for the first parameter, and the second array is the array of headerParams to attempt to find
+  // a match for the second parameter, and so forth.
+  dynamicHeaderRequestParams: string[][][];
   bundleConfig?: BundleConfig;
   toJSON: Function | undefined;
   isDiregapicLRO?: boolean;
@@ -356,18 +363,6 @@ function pagingMapResponseType(
   return undefined;
 }
 
-export function getSingleHeaderParam(
-  rule: protos.google.api.IHttpRule
-): string[] {
-  const message =
-    rule.post || rule.delete || rule.get || rule.put || rule.patch;
-  if (message) {
-    const res = message.match(/{(.*?)[=}]/);
-    return res?.[1] ? res[1].split('.') : [];
-  }
-  return [];
-}
-
 function getMethodConfig(
   grpcServiceConfig: protos.grpc.service_config.ServiceConfig,
   serviceName: string,
@@ -539,9 +534,33 @@ function augmentMethod(
   if (method.methodConfig.timeout) {
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
   }
-  method.headerRequestParams = getHeaderRequestParams(
-    method.options?.['.google.api.http']
-  );
+  // If the routing annotation does not exist, keep current implicit header generation
+  const methodDynamicRouting = method.options?.['.google.api.routing'];
+  const methodDynamicRoutingParameters =
+    methodDynamicRouting?.routingParameters;
+  if (!methodDynamicRouting) {
+    method.headerRequest = 1;
+    method.headerRequestParams = getHeaderRequestParams(
+      method.options?.['.google.api.http']
+    );
+  }
+  //If dynamic routing annotation is empty, do not send a header
+  else if (!methodDynamicRoutingParameters) {
+    method.headerRequest = 3;
+  } else {
+    method.dynamicHeaderRequestParams = getDynamicHeaderRequestParams(
+      methodDynamicRoutingParameters!
+    );
+    // if dynamic routing rules are empty, then do not set a header
+    if (
+      method.dynamicHeaderRequestParams === null ||
+      method.dynamicHeaderRequestParams.length < 1
+    ) {
+      method.headerRequest = 3;
+    } else {
+      method.headerRequest = 2;
+    }
+  }
   // protobuf.js redefines .toJSON to serialize only known fields,
   // but we need to serialize the whole augmented object.
   method.toJSON = undefined;
@@ -576,8 +595,118 @@ export function getHeaderRequestParams(
     used.add(joined);
     result.push(param);
   }
-
   return result;
+}
+
+export function getSingleHeaderParam(
+  rule: protos.google.api.IHttpRule
+): string[] {
+  const message =
+    rule.post || rule.delete || rule.get || rule.put || rule.patch;
+  if (message) {
+    const res = message.match(/{(.*?)[=}]/);
+    return res?.[1] ? res[1].split('.') : [];
+  }
+  return [];
+}
+
+// Parses the routing annotation and sets headerRequest for a method. This assumes the routing annotations
+// are in a sorted order (e.g. all the annotations for a single parameter are next to each other).
+
+export function getDynamicHeaderRequestParams(
+  rules: protos.google.api.IRoutingParameter[] | null
+) {
+  const params: string[][][] = [[]];
+  let counterOfParameters = 0;
+  let counterOfRules = 0;
+  const setOfParameters = new Set();
+  // if there are no rules or the rules are empty or there is a malformed routing rule, return empty array
+  try {
+    if (
+      rules === null ||
+      rules.length === 0 ||
+      getSingleRoutingHeaderParam(rules[counterOfRules]).length < 1
+    ) {
+      return [];
+    }
+  } catch (err) {
+    return [];
+  }
+  // We need to know the number of parameters we are trying to return
+  while (counterOfRules < rules.length) {
+    try {
+      setOfParameters.add(
+        getSingleRoutingHeaderParam(rules[counterOfRules])[1]
+      );
+      // Adding newer items to front of array due to "last one wins"
+      params[0].unshift(getSingleRoutingHeaderParam(rules[counterOfRules]));
+    } catch (err) {
+      return [];
+    }
+    counterOfRules++;
+  }
+  const numberOfParameters = setOfParameters.size;
+  // If there is only one parameter, then the array contains all the rules
+  if (numberOfParameters === 1) {
+    return params;
+  } else {
+    // Clear first array of params and counter
+    counterOfRules = 0;
+    params[0] = [];
+    while (counterOfRules < rules.length) {
+      // First rule to be added to first array
+      if (counterOfRules === 0) {
+        params[counterOfParameters].unshift(
+          getSingleRoutingHeaderParam(rules[counterOfRules])
+        );
+        counterOfRules++;
+      }
+      // All the rules for the same parameter go into a single array.
+      else if (
+        getSingleRoutingHeaderParam(rules[counterOfRules])[1] ===
+        getSingleRoutingHeaderParam(rules[counterOfRules - 1])[1]
+      ) {
+        // initialize next array
+        params[counterOfParameters].unshift(
+          getSingleRoutingHeaderParam(rules[counterOfRules])
+        );
+        counterOfRules++;
+      } else {
+        counterOfParameters++;
+        params[counterOfParameters] = [];
+        params[counterOfParameters].unshift(
+          getSingleRoutingHeaderParam(rules[counterOfRules])
+        );
+        counterOfRules++;
+      }
+    }
+    return params;
+  }
+}
+
+// This parses a single Routing Parameter and returns an array with the first element being the name of the
+// field the header should retrieve from the message, the second element being the name of the field the header should send,
+// the third element is the full regex of the path template that the message field should match,
+// and the last element is the named regex capture of the value of the field.
+export function getSingleRoutingHeaderParam(
+  rule: protos.google.api.IRoutingParameter
+) {
+  const mapOfRoutingParameters: string[] = [];
+  // If routing parameters are empty, then return empty array
+  if (!rule.field) {
+    return mapOfRoutingParameters;
+  } else if (!rule.pathTemplate) {
+    // If there is no path template, then capture the full field from the message
+    mapOfRoutingParameters.push(rule.field!, rule.field!, '[^/]+', '[^/]+');
+  } else {
+    mapOfRoutingParameters.push(
+      rule.field!,
+      getNamedSegment(rule.pathTemplate!)[1],
+      convertTemplateToRegex(rule.pathTemplate!),
+      getNamedSegment(rule.pathTemplate!)[3]
+    );
+  }
+  return mapOfRoutingParameters;
 }
 
 interface AugmentServiceParameters {

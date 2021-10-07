@@ -1386,19 +1386,19 @@ export namespace google {
             public selector: string;
 
             /** HttpRule get. */
-            public get: string;
+            public get?: (string|null);
 
             /** HttpRule put. */
-            public put: string;
+            public put?: (string|null);
 
             /** HttpRule post. */
-            public post: string;
+            public post?: (string|null);
 
             /** HttpRule delete. */
-            public delete: string;
+            public delete?: (string|null);
 
             /** HttpRule patch. */
-            public patch: string;
+            public patch?: (string|null);
 
             /** HttpRule custom. */
             public custom?: (google.api.ICustomHttpPattern|null);
@@ -1589,7 +1589,9 @@ export namespace google {
             REQUIRED = 2,
             OUTPUT_ONLY = 3,
             INPUT_ONLY = 4,
-            IMMUTABLE = 5
+            IMMUTABLE = 5,
+            UNORDERED_LIST = 6,
+            NON_EMPTY_DEFAULT = 7
         }
 
         /** Properties of a ResourceDescriptor. */
@@ -1612,6 +1614,9 @@ export namespace google {
 
             /** ResourceDescriptor singular */
             singular?: (string|null);
+
+            /** ResourceDescriptor style */
+            style?: (google.api.ResourceDescriptor.Style[]|null);
         }
 
         /** Represents a ResourceDescriptor. */
@@ -1640,6 +1645,9 @@ export namespace google {
 
             /** ResourceDescriptor singular. */
             public singular: string;
+
+            /** ResourceDescriptor style. */
+            public style: google.api.ResourceDescriptor.Style[];
 
             /**
              * Creates a new ResourceDescriptor instance using the specified properties.
@@ -1719,6 +1727,12 @@ export namespace google {
                 HISTORY_UNSPECIFIED = 0,
                 ORIGINALLY_SINGLE_PATTERN = 1,
                 FUTURE_MULTI_PATTERN = 2
+            }
+
+            /** Style enum. */
+            enum Style {
+                STYLE_UNSPECIFIED = 0,
+                DECLARATIVE_FRIENDLY = 1
             }
         }
 
@@ -1813,6 +1827,474 @@ export namespace google {
 
             /**
              * Converts this ResourceReference to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+        }
+
+        /** Properties of a RoutingRule. */
+        interface IRoutingRule {
+
+            /** RoutingRule selector */
+            selector?: (string|null);
+
+            /** RoutingRule routingParameters */
+            routingParameters?: (google.api.IRoutingParameter[]|null);
+        }
+
+        /** Represents a RoutingRule. */
+        class RoutingRule implements IRoutingRule {
+
+            /**
+             * Constructs a new RoutingRule.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: google.api.IRoutingRule);
+
+            /** RoutingRule selector. */
+            public selector: string;
+
+            /** RoutingRule routingParameters. */
+            public routingParameters: google.api.IRoutingParameter[];
+
+            /**
+             * Creates a new RoutingRule instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns RoutingRule instance
+             */
+            public static create(properties?: google.api.IRoutingRule): google.api.RoutingRule;
+
+            /**
+             * Encodes the specified RoutingRule message. Does not implicitly {@link google.api.RoutingRule.verify|verify} messages.
+             * @param message RoutingRule message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: google.api.IRoutingRule, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified RoutingRule message, length delimited. Does not implicitly {@link google.api.RoutingRule.verify|verify} messages.
+             * @param message RoutingRule message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: google.api.IRoutingRule, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a RoutingRule message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns RoutingRule
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.api.RoutingRule;
+
+            /**
+             * Decodes a RoutingRule message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns RoutingRule
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.api.RoutingRule;
+
+            /**
+             * Verifies a RoutingRule message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a RoutingRule message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns RoutingRule
+             */
+            public static fromObject(object: { [k: string]: any }): google.api.RoutingRule;
+
+            /**
+             * Creates a plain object from a RoutingRule message. Also converts values to other types if specified.
+             * @param message RoutingRule
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: google.api.RoutingRule, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this RoutingRule to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+        }
+
+        /** Properties of a RoutingParameter. */
+        interface IRoutingParameter {
+
+            /** RoutingParameter field */
+            field?: (string|null);
+
+            /** RoutingParameter pathTemplate */
+            pathTemplate?: (string|null);
+        }
+
+        /** Represents a RoutingParameter. */
+        class RoutingParameter implements IRoutingParameter {
+
+            /**
+             * Constructs a new RoutingParameter.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: google.api.IRoutingParameter);
+
+            /** RoutingParameter field. */
+            public field: string;
+
+            /** RoutingParameter pathTemplate. */
+            public pathTemplate: string;
+
+            /**
+             * Creates a new RoutingParameter instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns RoutingParameter instance
+             */
+            public static create(properties?: google.api.IRoutingParameter): google.api.RoutingParameter;
+
+            /**
+             * Encodes the specified RoutingParameter message. Does not implicitly {@link google.api.RoutingParameter.verify|verify} messages.
+             * @param message RoutingParameter message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: google.api.IRoutingParameter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified RoutingParameter message, length delimited. Does not implicitly {@link google.api.RoutingParameter.verify|verify} messages.
+             * @param message RoutingParameter message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: google.api.IRoutingParameter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a RoutingParameter message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns RoutingParameter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.api.RoutingParameter;
+
+            /**
+             * Decodes a RoutingParameter message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns RoutingParameter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.api.RoutingParameter;
+
+            /**
+             * Verifies a RoutingParameter message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a RoutingParameter message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns RoutingParameter
+             */
+            public static fromObject(object: { [k: string]: any }): google.api.RoutingParameter;
+
+            /**
+             * Creates a plain object from a RoutingParameter message. Also converts values to other types if specified.
+             * @param message RoutingParameter
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: google.api.RoutingParameter, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this RoutingParameter to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+        }
+
+        /** Properties of a Routing. */
+        interface IRouting {
+
+            /** Routing routingRules */
+            routingRules?: (google.api.IRoutingRule[]|null);
+        }
+
+        /** Represents a Routing. */
+        class Routing implements IRouting {
+
+            /**
+             * Constructs a new Routing.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: google.api.IRouting);
+
+            /** Routing routingRules. */
+            public routingRules: google.api.IRoutingRule[];
+
+            /**
+             * Creates a new Routing instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns Routing instance
+             */
+            public static create(properties?: google.api.IRouting): google.api.Routing;
+
+            /**
+             * Encodes the specified Routing message. Does not implicitly {@link google.api.Routing.verify|verify} messages.
+             * @param message Routing message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: google.api.IRouting, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified Routing message, length delimited. Does not implicitly {@link google.api.Routing.verify|verify} messages.
+             * @param message Routing message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: google.api.IRouting, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a Routing message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns Routing
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.api.Routing;
+
+            /**
+             * Decodes a Routing message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns Routing
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.api.Routing;
+
+            /**
+             * Verifies a Routing message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a Routing message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns Routing
+             */
+            public static fromObject(object: { [k: string]: any }): google.api.Routing;
+
+            /**
+             * Creates a plain object from a Routing message. Also converts values to other types if specified.
+             * @param message Routing
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: google.api.Routing, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this Routing to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+        }
+
+        /** Properties of a Visibility. */
+        interface IVisibility {
+
+            /** Visibility rules */
+            rules?: (google.api.IVisibilityRule[]|null);
+        }
+
+        /** Represents a Visibility. */
+        class Visibility implements IVisibility {
+
+            /**
+             * Constructs a new Visibility.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: google.api.IVisibility);
+
+            /** Visibility rules. */
+            public rules: google.api.IVisibilityRule[];
+
+            /**
+             * Creates a new Visibility instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns Visibility instance
+             */
+            public static create(properties?: google.api.IVisibility): google.api.Visibility;
+
+            /**
+             * Encodes the specified Visibility message. Does not implicitly {@link google.api.Visibility.verify|verify} messages.
+             * @param message Visibility message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: google.api.IVisibility, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified Visibility message, length delimited. Does not implicitly {@link google.api.Visibility.verify|verify} messages.
+             * @param message Visibility message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: google.api.IVisibility, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a Visibility message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns Visibility
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.api.Visibility;
+
+            /**
+             * Decodes a Visibility message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns Visibility
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.api.Visibility;
+
+            /**
+             * Verifies a Visibility message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a Visibility message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns Visibility
+             */
+            public static fromObject(object: { [k: string]: any }): google.api.Visibility;
+
+            /**
+             * Creates a plain object from a Visibility message. Also converts values to other types if specified.
+             * @param message Visibility
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: google.api.Visibility, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this Visibility to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+        }
+
+        /** Properties of a VisibilityRule. */
+        interface IVisibilityRule {
+
+            /** VisibilityRule selector */
+            selector?: (string|null);
+
+            /** VisibilityRule restriction */
+            restriction?: (string|null);
+        }
+
+        /** Represents a VisibilityRule. */
+        class VisibilityRule implements IVisibilityRule {
+
+            /**
+             * Constructs a new VisibilityRule.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: google.api.IVisibilityRule);
+
+            /** VisibilityRule selector. */
+            public selector: string;
+
+            /** VisibilityRule restriction. */
+            public restriction: string;
+
+            /**
+             * Creates a new VisibilityRule instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns VisibilityRule instance
+             */
+            public static create(properties?: google.api.IVisibilityRule): google.api.VisibilityRule;
+
+            /**
+             * Encodes the specified VisibilityRule message. Does not implicitly {@link google.api.VisibilityRule.verify|verify} messages.
+             * @param message VisibilityRule message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: google.api.IVisibilityRule, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified VisibilityRule message, length delimited. Does not implicitly {@link google.api.VisibilityRule.verify|verify} messages.
+             * @param message VisibilityRule message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: google.api.IVisibilityRule, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a VisibilityRule message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns VisibilityRule
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.api.VisibilityRule;
+
+            /**
+             * Decodes a VisibilityRule message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns VisibilityRule
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.api.VisibilityRule;
+
+            /**
+             * Verifies a VisibilityRule message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a VisibilityRule message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns VisibilityRule
+             */
+            public static fromObject(object: { [k: string]: any }): google.api.VisibilityRule;
+
+            /**
+             * Creates a plain object from a VisibilityRule message. Also converts values to other types if specified.
+             * @param message VisibilityRule
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: google.api.VisibilityRule, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this VisibilityRule to JSON.
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
@@ -3561,6 +4043,9 @@ export namespace google {
 
             /** MessageOptions .google.api.resource */
             ".google.api.resource"?: (google.api.IResourceDescriptor|null);
+
+            /** MessageOptions .google.api.messageVisibility */
+            ".google.api.messageVisibility"?: (google.api.IVisibilityRule|null);
         }
 
         /** Represents a MessageOptions. */
@@ -3687,6 +4172,9 @@ export namespace google {
 
             /** FieldOptions .google.api.resourceReference */
             ".google.api.resourceReference"?: (google.api.IResourceReference|null);
+
+            /** FieldOptions .google.api.fieldVisibility */
+            ".google.api.fieldVisibility"?: (google.api.IVisibilityRule|null);
         }
 
         /** Represents a FieldOptions. */
@@ -3908,6 +4396,9 @@ export namespace google {
 
             /** EnumOptions uninterpretedOption */
             uninterpretedOption?: (google.protobuf.IUninterpretedOption[]|null);
+
+            /** EnumOptions .google.api.enumVisibility */
+            ".google.api.enumVisibility"?: (google.api.IVisibilityRule|null);
         }
 
         /** Represents an EnumOptions. */
@@ -4007,6 +4498,9 @@ export namespace google {
 
             /** EnumValueOptions uninterpretedOption */
             uninterpretedOption?: (google.protobuf.IUninterpretedOption[]|null);
+
+            /** EnumValueOptions .google.api.valueVisibility */
+            ".google.api.valueVisibility"?: (google.api.IVisibilityRule|null);
         }
 
         /** Represents an EnumValueOptions. */
@@ -4103,6 +4597,9 @@ export namespace google {
 
             /** ServiceOptions uninterpretedOption */
             uninterpretedOption?: (google.protobuf.IUninterpretedOption[]|null);
+
+            /** ServiceOptions .google.api.apiVisibility */
+            ".google.api.apiVisibility"?: (google.api.IVisibilityRule|null);
 
             /** ServiceOptions .google.api.defaultHost */
             ".google.api.defaultHost"?: (string|null);
@@ -4211,6 +4708,12 @@ export namespace google {
 
             /** MethodOptions .google.api.http */
             ".google.api.http"?: (google.api.IHttpRule|null);
+
+            /** MethodOptions .google.api.routing */
+            ".google.api.routing"?: (google.api.IRoutingRule|null);
+
+            /** MethodOptions .google.api.methodVisibility */
+            ".google.api.methodVisibility"?: (google.api.IVisibilityRule|null);
 
             /** MethodOptions .google.api.methodSignature */
             ".google.api.methodSignature"?: (string[]|null);
@@ -5567,6 +6070,9 @@ export namespace google {
 
                     /** File content */
                     content?: (string|null);
+
+                    /** File generatedCodeInfo */
+                    generatedCodeInfo?: (google.protobuf.IGeneratedCodeInfo|null);
                 }
 
                 /** Represents a File. */
@@ -5586,6 +6092,9 @@ export namespace google {
 
                     /** File content. */
                     public content: string;
+
+                    /** File generatedCodeInfo. */
+                    public generatedCodeInfo?: (google.protobuf.IGeneratedCodeInfo|null);
 
                     /**
                      * Creates a new File instance using the specified properties.

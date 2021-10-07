@@ -167,4 +167,13 @@ describe('Baseline tests', () => {
     packageName: '@google-cloud/compute',
     diregapic: true,
   });
+
+  // Adding new baseline test to test routing annotation
+  runBaselineTest({
+    baselineName: 'firestore',
+    outputDir: '.test-out-firestore',
+    protoPath: 'google/firestore/v1/*.proto',
+    useCommonProto: true,
+    metadata: false,
+  });
 });

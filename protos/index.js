@@ -3604,43 +3604,43 @@
     
                 /**
                  * HttpRule get.
-                 * @member {string} get
+                 * @member {string|null|undefined} get
                  * @memberof google.api.HttpRule
                  * @instance
                  */
-                HttpRule.prototype.get = "";
+                HttpRule.prototype.get = null;
     
                 /**
                  * HttpRule put.
-                 * @member {string} put
+                 * @member {string|null|undefined} put
                  * @memberof google.api.HttpRule
                  * @instance
                  */
-                HttpRule.prototype.put = "";
+                HttpRule.prototype.put = null;
     
                 /**
                  * HttpRule post.
-                 * @member {string} post
+                 * @member {string|null|undefined} post
                  * @memberof google.api.HttpRule
                  * @instance
                  */
-                HttpRule.prototype.post = "";
+                HttpRule.prototype.post = null;
     
                 /**
                  * HttpRule delete.
-                 * @member {string} delete
+                 * @member {string|null|undefined} delete
                  * @memberof google.api.HttpRule
                  * @instance
                  */
-                HttpRule.prototype["delete"] = "";
+                HttpRule.prototype["delete"] = null;
     
                 /**
                  * HttpRule patch.
-                 * @member {string} patch
+                 * @member {string|null|undefined} patch
                  * @memberof google.api.HttpRule
                  * @instance
                  */
-                HttpRule.prototype.patch = "";
+                HttpRule.prototype.patch = null;
     
                 /**
                  * HttpRule custom.
@@ -4243,6 +4243,8 @@
              * @property {number} OUTPUT_ONLY=3 OUTPUT_ONLY value
              * @property {number} INPUT_ONLY=4 INPUT_ONLY value
              * @property {number} IMMUTABLE=5 IMMUTABLE value
+             * @property {number} UNORDERED_LIST=6 UNORDERED_LIST value
+             * @property {number} NON_EMPTY_DEFAULT=7 NON_EMPTY_DEFAULT value
              */
             api.FieldBehavior = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
@@ -4252,6 +4254,8 @@
                 values[valuesById[3] = "OUTPUT_ONLY"] = 3;
                 values[valuesById[4] = "INPUT_ONLY"] = 4;
                 values[valuesById[5] = "IMMUTABLE"] = 5;
+                values[valuesById[6] = "UNORDERED_LIST"] = 6;
+                values[valuesById[7] = "NON_EMPTY_DEFAULT"] = 7;
                 return values;
             })();
     
@@ -4267,6 +4271,7 @@
                  * @property {google.api.ResourceDescriptor.History|null} [history] ResourceDescriptor history
                  * @property {string|null} [plural] ResourceDescriptor plural
                  * @property {string|null} [singular] ResourceDescriptor singular
+                 * @property {Array.<google.api.ResourceDescriptor.Style>|null} [style] ResourceDescriptor style
                  */
     
                 /**
@@ -4279,6 +4284,7 @@
                  */
                 function ResourceDescriptor(properties) {
                     this.pattern = [];
+                    this.style = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -4334,6 +4340,14 @@
                 ResourceDescriptor.prototype.singular = "";
     
                 /**
+                 * ResourceDescriptor style.
+                 * @member {Array.<google.api.ResourceDescriptor.Style>} style
+                 * @memberof google.api.ResourceDescriptor
+                 * @instance
+                 */
+                ResourceDescriptor.prototype.style = $util.emptyArray;
+    
+                /**
                  * Creates a new ResourceDescriptor instance using the specified properties.
                  * @function create
                  * @memberof google.api.ResourceDescriptor
@@ -4370,6 +4384,12 @@
                         writer.uint32(/* id 5, wireType 2 =*/42).string(message.plural);
                     if (message.singular != null && Object.hasOwnProperty.call(message, "singular"))
                         writer.uint32(/* id 6, wireType 2 =*/50).string(message.singular);
+                    if (message.style != null && message.style.length) {
+                        writer.uint32(/* id 10, wireType 2 =*/82).fork();
+                        for (var i = 0; i < message.style.length; ++i)
+                            writer.int32(message.style[i]);
+                        writer.ldelim();
+                    }
                     return writer;
                 };
     
@@ -4423,6 +4443,16 @@
                             break;
                         case 6:
                             message.singular = reader.string();
+                            break;
+                        case 10:
+                            if (!(message.style && message.style.length))
+                                message.style = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.style.push(reader.int32());
+                            } else
+                                message.style.push(reader.int32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -4487,6 +4517,18 @@
                     if (message.singular != null && message.hasOwnProperty("singular"))
                         if (!$util.isString(message.singular))
                             return "singular: string expected";
+                    if (message.style != null && message.hasOwnProperty("style")) {
+                        if (!Array.isArray(message.style))
+                            return "style: array expected";
+                        for (var i = 0; i < message.style.length; ++i)
+                            switch (message.style[i]) {
+                            default:
+                                return "style: enum value[] expected";
+                            case 0:
+                            case 1:
+                                break;
+                            }
+                    }
                     return null;
                 };
     
@@ -4531,6 +4573,23 @@
                         message.plural = String(object.plural);
                     if (object.singular != null)
                         message.singular = String(object.singular);
+                    if (object.style) {
+                        if (!Array.isArray(object.style))
+                            throw TypeError(".google.api.ResourceDescriptor.style: array expected");
+                        message.style = [];
+                        for (var i = 0; i < object.style.length; ++i)
+                            switch (object.style[i]) {
+                            default:
+                            case "STYLE_UNSPECIFIED":
+                            case 0:
+                                message.style[i] = 0;
+                                break;
+                            case "DECLARATIVE_FRIENDLY":
+                            case 1:
+                                message.style[i] = 1;
+                                break;
+                            }
+                    }
                     return message;
                 };
     
@@ -4547,8 +4606,10 @@
                     if (!options)
                         options = {};
                     var object = {};
-                    if (options.arrays || options.defaults)
+                    if (options.arrays || options.defaults) {
                         object.pattern = [];
+                        object.style = [];
+                    }
                     if (options.defaults) {
                         object.type = "";
                         object.nameField = "";
@@ -4571,6 +4632,11 @@
                         object.plural = message.plural;
                     if (message.singular != null && message.hasOwnProperty("singular"))
                         object.singular = message.singular;
+                    if (message.style && message.style.length) {
+                        object.style = [];
+                        for (var j = 0; j < message.style.length; ++j)
+                            object.style[j] = options.enums === String ? $root.google.api.ResourceDescriptor.Style[message.style[j]] : message.style[j];
+                    }
                     return object;
                 };
     
@@ -4598,6 +4664,20 @@
                     values[valuesById[0] = "HISTORY_UNSPECIFIED"] = 0;
                     values[valuesById[1] = "ORIGINALLY_SINGLE_PATTERN"] = 1;
                     values[valuesById[2] = "FUTURE_MULTI_PATTERN"] = 2;
+                    return values;
+                })();
+    
+                /**
+                 * Style enum.
+                 * @name google.api.ResourceDescriptor.Style
+                 * @enum {number}
+                 * @property {number} STYLE_UNSPECIFIED=0 STYLE_UNSPECIFIED value
+                 * @property {number} DECLARATIVE_FRIENDLY=1 DECLARATIVE_FRIENDLY value
+                 */
+                ResourceDescriptor.Style = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "STYLE_UNSPECIFIED"] = 0;
+                    values[valuesById[1] = "DECLARATIVE_FRIENDLY"] = 1;
                     return values;
                 })();
     
@@ -4812,6 +4892,1073 @@
                 };
     
                 return ResourceReference;
+            })();
+    
+            api.RoutingRule = (function() {
+    
+                /**
+                 * Properties of a RoutingRule.
+                 * @memberof google.api
+                 * @interface IRoutingRule
+                 * @property {string|null} [selector] RoutingRule selector
+                 * @property {Array.<google.api.IRoutingParameter>|null} [routingParameters] RoutingRule routingParameters
+                 */
+    
+                /**
+                 * Constructs a new RoutingRule.
+                 * @memberof google.api
+                 * @classdesc Represents a RoutingRule.
+                 * @implements IRoutingRule
+                 * @constructor
+                 * @param {google.api.IRoutingRule=} [properties] Properties to set
+                 */
+                function RoutingRule(properties) {
+                    this.routingParameters = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * RoutingRule selector.
+                 * @member {string} selector
+                 * @memberof google.api.RoutingRule
+                 * @instance
+                 */
+                RoutingRule.prototype.selector = "";
+    
+                /**
+                 * RoutingRule routingParameters.
+                 * @member {Array.<google.api.IRoutingParameter>} routingParameters
+                 * @memberof google.api.RoutingRule
+                 * @instance
+                 */
+                RoutingRule.prototype.routingParameters = $util.emptyArray;
+    
+                /**
+                 * Creates a new RoutingRule instance using the specified properties.
+                 * @function create
+                 * @memberof google.api.RoutingRule
+                 * @static
+                 * @param {google.api.IRoutingRule=} [properties] Properties to set
+                 * @returns {google.api.RoutingRule} RoutingRule instance
+                 */
+                RoutingRule.create = function create(properties) {
+                    return new RoutingRule(properties);
+                };
+    
+                /**
+                 * Encodes the specified RoutingRule message. Does not implicitly {@link google.api.RoutingRule.verify|verify} messages.
+                 * @function encode
+                 * @memberof google.api.RoutingRule
+                 * @static
+                 * @param {google.api.IRoutingRule} message RoutingRule message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                RoutingRule.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.selector != null && Object.hasOwnProperty.call(message, "selector"))
+                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.selector);
+                    if (message.routingParameters != null && message.routingParameters.length)
+                        for (var i = 0; i < message.routingParameters.length; ++i)
+                            $root.google.api.RoutingParameter.encode(message.routingParameters[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified RoutingRule message, length delimited. Does not implicitly {@link google.api.RoutingRule.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof google.api.RoutingRule
+                 * @static
+                 * @param {google.api.IRoutingRule} message RoutingRule message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                RoutingRule.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a RoutingRule message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof google.api.RoutingRule
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {google.api.RoutingRule} RoutingRule
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                RoutingRule.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.api.RoutingRule();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.selector = reader.string();
+                            break;
+                        case 2:
+                            if (!(message.routingParameters && message.routingParameters.length))
+                                message.routingParameters = [];
+                            message.routingParameters.push($root.google.api.RoutingParameter.decode(reader, reader.uint32()));
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a RoutingRule message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof google.api.RoutingRule
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {google.api.RoutingRule} RoutingRule
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                RoutingRule.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a RoutingRule message.
+                 * @function verify
+                 * @memberof google.api.RoutingRule
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                RoutingRule.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.selector != null && message.hasOwnProperty("selector"))
+                        if (!$util.isString(message.selector))
+                            return "selector: string expected";
+                    if (message.routingParameters != null && message.hasOwnProperty("routingParameters")) {
+                        if (!Array.isArray(message.routingParameters))
+                            return "routingParameters: array expected";
+                        for (var i = 0; i < message.routingParameters.length; ++i) {
+                            var error = $root.google.api.RoutingParameter.verify(message.routingParameters[i]);
+                            if (error)
+                                return "routingParameters." + error;
+                        }
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates a RoutingRule message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof google.api.RoutingRule
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {google.api.RoutingRule} RoutingRule
+                 */
+                RoutingRule.fromObject = function fromObject(object) {
+                    if (object instanceof $root.google.api.RoutingRule)
+                        return object;
+                    var message = new $root.google.api.RoutingRule();
+                    if (object.selector != null)
+                        message.selector = String(object.selector);
+                    if (object.routingParameters) {
+                        if (!Array.isArray(object.routingParameters))
+                            throw TypeError(".google.api.RoutingRule.routingParameters: array expected");
+                        message.routingParameters = [];
+                        for (var i = 0; i < object.routingParameters.length; ++i) {
+                            if (typeof object.routingParameters[i] !== "object")
+                                throw TypeError(".google.api.RoutingRule.routingParameters: object expected");
+                            message.routingParameters[i] = $root.google.api.RoutingParameter.fromObject(object.routingParameters[i]);
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a RoutingRule message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof google.api.RoutingRule
+                 * @static
+                 * @param {google.api.RoutingRule} message RoutingRule
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                RoutingRule.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.routingParameters = [];
+                    if (options.defaults)
+                        object.selector = "";
+                    if (message.selector != null && message.hasOwnProperty("selector"))
+                        object.selector = message.selector;
+                    if (message.routingParameters && message.routingParameters.length) {
+                        object.routingParameters = [];
+                        for (var j = 0; j < message.routingParameters.length; ++j)
+                            object.routingParameters[j] = $root.google.api.RoutingParameter.toObject(message.routingParameters[j], options);
+                    }
+                    return object;
+                };
+    
+                /**
+                 * Converts this RoutingRule to JSON.
+                 * @function toJSON
+                 * @memberof google.api.RoutingRule
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                RoutingRule.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return RoutingRule;
+            })();
+    
+            api.RoutingParameter = (function() {
+    
+                /**
+                 * Properties of a RoutingParameter.
+                 * @memberof google.api
+                 * @interface IRoutingParameter
+                 * @property {string|null} [field] RoutingParameter field
+                 * @property {string|null} [pathTemplate] RoutingParameter pathTemplate
+                 */
+    
+                /**
+                 * Constructs a new RoutingParameter.
+                 * @memberof google.api
+                 * @classdesc Represents a RoutingParameter.
+                 * @implements IRoutingParameter
+                 * @constructor
+                 * @param {google.api.IRoutingParameter=} [properties] Properties to set
+                 */
+                function RoutingParameter(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * RoutingParameter field.
+                 * @member {string} field
+                 * @memberof google.api.RoutingParameter
+                 * @instance
+                 */
+                RoutingParameter.prototype.field = "";
+    
+                /**
+                 * RoutingParameter pathTemplate.
+                 * @member {string} pathTemplate
+                 * @memberof google.api.RoutingParameter
+                 * @instance
+                 */
+                RoutingParameter.prototype.pathTemplate = "";
+    
+                /**
+                 * Creates a new RoutingParameter instance using the specified properties.
+                 * @function create
+                 * @memberof google.api.RoutingParameter
+                 * @static
+                 * @param {google.api.IRoutingParameter=} [properties] Properties to set
+                 * @returns {google.api.RoutingParameter} RoutingParameter instance
+                 */
+                RoutingParameter.create = function create(properties) {
+                    return new RoutingParameter(properties);
+                };
+    
+                /**
+                 * Encodes the specified RoutingParameter message. Does not implicitly {@link google.api.RoutingParameter.verify|verify} messages.
+                 * @function encode
+                 * @memberof google.api.RoutingParameter
+                 * @static
+                 * @param {google.api.IRoutingParameter} message RoutingParameter message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                RoutingParameter.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.field != null && Object.hasOwnProperty.call(message, "field"))
+                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.field);
+                    if (message.pathTemplate != null && Object.hasOwnProperty.call(message, "pathTemplate"))
+                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.pathTemplate);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified RoutingParameter message, length delimited. Does not implicitly {@link google.api.RoutingParameter.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof google.api.RoutingParameter
+                 * @static
+                 * @param {google.api.IRoutingParameter} message RoutingParameter message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                RoutingParameter.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a RoutingParameter message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof google.api.RoutingParameter
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {google.api.RoutingParameter} RoutingParameter
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                RoutingParameter.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.api.RoutingParameter();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.field = reader.string();
+                            break;
+                        case 2:
+                            message.pathTemplate = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a RoutingParameter message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof google.api.RoutingParameter
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {google.api.RoutingParameter} RoutingParameter
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                RoutingParameter.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a RoutingParameter message.
+                 * @function verify
+                 * @memberof google.api.RoutingParameter
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                RoutingParameter.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.field != null && message.hasOwnProperty("field"))
+                        if (!$util.isString(message.field))
+                            return "field: string expected";
+                    if (message.pathTemplate != null && message.hasOwnProperty("pathTemplate"))
+                        if (!$util.isString(message.pathTemplate))
+                            return "pathTemplate: string expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a RoutingParameter message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof google.api.RoutingParameter
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {google.api.RoutingParameter} RoutingParameter
+                 */
+                RoutingParameter.fromObject = function fromObject(object) {
+                    if (object instanceof $root.google.api.RoutingParameter)
+                        return object;
+                    var message = new $root.google.api.RoutingParameter();
+                    if (object.field != null)
+                        message.field = String(object.field);
+                    if (object.pathTemplate != null)
+                        message.pathTemplate = String(object.pathTemplate);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a RoutingParameter message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof google.api.RoutingParameter
+                 * @static
+                 * @param {google.api.RoutingParameter} message RoutingParameter
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                RoutingParameter.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.field = "";
+                        object.pathTemplate = "";
+                    }
+                    if (message.field != null && message.hasOwnProperty("field"))
+                        object.field = message.field;
+                    if (message.pathTemplate != null && message.hasOwnProperty("pathTemplate"))
+                        object.pathTemplate = message.pathTemplate;
+                    return object;
+                };
+    
+                /**
+                 * Converts this RoutingParameter to JSON.
+                 * @function toJSON
+                 * @memberof google.api.RoutingParameter
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                RoutingParameter.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return RoutingParameter;
+            })();
+    
+            api.Routing = (function() {
+    
+                /**
+                 * Properties of a Routing.
+                 * @memberof google.api
+                 * @interface IRouting
+                 * @property {Array.<google.api.IRoutingRule>|null} [routingRules] Routing routingRules
+                 */
+    
+                /**
+                 * Constructs a new Routing.
+                 * @memberof google.api
+                 * @classdesc Represents a Routing.
+                 * @implements IRouting
+                 * @constructor
+                 * @param {google.api.IRouting=} [properties] Properties to set
+                 */
+                function Routing(properties) {
+                    this.routingRules = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * Routing routingRules.
+                 * @member {Array.<google.api.IRoutingRule>} routingRules
+                 * @memberof google.api.Routing
+                 * @instance
+                 */
+                Routing.prototype.routingRules = $util.emptyArray;
+    
+                /**
+                 * Creates a new Routing instance using the specified properties.
+                 * @function create
+                 * @memberof google.api.Routing
+                 * @static
+                 * @param {google.api.IRouting=} [properties] Properties to set
+                 * @returns {google.api.Routing} Routing instance
+                 */
+                Routing.create = function create(properties) {
+                    return new Routing(properties);
+                };
+    
+                /**
+                 * Encodes the specified Routing message. Does not implicitly {@link google.api.Routing.verify|verify} messages.
+                 * @function encode
+                 * @memberof google.api.Routing
+                 * @static
+                 * @param {google.api.IRouting} message Routing message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                Routing.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.routingRules != null && message.routingRules.length)
+                        for (var i = 0; i < message.routingRules.length; ++i)
+                            $root.google.api.RoutingRule.encode(message.routingRules[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified Routing message, length delimited. Does not implicitly {@link google.api.Routing.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof google.api.Routing
+                 * @static
+                 * @param {google.api.IRouting} message Routing message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                Routing.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a Routing message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof google.api.Routing
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {google.api.Routing} Routing
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                Routing.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.api.Routing();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.routingRules && message.routingRules.length))
+                                message.routingRules = [];
+                            message.routingRules.push($root.google.api.RoutingRule.decode(reader, reader.uint32()));
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a Routing message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof google.api.Routing
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {google.api.Routing} Routing
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                Routing.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a Routing message.
+                 * @function verify
+                 * @memberof google.api.Routing
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                Routing.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.routingRules != null && message.hasOwnProperty("routingRules")) {
+                        if (!Array.isArray(message.routingRules))
+                            return "routingRules: array expected";
+                        for (var i = 0; i < message.routingRules.length; ++i) {
+                            var error = $root.google.api.RoutingRule.verify(message.routingRules[i]);
+                            if (error)
+                                return "routingRules." + error;
+                        }
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates a Routing message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof google.api.Routing
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {google.api.Routing} Routing
+                 */
+                Routing.fromObject = function fromObject(object) {
+                    if (object instanceof $root.google.api.Routing)
+                        return object;
+                    var message = new $root.google.api.Routing();
+                    if (object.routingRules) {
+                        if (!Array.isArray(object.routingRules))
+                            throw TypeError(".google.api.Routing.routingRules: array expected");
+                        message.routingRules = [];
+                        for (var i = 0; i < object.routingRules.length; ++i) {
+                            if (typeof object.routingRules[i] !== "object")
+                                throw TypeError(".google.api.Routing.routingRules: object expected");
+                            message.routingRules[i] = $root.google.api.RoutingRule.fromObject(object.routingRules[i]);
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a Routing message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof google.api.Routing
+                 * @static
+                 * @param {google.api.Routing} message Routing
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                Routing.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.routingRules = [];
+                    if (message.routingRules && message.routingRules.length) {
+                        object.routingRules = [];
+                        for (var j = 0; j < message.routingRules.length; ++j)
+                            object.routingRules[j] = $root.google.api.RoutingRule.toObject(message.routingRules[j], options);
+                    }
+                    return object;
+                };
+    
+                /**
+                 * Converts this Routing to JSON.
+                 * @function toJSON
+                 * @memberof google.api.Routing
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                Routing.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return Routing;
+            })();
+    
+            api.Visibility = (function() {
+    
+                /**
+                 * Properties of a Visibility.
+                 * @memberof google.api
+                 * @interface IVisibility
+                 * @property {Array.<google.api.IVisibilityRule>|null} [rules] Visibility rules
+                 */
+    
+                /**
+                 * Constructs a new Visibility.
+                 * @memberof google.api
+                 * @classdesc Represents a Visibility.
+                 * @implements IVisibility
+                 * @constructor
+                 * @param {google.api.IVisibility=} [properties] Properties to set
+                 */
+                function Visibility(properties) {
+                    this.rules = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * Visibility rules.
+                 * @member {Array.<google.api.IVisibilityRule>} rules
+                 * @memberof google.api.Visibility
+                 * @instance
+                 */
+                Visibility.prototype.rules = $util.emptyArray;
+    
+                /**
+                 * Creates a new Visibility instance using the specified properties.
+                 * @function create
+                 * @memberof google.api.Visibility
+                 * @static
+                 * @param {google.api.IVisibility=} [properties] Properties to set
+                 * @returns {google.api.Visibility} Visibility instance
+                 */
+                Visibility.create = function create(properties) {
+                    return new Visibility(properties);
+                };
+    
+                /**
+                 * Encodes the specified Visibility message. Does not implicitly {@link google.api.Visibility.verify|verify} messages.
+                 * @function encode
+                 * @memberof google.api.Visibility
+                 * @static
+                 * @param {google.api.IVisibility} message Visibility message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                Visibility.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.rules != null && message.rules.length)
+                        for (var i = 0; i < message.rules.length; ++i)
+                            $root.google.api.VisibilityRule.encode(message.rules[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified Visibility message, length delimited. Does not implicitly {@link google.api.Visibility.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof google.api.Visibility
+                 * @static
+                 * @param {google.api.IVisibility} message Visibility message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                Visibility.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a Visibility message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof google.api.Visibility
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {google.api.Visibility} Visibility
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                Visibility.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.api.Visibility();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.rules && message.rules.length))
+                                message.rules = [];
+                            message.rules.push($root.google.api.VisibilityRule.decode(reader, reader.uint32()));
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a Visibility message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof google.api.Visibility
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {google.api.Visibility} Visibility
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                Visibility.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a Visibility message.
+                 * @function verify
+                 * @memberof google.api.Visibility
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                Visibility.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.rules != null && message.hasOwnProperty("rules")) {
+                        if (!Array.isArray(message.rules))
+                            return "rules: array expected";
+                        for (var i = 0; i < message.rules.length; ++i) {
+                            var error = $root.google.api.VisibilityRule.verify(message.rules[i]);
+                            if (error)
+                                return "rules." + error;
+                        }
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates a Visibility message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof google.api.Visibility
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {google.api.Visibility} Visibility
+                 */
+                Visibility.fromObject = function fromObject(object) {
+                    if (object instanceof $root.google.api.Visibility)
+                        return object;
+                    var message = new $root.google.api.Visibility();
+                    if (object.rules) {
+                        if (!Array.isArray(object.rules))
+                            throw TypeError(".google.api.Visibility.rules: array expected");
+                        message.rules = [];
+                        for (var i = 0; i < object.rules.length; ++i) {
+                            if (typeof object.rules[i] !== "object")
+                                throw TypeError(".google.api.Visibility.rules: object expected");
+                            message.rules[i] = $root.google.api.VisibilityRule.fromObject(object.rules[i]);
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a Visibility message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof google.api.Visibility
+                 * @static
+                 * @param {google.api.Visibility} message Visibility
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                Visibility.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.rules = [];
+                    if (message.rules && message.rules.length) {
+                        object.rules = [];
+                        for (var j = 0; j < message.rules.length; ++j)
+                            object.rules[j] = $root.google.api.VisibilityRule.toObject(message.rules[j], options);
+                    }
+                    return object;
+                };
+    
+                /**
+                 * Converts this Visibility to JSON.
+                 * @function toJSON
+                 * @memberof google.api.Visibility
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                Visibility.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return Visibility;
+            })();
+    
+            api.VisibilityRule = (function() {
+    
+                /**
+                 * Properties of a VisibilityRule.
+                 * @memberof google.api
+                 * @interface IVisibilityRule
+                 * @property {string|null} [selector] VisibilityRule selector
+                 * @property {string|null} [restriction] VisibilityRule restriction
+                 */
+    
+                /**
+                 * Constructs a new VisibilityRule.
+                 * @memberof google.api
+                 * @classdesc Represents a VisibilityRule.
+                 * @implements IVisibilityRule
+                 * @constructor
+                 * @param {google.api.IVisibilityRule=} [properties] Properties to set
+                 */
+                function VisibilityRule(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * VisibilityRule selector.
+                 * @member {string} selector
+                 * @memberof google.api.VisibilityRule
+                 * @instance
+                 */
+                VisibilityRule.prototype.selector = "";
+    
+                /**
+                 * VisibilityRule restriction.
+                 * @member {string} restriction
+                 * @memberof google.api.VisibilityRule
+                 * @instance
+                 */
+                VisibilityRule.prototype.restriction = "";
+    
+                /**
+                 * Creates a new VisibilityRule instance using the specified properties.
+                 * @function create
+                 * @memberof google.api.VisibilityRule
+                 * @static
+                 * @param {google.api.IVisibilityRule=} [properties] Properties to set
+                 * @returns {google.api.VisibilityRule} VisibilityRule instance
+                 */
+                VisibilityRule.create = function create(properties) {
+                    return new VisibilityRule(properties);
+                };
+    
+                /**
+                 * Encodes the specified VisibilityRule message. Does not implicitly {@link google.api.VisibilityRule.verify|verify} messages.
+                 * @function encode
+                 * @memberof google.api.VisibilityRule
+                 * @static
+                 * @param {google.api.IVisibilityRule} message VisibilityRule message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                VisibilityRule.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.selector != null && Object.hasOwnProperty.call(message, "selector"))
+                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.selector);
+                    if (message.restriction != null && Object.hasOwnProperty.call(message, "restriction"))
+                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.restriction);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified VisibilityRule message, length delimited. Does not implicitly {@link google.api.VisibilityRule.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof google.api.VisibilityRule
+                 * @static
+                 * @param {google.api.IVisibilityRule} message VisibilityRule message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                VisibilityRule.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a VisibilityRule message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof google.api.VisibilityRule
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {google.api.VisibilityRule} VisibilityRule
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                VisibilityRule.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.api.VisibilityRule();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.selector = reader.string();
+                            break;
+                        case 2:
+                            message.restriction = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a VisibilityRule message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof google.api.VisibilityRule
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {google.api.VisibilityRule} VisibilityRule
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                VisibilityRule.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a VisibilityRule message.
+                 * @function verify
+                 * @memberof google.api.VisibilityRule
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                VisibilityRule.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.selector != null && message.hasOwnProperty("selector"))
+                        if (!$util.isString(message.selector))
+                            return "selector: string expected";
+                    if (message.restriction != null && message.hasOwnProperty("restriction"))
+                        if (!$util.isString(message.restriction))
+                            return "restriction: string expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a VisibilityRule message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof google.api.VisibilityRule
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {google.api.VisibilityRule} VisibilityRule
+                 */
+                VisibilityRule.fromObject = function fromObject(object) {
+                    if (object instanceof $root.google.api.VisibilityRule)
+                        return object;
+                    var message = new $root.google.api.VisibilityRule();
+                    if (object.selector != null)
+                        message.selector = String(object.selector);
+                    if (object.restriction != null)
+                        message.restriction = String(object.restriction);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a VisibilityRule message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof google.api.VisibilityRule
+                 * @static
+                 * @param {google.api.VisibilityRule} message VisibilityRule
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                VisibilityRule.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.selector = "";
+                        object.restriction = "";
+                    }
+                    if (message.selector != null && message.hasOwnProperty("selector"))
+                        object.selector = message.selector;
+                    if (message.restriction != null && message.hasOwnProperty("restriction"))
+                        object.restriction = message.restriction;
+                    return object;
+                };
+    
+                /**
+                 * Converts this VisibilityRule to JSON.
+                 * @function toJSON
+                 * @memberof google.api.VisibilityRule
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                VisibilityRule.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return VisibilityRule;
             })();
     
             return api;
@@ -9720,6 +10867,7 @@
                  * @property {boolean|null} [mapEntry] MessageOptions mapEntry
                  * @property {Array.<google.protobuf.IUninterpretedOption>|null} [uninterpretedOption] MessageOptions uninterpretedOption
                  * @property {google.api.IResourceDescriptor|null} [".google.api.resource"] MessageOptions .google.api.resource
+                 * @property {google.api.IVisibilityRule|null} [".google.api.messageVisibility"] MessageOptions .google.api.messageVisibility
                  */
     
                 /**
@@ -9787,6 +10935,14 @@
                 MessageOptions.prototype[".google.api.resource"] = null;
     
                 /**
+                 * MessageOptions .google.api.messageVisibility.
+                 * @member {google.api.IVisibilityRule|null|undefined} .google.api.messageVisibility
+                 * @memberof google.protobuf.MessageOptions
+                 * @instance
+                 */
+                MessageOptions.prototype[".google.api.messageVisibility"] = null;
+    
+                /**
                  * Creates a new MessageOptions instance using the specified properties.
                  * @function create
                  * @memberof google.protobuf.MessageOptions
@@ -9823,6 +10979,8 @@
                             $root.google.protobuf.UninterpretedOption.encode(message.uninterpretedOption[i], writer.uint32(/* id 999, wireType 2 =*/7994).fork()).ldelim();
                     if (message[".google.api.resource"] != null && Object.hasOwnProperty.call(message, ".google.api.resource"))
                         $root.google.api.ResourceDescriptor.encode(message[".google.api.resource"], writer.uint32(/* id 1053, wireType 2 =*/8426).fork()).ldelim();
+                    if (message[".google.api.messageVisibility"] != null && Object.hasOwnProperty.call(message, ".google.api.messageVisibility"))
+                        $root.google.api.VisibilityRule.encode(message[".google.api.messageVisibility"], writer.uint32(/* id 72295727, wireType 2 =*/578365818).fork()).ldelim();
                     return writer;
                 };
     
@@ -9876,6 +11034,9 @@
                             break;
                         case 1053:
                             message[".google.api.resource"] = $root.google.api.ResourceDescriptor.decode(reader, reader.uint32());
+                            break;
+                        case 72295727:
+                            message[".google.api.messageVisibility"] = $root.google.api.VisibilityRule.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -9938,6 +11099,11 @@
                         if (error)
                             return ".google.api.resource." + error;
                     }
+                    if (message[".google.api.messageVisibility"] != null && message.hasOwnProperty(".google.api.messageVisibility")) {
+                        var error = $root.google.api.VisibilityRule.verify(message[".google.api.messageVisibility"]);
+                        if (error)
+                            return ".google.api.messageVisibility." + error;
+                    }
                     return null;
                 };
     
@@ -9976,6 +11142,11 @@
                             throw TypeError(".google.protobuf.MessageOptions..google.api.resource: object expected");
                         message[".google.api.resource"] = $root.google.api.ResourceDescriptor.fromObject(object[".google.api.resource"]);
                     }
+                    if (object[".google.api.messageVisibility"] != null) {
+                        if (typeof object[".google.api.messageVisibility"] !== "object")
+                            throw TypeError(".google.protobuf.MessageOptions..google.api.messageVisibility: object expected");
+                        message[".google.api.messageVisibility"] = $root.google.api.VisibilityRule.fromObject(object[".google.api.messageVisibility"]);
+                    }
                     return message;
                 };
     
@@ -10000,6 +11171,7 @@
                         object.deprecated = false;
                         object.mapEntry = false;
                         object[".google.api.resource"] = null;
+                        object[".google.api.messageVisibility"] = null;
                     }
                     if (message.messageSetWireFormat != null && message.hasOwnProperty("messageSetWireFormat"))
                         object.messageSetWireFormat = message.messageSetWireFormat;
@@ -10016,6 +11188,8 @@
                     }
                     if (message[".google.api.resource"] != null && message.hasOwnProperty(".google.api.resource"))
                         object[".google.api.resource"] = $root.google.api.ResourceDescriptor.toObject(message[".google.api.resource"], options);
+                    if (message[".google.api.messageVisibility"] != null && message.hasOwnProperty(".google.api.messageVisibility"))
+                        object[".google.api.messageVisibility"] = $root.google.api.VisibilityRule.toObject(message[".google.api.messageVisibility"], options);
                     return object;
                 };
     
@@ -10048,6 +11222,7 @@
                  * @property {Array.<google.protobuf.IUninterpretedOption>|null} [uninterpretedOption] FieldOptions uninterpretedOption
                  * @property {Array.<google.api.FieldBehavior>|null} [".google.api.fieldBehavior"] FieldOptions .google.api.fieldBehavior
                  * @property {google.api.IResourceReference|null} [".google.api.resourceReference"] FieldOptions .google.api.resourceReference
+                 * @property {google.api.IVisibilityRule|null} [".google.api.fieldVisibility"] FieldOptions .google.api.fieldVisibility
                  */
     
                 /**
@@ -10140,6 +11315,14 @@
                 FieldOptions.prototype[".google.api.resourceReference"] = null;
     
                 /**
+                 * FieldOptions .google.api.fieldVisibility.
+                 * @member {google.api.IVisibilityRule|null|undefined} .google.api.fieldVisibility
+                 * @memberof google.protobuf.FieldOptions
+                 * @instance
+                 */
+                FieldOptions.prototype[".google.api.fieldVisibility"] = null;
+    
+                /**
                  * Creates a new FieldOptions instance using the specified properties.
                  * @function create
                  * @memberof google.protobuf.FieldOptions
@@ -10186,6 +11369,8 @@
                     }
                     if (message[".google.api.resourceReference"] != null && Object.hasOwnProperty.call(message, ".google.api.resourceReference"))
                         $root.google.api.ResourceReference.encode(message[".google.api.resourceReference"], writer.uint32(/* id 1055, wireType 2 =*/8442).fork()).ldelim();
+                    if (message[".google.api.fieldVisibility"] != null && Object.hasOwnProperty.call(message, ".google.api.fieldVisibility"))
+                        $root.google.api.VisibilityRule.encode(message[".google.api.fieldVisibility"], writer.uint32(/* id 72295727, wireType 2 =*/578365818).fork()).ldelim();
                     return writer;
                 };
     
@@ -10255,6 +11440,9 @@
                             break;
                         case 1055:
                             message[".google.api.resourceReference"] = $root.google.api.ResourceReference.decode(reader, reader.uint32());
+                            break;
+                        case 72295727:
+                            message[".google.api.fieldVisibility"] = $root.google.api.VisibilityRule.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -10343,6 +11531,8 @@
                             case 3:
                             case 4:
                             case 5:
+                            case 6:
+                            case 7:
                                 break;
                             }
                     }
@@ -10350,6 +11540,11 @@
                         var error = $root.google.api.ResourceReference.verify(message[".google.api.resourceReference"]);
                         if (error)
                             return ".google.api.resourceReference." + error;
+                    }
+                    if (message[".google.api.fieldVisibility"] != null && message.hasOwnProperty(".google.api.fieldVisibility")) {
+                        var error = $root.google.api.VisibilityRule.verify(message[".google.api.fieldVisibility"]);
+                        if (error)
+                            return ".google.api.fieldVisibility." + error;
                     }
                     return null;
                 };
@@ -10443,12 +11638,25 @@
                             case 5:
                                 message[".google.api.fieldBehavior"][i] = 5;
                                 break;
+                            case "UNORDERED_LIST":
+                            case 6:
+                                message[".google.api.fieldBehavior"][i] = 6;
+                                break;
+                            case "NON_EMPTY_DEFAULT":
+                            case 7:
+                                message[".google.api.fieldBehavior"][i] = 7;
+                                break;
                             }
                     }
                     if (object[".google.api.resourceReference"] != null) {
                         if (typeof object[".google.api.resourceReference"] !== "object")
                             throw TypeError(".google.protobuf.FieldOptions..google.api.resourceReference: object expected");
                         message[".google.api.resourceReference"] = $root.google.api.ResourceReference.fromObject(object[".google.api.resourceReference"]);
+                    }
+                    if (object[".google.api.fieldVisibility"] != null) {
+                        if (typeof object[".google.api.fieldVisibility"] !== "object")
+                            throw TypeError(".google.protobuf.FieldOptions..google.api.fieldVisibility: object expected");
+                        message[".google.api.fieldVisibility"] = $root.google.api.VisibilityRule.fromObject(object[".google.api.fieldVisibility"]);
                     }
                     return message;
                 };
@@ -10478,6 +11686,7 @@
                         object.jstype = options.enums === String ? "JS_NORMAL" : 0;
                         object.weak = false;
                         object[".google.api.resourceReference"] = null;
+                        object[".google.api.fieldVisibility"] = null;
                     }
                     if (message.ctype != null && message.hasOwnProperty("ctype"))
                         object.ctype = options.enums === String ? $root.google.protobuf.FieldOptions.CType[message.ctype] : message.ctype;
@@ -10503,6 +11712,8 @@
                     }
                     if (message[".google.api.resourceReference"] != null && message.hasOwnProperty(".google.api.resourceReference"))
                         object[".google.api.resourceReference"] = $root.google.api.ResourceReference.toObject(message[".google.api.resourceReference"], options);
+                    if (message[".google.api.fieldVisibility"] != null && message.hasOwnProperty(".google.api.fieldVisibility"))
+                        object[".google.api.fieldVisibility"] = $root.google.api.VisibilityRule.toObject(message[".google.api.fieldVisibility"], options);
                     return object;
                 };
     
@@ -10769,6 +11980,7 @@
                  * @property {boolean|null} [allowAlias] EnumOptions allowAlias
                  * @property {boolean|null} [deprecated] EnumOptions deprecated
                  * @property {Array.<google.protobuf.IUninterpretedOption>|null} [uninterpretedOption] EnumOptions uninterpretedOption
+                 * @property {google.api.IVisibilityRule|null} [".google.api.enumVisibility"] EnumOptions .google.api.enumVisibility
                  */
     
                 /**
@@ -10812,6 +12024,14 @@
                 EnumOptions.prototype.uninterpretedOption = $util.emptyArray;
     
                 /**
+                 * EnumOptions .google.api.enumVisibility.
+                 * @member {google.api.IVisibilityRule|null|undefined} .google.api.enumVisibility
+                 * @memberof google.protobuf.EnumOptions
+                 * @instance
+                 */
+                EnumOptions.prototype[".google.api.enumVisibility"] = null;
+    
+                /**
                  * Creates a new EnumOptions instance using the specified properties.
                  * @function create
                  * @memberof google.protobuf.EnumOptions
@@ -10842,6 +12062,8 @@
                     if (message.uninterpretedOption != null && message.uninterpretedOption.length)
                         for (var i = 0; i < message.uninterpretedOption.length; ++i)
                             $root.google.protobuf.UninterpretedOption.encode(message.uninterpretedOption[i], writer.uint32(/* id 999, wireType 2 =*/7994).fork()).ldelim();
+                    if (message[".google.api.enumVisibility"] != null && Object.hasOwnProperty.call(message, ".google.api.enumVisibility"))
+                        $root.google.api.VisibilityRule.encode(message[".google.api.enumVisibility"], writer.uint32(/* id 72295727, wireType 2 =*/578365818).fork()).ldelim();
                     return writer;
                 };
     
@@ -10886,6 +12108,9 @@
                             if (!(message.uninterpretedOption && message.uninterpretedOption.length))
                                 message.uninterpretedOption = [];
                             message.uninterpretedOption.push($root.google.protobuf.UninterpretedOption.decode(reader, reader.uint32()));
+                            break;
+                        case 72295727:
+                            message[".google.api.enumVisibility"] = $root.google.api.VisibilityRule.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -10937,6 +12162,11 @@
                                 return "uninterpretedOption." + error;
                         }
                     }
+                    if (message[".google.api.enumVisibility"] != null && message.hasOwnProperty(".google.api.enumVisibility")) {
+                        var error = $root.google.api.VisibilityRule.verify(message[".google.api.enumVisibility"]);
+                        if (error)
+                            return ".google.api.enumVisibility." + error;
+                    }
                     return null;
                 };
     
@@ -10966,6 +12196,11 @@
                             message.uninterpretedOption[i] = $root.google.protobuf.UninterpretedOption.fromObject(object.uninterpretedOption[i]);
                         }
                     }
+                    if (object[".google.api.enumVisibility"] != null) {
+                        if (typeof object[".google.api.enumVisibility"] !== "object")
+                            throw TypeError(".google.protobuf.EnumOptions..google.api.enumVisibility: object expected");
+                        message[".google.api.enumVisibility"] = $root.google.api.VisibilityRule.fromObject(object[".google.api.enumVisibility"]);
+                    }
                     return message;
                 };
     
@@ -10987,6 +12222,7 @@
                     if (options.defaults) {
                         object.allowAlias = false;
                         object.deprecated = false;
+                        object[".google.api.enumVisibility"] = null;
                     }
                     if (message.allowAlias != null && message.hasOwnProperty("allowAlias"))
                         object.allowAlias = message.allowAlias;
@@ -10997,6 +12233,8 @@
                         for (var j = 0; j < message.uninterpretedOption.length; ++j)
                             object.uninterpretedOption[j] = $root.google.protobuf.UninterpretedOption.toObject(message.uninterpretedOption[j], options);
                     }
+                    if (message[".google.api.enumVisibility"] != null && message.hasOwnProperty(".google.api.enumVisibility"))
+                        object[".google.api.enumVisibility"] = $root.google.api.VisibilityRule.toObject(message[".google.api.enumVisibility"], options);
                     return object;
                 };
     
@@ -11022,6 +12260,7 @@
                  * @interface IEnumValueOptions
                  * @property {boolean|null} [deprecated] EnumValueOptions deprecated
                  * @property {Array.<google.protobuf.IUninterpretedOption>|null} [uninterpretedOption] EnumValueOptions uninterpretedOption
+                 * @property {google.api.IVisibilityRule|null} [".google.api.valueVisibility"] EnumValueOptions .google.api.valueVisibility
                  */
     
                 /**
@@ -11057,6 +12296,14 @@
                 EnumValueOptions.prototype.uninterpretedOption = $util.emptyArray;
     
                 /**
+                 * EnumValueOptions .google.api.valueVisibility.
+                 * @member {google.api.IVisibilityRule|null|undefined} .google.api.valueVisibility
+                 * @memberof google.protobuf.EnumValueOptions
+                 * @instance
+                 */
+                EnumValueOptions.prototype[".google.api.valueVisibility"] = null;
+    
+                /**
                  * Creates a new EnumValueOptions instance using the specified properties.
                  * @function create
                  * @memberof google.protobuf.EnumValueOptions
@@ -11085,6 +12332,8 @@
                     if (message.uninterpretedOption != null && message.uninterpretedOption.length)
                         for (var i = 0; i < message.uninterpretedOption.length; ++i)
                             $root.google.protobuf.UninterpretedOption.encode(message.uninterpretedOption[i], writer.uint32(/* id 999, wireType 2 =*/7994).fork()).ldelim();
+                    if (message[".google.api.valueVisibility"] != null && Object.hasOwnProperty.call(message, ".google.api.valueVisibility"))
+                        $root.google.api.VisibilityRule.encode(message[".google.api.valueVisibility"], writer.uint32(/* id 72295727, wireType 2 =*/578365818).fork()).ldelim();
                     return writer;
                 };
     
@@ -11126,6 +12375,9 @@
                             if (!(message.uninterpretedOption && message.uninterpretedOption.length))
                                 message.uninterpretedOption = [];
                             message.uninterpretedOption.push($root.google.protobuf.UninterpretedOption.decode(reader, reader.uint32()));
+                            break;
+                        case 72295727:
+                            message[".google.api.valueVisibility"] = $root.google.api.VisibilityRule.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -11174,6 +12426,11 @@
                                 return "uninterpretedOption." + error;
                         }
                     }
+                    if (message[".google.api.valueVisibility"] != null && message.hasOwnProperty(".google.api.valueVisibility")) {
+                        var error = $root.google.api.VisibilityRule.verify(message[".google.api.valueVisibility"]);
+                        if (error)
+                            return ".google.api.valueVisibility." + error;
+                    }
                     return null;
                 };
     
@@ -11201,6 +12458,11 @@
                             message.uninterpretedOption[i] = $root.google.protobuf.UninterpretedOption.fromObject(object.uninterpretedOption[i]);
                         }
                     }
+                    if (object[".google.api.valueVisibility"] != null) {
+                        if (typeof object[".google.api.valueVisibility"] !== "object")
+                            throw TypeError(".google.protobuf.EnumValueOptions..google.api.valueVisibility: object expected");
+                        message[".google.api.valueVisibility"] = $root.google.api.VisibilityRule.fromObject(object[".google.api.valueVisibility"]);
+                    }
                     return message;
                 };
     
@@ -11219,8 +12481,10 @@
                     var object = {};
                     if (options.arrays || options.defaults)
                         object.uninterpretedOption = [];
-                    if (options.defaults)
+                    if (options.defaults) {
                         object.deprecated = false;
+                        object[".google.api.valueVisibility"] = null;
+                    }
                     if (message.deprecated != null && message.hasOwnProperty("deprecated"))
                         object.deprecated = message.deprecated;
                     if (message.uninterpretedOption && message.uninterpretedOption.length) {
@@ -11228,6 +12492,8 @@
                         for (var j = 0; j < message.uninterpretedOption.length; ++j)
                             object.uninterpretedOption[j] = $root.google.protobuf.UninterpretedOption.toObject(message.uninterpretedOption[j], options);
                     }
+                    if (message[".google.api.valueVisibility"] != null && message.hasOwnProperty(".google.api.valueVisibility"))
+                        object[".google.api.valueVisibility"] = $root.google.api.VisibilityRule.toObject(message[".google.api.valueVisibility"], options);
                     return object;
                 };
     
@@ -11253,6 +12519,7 @@
                  * @interface IServiceOptions
                  * @property {boolean|null} [deprecated] ServiceOptions deprecated
                  * @property {Array.<google.protobuf.IUninterpretedOption>|null} [uninterpretedOption] ServiceOptions uninterpretedOption
+                 * @property {google.api.IVisibilityRule|null} [".google.api.apiVisibility"] ServiceOptions .google.api.apiVisibility
                  * @property {string|null} [".google.api.defaultHost"] ServiceOptions .google.api.defaultHost
                  * @property {string|null} [".google.api.oauthScopes"] ServiceOptions .google.api.oauthScopes
                  */
@@ -11288,6 +12555,14 @@
                  * @instance
                  */
                 ServiceOptions.prototype.uninterpretedOption = $util.emptyArray;
+    
+                /**
+                 * ServiceOptions .google.api.apiVisibility.
+                 * @member {google.api.IVisibilityRule|null|undefined} .google.api.apiVisibility
+                 * @memberof google.protobuf.ServiceOptions
+                 * @instance
+                 */
+                ServiceOptions.prototype[".google.api.apiVisibility"] = null;
     
                 /**
                  * ServiceOptions .google.api.defaultHost.
@@ -11338,6 +12613,8 @@
                         writer.uint32(/* id 1049, wireType 2 =*/8394).string(message[".google.api.defaultHost"]);
                     if (message[".google.api.oauthScopes"] != null && Object.hasOwnProperty.call(message, ".google.api.oauthScopes"))
                         writer.uint32(/* id 1050, wireType 2 =*/8402).string(message[".google.api.oauthScopes"]);
+                    if (message[".google.api.apiVisibility"] != null && Object.hasOwnProperty.call(message, ".google.api.apiVisibility"))
+                        $root.google.api.VisibilityRule.encode(message[".google.api.apiVisibility"], writer.uint32(/* id 72295727, wireType 2 =*/578365818).fork()).ldelim();
                     return writer;
                 };
     
@@ -11379,6 +12656,9 @@
                             if (!(message.uninterpretedOption && message.uninterpretedOption.length))
                                 message.uninterpretedOption = [];
                             message.uninterpretedOption.push($root.google.protobuf.UninterpretedOption.decode(reader, reader.uint32()));
+                            break;
+                        case 72295727:
+                            message[".google.api.apiVisibility"] = $root.google.api.VisibilityRule.decode(reader, reader.uint32());
                             break;
                         case 1049:
                             message[".google.api.defaultHost"] = reader.string();
@@ -11433,6 +12713,11 @@
                                 return "uninterpretedOption." + error;
                         }
                     }
+                    if (message[".google.api.apiVisibility"] != null && message.hasOwnProperty(".google.api.apiVisibility")) {
+                        var error = $root.google.api.VisibilityRule.verify(message[".google.api.apiVisibility"]);
+                        if (error)
+                            return ".google.api.apiVisibility." + error;
+                    }
                     if (message[".google.api.defaultHost"] != null && message.hasOwnProperty(".google.api.defaultHost"))
                         if (!$util.isString(message[".google.api.defaultHost"]))
                             return ".google.api.defaultHost: string expected";
@@ -11466,6 +12751,11 @@
                             message.uninterpretedOption[i] = $root.google.protobuf.UninterpretedOption.fromObject(object.uninterpretedOption[i]);
                         }
                     }
+                    if (object[".google.api.apiVisibility"] != null) {
+                        if (typeof object[".google.api.apiVisibility"] !== "object")
+                            throw TypeError(".google.protobuf.ServiceOptions..google.api.apiVisibility: object expected");
+                        message[".google.api.apiVisibility"] = $root.google.api.VisibilityRule.fromObject(object[".google.api.apiVisibility"]);
+                    }
                     if (object[".google.api.defaultHost"] != null)
                         message[".google.api.defaultHost"] = String(object[".google.api.defaultHost"]);
                     if (object[".google.api.oauthScopes"] != null)
@@ -11492,6 +12782,7 @@
                         object.deprecated = false;
                         object[".google.api.defaultHost"] = "";
                         object[".google.api.oauthScopes"] = "";
+                        object[".google.api.apiVisibility"] = null;
                     }
                     if (message.deprecated != null && message.hasOwnProperty("deprecated"))
                         object.deprecated = message.deprecated;
@@ -11504,6 +12795,8 @@
                         object[".google.api.defaultHost"] = message[".google.api.defaultHost"];
                     if (message[".google.api.oauthScopes"] != null && message.hasOwnProperty(".google.api.oauthScopes"))
                         object[".google.api.oauthScopes"] = message[".google.api.oauthScopes"];
+                    if (message[".google.api.apiVisibility"] != null && message.hasOwnProperty(".google.api.apiVisibility"))
+                        object[".google.api.apiVisibility"] = $root.google.api.VisibilityRule.toObject(message[".google.api.apiVisibility"], options);
                     return object;
                 };
     
@@ -11531,6 +12824,8 @@
                  * @property {google.protobuf.MethodOptions.IdempotencyLevel|null} [idempotencyLevel] MethodOptions idempotencyLevel
                  * @property {Array.<google.protobuf.IUninterpretedOption>|null} [uninterpretedOption] MethodOptions uninterpretedOption
                  * @property {google.api.IHttpRule|null} [".google.api.http"] MethodOptions .google.api.http
+                 * @property {google.api.IRoutingRule|null} [".google.api.routing"] MethodOptions .google.api.routing
+                 * @property {google.api.IVisibilityRule|null} [".google.api.methodVisibility"] MethodOptions .google.api.methodVisibility
                  * @property {Array.<string>|null} [".google.api.methodSignature"] MethodOptions .google.api.methodSignature
                  * @property {google.longrunning.IOperationInfo|null} [".google.longrunning.operationInfo"] MethodOptions .google.longrunning.operationInfo
                  */
@@ -11585,6 +12880,22 @@
                 MethodOptions.prototype[".google.api.http"] = null;
     
                 /**
+                 * MethodOptions .google.api.routing.
+                 * @member {google.api.IRoutingRule|null|undefined} .google.api.routing
+                 * @memberof google.protobuf.MethodOptions
+                 * @instance
+                 */
+                MethodOptions.prototype[".google.api.routing"] = null;
+    
+                /**
+                 * MethodOptions .google.api.methodVisibility.
+                 * @member {google.api.IVisibilityRule|null|undefined} .google.api.methodVisibility
+                 * @memberof google.protobuf.MethodOptions
+                 * @instance
+                 */
+                MethodOptions.prototype[".google.api.methodVisibility"] = null;
+    
+                /**
                  * MethodOptions .google.api.methodSignature.
                  * @member {Array.<string>} .google.api.methodSignature
                  * @memberof google.protobuf.MethodOptions
@@ -11636,8 +12947,12 @@
                     if (message[".google.api.methodSignature"] != null && message[".google.api.methodSignature"].length)
                         for (var i = 0; i < message[".google.api.methodSignature"].length; ++i)
                             writer.uint32(/* id 1051, wireType 2 =*/8410).string(message[".google.api.methodSignature"][i]);
+                    if (message[".google.api.methodVisibility"] != null && Object.hasOwnProperty.call(message, ".google.api.methodVisibility"))
+                        $root.google.api.VisibilityRule.encode(message[".google.api.methodVisibility"], writer.uint32(/* id 72295727, wireType 2 =*/578365818).fork()).ldelim();
                     if (message[".google.api.http"] != null && Object.hasOwnProperty.call(message, ".google.api.http"))
                         $root.google.api.HttpRule.encode(message[".google.api.http"], writer.uint32(/* id 72295728, wireType 2 =*/578365826).fork()).ldelim();
+                    if (message[".google.api.routing"] != null && Object.hasOwnProperty.call(message, ".google.api.routing"))
+                        $root.google.api.RoutingRule.encode(message[".google.api.routing"], writer.uint32(/* id 72295729, wireType 2 =*/578365834).fork()).ldelim();
                     return writer;
                 };
     
@@ -11685,6 +13000,12 @@
                             break;
                         case 72295728:
                             message[".google.api.http"] = $root.google.api.HttpRule.decode(reader, reader.uint32());
+                            break;
+                        case 72295729:
+                            message[".google.api.routing"] = $root.google.api.RoutingRule.decode(reader, reader.uint32());
+                            break;
+                        case 72295727:
+                            message[".google.api.methodVisibility"] = $root.google.api.VisibilityRule.decode(reader, reader.uint32());
                             break;
                         case 1051:
                             if (!(message[".google.api.methodSignature"] && message[".google.api.methodSignature"].length))
@@ -11755,6 +13076,16 @@
                         if (error)
                             return ".google.api.http." + error;
                     }
+                    if (message[".google.api.routing"] != null && message.hasOwnProperty(".google.api.routing")) {
+                        var error = $root.google.api.RoutingRule.verify(message[".google.api.routing"]);
+                        if (error)
+                            return ".google.api.routing." + error;
+                    }
+                    if (message[".google.api.methodVisibility"] != null && message.hasOwnProperty(".google.api.methodVisibility")) {
+                        var error = $root.google.api.VisibilityRule.verify(message[".google.api.methodVisibility"]);
+                        if (error)
+                            return ".google.api.methodVisibility." + error;
+                    }
                     if (message[".google.api.methodSignature"] != null && message.hasOwnProperty(".google.api.methodSignature")) {
                         if (!Array.isArray(message[".google.api.methodSignature"]))
                             return ".google.api.methodSignature: array expected";
@@ -11813,6 +13144,16 @@
                             throw TypeError(".google.protobuf.MethodOptions..google.api.http: object expected");
                         message[".google.api.http"] = $root.google.api.HttpRule.fromObject(object[".google.api.http"]);
                     }
+                    if (object[".google.api.routing"] != null) {
+                        if (typeof object[".google.api.routing"] !== "object")
+                            throw TypeError(".google.protobuf.MethodOptions..google.api.routing: object expected");
+                        message[".google.api.routing"] = $root.google.api.RoutingRule.fromObject(object[".google.api.routing"]);
+                    }
+                    if (object[".google.api.methodVisibility"] != null) {
+                        if (typeof object[".google.api.methodVisibility"] !== "object")
+                            throw TypeError(".google.protobuf.MethodOptions..google.api.methodVisibility: object expected");
+                        message[".google.api.methodVisibility"] = $root.google.api.VisibilityRule.fromObject(object[".google.api.methodVisibility"]);
+                    }
                     if (object[".google.api.methodSignature"]) {
                         if (!Array.isArray(object[".google.api.methodSignature"]))
                             throw TypeError(".google.protobuf.MethodOptions..google.api.methodSignature: array expected");
@@ -11849,7 +13190,9 @@
                         object.deprecated = false;
                         object.idempotencyLevel = options.enums === String ? "IDEMPOTENCY_UNKNOWN" : 0;
                         object[".google.longrunning.operationInfo"] = null;
+                        object[".google.api.methodVisibility"] = null;
                         object[".google.api.http"] = null;
+                        object[".google.api.routing"] = null;
                     }
                     if (message.deprecated != null && message.hasOwnProperty("deprecated"))
                         object.deprecated = message.deprecated;
@@ -11867,8 +13210,12 @@
                         for (var j = 0; j < message[".google.api.methodSignature"].length; ++j)
                             object[".google.api.methodSignature"][j] = message[".google.api.methodSignature"][j];
                     }
+                    if (message[".google.api.methodVisibility"] != null && message.hasOwnProperty(".google.api.methodVisibility"))
+                        object[".google.api.methodVisibility"] = $root.google.api.VisibilityRule.toObject(message[".google.api.methodVisibility"], options);
                     if (message[".google.api.http"] != null && message.hasOwnProperty(".google.api.http"))
                         object[".google.api.http"] = $root.google.api.HttpRule.toObject(message[".google.api.http"], options);
+                    if (message[".google.api.routing"] != null && message.hasOwnProperty(".google.api.routing"))
+                        object[".google.api.routing"] = $root.google.api.RoutingRule.toObject(message[".google.api.routing"], options);
                     return object;
                 };
     
@@ -14980,6 +16327,7 @@
                          * @property {string|null} [name] File name
                          * @property {string|null} [insertionPoint] File insertionPoint
                          * @property {string|null} [content] File content
+                         * @property {google.protobuf.IGeneratedCodeInfo|null} [generatedCodeInfo] File generatedCodeInfo
                          */
     
                         /**
@@ -15022,6 +16370,14 @@
                         File.prototype.content = "";
     
                         /**
+                         * File generatedCodeInfo.
+                         * @member {google.protobuf.IGeneratedCodeInfo|null|undefined} generatedCodeInfo
+                         * @memberof google.protobuf.compiler.CodeGeneratorResponse.File
+                         * @instance
+                         */
+                        File.prototype.generatedCodeInfo = null;
+    
+                        /**
                          * Creates a new File instance using the specified properties.
                          * @function create
                          * @memberof google.protobuf.compiler.CodeGeneratorResponse.File
@@ -15051,6 +16407,8 @@
                                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.insertionPoint);
                             if (message.content != null && Object.hasOwnProperty.call(message, "content"))
                                 writer.uint32(/* id 15, wireType 2 =*/122).string(message.content);
+                            if (message.generatedCodeInfo != null && Object.hasOwnProperty.call(message, "generatedCodeInfo"))
+                                $root.google.protobuf.GeneratedCodeInfo.encode(message.generatedCodeInfo, writer.uint32(/* id 16, wireType 2 =*/130).fork()).ldelim();
                             return writer;
                         };
     
@@ -15093,6 +16451,9 @@
                                     break;
                                 case 15:
                                     message.content = reader.string();
+                                    break;
+                                case 16:
+                                    message.generatedCodeInfo = $root.google.protobuf.GeneratedCodeInfo.decode(reader, reader.uint32());
                                     break;
                                 default:
                                     reader.skipType(tag & 7);
@@ -15138,6 +16499,11 @@
                             if (message.content != null && message.hasOwnProperty("content"))
                                 if (!$util.isString(message.content))
                                     return "content: string expected";
+                            if (message.generatedCodeInfo != null && message.hasOwnProperty("generatedCodeInfo")) {
+                                var error = $root.google.protobuf.GeneratedCodeInfo.verify(message.generatedCodeInfo);
+                                if (error)
+                                    return "generatedCodeInfo." + error;
+                            }
                             return null;
                         };
     
@@ -15159,6 +16525,11 @@
                                 message.insertionPoint = String(object.insertionPoint);
                             if (object.content != null)
                                 message.content = String(object.content);
+                            if (object.generatedCodeInfo != null) {
+                                if (typeof object.generatedCodeInfo !== "object")
+                                    throw TypeError(".google.protobuf.compiler.CodeGeneratorResponse.File.generatedCodeInfo: object expected");
+                                message.generatedCodeInfo = $root.google.protobuf.GeneratedCodeInfo.fromObject(object.generatedCodeInfo);
+                            }
                             return message;
                         };
     
@@ -15179,6 +16550,7 @@
                                 object.name = "";
                                 object.insertionPoint = "";
                                 object.content = "";
+                                object.generatedCodeInfo = null;
                             }
                             if (message.name != null && message.hasOwnProperty("name"))
                                 object.name = message.name;
@@ -15186,6 +16558,8 @@
                                 object.insertionPoint = message.insertionPoint;
                             if (message.content != null && message.hasOwnProperty("content"))
                                 object.content = message.content;
+                            if (message.generatedCodeInfo != null && message.hasOwnProperty("generatedCodeInfo"))
+                                object.generatedCodeInfo = $root.google.protobuf.GeneratedCodeInfo.toObject(message.generatedCodeInfo, options);
                             return object;
                         };
     
