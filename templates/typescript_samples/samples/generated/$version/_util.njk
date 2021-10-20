@@ -7,7 +7,21 @@
 {%- for line in lines %}
 {%- set trimmed = line.replace(r/\s+$/, '') -%}
 {%- if trimmed.length > 0 %}
-   * {{ trimmed.replaceAll('*/', '* /').replaceAll(r/([^\`])\]/, " $1").replaceAll(r/\]([^\+])/, " $1") | safe }}
+{%- set formattedLine = trimmed.replaceAll('*/', '* /') | safe %}
+{%- set regExpIgnoreCase1 = r/\`\[/g %}
+{%- set regExpIgnoreCase2 = r/\]\+/g %}
+{%- set regExpIgnoreCase3 = r/\]\{/g %}
+{%- set regExpFindCase1 = r/\]/g %}
+{%- set regExpFindCase2 = r/\[/g %}
+{%- if regExpFindCase1.test(formattedLine) or regExpFindCase2.test(formattedLine) %}
+{%- if regExpIgnoreCase1.test(formattedLine) or regExpIgnoreCase2.test(formattedLine) or regExpIgnoreCase3.test(formattedLine) %}
+   * {{ formattedLine }}
+{% else %}
+   * {{ formattedLine.replaceAll(r/\[/, "").replaceAll(r/\]/, " ") | safe }}
+{%- endif %}
+{%- else %}
+   * {{ formattedLine }}
+{%- endif %}
 {%- endif -%}
 {%- endfor -%}
 {{ \n }}
