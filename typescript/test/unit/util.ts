@@ -14,7 +14,13 @@
 
 import * as assert from 'assert';
 import {describe, it} from 'mocha';
-import {commonPrefix, duration, seconds, milliseconds} from '../../src/util';
+import {
+  commonPrefix,
+  duration,
+  seconds,
+  milliseconds,
+  isDigit,
+} from '../../src/util';
 import * as protos from '../../../protos';
 
 describe('src/util.ts', () => {
@@ -194,6 +200,10 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(
         'productName.v1p1beta1'.toCamelCase(),
         'productNameV1p1beta1'
+      );
+      assert.deepStrictEqual(
+        'display_video_360_advertiser_link'.toCamelCase(),
+        'displayVideo_360AdvertiserLink'
       );
     });
 
@@ -391,6 +401,21 @@ describe('src/util.ts', () => {
         ['tableReference', 'project_id'].toSnakeCaseString('!.'),
         'table_reference!.project_id'
       );
+    });
+  });
+
+  describe('Detect number', () => {
+    it('should return true if the string is number', () => {
+      assert.deepStrictEqual(isDigit('123'), true);
+    });
+    it('should return false if the string is not number', () => {
+      assert.deepStrictEqual(isDigit('abc345'), false);
+      assert.deepStrictEqual(isDigit(''), false);
+      assert.deepStrictEqual(isDigit('hello'), false);
+      assert.deepStrictEqual(isDigit('NaN'), false);
+      assert.deepStrictEqual(isDigit('0b110100'), false);
+      assert.deepStrictEqual(isDigit('Infinity'), false);
+      assert.deepStrictEqual(isDigit('-Infinity'), false);
     });
   });
 });
