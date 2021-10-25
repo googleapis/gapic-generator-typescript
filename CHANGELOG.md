@@ -1,5 +1,13 @@
 # Changelog
 
+### [2.6.5](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.4...v2.6.5) (2021-10-25)
+
+
+### Bug Fixes
+
+* **deps:** update all dependencies ([#1020](https://www.github.com/googleapis/gapic-generator-typescript/issues/1020)) ([154d903](https://www.github.com/googleapis/gapic-generator-typescript/commit/154d90368e649fd333c5ae0f6b07a2a6d4620784))
+* **deps:** update dependency google-gax to ^2.28.0 ([#1016](https://www.github.com/googleapis/gapic-generator-typescript/issues/1016)) ([0cd2911](https://www.github.com/googleapis/gapic-generator-typescript/commit/0cd291190a9e97ce55e0a6d1eef450db1ba64583))
+
 ### [2.6.4](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.3...v2.6.4) (2021-10-18)
 
 
