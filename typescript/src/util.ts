@@ -71,8 +71,8 @@ export function milliseconds(
   );
 }
 
-export function isNumber(value: string): boolean {
-  return value !== '' && !isNaN(Number(value));
+export function isDigit(value: string): boolean {
+  return /^\d+$/.test(value);
 }
 
 String.prototype.capitalize = function (this: string): string {
@@ -97,7 +97,7 @@ String.prototype.toCamelCase = function (this: string): string {
   const result = [words[0]];
   result.push(
     ...words.slice(1).map(w => {
-      if (isNumber(w)) {
+      if (isDigit(w)) {
         return '_' + w;
       }
       return w.capitalize();

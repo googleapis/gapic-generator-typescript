@@ -19,7 +19,7 @@ import {
   duration,
   seconds,
   milliseconds,
-  isNumber,
+  isDigit,
 } from '../../src/util';
 import * as protos from '../../../protos';
 
@@ -406,16 +406,16 @@ describe('src/util.ts', () => {
 
   describe('Detect number', () => {
     it('should return true if the string is number', () => {
-      assert.deepStrictEqual(isNumber('123'), true);
-      assert.deepStrictEqual(isNumber('0b110100'), true);
-      assert.deepStrictEqual(isNumber('Infinity'), true);
-      assert.deepStrictEqual(isNumber('-Infinity'), true);
+      assert.deepStrictEqual(isDigit('123'), true);
     });
     it('should return false if the string is not number', () => {
-      assert.deepStrictEqual(isNumber('abc345'), false);
-      assert.deepStrictEqual(isNumber(''), false);
-      assert.deepStrictEqual(isNumber('hello'), false);
-      assert.deepStrictEqual(isNumber('NaN'), false);
+      assert.deepStrictEqual(isDigit('abc345'), false);
+      assert.deepStrictEqual(isDigit(''), false);
+      assert.deepStrictEqual(isDigit('hello'), false);
+      assert.deepStrictEqual(isDigit('NaN'), false);
+      assert.deepStrictEqual(isDigit('0b110100'), false);
+      assert.deepStrictEqual(isDigit('Infinity'), false);
+      assert.deepStrictEqual(isDigit('-Infinity'), false);
     });
   });
 });
