@@ -570,6 +570,12 @@ describe('src/util.ts', () => {
         '**',
         '(?<routing_id>.*)',
       ]);
+      assert.deepStrictEqual(getNamedSegment('{database}'), [
+        'database',
+        'database',
+        '*',
+        '[^/]+',
+      ]);
       it('should return an empty array if the path template does not contain exactly one named segment', () => {
         assert.deepStrictEqual(getNamedSegment('test/database'), []);
         assert.deepStrictEqual(
