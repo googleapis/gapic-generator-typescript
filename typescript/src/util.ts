@@ -307,35 +307,35 @@ export function convertTemplateToRegex(pattern: string): string {
 // This intakes a path template and returns an array where the first element is the full named
 // segment, the second element is the name of the segment, the third element is the segment itself,
 // and the fourth element is the named capture regex of the named segement.
-// If the path template does not contain exactly one named segment, this function will return an empty array. 
+// If the path template does not contain exactly one named segment, this function will return an empty array.
 export function getNamedSegment(pattern: string): string[] {
   //Named segment in path template will always be contained within curly braces, e.g. '{}'
   const curlyBraceRegex = new RegExp(/[^{}]+(?=})/g);
   const element = pattern.match(curlyBraceRegex);
   if (element && checkIfArrayContainsOnlyOneNamedSegment(element)) {
-      const namedSegment = [];
-      // This contains the full named segment.
-      namedSegment.push(element[0]);
-      // This extracts the name from the named segment.
-      const name = element[0].match(/^(.*?)=/);
-      namedSegment.push(name![1]);
-      // This extracts the segment from the named segement.
-      const extractNameRegex = new RegExp(name![1] + '=(.*)');
-      const segment = element[0].match(extractNameRegex)![1];
-      namedSegment.push(segment);
-      // This converts the full named segment into regex.
-      // Special case for double wildcard in a named segment as we
-      // do want to capture it for a named segment.
-      if (isDoubleStar(segment) || isDoubleStar(segment.replaceAll('}', ''))) {
-        const resourceRegex = '.*';
-        const fullRegex = '(?<' + name![1] + '>' + resourceRegex + ')';
-        namedSegment.push(fullRegex);
-      } else {
-        const resourceRegex = convertTemplateToRegex(segment);
-        const fullRegex = '(?<' + name![1] + '>' + resourceRegex + ')';
-        namedSegment.push(fullRegex);
-      }
-      return namedSegment;
+    const namedSegment = [];
+    // This contains the full named segment.
+    namedSegment.push(element[0]);
+    // This extracts the name from the named segment.
+    const name = element[0].match(/^(.*?)=/);
+    namedSegment.push(name![1]);
+    // This extracts the segment from the named segement.
+    const extractNameRegex = new RegExp(name![1] + '=(.*)');
+    const segment = element[0].match(extractNameRegex)![1];
+    namedSegment.push(segment);
+    // This converts the full named segment into regex.
+    // Special case for double wildcard in a named segment as we
+    // do want to capture it for a named segment.
+    if (isDoubleStar(segment) || isDoubleStar(segment.replaceAll('}', ''))) {
+      const resourceRegex = '.*';
+      const fullRegex = '(?<' + name![1] + '>' + resourceRegex + ')';
+      namedSegment.push(fullRegex);
+    } else {
+      const resourceRegex = convertTemplateToRegex(segment);
+      const fullRegex = '(?<' + name![1] + '>' + resourceRegex + ')';
+      namedSegment.push(fullRegex);
+    }
+    return namedSegment;
   } else {
     return [];
   }

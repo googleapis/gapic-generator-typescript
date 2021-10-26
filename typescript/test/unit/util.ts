@@ -14,7 +14,17 @@
 
 import * as assert from 'assert';
 import {describe, it} from 'mocha';
-import {commonPrefix, duration, seconds, milliseconds, isDigit, checkIfArrayContainsOnlyOneNamedSegment, convertSegmentToRegex, convertTemplateToRegex, getNamedSegment} from '../../src/util';
+import {
+  commonPrefix,
+  duration,
+  seconds,
+  milliseconds,
+  isDigit,
+  checkIfArrayContainsOnlyOneNamedSegment,
+  convertSegmentToRegex,
+  convertTemplateToRegex,
+  getNamedSegment,
+} from '../../src/util';
 import * as protos from '../../../protos';
 
 describe('src/util.ts', () => {
@@ -560,10 +570,15 @@ describe('src/util.ts', () => {
         '**',
         '(?<routing_id>.*)',
       ]);
-    it('should return an empty array if the path template does not contain exactly one named segment', () => {
-      assert.deepStrictEqual(getNamedSegment('test/database'), [])
-      assert.deepStrictEqual(getNamedSegment('test/{database=projects/*/databases/*}/documents/*/**/{hello=world}'), [])
-    });
+      it('should return an empty array if the path template does not contain exactly one named segment', () => {
+        assert.deepStrictEqual(getNamedSegment('test/database'), []);
+        assert.deepStrictEqual(
+          getNamedSegment(
+            'test/{database=projects/*/databases/*}/documents/*/**/{hello=world}'
+          ),
+          []
+        );
+      });
     });
   });
 });
