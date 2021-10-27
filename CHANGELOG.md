@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.7.0...v2.8.0) (2021-10-27)
+
+
+### Features
+
+* move comments in front of overloaded function ([#1030](https://www.github.com/googleapis/gapic-generator-typescript/issues/1030)) ([a0af610](https://www.github.com/googleapis/gapic-generator-typescript/commit/a0af610cc8f28c8ea001ee0d7669e1cbd44ce5a3))
+
 ## [2.7.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.4...v2.7.0) (2021-10-25)
 
 
