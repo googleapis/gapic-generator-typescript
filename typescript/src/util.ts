@@ -71,6 +71,10 @@ export function milliseconds(
   );
 }
 
+export function isDigit(value: string): boolean {
+  return /^\d+$/.test(value);
+}
+
 String.prototype.capitalize = function (this: string): string {
   if (this.length === 0) {
     return this;
@@ -91,7 +95,14 @@ String.prototype.toCamelCase = function (this: string): string {
     return this;
   }
   const result = [words[0]];
-  result.push(...words.slice(1).map(w => w.capitalize()));
+  result.push(
+    ...words.slice(1).map(w => {
+      if (isDigit(w)) {
+        return '_' + w;
+      }
+      return w.capitalize();
+    })
+  );
   return result.join('');
 };
 

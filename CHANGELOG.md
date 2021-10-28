@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.8.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.7.0...v2.8.0) (2021-10-27)
+
+
+### Features
+
+* move comments in front of overloaded function ([#1030](https://www.github.com/googleapis/gapic-generator-typescript/issues/1030)) ([a0af610](https://www.github.com/googleapis/gapic-generator-typescript/commit/a0af610cc8f28c8ea001ee0d7669e1cbd44ce5a3))
+
+## [2.7.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.4...v2.7.0) (2021-10-25)
+
+
+### Features
+
+* enable npm test to output errors ([#1023](https://www.github.com/googleapis/gapic-generator-typescript/issues/1023)) ([ca1736e](https://www.github.com/googleapis/gapic-generator-typescript/commit/ca1736efe7b879dc1191c42c2a3640e78eb0bfa8))
+
+
+### Bug Fixes
+
+* **deps:** update all dependencies ([#1020](https://www.github.com/googleapis/gapic-generator-typescript/issues/1020)) ([154d903](https://www.github.com/googleapis/gapic-generator-typescript/commit/154d90368e649fd333c5ae0f6b07a2a6d4620784))
+* **deps:** update dependency google-gax to ^2.28.0 ([#1016](https://www.github.com/googleapis/gapic-generator-typescript/issues/1016)) ([0cd2911](https://www.github.com/googleapis/gapic-generator-typescript/commit/0cd291190a9e97ce55e0a6d1eef450db1ba64583))
+* handle the fields with nums ([#1019](https://www.github.com/googleapis/gapic-generator-typescript/issues/1019)) ([6a24bf4](https://www.github.com/googleapis/gapic-generator-typescript/commit/6a24bf4acbf613855faa365e3e331ddf377ab500))
+
+### [2.6.4](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.3...v2.6.4) (2021-10-18)
+
+
+### Bug Fixes
+
+* **deps:** update all dependencies ([#998](https://www.github.com/googleapis/gapic-generator-typescript/issues/998)) ([f6c25b0](https://www.github.com/googleapis/gapic-generator-typescript/commit/f6c25b0e8a0da4805d27f516c965e5b029c2c4c8))
+
 ### [2.6.3](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.2...v2.6.3) (2021-09-30)
 
 
