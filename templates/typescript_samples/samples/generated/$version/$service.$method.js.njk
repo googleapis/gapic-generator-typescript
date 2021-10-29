@@ -59,13 +59,13 @@ function main({%- for comment in filteredComments -%}
     };
 {% if method.longRunning %}
     // Run request
-    const [operation] = await {{ (api.naming.productName).toCamelCase() }}Client.{{ id.get(method.name.toCamelCase()) }}(request);
+    const [operation] = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
     const [response] = await operation.promise();
     console.log(response);
   }
 {% elif method.serverStreaming and method.clientStreaming %}
     // Run request
-    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ id.get(method.name.toCamelCase()) }}();
+    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}();
     stream.on('data', (response) => { console.log(response) });
     stream.on('error', (err) => { throw(err) });
     stream.on('end', () => { /* API call completed */ });
@@ -74,7 +74,7 @@ function main({%- for comment in filteredComments -%}
   }
 {% elif method in service.paging %}
     // Run request
-    const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ id.get(method.name.toCamelCase()) }}Async(request);
+    const iterable = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}Async(request);
     {%- if method.pagingMapResponseType %}
     for await (const [key, value] of iterable) {
     {%- else %}
@@ -85,20 +85,20 @@ function main({%- for comment in filteredComments -%}
   }
 {% elif method.serverStreaming %}
     // Run request
-    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ id.get(method.name.toCamelCase()) }}(request);
+    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
     stream.on('data', (response) => { console.log(response) });
     stream.on('error', (err) => { throw(err) });
     stream.on('end', () => { /* API call completed */ });
   }
 {% elif method.clientStreaming %}
     // Run request
-    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ id.get(method.name.toCamelCase()) }}((response) => console.log(response));
+    const stream = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}((response) => console.log(response));
     stream.write(request);
     stream.end();
   }
 {% else %}
     // Run request
-    const response = await {{ (api.naming.productName).toCamelCase() }}Client.{{ id.get(method.name.toCamelCase()) }}(request);
+    const response = await {{ (api.naming.productName).toCamelCase() }}Client.{{ method.name.toCamelCase() }}(request);
     console.log(response);
   }
 {% endif %}
