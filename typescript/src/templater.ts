@@ -147,6 +147,7 @@ export async function processTemplates(basePath: string, api: API) {
 
   // If this template provides a namer plugin, load it
   const namerLocation = path.join(basePath, 'namer.js');
+  // console.log(`NAMER LOCATION DOES IT EXIST 1: ${namerLocation}`)
   const id: Namer = {
     register: () => {
       return '';
@@ -159,6 +160,7 @@ export async function processTemplates(basePath: string, api: API) {
     let namer: Namer;
     // different location when running from Bazel, hence try {}
     // (because Bazel alters behavior of `require`)
+    // console.log(`NAMER LOCATION INNER BLOCK: ${namerLocation}`)
     try {
       namer = require(namerLocation) as Namer;
     } catch (err) {
@@ -172,6 +174,7 @@ export async function processTemplates(basePath: string, api: API) {
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
   for (const templateFilename of templateFiles) {
+    // console.log(`TEMPLATE FILE NAME: ${templateFilename}`)
     const generatedFiles = processOneTemplate(
       basePath,
       templateFilename,
