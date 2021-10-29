@@ -2,6 +2,7 @@
 {%- set commentsMap = method.paramComment -%}
 {%- for oneComment in commentsMap -%}
 {%- set lines = oneComment.comments -%}
+{%- if not (r/Deprecated/).test(lines) -%}
 {{ \n }}
   /**
 {%- for line in lines %}
@@ -34,7 +35,10 @@
 {%- endfor -%}
 {{ \n }}
    */
+{%- endif -%}
 {%- set type = oneComment.paramType -%}
+{%- set lines = oneComment.comments -%}
+{%- if not (r/Deprecated/).test(lines) -%}
 {%- if printParamFieldSample(oneComment) == 'project' %}
   // const {{ printParamFieldSample(oneComment) }} = 'my-project'
 {%- elif printParamFieldSample(oneComment) == 'region' %}
@@ -43,6 +47,7 @@
   // const {{ printParamFieldSample(oneComment) | replace('[', '') | replace(']', '') }} = {{ printTypeExample(type.substring(1)) -}} {{-\n-}}
 {%- else %}
   // const {{ printParamFieldSample(oneComment) | replace('[', '') | replace(']', '') }} = {{ printTypeExample(convertParamType(oneComment.paramType)) -}}
+{%- endif -%}
 {%- endif -%}
 {%- endfor -%}
 {%- endmacro -%}
