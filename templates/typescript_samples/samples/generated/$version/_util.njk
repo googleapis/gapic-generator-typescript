@@ -1,3 +1,26 @@
+{%- macro printMethodDescription(method) -%}
+{%- set commentsMap = method.comments -%}
+{%- for oneComment in commentsMap -%}
+{%- set regExpIgnoreCase1 = r/\`\[/g %}
+{%- set regExpIgnoreCase2 = r/\]\+/g %}
+{%- set regExpIgnoreCase3 = r/\]\{/g %}
+{%- set regExpIgnoreCase4 = r/\/\[/g %}
+{%- set regExpIgnoreCase5 = r/\]\"/g %}
+{%- set regExpIgnoreCase6 = r/\]\//g %}
+{%- set regExpFindCase1 = r/\]/g %}
+{%- set regExpFindCase2 = r/\[/g %}
+{%- if regExpFindCase1.test(oneComment) or regExpFindCase2.test(oneComment) %}
+{%- if regExpIgnoreCase1.test(oneComment) or regExpIgnoreCase2.test(oneComment) or regExpIgnoreCase3.test(line) or regExpIgnoreCase4.test(oneComment) or regExpIgnoreCase5.test(line) or regExpIgnoreCase6.test(oneComment) %}
+{{- oneComment -}}
+{% else %}
+{{- oneComment.replaceAll(r/\]\[/, " ").replaceAll(r/\[/, "").replaceAll(r/\]/, "") | safe -}} 
+{%- endif %}
+{%- else %}
+{{- oneComment -}}
+{%- endif %}
+{%- endfor -%}
+{%- endmacro -%}
+
 {%- macro printCommentsForSample(method) -%}
 {%- set commentsMap = method.paramComment -%}
 {%- for oneComment in commentsMap -%}
