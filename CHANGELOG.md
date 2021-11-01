@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.9.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.8.0...v2.9.0) (2021-11-01)
+
+
+### Features
+
+* add dynamic routing annotation parsing functionality ([#1028](https://www.github.com/googleapis/gapic-generator-typescript/issues/1028)) ([793f885](https://www.github.com/googleapis/gapic-generator-typescript/commit/793f885ceadbd5716267bba81bc3539483256a17))
+* remove markdown links ([#1004](https://www.github.com/googleapis/gapic-generator-typescript/issues/1004)) ([39de25d](https://www.github.com/googleapis/gapic-generator-typescript/commit/39de25d97e0a6a224e9a8ad39c8d1b0d250fd788))
+
 ## [2.8.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.7.0...v2.8.0) (2021-10-27)
 
 
