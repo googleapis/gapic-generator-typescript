@@ -15,4 +15,6 @@
 export interface ServiceYaml {
   title: string;
   apis: string[];
+  // TODO (alicejli): Dynamic routing headers will eventually be part of the ServiceYaml
+  // Refactor reading the annotation from the proto to the serviceYaml file once that is implemented.
 }
