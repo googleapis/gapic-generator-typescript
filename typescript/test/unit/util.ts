@@ -422,7 +422,7 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(isDigit('-Infinity'), false);
     });
   });
-  
+
   describe('Array check', () => {
     it('should get return true if an array of strings contains exactly one named segment', () => {
       assert.deepStrictEqual(

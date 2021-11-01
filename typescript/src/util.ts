@@ -205,20 +205,16 @@ export function checkIfArrayContainsOnlyOneNamedSegment(
   pattern: string[]
 ): boolean {
   let countOfNamedSegments = 0;
-  let counter = 0;
   // Checks that resources are named
   const regexNamed = new RegExp(/^.+=.+/);
   const regexWildcard = new RegExp(/^{[a-zA-Z\d-]+}/);
-  pattern.forEach((element) => {
-    if (
-      regexNamed.test(element) ||
-      regexWildcard.test(element)
-    ) {
+  pattern.forEach(element => {
+    if (regexNamed.test(element) || regexWildcard.test(element)) {
       countOfNamedSegments++;
     }
-  })
-    return countOfNamedSegments === 1;
-  }
+  });
+  return countOfNamedSegments === 1;
+}
 
 // This takes in a path template segment and converts it into regex.
 export function convertSegmentToRegex(pattern: string): string {
