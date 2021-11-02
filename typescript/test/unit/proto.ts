@@ -15,7 +15,13 @@
 import * as assert from 'assert';
 import {describe, it} from 'mocha';
 import * as protos from '../../../protos';
-import {DynamicRoutingParameters, getDynamicHeaderRequestParams, getHeaderRequestParams, getSingleRoutingHeaderParam, MessagesMap} from '../../src/schema/proto';
+import {
+  DynamicRoutingParameters,
+  getDynamicHeaderRequestParams,
+  getHeaderRequestParams,
+  getSingleRoutingHeaderParam,
+  MessagesMap,
+} from '../../src/schema/proto';
 import {Proto} from '../../src/schema/proto';
 import {Options} from '../../src/schema/naming';
 import {ResourceDatabase} from '../../src/schema/resource-database';
@@ -106,12 +112,14 @@ describe('src/schema/proto.ts', () => {
         },
       ];
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
-        [{
-          fieldRetrieve: "",
-          fieldSend: "",
-          messageRegex: "",
-          namedSegment: "",
-        }]
+        [
+          {
+            fieldRetrieve: '',
+            fieldSend: '',
+            messageRegex: '',
+            namedSegment: '',
+          },
+        ],
       ];
       assert.deepStrictEqual(
         expectedRoutingParameters,
@@ -134,24 +142,27 @@ describe('src/schema/proto.ts', () => {
         },
       ];
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
-        [{
-          fieldRetrieve: 'database',
-          fieldSend: 'routing_id',
-          messageRegex: '(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
-          namedSegment: '(?<routing_id>projects/[^/]+/databases/[^/]+)',
-        },
-        {
-          fieldRetrieve: 'database',
-          fieldSend: 'routing_id',
-          messageRegex: '(?<routing_id>(?:/.*)?)',
-          namedSegment: '(?<routing_id>.*)',
-        },
-        {
-          fieldRetrieve: 'name',
-          fieldSend: 'routing_id',
-          messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
-          namedSegment: '(?<routing_id>projects/[^/]+)',
-        }]
+        [
+          {
+            fieldRetrieve: 'database',
+            fieldSend: 'routing_id',
+            messageRegex:
+              '(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
+            namedSegment: '(?<routing_id>projects/[^/]+/databases/[^/]+)',
+          },
+          {
+            fieldRetrieve: 'database',
+            fieldSend: 'routing_id',
+            messageRegex: '(?<routing_id>(?:/.*)?)',
+            namedSegment: '(?<routing_id>.*)',
+          },
+          {
+            fieldRetrieve: 'name',
+            fieldSend: 'routing_id',
+            messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
+            namedSegment: '(?<routing_id>projects/[^/]+)',
+          },
+        ],
       ];
       assert.deepStrictEqual(
         expectedRoutingParameters,
@@ -167,21 +178,25 @@ describe('src/schema/proto.ts', () => {
         {
           field: 'app_profile_id',
           pathTemplate: '{profile_id=projects/*}/**',
-        }
+        },
       ];
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
-        [{
-          fieldRetrieve: 'name',
-          fieldSend: 'routing_id',
-          messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
-          namedSegment: '(?<routing_id>projects/[^/]+)',
-        }],
-        [{
-          fieldRetrieve: 'app_profile_id',
-          fieldSend: 'profile_id',
-          messageRegex: '(?<profile_id>projects)/[^/]+(?:/.*)?',
-          namedSegment: '(?<profile_id>projects/[^/]+)',
-        }],
+        [
+          {
+            fieldRetrieve: 'name',
+            fieldSend: 'routing_id',
+            messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
+            namedSegment: '(?<routing_id>projects/[^/]+)',
+          },
+        ],
+        [
+          {
+            fieldRetrieve: 'app_profile_id',
+            fieldSend: 'profile_id',
+            messageRegex: '(?<profile_id>projects)/[^/]+(?:/.*)?',
+            namedSegment: '(?<profile_id>projects/[^/]+)',
+          },
+        ],
       ];
       assert.deepStrictEqual(
         expectedRoutingParameters,
@@ -205,25 +220,29 @@ describe('src/schema/proto.ts', () => {
         },
       ];
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
-        [{
-          fieldRetrieve: 'name',
-          fieldSend: 'routing_id',
-          messageRegex: 'test/(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
-          namedSegment: '(?<routing_id>projects/[^/]+/databases/[^/]+)',
-        },
-        {
-          fieldRetrieve: 'name',
-          fieldSend: 'routing_id',
-          messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
-          namedSegment: '(?<routing_id>projects/[^/]+)',
-        }],
+        [
+          {
+            fieldRetrieve: 'name',
+            fieldSend: 'routing_id',
+            messageRegex:
+              'test/(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
+            namedSegment: '(?<routing_id>projects/[^/]+/databases/[^/]+)',
+          },
+          {
+            fieldRetrieve: 'name',
+            fieldSend: 'routing_id',
+            messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
+            namedSegment: '(?<routing_id>projects/[^/]+)',
+          },
+        ],
         [
           {
             fieldRetrieve: 'app_profile_id',
             fieldSend: 'profile_id',
             messageRegex: '(?<profile_id>projects)/[^/]+(?:/.*)?',
             namedSegment: '(?<profile_id>projects/[^/]+)',
-          }]
+          },
+        ],
       ];
       assert.deepStrictEqual(
         expectedRoutingParameters,
@@ -238,13 +257,12 @@ describe('src/schema/proto.ts', () => {
         field: 'name',
         pathTemplate: 'test/database',
       };
-      const expectedRoutingParameters: DynamicRoutingParameters =
-        {
-          fieldRetrieve: "",
-          fieldSend: "",
-          messageRegex: "",
-          namedSegment: "",
-        };
+      const expectedRoutingParameters: DynamicRoutingParameters = {
+        fieldRetrieve: '',
+        fieldSend: '',
+        messageRegex: '',
+        namedSegment: '',
+      };
       assert.deepStrictEqual(
         expectedRoutingParameters,
         getSingleRoutingHeaderParam(routingRule)
@@ -252,13 +270,12 @@ describe('src/schema/proto.ts', () => {
     });
     it('works with no parameters', () => {
       const routingRule: protos.google.api.IRoutingParameter = {};
-      const expectedRoutingParameters: DynamicRoutingParameters =
-        {
-          fieldRetrieve: "",
-          fieldSend: "",
-          messageRegex: "",
-          namedSegment: "",
-        };
+      const expectedRoutingParameters: DynamicRoutingParameters = {
+        fieldRetrieve: '',
+        fieldSend: '',
+        messageRegex: '',
+        namedSegment: '',
+      };
       assert.deepStrictEqual(
         expectedRoutingParameters,
         getSingleRoutingHeaderParam(routingRule)
@@ -268,13 +285,12 @@ describe('src/schema/proto.ts', () => {
       const routingRule: protos.google.api.IRoutingParameter = {
         field: 'name',
       };
-      const expectedRoutingParameters: DynamicRoutingParameters =
-        {
-          fieldRetrieve: "name",
-          fieldSend: "name",
-          messageRegex: "[^/]+",
-          namedSegment: "[^/]+",
-        };
+      const expectedRoutingParameters: DynamicRoutingParameters = {
+        fieldRetrieve: 'name',
+        fieldSend: 'name',
+        messageRegex: '[^/]+',
+        namedSegment: '[^/]+',
+      };
       assert.deepStrictEqual(
         expectedRoutingParameters,
         getSingleRoutingHeaderParam(routingRule)
@@ -285,13 +301,12 @@ describe('src/schema/proto.ts', () => {
         field: 'app_profile_id',
         pathTemplate: '{routing_id=**}',
       };
-      const expectedRoutingParameters: DynamicRoutingParameters =
-        {
+      const expectedRoutingParameters: DynamicRoutingParameters = {
         fieldRetrieve: 'app_profile_id',
         fieldSend: 'routing_id',
         messageRegex: '(?<routing_id>(?:/.*)?)',
         namedSegment: '(?<routing_id>.*)',
-        };
+      };
       assert.deepStrictEqual(
         expectedRoutingParameters,
         getSingleRoutingHeaderParam(routingRule)
@@ -302,13 +317,12 @@ describe('src/schema/proto.ts', () => {
         field: 'app_profile_id',
         pathTemplate: '{routing_id=projects/*}/**',
       };
-      const expectedRoutingParameters: DynamicRoutingParameters =
-        {
+      const expectedRoutingParameters: DynamicRoutingParameters = {
         fieldRetrieve: 'app_profile_id',
         fieldSend: 'routing_id',
         messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
         namedSegment: '(?<routing_id>projects/[^/]+)',
-        };
+      };
       assert.deepStrictEqual(
         expectedRoutingParameters,
         getSingleRoutingHeaderParam(routingRule)

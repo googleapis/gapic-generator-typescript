@@ -64,7 +64,7 @@ interface MethodDescriptorProto
   // if true, then send either headerRequestParams or dynamicRoutingRequestParams. If false, then do not set a header at all.
   sendHeaderRequestParams: boolean;
   // if there are multiple parameters to be sent in the dynamic routing header or multiple routing annotations, then this will be an array of DynamicRoutingParameters,
-  // where the first array of DynamicRoutingParameters is the set of information for the first annotation to attempt to find a match for the first parameter, 
+  // where the first array of DynamicRoutingParameters is the set of information for the first annotation to attempt to find a match for the first parameter,
   // and the second array DynamicRoutingParameters is the set of information for the second annotation to attempt to find
   // a match for the second parameter, and so forth.
   dynamicRoutingRequestParams: DynamicRoutingParameters[][];
@@ -537,17 +537,26 @@ function augmentMethod(
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
   }
   const methodDynamicRouting = method.options?.['.google.api.routing'];
-  const methodDynamicRoutingParameters = methodDynamicRouting?.routingParameters;
+  const methodDynamicRoutingParameters =
+    methodDynamicRouting?.routingParameters;
   // If the dynamic routing annotation exists and is non-empty, then use it.
-  if (methodDynamicRouting && methodDynamicRoutingParameters && methodDynamicRoutingParameters.length > 0) {
+  if (
+    methodDynamicRouting &&
+    methodDynamicRoutingParameters &&
+    methodDynamicRoutingParameters.length > 0
+  ) {
     method.sendHeaderRequestParams = true;
     method.useDynamicRoutingHeader = true;
     method.dynamicRoutingRequestParams = getDynamicHeaderRequestParams(
-        methodDynamicRoutingParameters
-      );
+      methodDynamicRoutingParameters
+    );
   }
   // If the dynamic routing annotation exists but is empty, then do not send a header at all.
-  else if (methodDynamicRouting && methodDynamicRoutingParameters && methodDynamicRoutingParameters.length < 1) {
+  else if (
+    methodDynamicRouting &&
+    methodDynamicRoutingParameters &&
+    methodDynamicRoutingParameters.length < 1
+  ) {
     method.sendHeaderRequestParams = false;
   }
   // If the dynamic routing annotation does not exist, keep current implicit header generation.
@@ -617,46 +626,48 @@ export function getDynamicHeaderRequestParams(
   const params: DynamicRoutingParameters[][] = [[]];
   let countOfParameters = 0;
   rules.forEach((rule, index) => {
-      // Add the first rule to the first array
-      if(index == 0){
-        params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
-      }
-      // If the 'fieldSend' is the same as the previous rule, then add it to the same array. Otherwise, start a new array. 
-      // Add newer items to front of array due to "last one wins" rule.
-      else if(getSingleRoutingHeaderParam(rule).fieldSend == getSingleRoutingHeaderParam(rules[index - 1]).fieldSend){
-        params[countOfParameters].unshift(getSingleRoutingHeaderParam(rule));
-      }
-      else{
-        countOfParameters++;
-        params[countOfParameters] = [];
-        params[countOfParameters].unshift(getSingleRoutingHeaderParam(rule));
-      }
-    })
+    // Add the first rule to the first array
+    if (index === 0) {
+      params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
+    }
+    // If the 'fieldSend' is the same as the previous rule, then add it to the same array. Otherwise, start a new array.
+    // Add newer items to front of array due to "last one wins" rule.
+    else if (
+      getSingleRoutingHeaderParam(rule).fieldSend ===
+      getSingleRoutingHeaderParam(rules[index - 1]).fieldSend
+    ) {
+      params[countOfParameters].unshift(getSingleRoutingHeaderParam(rule));
+    } else {
+      countOfParameters++;
+      params[countOfParameters] = [];
+      params[countOfParameters].unshift(getSingleRoutingHeaderParam(rule));
+    }
+  });
   return params;
 }
-  
-  // This is what each routing annotation is translated into. fieldRetrive is the name of the
-  // field the header should retrieve from the message. fieldSend is the name of the field the header should send.
-  // messageRegex is the regex of the path template that the message field should match.
-  // namedSegment is the regex capture of the named value of the field.
-  export interface DynamicRoutingParameters{
-    fieldRetrieve: string,
-    fieldSend: string,
-    messageRegex: string,
-    namedSegment: string,
-  }
 
-  // This parses a single Routing Parameter and returns a MapRoutingParameters interface.
-  export function getSingleRoutingHeaderParam(
-    rule: protos.google.api.IRoutingParameter
-  ): DynamicRoutingParameters {
-    let dynamicRoutingRule: DynamicRoutingParameters = {
-      fieldRetrieve: "",
-      fieldSend: "",
-      messageRegex: "",
-      namedSegment: "",
-    }
-    // If routing parameters are empty, then return empty interface
+// This is what each routing annotation is translated into. fieldRetrive is the name of the
+// field the header should retrieve from the message. fieldSend is the name of the field the header should send.
+// messageRegex is the regex of the path template that the message field should match.
+// namedSegment is the regex capture of the named value of the field.
+export interface DynamicRoutingParameters {
+  fieldRetrieve: string;
+  fieldSend: string;
+  messageRegex: string;
+  namedSegment: string;
+}
+
+// This parses a single Routing Parameter and returns a MapRoutingParameters interface.
+export function getSingleRoutingHeaderParam(
+  rule: protos.google.api.IRoutingParameter
+): DynamicRoutingParameters {
+  let dynamicRoutingRule: DynamicRoutingParameters = {
+    fieldRetrieve: '',
+    fieldSend: '',
+    messageRegex: '',
+    namedSegment: '',
+  };
+  // If routing parameters are empty, then return empty interface
   if (!rule.field) {
     return dynamicRoutingRule;
   } else if (!rule.pathTemplate) {
@@ -665,20 +676,19 @@ export function getDynamicHeaderRequestParams(
       fieldRetrieve: rule.field,
       fieldSend: rule.field,
       messageRegex: '[^/]+',
-      namedSegment: '[^/]+'
-    }
+      namedSegment: '[^/]+',
+    };
   }
   // If the annotation is malformed, then return empty interface
-  else if (getNamedSegment(rule.pathTemplate).length < 1){
+  else if (getNamedSegment(rule.pathTemplate).length < 1) {
     return dynamicRoutingRule;
-  } 
-  else {
+  } else {
     dynamicRoutingRule = {
       fieldRetrieve: rule.field,
       fieldSend: getNamedSegment(rule.pathTemplate)[1],
       messageRegex: convertTemplateToRegex(rule.pathTemplate),
-      namedSegment: getNamedSegment(rule.pathTemplate)[3]
-    }
+      namedSegment: getNamedSegment(rule.pathTemplate)[3],
+    };
   }
   return dynamicRoutingRule;
 }

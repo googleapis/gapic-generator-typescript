@@ -168,8 +168,8 @@ describe('Baseline tests', () => {
     diregapic: true,
   });
 
-   // Adding new baseline test to test routing annotation
-   runBaselineTest({
+  // Adding new baseline test to test routing annotation
+  runBaselineTest({
     baselineName: 'routingtest',
     outputDir: '.test-out-routingtest',
     protoPath: 'google/routingtest/v1/*.proto',
