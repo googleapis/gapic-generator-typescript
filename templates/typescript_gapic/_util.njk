@@ -290,24 +290,10 @@ request.{{ oneComment.paramName.toCamelCase() }}
 
 {%- macro buildHeaderRequestParam(method) -%}
     options = options || {};
-{#-If dynamic routing annotation does not exist, then send implicit header-#}
-{%- if method.sendHeaderRequestParams and not method.useDynamicRoutingHeader -%}
-{%- if method.headerRequestParams.length > 0 %}
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    options.otherArgs.headers[
-      'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-{%- for requestParam in method.headerRequestParams %}
-      '{{ requestParam.toSnakeCaseString(".") }}': request.{{ requestParam.toCamelCaseString("!.") }} || '',
-{%- endfor %}
-    });
-{%- endif %}
-{%- endif %}
 {#-If dynamic routing annotation exists and is non empty, then send dynamic routing header-#}
-{%- if method.sendHeaderRequestParams and method.useDynamicRoutingHeader -%}    
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
+{%- if method.dynamicRoutingRequestParams.length > 0 -%}
     let routingParameter = {};
 {%- for paramArray in method.dynamicRoutingRequestParams %}
   {%- for sameParamArray in paramArray %}
@@ -324,10 +310,14 @@ request.{{ oneComment.paramName.toCamelCase() }}
             routingParameter
           );
 {%- endif %}
-{#-If dynamic routing annotation exists and is empty, then do not send a routing header-#}
-{%- if not method.sendHeaderRequestParams -%}
-    options.otherArgs = options.otherArgs || {};
-    options.otherArgs.headers = options.otherArgs.headers || {};
+{%- if method.headerRequestParams.length > 0 %}
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams({
+{%- for requestParam in method.headerRequestParams %}
+      '{{ requestParam.toSnakeCaseString(".") }}': request.{{ requestParam.toCamelCaseString("!.") }} || '',
+{%- endfor %}
+    });
 {%- endif %}
 {%- endmacro -%}
 

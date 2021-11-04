@@ -59,10 +59,6 @@ interface MethodDescriptorProto
   // into x-goog-request-params header, the array will contain
   // [ ['request', 'foo'], ['request', 'bar']]
   headerRequestParams: string[][];
-  // if true, use the dynamicRoutingRequestParams. If false, use headerRequestParams.
-  useDynamicRoutingHeader: boolean;
-  // if true, then send either headerRequestParams or dynamicRoutingRequestParams. If false, then do not set a header at all.
-  sendHeaderRequestParams: boolean;
   // if there are multiple parameters to be sent in the dynamic routing header or multiple routing annotations, then this will be an array of DynamicRoutingParameters,
   // where the first array of DynamicRoutingParameters is the set of information for the first annotation to attempt to find a match for the first parameter,
   // and the second array DynamicRoutingParameters is the set of information for the second annotation to attempt to find
@@ -539,32 +535,19 @@ function augmentMethod(
   const methodDynamicRouting = method.options?.['.google.api.routing'];
   const methodDynamicRoutingParameters =
     methodDynamicRouting?.routingParameters;
-  // If the dynamic routing annotation exists and is non-empty, then use it.
-  if (
-    methodDynamicRouting &&
+  // If dynamic routing annotation doesn't exist, then send implicitly generated headers.
+  if (!methodDynamicRouting) {
+    method.headerRequestParams = getHeaderRequestParams(
+      method.options?.['.google.api.http']
+    );
+  }
+  // If dynamic routing annotation exists and is non-empty, then send dynamic routing headers.
+  else if (
     methodDynamicRoutingParameters &&
     methodDynamicRoutingParameters.length > 0
   ) {
-    method.sendHeaderRequestParams = true;
-    method.useDynamicRoutingHeader = true;
     method.dynamicRoutingRequestParams = getDynamicHeaderRequestParams(
       methodDynamicRoutingParameters
-    );
-  }
-  // If the dynamic routing annotation exists but is empty, then do not send a header at all.
-  else if (
-    methodDynamicRouting &&
-    methodDynamicRoutingParameters &&
-    methodDynamicRoutingParameters.length < 1
-  ) {
-    method.sendHeaderRequestParams = false;
-  }
-  // If the dynamic routing annotation does not exist, keep current implicit header generation.
-  else {
-    method.sendHeaderRequestParams = true;
-    method.useDynamicRoutingHeader = false;
-    method.headerRequestParams = getHeaderRequestParams(
-      method.options?.['.google.api.http']
     );
   }
   // protobuf.js redefines .toJSON to serialize only known fields,
