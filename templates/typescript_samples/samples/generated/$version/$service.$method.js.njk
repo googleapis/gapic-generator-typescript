@@ -13,6 +13,8 @@
 // limitations under the License.
 
 {% import "./_util.njk" as util%}
+{% import "./_namer.njk" as namer -%}
+{{- namer.initialize(id, service) -}}
 'use strict';
 {%- set commentsMap = method.paramComment -%}
 {% set filteredComments = [] %}
@@ -24,13 +26,13 @@
 
 function main({%- for comment in filteredComments -%}
     {%- if loop.first and loop.last -%}
-    {{  comment.paramName.toCamelCase() }}
+    {{  id.get(comment.paramName.toCamelCase()) }}
     {%- elif loop.first -%}
-    {{  comment.paramName.toCamelCase() }},
+    {{  id.get(comment.paramName.toCamelCase()) }},
     {%- elif loop.last -%}
-    {{ " " }}{{  comment.paramName.toCamelCase() }}
+    {{ " " }}{{  id.get(comment.paramName.toCamelCase()) }}
     {%- else -%}
-    {{ " " }}{{  comment.paramName.toCamelCase() }},
+    {{ " " }}{{  id.get(comment.paramName.toCamelCase()) }},
     {%- endif -%}
     {% endfor %}) {
   // [START {{ api.hostName.split(".")[0] }}_{{ api.naming.version }}_generated_{{ service.name }}_{{ method.name }}_async]
@@ -45,13 +47,13 @@ function main({%- for comment in filteredComments -%}
   // Instantiates a client
   const {{ (api.naming.productName).toCamelCase() }}Client = new {{ service.name.toPascalCase() }}Client();
 
-  async function {{ method.name.toCamelCase() }}() {
+  async function {{ id.get('call'+method.name.toPascalCase()) }}() {
     // Construct request
     const request = {
     {%- set commentsMap = method.paramComment -%}
     {%- for oneComment in commentsMap -%}
     {%- if oneComment.fieldBehavior and oneComment.fieldBehavior !== 1 -%}
-    {{ "\n  " }}{{  oneComment.paramName.toCamelCase() | indent(4, true) }},
+    {{ "\n  " }}{{  id.get(oneComment.paramName.toCamelCase()) | indent(4, true) }},
     {%- endif -%}
     {% endfor %}
     };
@@ -100,7 +102,7 @@ function main({%- for comment in filteredComments -%}
     console.log(response);
   }
 {% endif %}
-  {{ method.name.toCamelCase() }}();
+  {{ id.get('call'+method.name.toPascalCase()) }}();
   // [END {{ api.hostName.split(".")[0] }}_{{ api.naming.version }}_generated_{{ service.name }}_{{ method.name }}_async]
 }
 

@@ -32,7 +32,7 @@ function main(name) {
   // Instantiates a client
   const tasksClient = new CloudTasksClient();
 
-  async function resumeQueue() {
+  async function callResumeQueue() {
     // Construct request
     const request = {
       name,
@@ -43,7 +43,7 @@ function main(name) {
     console.log(response);
   }
 
-  resumeQueue();
+  callResumeQueue();
   // [END cloudtasks_v2_generated_CloudTasks_ResumeQueue_async]
 }
 

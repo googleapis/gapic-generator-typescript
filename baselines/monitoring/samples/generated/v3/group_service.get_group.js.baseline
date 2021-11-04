@@ -32,7 +32,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new GroupServiceClient();
 
-  async function getGroup() {
+  async function callGetGroup() {
     // Construct request
     const request = {
       name,
@@ -43,7 +43,7 @@ function main(name) {
     console.log(response);
   }
 
-  getGroup();
+  callGetGroup();
   // [END monitoring_v3_generated_GroupService_GetGroup_async]
 }
 

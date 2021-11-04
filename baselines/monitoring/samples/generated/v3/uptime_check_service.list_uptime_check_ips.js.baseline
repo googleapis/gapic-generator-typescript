@@ -42,7 +42,7 @@ function main() {
   // Instantiates a client
   const monitoringClient = new UptimeCheckServiceClient();
 
-  async function listUptimeCheckIps() {
+  async function callListUptimeCheckIps() {
     // Construct request
     const request = {
     };
@@ -54,7 +54,7 @@ function main() {
     }
   }
 
-  listUptimeCheckIps();
+  callListUptimeCheckIps();
   // [END monitoring_v3_generated_UptimeCheckService_ListUptimeCheckIps_async]
 }
 

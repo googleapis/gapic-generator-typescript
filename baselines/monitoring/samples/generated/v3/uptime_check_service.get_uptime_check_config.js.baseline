@@ -32,7 +32,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new UptimeCheckServiceClient();
 
-  async function getUptimeCheckConfig() {
+  async function callGetUptimeCheckConfig() {
     // Construct request
     const request = {
       name,
@@ -43,7 +43,7 @@ function main(name) {
     console.log(response);
   }
 
-  getUptimeCheckConfig();
+  callGetUptimeCheckConfig();
   // [END monitoring_v3_generated_UptimeCheckService_GetUptimeCheckConfig_async]
 }
 

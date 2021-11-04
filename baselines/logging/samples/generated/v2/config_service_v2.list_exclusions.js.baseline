@@ -48,7 +48,7 @@ function main(parent) {
   // Instantiates a client
   const loggingClient = new ConfigServiceV2Client();
 
-  async function listExclusions() {
+  async function callListExclusions() {
     // Construct request
     const request = {
       parent,
@@ -61,7 +61,7 @@ function main(parent) {
     }
   }
 
-  listExclusions();
+  callListExclusions();
   // [END logging_v2_generated_ConfigServiceV2_ListExclusions_async]
 }
 

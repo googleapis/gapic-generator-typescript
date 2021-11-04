@@ -32,7 +32,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new ServiceMonitoringServiceClient();
 
-  async function getService() {
+  async function callGetService() {
     // Construct request
     const request = {
       name,
@@ -43,7 +43,7 @@ function main(name) {
     console.log(response);
   }
 
-  getService();
+  callGetService();
   // [END monitoring_v3_generated_ServiceMonitoringService_GetService_async]
 }
 

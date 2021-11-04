@@ -39,7 +39,7 @@ function main(name) {
   // Instantiates a client
   const loggingClient = new ConfigServiceV2Client();
 
-  async function getCmekSettings() {
+  async function callGetCmekSettings() {
     // Construct request
     const request = {
       name,
@@ -50,7 +50,7 @@ function main(name) {
     console.log(response);
   }
 
-  getCmekSettings();
+  callGetCmekSettings();
   // [END logging_v2_generated_ConfigServiceV2_GetCmekSettings_async]
 }
 

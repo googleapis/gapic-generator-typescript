@@ -31,7 +31,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new NotificationChannelServiceClient();
 
-  async function sendNotificationChannelVerificationCode() {
+  async function callSendNotificationChannelVerificationCode() {
     // Construct request
     const request = {
       name,
@@ -42,7 +42,7 @@ function main(name) {
     console.log(response);
   }
 
-  sendNotificationChannelVerificationCode();
+  callSendNotificationChannelVerificationCode();
   // [END monitoring_v3_generated_NotificationChannelService_SendNotificationChannelVerificationCode_async]
 }
 
