@@ -20,6 +20,10 @@ import {
   seconds,
   milliseconds,
   isDigit,
+  checkIfArrayContainsOnlyOneNamedSegment,
+  convertSegmentToRegex,
+  convertTemplateToRegex,
+  getNamedSegment,
 } from '../../src/util';
 import * as protos from '../../../protos';
 
@@ -416,6 +420,171 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(isDigit('0b110100'), false);
       assert.deepStrictEqual(isDigit('Infinity'), false);
       assert.deepStrictEqual(isDigit('-Infinity'), false);
+    });
+  });
+
+  describe('Array check', () => {
+    it('should get return true if an array of strings contains exactly one named segment', () => {
+      assert.deepStrictEqual(
+        checkIfArrayContainsOnlyOneNamedSegment(['database=projects', 'foo']),
+        true
+      );
+      assert.deepStrictEqual(
+        checkIfArrayContainsOnlyOneNamedSegment([
+          'database',
+          '123',
+          'pho123=yummy234',
+        ]),
+        true
+      );
+      assert.deepStrictEqual(
+        checkIfArrayContainsOnlyOneNamedSegment(['=projects', 'foo']),
+        false
+      );
+      assert.deepStrictEqual(
+        checkIfArrayContainsOnlyOneNamedSegment(['projects', 'foo=']),
+        false
+      );
+      assert.deepStrictEqual(
+        checkIfArrayContainsOnlyOneNamedSegment(['projects', 'foo=*']),
+        true
+      );
+      assert.deepStrictEqual(
+        checkIfArrayContainsOnlyOneNamedSegment([
+          'database=projects',
+          'foo=bar',
+          'cat',
+        ]),
+        false
+      );
+      assert.deepStrictEqual(
+        checkIfArrayContainsOnlyOneNamedSegment([
+          'database=projects',
+          'foo=*',
+          'cat',
+        ]),
+        false
+      );
+      assert.deepStrictEqual(
+        checkIfArrayContainsOnlyOneNamedSegment([
+          'database=projects',
+          'foo=**',
+          'cat',
+        ]),
+        false
+      );
+      assert.deepStrictEqual(
+        checkIfArrayContainsOnlyOneNamedSegment(['{database}', 'cat']),
+        true
+      );
+    });
+  });
+  describe('Strings to regex', () => {
+    it('should get convert a path template segment into regex', () => {
+      assert.deepStrictEqual(convertSegmentToRegex('{foo}'), '(?<foo>[^/]+)');
+      assert.deepStrictEqual(convertSegmentToRegex('{foo=*}'), '(?<foo>[^/]+)');
+      assert.deepStrictEqual(
+        convertSegmentToRegex('{foo=**}'),
+        '(?<foo>(?:/.*)?)'
+      );
+      assert.deepStrictEqual(convertSegmentToRegex('{foo=bar}'), '(?<foo>bar)');
+      assert.deepStrictEqual(convertSegmentToRegex('{foo=bar'), '(?<foo>bar)');
+      assert.deepStrictEqual(convertSegmentToRegex('*'), '[^/]+');
+      assert.deepStrictEqual(convertSegmentToRegex('*}'), '[^/]+');
+      assert.deepStrictEqual(convertSegmentToRegex('**'), '(?:/.*)?');
+      assert.deepStrictEqual(convertSegmentToRegex('foo'), 'foo');
+    });
+  });
+
+  describe('Path template to regex', () => {
+    it('should get convert a full path template into regex', () => {
+      assert.deepStrictEqual(convertTemplateToRegex('{foo}'), '(?<foo>[^/]+)');
+      assert.deepStrictEqual(
+        convertTemplateToRegex('{foo=*}'),
+        '(?<foo>[^/]+)'
+      );
+      assert.deepStrictEqual(
+        convertTemplateToRegex('{foo=**}'),
+        '(?<foo>(?:/.*)?)'
+      );
+      assert.deepStrictEqual(
+        convertTemplateToRegex('{foo=bar}'),
+        '(?<foo>bar)'
+      );
+      assert.deepStrictEqual(convertTemplateToRegex('{foo=bar'), '(?<foo>bar)');
+      assert.deepStrictEqual(convertTemplateToRegex('*'), '[^/]+');
+      assert.deepStrictEqual(convertTemplateToRegex('*}'), '[^/]+');
+      assert.deepStrictEqual(convertTemplateToRegex('**'), '(?:/.*)?');
+      assert.deepStrictEqual(
+        convertTemplateToRegex(
+          'test/{database=projects/*/databases/*}/documents/*/**'
+        ),
+        'test/(?<database>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?'
+      );
+      assert.deepStrictEqual(
+        convertTemplateToRegex(
+          '{database=projects/*/databases/*}/documents/*/**'
+        ),
+        '(?<database>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?'
+      );
+      assert.deepStrictEqual(
+        convertTemplateToRegex(
+          '{new_name_match=projects/*/instances/*/tables/*}'
+        ),
+        '(?<new_name_match>projects)/[^/]+/instances/[^/]+/tables/[^/]+'
+      );
+      assert.deepStrictEqual(
+        convertTemplateToRegex('{routing_id=projects/*}/**'),
+        '(?<routing_id>projects)/[^/]+(?:/.*)?'
+      );
+      assert.deepStrictEqual(
+        convertTemplateToRegex('profiles/{routing_id=*}'),
+        'profiles/(?<routing_id>[^/]+)'
+      );
+    });
+  });
+
+  describe('Path template matching', () => {
+    it('should get the named segment information from a full path template', () => {
+      assert.deepStrictEqual(
+        getNamedSegment('{database=projects/*/databases/*}/documents/*/**'),
+        [
+          'database=projects/*/databases/*',
+          'database',
+          'projects/*/databases/*',
+          '(?<database>projects/[^/]+/databases/[^/]+)',
+        ]
+      );
+      assert.deepStrictEqual(
+        getNamedSegment('test/{table=projects/*/databases/*}/documents/*/**'),
+        [
+          'table=projects/*/databases/*',
+          'table',
+          'projects/*/databases/*',
+          '(?<table>projects/[^/]+/databases/[^/]+)',
+        ]
+      );
+      assert.deepStrictEqual(getNamedSegment('{routing_id=**}'), [
+        'routing_id=**',
+        'routing_id',
+        '**',
+        '(?<routing_id>.*)',
+      ]);
+      assert.deepStrictEqual(getNamedSegment('{database}'), [
+        'database',
+        'database',
+        '*',
+        '[^/]+',
+      ]);
+      it('should return an empty array if the path template does not contain exactly one named segment', () => {
+        assert.deepStrictEqual(getNamedSegment('test/database'), []);
+        assert.deepStrictEqual(
+          getNamedSegment(
+            'test/{database=projects/*/databases/*}/documents/*/**/{hello=world}'
+          ),
+          []
+        );
+      });
     });
   });
 });
