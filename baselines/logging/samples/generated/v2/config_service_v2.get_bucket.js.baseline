@@ -37,7 +37,7 @@ function main(name) {
   // Instantiates a client
   const loggingClient = new ConfigServiceV2Client();
 
-  async function getBucket() {
+  async function callGetBucket() {
     // Construct request
     const request = {
       name,
@@ -48,7 +48,7 @@ function main(name) {
     console.log(response);
   }
 
-  getBucket();
+  callGetBucket();
   // [END logging_v2_generated_ConfigServiceV2_GetBucket_async]
 }
 

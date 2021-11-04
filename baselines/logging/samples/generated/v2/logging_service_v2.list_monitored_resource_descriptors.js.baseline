@@ -40,7 +40,7 @@ function main() {
   // Instantiates a client
   const loggingClient = new LoggingServiceV2Client();
 
-  async function listMonitoredResourceDescriptors() {
+  async function callListMonitoredResourceDescriptors() {
     // Construct request
     const request = {
     };
@@ -52,7 +52,7 @@ function main() {
     }
   }
 
-  listMonitoredResourceDescriptors();
+  callListMonitoredResourceDescriptors();
   // [END logging_v2_generated_LoggingServiceV2_ListMonitoredResourceDescriptors_async]
 }
 

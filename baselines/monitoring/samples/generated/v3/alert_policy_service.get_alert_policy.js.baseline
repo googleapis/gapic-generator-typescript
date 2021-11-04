@@ -32,7 +32,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new AlertPolicyServiceClient();
 
-  async function getAlertPolicy() {
+  async function callGetAlertPolicy() {
     // Construct request
     const request = {
       name,
@@ -43,7 +43,7 @@ function main(name) {
     console.log(response);
   }
 
-  getAlertPolicy();
+  callGetAlertPolicy();
   // [END monitoring_v3_generated_AlertPolicyService_GetAlertPolicy_async]
 }
 

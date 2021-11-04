@@ -31,7 +31,7 @@ function main(name) {
   // Instantiates a client
   const dlpClient = new DlpServiceClient();
 
-  async function getDlpJob() {
+  async function callGetDlpJob() {
     // Construct request
     const request = {
       name,
@@ -42,7 +42,7 @@ function main(name) {
     console.log(response);
   }
 
-  getDlpJob();
+  callGetDlpJob();
   // [END dlp_v2_generated_DlpService_GetDlpJob_async]
 }
 

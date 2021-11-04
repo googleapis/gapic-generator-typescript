@@ -32,7 +32,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new UptimeCheckServiceClient();
 
-  async function deleteUptimeCheckConfig() {
+  async function callDeleteUptimeCheckConfig() {
     // Construct request
     const request = {
       name,
@@ -43,7 +43,7 @@ function main(name) {
     console.log(response);
   }
 
-  deleteUptimeCheckConfig();
+  callDeleteUptimeCheckConfig();
   // [END monitoring_v3_generated_UptimeCheckService_DeleteUptimeCheckConfig_async]
 }
 

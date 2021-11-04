@@ -32,7 +32,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new NotificationChannelServiceClient();
 
-  async function getNotificationChannel() {
+  async function callGetNotificationChannel() {
     // Construct request
     const request = {
       name,
@@ -43,7 +43,7 @@ function main(name) {
     console.log(response);
   }
 
-  getNotificationChannel();
+  callGetNotificationChannel();
   // [END monitoring_v3_generated_NotificationChannelService_GetNotificationChannel_async]
 }
 

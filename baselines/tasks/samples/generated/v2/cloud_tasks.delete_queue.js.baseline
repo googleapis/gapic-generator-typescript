@@ -32,7 +32,7 @@ function main(name) {
   // Instantiates a client
   const tasksClient = new CloudTasksClient();
 
-  async function deleteQueue() {
+  async function callDeleteQueue() {
     // Construct request
     const request = {
       name,
@@ -43,7 +43,7 @@ function main(name) {
     console.log(response);
   }
 
-  deleteQueue();
+  callDeleteQueue();
   // [END cloudtasks_v2_generated_CloudTasks_DeleteQueue_async]
 }
 

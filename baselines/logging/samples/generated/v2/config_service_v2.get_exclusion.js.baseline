@@ -36,7 +36,7 @@ function main(name) {
   // Instantiates a client
   const loggingClient = new ConfigServiceV2Client();
 
-  async function getExclusion() {
+  async function callGetExclusion() {
     // Construct request
     const request = {
       name,
@@ -47,7 +47,7 @@ function main(name) {
     console.log(response);
   }
 
-  getExclusion();
+  callGetExclusion();
   // [END logging_v2_generated_ConfigServiceV2_GetExclusion_async]
 }
 

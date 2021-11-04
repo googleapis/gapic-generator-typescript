@@ -37,7 +37,7 @@ function main(sinkName) {
   // Instantiates a client
   const loggingClient = new ConfigServiceV2Client();
 
-  async function deleteSink() {
+  async function callDeleteSink() {
     // Construct request
     const request = {
       sinkName,
@@ -48,7 +48,7 @@ function main(sinkName) {
     console.log(response);
   }
 
-  deleteSink();
+  callDeleteSink();
   // [END logging_v2_generated_ConfigServiceV2_DeleteSink_async]
 }
 
