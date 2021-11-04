@@ -32,7 +32,7 @@ function main(metricName) {
   // Instantiates a client
   const loggingClient = new MetricsServiceV2Client();
 
-  async function deleteLogMetric() {
+  async function callDeleteLogMetric() {
     // Construct request
     const request = {
       metricName,
@@ -43,7 +43,7 @@ function main(metricName) {
     console.log(response);
   }
 
-  deleteLogMetric();
+  callDeleteLogMetric();
   // [END logging_v2_generated_MetricsServiceV2_DeleteLogMetric_async]
 }
 

@@ -34,7 +34,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new MetricServiceClient();
 
-  async function deleteMetricDescriptor() {
+  async function callDeleteMetricDescriptor() {
     // Construct request
     const request = {
       name,
@@ -45,7 +45,7 @@ function main(name) {
     console.log(response);
   }
 
-  deleteMetricDescriptor();
+  callDeleteMetricDescriptor();
   // [END monitoring_v3_generated_MetricService_DeleteMetricDescriptor_async]
 }
 

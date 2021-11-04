@@ -33,7 +33,7 @@ function main(name) {
   // Instantiates a client
   const dlpClient = new DlpServiceClient();
 
-  async function deleteInspectTemplate() {
+  async function callDeleteInspectTemplate() {
     // Construct request
     const request = {
       name,
@@ -44,7 +44,7 @@ function main(name) {
     console.log(response);
   }
 
-  deleteInspectTemplate();
+  callDeleteInspectTemplate();
   // [END dlp_v2_generated_DlpService_DeleteInspectTemplate_async]
 }
 

@@ -31,7 +31,7 @@ function main(name) {
   // Instantiates a client
   const translationClient = new TranslationServiceClient();
 
-  async function getGlossary() {
+  async function callGetGlossary() {
     // Construct request
     const request = {
       name,
@@ -42,7 +42,7 @@ function main(name) {
     console.log(response);
   }
 
-  getGlossary();
+  callGetGlossary();
   // [END translate_v3beta1_generated_TranslationService_GetGlossary_async]
 }
 

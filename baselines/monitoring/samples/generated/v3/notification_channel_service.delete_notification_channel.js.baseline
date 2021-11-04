@@ -39,7 +39,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new NotificationChannelServiceClient();
 
-  async function deleteNotificationChannel() {
+  async function callDeleteNotificationChannel() {
     // Construct request
     const request = {
       name,
@@ -50,7 +50,7 @@ function main(name) {
     console.log(response);
   }
 
-  deleteNotificationChannel();
+  callDeleteNotificationChannel();
   // [END monitoring_v3_generated_NotificationChannelService_DeleteNotificationChannel_async]
 }
 

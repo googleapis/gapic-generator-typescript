@@ -38,7 +38,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new GroupServiceClient();
 
-  async function deleteGroup() {
+  async function callDeleteGroup() {
     // Construct request
     const request = {
       name,
@@ -49,7 +49,7 @@ function main(name) {
     console.log(response);
   }
 
-  deleteGroup();
+  callDeleteGroup();
   // [END monitoring_v3_generated_GroupService_DeleteGroup_async]
 }
 

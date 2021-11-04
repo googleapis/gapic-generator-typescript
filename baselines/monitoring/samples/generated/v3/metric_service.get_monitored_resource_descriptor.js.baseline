@@ -34,7 +34,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new MetricServiceClient();
 
-  async function getMonitoredResourceDescriptor() {
+  async function callGetMonitoredResourceDescriptor() {
     // Construct request
     const request = {
       name,
@@ -45,7 +45,7 @@ function main(name) {
     console.log(response);
   }
 
-  getMonitoredResourceDescriptor();
+  callGetMonitoredResourceDescriptor();
   // [END monitoring_v3_generated_MetricService_GetMonitoredResourceDescriptor_async]
 }
 

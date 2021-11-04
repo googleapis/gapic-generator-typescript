@@ -33,7 +33,7 @@ function main(name) {
   // Instantiates a client
   const redisClient = new CloudRedisClient();
 
-  async function getInstance() {
+  async function callGetInstance() {
     // Construct request
     const request = {
       name,
@@ -44,7 +44,7 @@ function main(name) {
     console.log(response);
   }
 
-  getInstance();
+  callGetInstance();
   // [END redis_v1beta1_generated_CloudRedis_GetInstance_async]
 }
 

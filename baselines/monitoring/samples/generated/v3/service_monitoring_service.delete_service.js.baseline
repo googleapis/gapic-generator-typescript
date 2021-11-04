@@ -32,7 +32,7 @@ function main(name) {
   // Instantiates a client
   const monitoringClient = new ServiceMonitoringServiceClient();
 
-  async function deleteService() {
+  async function callDeleteService() {
     // Construct request
     const request = {
       name,
@@ -43,7 +43,7 @@ function main(name) {
     console.log(response);
   }
 
-  deleteService();
+  callDeleteService();
   // [END monitoring_v3_generated_ServiceMonitoringService_DeleteService_async]
 }
 

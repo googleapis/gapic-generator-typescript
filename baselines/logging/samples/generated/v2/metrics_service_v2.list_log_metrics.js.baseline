@@ -45,7 +45,7 @@ function main(parent) {
   // Instantiates a client
   const loggingClient = new MetricsServiceV2Client();
 
-  async function listLogMetrics() {
+  async function callListLogMetrics() {
     // Construct request
     const request = {
       parent,
@@ -58,7 +58,7 @@ function main(parent) {
     }
   }
 
-  listLogMetrics();
+  callListLogMetrics();
   // [END logging_v2_generated_MetricsServiceV2_ListLogMetrics_async]
 }
 
