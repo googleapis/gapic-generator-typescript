@@ -290,9 +290,26 @@ request.{{ oneComment.paramName.toCamelCase() }}
 
 {%- macro buildHeaderRequestParam(method) -%}
     options = options || {};
-{%- if method.headerRequestParams.length > 0 %}
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
+{#-If dynamic routing annotation exists and is non empty, then send dynamic routing header-#}
+{%- if method.dynamicRoutingRequestParams.length > 0 -%}
+    let routingParameter = {};
+{%- for paramArray in method.dynamicRoutingRequestParams %}
+  {%- for sameParamArray in paramArray %}
+      if(RegExp('{{ sameParamArray.messageRegex | safe }}').test(request.{{ sameParamArray.fieldRetrieve }}!)){  
+        Object.assign(routingParameter, { {{ sameParamArray.fieldSend }}: request.{{ sameParamArray.fieldRetrieve }}!.match(RegExp('{{ sameParamArray.namedSegment | safe }}'))![0]})
+      } else
+  {%- endfor %}
+      {}
+{%- endfor %}  
+        options.otherArgs.headers[
+          'x-goog-request-params'
+          ] = gax.routingHeader.fromParams(
+            routingParameter
+          );
+{%- endif %}
+{%- if method.headerRequestParams.length > 0 %}
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
@@ -325,7 +342,7 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endmacro -%}
 
 {%- macro initRequestOptions(method) -%}
-{%- if method.headerRequestParams.length > 0 %}
+{%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -334,7 +351,7 @@ request.{{ oneComment.paramName.toCamelCase() }}
                 },
             };
 {%- else %}
-            const expectedOptions = {};
+            const expectedOptions = {otherArgs: {headers: {}}};;
 {%- endif %}
 {%- endmacro -%}
 

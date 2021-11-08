@@ -138,7 +138,7 @@ describe('v1.VideoIntelligenceServiceClient', () => {
         });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.videointelligence.v1.AnnotateVideoRequest());
-            const expectedOptions = {};
+            const expectedOptions = {otherArgs: {headers: {}}};;
             const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
             client.innerApiCalls.annotateVideo = stubLongRunningCall(expectedResponse);
             const [operation] = await client.annotateVideo(request);
@@ -155,7 +155,7 @@ describe('v1.VideoIntelligenceServiceClient', () => {
         });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.videointelligence.v1.AnnotateVideoRequest());
-            const expectedOptions = {};
+            const expectedOptions = {otherArgs: {headers: {}}};;
             const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
             client.innerApiCalls.annotateVideo = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -185,7 +185,7 @@ describe('v1.VideoIntelligenceServiceClient', () => {
         });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.videointelligence.v1.AnnotateVideoRequest());
-            const expectedOptions = {};
+            const expectedOptions = {otherArgs: {headers: {}}};;
             const expectedError = new Error('expected');
             client.innerApiCalls.annotateVideo = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.annotateVideo(request), expectedError);
@@ -200,7 +200,7 @@ describe('v1.VideoIntelligenceServiceClient', () => {
         });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.videointelligence.v1.AnnotateVideoRequest());
-            const expectedOptions = {};
+            const expectedOptions = {otherArgs: {headers: {}}};;
             const expectedError = new Error('expected');
             client.innerApiCalls.annotateVideo = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.annotateVideo(request);

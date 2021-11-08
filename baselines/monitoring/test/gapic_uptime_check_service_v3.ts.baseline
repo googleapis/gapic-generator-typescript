@@ -735,7 +735,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListUptimeCheckIpsRequest());
-            const expectedOptions = {};
+            const expectedOptions = {otherArgs: {headers: {}}};;
             const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckIp()),
               generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckIp()),
@@ -755,7 +755,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListUptimeCheckIpsRequest());
-            const expectedOptions = {};
+            const expectedOptions = {otherArgs: {headers: {}}};;
             const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckIp()),
               generateSampleMessage(new protos.google.monitoring.v3.UptimeCheckIp()),
@@ -786,7 +786,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListUptimeCheckIpsRequest());
-            const expectedOptions = {};
+            const expectedOptions = {otherArgs: {headers: {}}};;
             const expectedError = new Error('expected');
             client.innerApiCalls.listUptimeCheckIps = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listUptimeCheckIps(request), expectedError);
