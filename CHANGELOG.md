@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.10.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.9.0...v2.10.0) (2021-11-08)
+
+
+### Features
+
+* add dynamic routing to generated client ([#1042](https://www.github.com/googleapis/gapic-generator-typescript/issues/1042)) ([afe38bf](https://www.github.com/googleapis/gapic-generator-typescript/commit/afe38bf0b36e50240684e3806f7505c009611a3f))
+
+
+### Bug Fixes
+
+* naming collision on samples ([#1034](https://www.github.com/googleapis/gapic-generator-typescript/issues/1034)) ([b1e522e](https://www.github.com/googleapis/gapic-generator-typescript/commit/b1e522e3f6b65766836db9f12a00bf531d71ed35))
+* remove deprecated fields ([#1036](https://www.github.com/googleapis/gapic-generator-typescript/issues/1036)) ([dcdb895](https://www.github.com/googleapis/gapic-generator-typescript/commit/dcdb89599857db1715be3438a0a571ff3b05d6ce))
+* replace empty objects with curly brackets instead of strings ([#1041](https://www.github.com/googleapis/gapic-generator-typescript/issues/1041)) ([b6c3957](https://www.github.com/googleapis/gapic-generator-typescript/commit/b6c395725d7b0d01e0dbed211fafbaf5764f4171))
+
 ## [2.9.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.8.0...v2.9.0) (2021-11-01)
 
 
