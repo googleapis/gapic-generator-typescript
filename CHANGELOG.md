@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.10.0...v2.11.0) (2021-11-08)
+
+
+### Features
+
+* add example tags ([#1045](https://www.github.com/googleapis/gapic-generator-typescript/issues/1045)) ([c4466b9](https://www.github.com/googleapis/gapic-generator-typescript/commit/c4466b9d9da77c1690a6dec0e7b1687ec11b5dd3))
+
 ## [2.10.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.9.0...v2.10.0) (2021-11-08)
 
 
