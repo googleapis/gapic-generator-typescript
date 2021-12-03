@@ -26,6 +26,7 @@ export interface Options {
   serviceYaml?: ServiceYaml;
   rest?: boolean;
   diregapic?: boolean;
+  veneer?: boolean;
   legacyProtoLoad?: boolean;
 }
 
