@@ -37,7 +37,7 @@ export class API {
   packageName: string;
   rest?: boolean;
   diregapic?: boolean;
-  veneer?: boolean;
+  gapic_combo?: boolean;
   legacyProtoLoad: boolean;
 
   static isIgnoredService(
@@ -89,7 +89,7 @@ export class API {
     // users specify the actual package name, if not, set it to product name.
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
-    this.veneer = options.veneer ?? false;
+    this.gapic_combo = options.gapic_combo ?? false;
     this.rest = options.rest;
     this.diregapic = options.diregapic ?? false;
     this.legacyProtoLoad = options.legacyProtoLoad ?? false;
@@ -215,7 +215,7 @@ export class API {
       services: this.services,
       rest: this.rest,
       diregapic: this.diregapic,
-      veneer: this.veneer,
+      gapic_combo: this.gapic_combo,
       legacyProtoLoad: this.legacyProtoLoad,
     });
   }

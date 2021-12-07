@@ -72,7 +72,7 @@ export class Generator {
   // This is for services using mixin services (e.g. google.iam.v1.Policy).
   // As long as the mixin service is defined under 'apis' in the service yaml file, the generator will include it in the client library.
   serviceYaml?: ServiceYaml;
-  veneer?: boolean;
+  gapic_combo?: boolean;
   templates: string[];
   metadata?: boolean;
   rest?: boolean;
@@ -202,9 +202,9 @@ export class Generator {
     }
   }
 
-  private readVeneer() {
-    if (this.paramMap['veneer'] === 'true') {
-      this.veneer = true;
+  private readGapicCombo() {
+    if (this.paramMap['gapic_combo'] === 'true') {
+      this.gapic_combo = true;
     }
   }
 
@@ -229,7 +229,7 @@ export class Generator {
       this.readTemplates();
       this.readRest();
       this.readDiregapic();
-      this.readVeneer();
+      this.readGapicCombo();
       this.readLegacyProtoLoad();
     }
   }
@@ -270,7 +270,7 @@ export class Generator {
       serviceYaml: this.serviceYaml,
       rest: this.rest,
       diregapic: this.diregapic,
-      veneer: this.veneer,
+      gapic_combo: this.gapic_combo,
       legacyProtoLoad: this.legacyProtoLoad,
     });
     return api;

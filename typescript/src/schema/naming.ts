@@ -26,7 +26,7 @@ export interface Options {
   serviceYaml?: ServiceYaml;
   rest?: boolean;
   diregapic?: boolean;
-  veneer?: boolean;
+  gapic_combo?: boolean;
   legacyProtoLoad?: boolean;
 }
 

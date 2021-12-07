@@ -88,8 +88,8 @@ yargs.describe(
   'DIREGAPIC represents Discovery Rest GAPICs. Set to true for GCE API or non-gRPC APIs with a Discovery doc description.'
 );
 yargs.describe(
-  'veneer',
-  'Set to true if the library has a handwritten veneer over GAPIC layer.'
+  'gapic_combo',
+  'Set to true if the library has a handwritten gapic_combo over GAPIC layer.'
 );
 yargs.describe(
   'legacy_proto_load',
@@ -120,7 +120,7 @@ export interface IArguments {
   descriptor?: string;
   transport?: string;
   diregapic?: boolean;
-  veneer?: boolean;
+  gapic_combo?: boolean;
   legacyProtoLoad?: boolean;
   _: string[];
   $0: string;
@@ -139,7 +139,7 @@ const validation = (argv.validation as string | undefined) ?? 'true';
 const metadata = argv.metadata as boolean | undefined;
 const transport = argv.transport as string | undefined;
 const diregapic = argv.diregapic as boolean | undefined;
-const veneer = argv.veneer as boolean | undefined;
+const gapic_combo = argv.gapic_combo as boolean | undefined;
 const legacyProtoLoad = argv.legacyProtoLoad as boolean | undefined;
 
 // --protoc can be passed from BUILD.bazel and overridden from the command line
@@ -200,8 +200,8 @@ if (metadata) {
 if (diregapic) {
   protocCommand.push('--typescript_gapic_opt="diregapic"');
 }
-if (veneer) {
-  protocCommand.push('--typescript_gapic_opt="veneer"');
+if (gapic_combo) {
+  protocCommand.push('--typescript_gapic_opt="gapic_combo"');
 }
 if (transport && transport === 'rest') {
   protocCommand.push('--typescript_gapic_opt="transport=rest"');
