@@ -72,7 +72,7 @@ export class Generator {
   // This is for services using mixin services (e.g. google.iam.v1.Policy).
   // As long as the mixin service is defined under 'apis' in the service yaml file, the generator will include it in the client library.
   serviceYaml?: ServiceYaml;
-  gapic_combo?: boolean;
+  handwrittenLayer?: boolean;
   templates: string[];
   metadata?: boolean;
   rest?: boolean;
@@ -202,9 +202,9 @@ export class Generator {
     }
   }
 
-  private readGapicCombo() {
-    if (this.paramMap['gapic_combo'] === 'true') {
-      this.gapic_combo = true;
+  private readHandwrittenLayer() {
+    if (this.paramMap['handwritten-layer'] === 'true') {
+      this.handwrittenLayer = true;
     }
   }
 
@@ -229,7 +229,7 @@ export class Generator {
       this.readTemplates();
       this.readRest();
       this.readDiregapic();
-      this.readGapicCombo();
+      this.readHandwrittenLayer();
       this.readLegacyProtoLoad();
     }
   }
@@ -270,7 +270,7 @@ export class Generator {
       serviceYaml: this.serviceYaml,
       rest: this.rest,
       diregapic: this.diregapic,
-      gapic_combo: this.gapic_combo,
+      handwrittenLayer: this.handwrittenLayer,
       legacyProtoLoad: this.legacyProtoLoad,
     });
     return api;

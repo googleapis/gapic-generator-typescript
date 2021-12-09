@@ -26,7 +26,7 @@ def typescript_gapic_library(
   metadata = None,
   transport = None,
   diregapic = None,
-  gapic_combo = None,
+  handwritten_layer = None,
   legacy_proto_load = None,
   extra_protoc_parameters = [],
   extra_protoc_file_parameters = {},
@@ -43,8 +43,8 @@ def typescript_gapic_library(
     plugin_args_dict["transport"] = transport
   if diregapic:
     plugin_args_dict["diregapic"] = "true"
-  if gapic_combo:
-    plugin_args_dict["gapic_combo"] = "true"
+  if handwritten_layer:
+    plugin_args_dict["handwritten-layer"] = "true"
   if legacy_proto_load:
     plugin_args_dict["legacy-proto-load"] = "true"
 

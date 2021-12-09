@@ -26,7 +26,7 @@ export interface Options {
   serviceYaml?: ServiceYaml;
   rest?: boolean;
   diregapic?: boolean;
-  gapic_combo?: boolean;
+  handwrittenLayer?: boolean;
   legacyProtoLoad?: boolean;
 }
 
