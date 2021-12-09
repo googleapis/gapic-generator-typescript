@@ -133,7 +133,7 @@ $ bazel run //:gapic_generator_typescript -- \
     --grpc-service-config "$GOOGLEAPIS/google/cloud/translate/v3/translate_grpc_service_config.json" \
     --service-yaml "$GOOGLEAPIS/google/cloud/translate/v3/translate_v3.yaml" \
     `find "$GOOGLEAPIS/google/cloud/translate/v3" -name '*.proto'` \
-    "$GOOGLEAPIS/google/cloud/common_resources.proto"
+    "$GOOGLEAPIS/google/cloud/common_resources.proto" 
 ```
 
 Line by line:
