@@ -46,6 +46,7 @@ interface MethodDescriptorProto
   pagingFieldName: string | undefined;
   pagingResponseType?: string;
   pagingMapResponseType?: string;
+  ignorePagingMethod?: boolean;
   inputInterface: string;
   outputInterface: string;
   comments: string[];
@@ -316,6 +317,26 @@ function pagingResponseType(
   return '.google.protobuf.FieldDescriptorProto.Type.' + type;
 }
 
+// Ignore non-diregapic pagation method where its response type is a map.
+function ignorePagingMethod(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  diregapic?: boolean
+) {
+  const pagingfield = pagingField(messages, method, undefined, diregapic);
+  const outputType = messages[method.outputType!];
+  if (pagingfield?.type && outputType.nestedType && !diregapic) {
+    for (const desProto of outputType.nestedType) {
+      if (desProto.options && desProto.options.mapEntry) {
+        console.warn('---method.name:: ', method.name);
+        console.warn('---find map response');
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 // Support DIREGAPIC google-discovery API pagination response with map field.
 function pagingMapResponseType(
   messages: MessagesMap,
@@ -427,6 +448,11 @@ function augmentMethod(
         parameters.diregapic
       ),
       pagingMapResponseType: pagingMapResponseType(
+        parameters.allMessages,
+        method,
+        parameters.diregapic
+      ),
+      ignorePagingMethod: ignorePagingMethod(
         parameters.allMessages,
         method,
         parameters.diregapic
