@@ -46,7 +46,7 @@ interface MethodDescriptorProto
   pagingFieldName: string | undefined;
   pagingResponseType?: string;
   pagingMapResponseType?: string;
-  ignorePagingMethod?: boolean;
+  ignoreMapPagingMethod?: boolean;
   inputInterface: string;
   outputInterface: string;
   comments: string[];
@@ -318,7 +318,7 @@ function pagingResponseType(
 }
 
 // Ignore non-diregapic pagation method where its response type contains a map.
-function ignorePagingMethod(
+function ignoreMapPagingMethod(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   diregapic?: boolean
@@ -450,7 +450,7 @@ function augmentMethod(
         method,
         parameters.diregapic
       ),
-      ignorePagingMethod: ignorePagingMethod(
+      ignoreMapPagingMethod: ignoreMapPagingMethod(
         parameters.allMessages,
         method,
         parameters.diregapic
