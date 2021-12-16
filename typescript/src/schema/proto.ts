@@ -46,7 +46,7 @@ interface MethodDescriptorProto
   pagingFieldName: string | undefined;
   pagingResponseType?: string;
   pagingMapResponseType?: string;
-  ignoreMapPagingMethod?: boolean;
+  ignoreMapPagingMethod?: boolean | undefined;
   inputInterface: string;
   outputInterface: string;
   comments: string[];
@@ -325,11 +325,15 @@ function ignoreMapPagingMethod(
 ) {
   const pagingfield = pagingField(messages, method, undefined, diregapic);
   const outputType = messages[method.outputType!];
-  if (pagingfield?.type && outputType.nestedType && !diregapic) {
-    for (const desProto of outputType.nestedType) {
-      if (desProto.options && desProto.options.mapEntry) {
-        return true;
-      }
+  if (!pagingfield?.type || !outputType.nestedType) {
+    return undefined;
+  }
+  if (diregapic) {
+    return false;
+  }
+  for (const desProto of outputType.nestedType) {
+    if (desProto.options && desProto.options.mapEntry) {
+      return true;
     }
   }
   return false;
