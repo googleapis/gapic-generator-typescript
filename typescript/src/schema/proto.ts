@@ -317,7 +317,7 @@ function pagingResponseType(
   return '.google.protobuf.FieldDescriptorProto.Type.' + type;
 }
 
-// Ignore non-diregapic pagation method where its response type is a map.
+// Ignore non-diregapic pagation method where its response type contains a map.
 function ignorePagingMethod(
   messages: MessagesMap,
   method: MethodDescriptorProto,
@@ -328,8 +328,6 @@ function ignorePagingMethod(
   if (pagingfield?.type && outputType.nestedType && !diregapic) {
     for (const desProto of outputType.nestedType) {
       if (desProto.options && desProto.options.mapEntry) {
-        console.warn('---method.name:: ', method.name);
-        console.warn('---find map response');
         return true;
       }
     }
