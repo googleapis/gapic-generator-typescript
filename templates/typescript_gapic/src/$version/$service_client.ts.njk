@@ -243,9 +243,11 @@ export class {{ service.name }}Client {
     this.descriptors.page = {
 {%- set pagingJoiner = joiner() %}
 {%- for method in service.paging %}
+      {%- if not method.ignoreMapPagingMethod %}
       {{- pagingJoiner() }}
       {{ method.name.toCamelCase() }}:
           new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', '{{ method.pagingFieldName.toCamelCase() }}')
+      {%- endif %}
 {%- endfor %}
     };
 {%- endif %}
@@ -383,8 +385,10 @@ export class {{ service.name }}Client {
         [
 {%- set stubMethodsJoiner = joiner(', ') -%}
 {%- for method in service.method -%}
+      {%- if not method.ignoreMapPagingMethod %}
       {{- stubMethodsJoiner() -}}
       '{{ method.name.toCamelCase() }}'
+      {%- endif %}
 {%- endfor -%}
     ];
     for (const methodName of {{ service.name.toCamelCase() }}StubMethods) {
@@ -740,6 +744,7 @@ export class {{ service.name }}Client {
   }
 {%- endfor %}
 {%- for method in service.paging %}
+{%- if not method.ignoreMapPagingMethod %}
 {%- if not method.pagingMapResponseType %}
  /**
 {{- util.printComments(method, service, id.get(method.name.toCamelCase() + "Async")) }}
@@ -860,6 +865,7 @@ export class {{ service.name }}Client {
     ) as AsyncIterable<{{ util.toInterface(method.pagingResponseType) }}>;
     {%- endif %}
   }
+{%- endif %}
 {%- endfor %}
 {%- if service.IAMPolicyMixin > 0 %}
 {{ iam.iamServiceMethods()}}
