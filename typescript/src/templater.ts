@@ -20,6 +20,7 @@ import * as util from 'util';
 import * as protos from '../../protos';
 
 import {API} from './schema/api';
+import {ServiceDescriptorProto} from './schema/proto';
 
 interface Namer {
   register: (name: string, serviceName?: string) => string;
@@ -55,12 +56,84 @@ async function recursiveFileList(
   return result;
 }
 
+function createSnippetIndexMetadata(
+  api: API,
+  service: ServiceDescriptorProto,
+  relativeTemplateName: string
+): protos.google.cloud.tools.snippetgen.snippetindex.v1.IIndex {
+  const apis: protos.google.cloud.tools.snippetgen.snippetindex.v1.IApi[] = [];
+
+  api.services.forEach(x =>
+    apis.push({id: x.name, version: api.naming.version})
+  );
+  const clientLibrary: protos.google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary = {
+    name: `nodejs-${api.naming.productName.toKebabCase()}`,
+    version: '0.1.0',
+    language:
+      protos.google.cloud.tools.snippetgen.snippetindex.v1.Language.JAVASCRIPT,
+    apis,
+  };
+
+  const snippets = createSnippetMetadata(api, service, relativeTemplateName);
+  return {clientLibrary, snippets};
+}
+
+function createSnippetMetadata(
+  api: API,
+  service: ServiceDescriptorProto,
+  relativeTemplateName: string
+): protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] {
+  const snippets: protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] = [];
+
+  for (const method of service.method) {
+    const paramNameAndTypes: protos.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter[] = [];
+
+    method.paramComment?.forEach(x =>
+      paramNameAndTypes.push({name: x.paramName, type: x.paramType})
+    );
+    snippets.push({
+      regionTag: `${api.hostName?.split('.')[0]}_${
+        api.naming.version
+      }_generated_${service.name}_${method.name}_async`,
+      title: `${api.mainServiceName} ${method?.name?.toCamelCase()} Sample`,
+      description: method.comments.join(''),
+      canonical: api.handwrittenLayer ? true : false,
+      file: relativeTemplateName
+        .replace(/\$version/, api.naming.version)
+        .replace(/\.njk$/, '')
+        .replace(/\$method/, method.name!.toSnakeCase())
+        .replace(/\$service/, service.name!.toSnakeCase()),
+      language:
+        protos.google.cloud.tools.snippetgen.snippetindex.v1.Language
+          .JAVASCRIPT,
+      clientMethod: {
+        fullName: method.name,
+        async: true,
+        parameters: paramNameAndTypes,
+        resultType: method.outputType,
+        client: {
+          shortName: service.name,
+        },
+        method: {
+          shortName: method.name,
+          service: {
+            shortName: service.name,
+          },
+        },
+      },
+    });
+  }
+
+  return snippets;
+}
+
 function renderFile(
   targetFilename: string,
   templateName: string,
   renderParameters: {}
 ) {
   let processed = nunjucks.render(templateName, renderParameters);
+
   // Pretty-print generated JSON files
   if (targetFilename.match(/\.json$/i)) {
     try {
@@ -99,7 +172,27 @@ function processOneTemplate(
   // services.
   outputFilename = outputFilename.replace(/\$version/, api.naming.version);
 
-  if (outputFilename.match(/\$method/)) {
+  // CHeck to see if the outputFilename matches the snippet index
+  // then, build the object we have the proto interface for
+  // pass that object into the template as an argument
+  if (outputFilename.match(/snippet_metadata/)) {
+    for (const service of api.services) {
+      const pushFilename = outputFilename
+        .replace(/\.njk$/, '')
+        .replace(/\$service/, service.name!.toSnakeCase());
+
+      const jsonMetadata = createSnippetIndexMetadata(
+        api,
+        service,
+        pushFilename
+      );
+      const output = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+      output.name = pushFilename;
+      output.content = JSON.stringify(jsonMetadata, null, '  ') + '\n';
+
+      result.push(output);
+    }
+  } else if (outputFilename.match(/\$method/)) {
     for (const service of api.services) {
       for (const method of service.method) {
         const pushFilename = outputFilename

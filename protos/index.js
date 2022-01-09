@@ -19805,6 +19805,2965 @@
             return rpc;
         })();
     
+        google.cloud = (function() {
+    
+            /**
+             * Namespace cloud.
+             * @memberof google
+             * @namespace
+             */
+            var cloud = {};
+    
+            cloud.tools = (function() {
+    
+                /**
+                 * Namespace tools.
+                 * @memberof google.cloud
+                 * @namespace
+                 */
+                var tools = {};
+    
+                tools.snippetgen = (function() {
+    
+                    /**
+                     * Namespace snippetgen.
+                     * @memberof google.cloud.tools
+                     * @namespace
+                     */
+                    var snippetgen = {};
+    
+                    snippetgen.snippetindex = (function() {
+    
+                        /**
+                         * Namespace snippetindex.
+                         * @memberof google.cloud.tools.snippetgen
+                         * @namespace
+                         */
+                        var snippetindex = {};
+    
+                        snippetindex.v1 = (function() {
+    
+                            /**
+                             * Namespace v1.
+                             * @memberof google.cloud.tools.snippetgen.snippetindex
+                             * @namespace
+                             */
+                            var v1 = {};
+    
+                            v1.Index = (function() {
+    
+                                /**
+                                 * Properties of an Index.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @interface IIndex
+                                 * @property {google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary|null} [clientLibrary] Index clientLibrary
+                                 * @property {Array.<google.cloud.tools.snippetgen.snippetindex.v1.ISnippet>|null} [snippets] Index snippets
+                                 */
+    
+                                /**
+                                 * Constructs a new Index.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @classdesc Represents an Index.
+                                 * @implements IIndex
+                                 * @constructor
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IIndex=} [properties] Properties to set
+                                 */
+                                function Index(properties) {
+                                    this.snippets = [];
+                                    if (properties)
+                                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                            if (properties[keys[i]] != null)
+                                                this[keys[i]] = properties[keys[i]];
+                                }
+    
+                                /**
+                                 * Index clientLibrary.
+                                 * @member {google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary|null|undefined} clientLibrary
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @instance
+                                 */
+                                Index.prototype.clientLibrary = null;
+    
+                                /**
+                                 * Index snippets.
+                                 * @member {Array.<google.cloud.tools.snippetgen.snippetindex.v1.ISnippet>} snippets
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @instance
+                                 */
+                                Index.prototype.snippets = $util.emptyArray;
+    
+                                /**
+                                 * Creates a new Index instance using the specified properties.
+                                 * @function create
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IIndex=} [properties] Properties to set
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Index} Index instance
+                                 */
+                                Index.create = function create(properties) {
+                                    return new Index(properties);
+                                };
+    
+                                /**
+                                 * Encodes the specified Index message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Index.verify|verify} messages.
+                                 * @function encode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IIndex} message Index message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Index.encode = function encode(message, writer) {
+                                    if (!writer)
+                                        writer = $Writer.create();
+                                    if (message.clientLibrary != null && Object.hasOwnProperty.call(message, "clientLibrary"))
+                                        $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.encode(message.clientLibrary, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                                    if (message.snippets != null && message.snippets.length)
+                                        for (var i = 0; i < message.snippets.length; ++i)
+                                            $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.encode(message.snippets[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                                    return writer;
+                                };
+    
+                                /**
+                                 * Encodes the specified Index message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Index.verify|verify} messages.
+                                 * @function encodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IIndex} message Index message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Index.encodeDelimited = function encodeDelimited(message, writer) {
+                                    return this.encode(message, writer).ldelim();
+                                };
+    
+                                /**
+                                 * Decodes an Index message from the specified reader or buffer.
+                                 * @function decode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @param {number} [length] Message length if known beforehand
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Index} Index
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Index.decode = function decode(reader, length) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = $Reader.create(reader);
+                                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Index();
+                                    while (reader.pos < end) {
+                                        var tag = reader.uint32();
+                                        switch (tag >>> 3) {
+                                        case 1:
+                                            message.clientLibrary = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.decode(reader, reader.uint32());
+                                            break;
+                                        case 2:
+                                            if (!(message.snippets && message.snippets.length))
+                                                message.snippets = [];
+                                            message.snippets.push($root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.decode(reader, reader.uint32()));
+                                            break;
+                                        default:
+                                            reader.skipType(tag & 7);
+                                            break;
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Decodes an Index message from the specified reader or buffer, length delimited.
+                                 * @function decodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Index} Index
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Index.decodeDelimited = function decodeDelimited(reader) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = new $Reader(reader);
+                                    return this.decode(reader, reader.uint32());
+                                };
+    
+                                /**
+                                 * Verifies an Index message.
+                                 * @function verify
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @static
+                                 * @param {Object.<string,*>} message Plain object to verify
+                                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                 */
+                                Index.verify = function verify(message) {
+                                    if (typeof message !== "object" || message === null)
+                                        return "object expected";
+                                    if (message.clientLibrary != null && message.hasOwnProperty("clientLibrary")) {
+                                        var error = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.verify(message.clientLibrary);
+                                        if (error)
+                                            return "clientLibrary." + error;
+                                    }
+                                    if (message.snippets != null && message.hasOwnProperty("snippets")) {
+                                        if (!Array.isArray(message.snippets))
+                                            return "snippets: array expected";
+                                        for (var i = 0; i < message.snippets.length; ++i) {
+                                            var error = $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.verify(message.snippets[i]);
+                                            if (error)
+                                                return "snippets." + error;
+                                        }
+                                    }
+                                    return null;
+                                };
+    
+                                /**
+                                 * Creates an Index message from a plain object. Also converts values to their respective internal types.
+                                 * @function fromObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @static
+                                 * @param {Object.<string,*>} object Plain object
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Index} Index
+                                 */
+                                Index.fromObject = function fromObject(object) {
+                                    if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.Index)
+                                        return object;
+                                    var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Index();
+                                    if (object.clientLibrary != null) {
+                                        if (typeof object.clientLibrary !== "object")
+                                            throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.Index.clientLibrary: object expected");
+                                        message.clientLibrary = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.fromObject(object.clientLibrary);
+                                    }
+                                    if (object.snippets) {
+                                        if (!Array.isArray(object.snippets))
+                                            throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.Index.snippets: array expected");
+                                        message.snippets = [];
+                                        for (var i = 0; i < object.snippets.length; ++i) {
+                                            if (typeof object.snippets[i] !== "object")
+                                                throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.Index.snippets: object expected");
+                                            message.snippets[i] = $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.fromObject(object.snippets[i]);
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Creates a plain object from an Index message. Also converts values to other types if specified.
+                                 * @function toObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.Index} message Index
+                                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                 * @returns {Object.<string,*>} Plain object
+                                 */
+                                Index.toObject = function toObject(message, options) {
+                                    if (!options)
+                                        options = {};
+                                    var object = {};
+                                    if (options.arrays || options.defaults)
+                                        object.snippets = [];
+                                    if (options.defaults)
+                                        object.clientLibrary = null;
+                                    if (message.clientLibrary != null && message.hasOwnProperty("clientLibrary"))
+                                        object.clientLibrary = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.toObject(message.clientLibrary, options);
+                                    if (message.snippets && message.snippets.length) {
+                                        object.snippets = [];
+                                        for (var j = 0; j < message.snippets.length; ++j)
+                                            object.snippets[j] = $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.toObject(message.snippets[j], options);
+                                    }
+                                    return object;
+                                };
+    
+                                /**
+                                 * Converts this Index to JSON.
+                                 * @function toJSON
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Index
+                                 * @instance
+                                 * @returns {Object.<string,*>} JSON object
+                                 */
+                                Index.prototype.toJSON = function toJSON() {
+                                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                };
+    
+                                return Index;
+                            })();
+    
+                            v1.Snippet = (function() {
+    
+                                /**
+                                 * Properties of a Snippet.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @interface ISnippet
+                                 * @property {string|null} [regionTag] Snippet regionTag
+                                 * @property {string|null} [title] snippet configuration.
+                                 * @property {string|null} [description] Snippet description
+                                 * @property {string|null} [file] Snippet file
+                                 * @property {google.cloud.tools.snippetgen.snippetindex.v1.Language|null} [language] Snippet language
+                                 * @property {google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod|null} [clientMethod] Snippet clientMethod
+                                 * @property {boolean|null} [canonical] Snippet canonical
+                                 * @property {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin|null} [origin] Snippet origin
+                                 * @property {Array.<google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment>|null} [segments] Snippet segments
+                                 */
+    
+                                /**
+                                 * Constructs a new Snippet.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @classdesc Represents a Snippet.
+                                 * @implements ISnippet
+                                 * @constructor
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.ISnippet=} [properties] Properties to set
+                                 */
+                                function Snippet(properties) {
+                                    this.segments = [];
+                                    if (properties)
+                                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                            if (properties[keys[i]] != null)
+                                                this[keys[i]] = properties[keys[i]];
+                                }
+    
+                                /**
+                                 * Snippet regionTag.
+                                 * @member {string} regionTag
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 */
+                                Snippet.prototype.regionTag = "";
+    
+                                /**
+                                 * snippet configuration.
+                                 * @member {string} title
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 */
+                                Snippet.prototype.title = "";
+    
+                                /**
+                                 * Snippet description.
+                                 * @member {string} description
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 */
+                                Snippet.prototype.description = "";
+    
+                                /**
+                                 * Snippet file.
+                                 * @member {string} file
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 */
+                                Snippet.prototype.file = "";
+    
+                                /**
+                                 * Snippet language.
+                                 * @member {google.cloud.tools.snippetgen.snippetindex.v1.Language} language
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 */
+                                Snippet.prototype.language = 0;
+    
+                                /**
+                                 * Snippet clientMethod.
+                                 * @member {google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod|null|undefined} clientMethod
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 */
+                                Snippet.prototype.clientMethod = null;
+    
+                                /**
+                                 * Snippet canonical.
+                                 * @member {boolean} canonical
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 */
+                                Snippet.prototype.canonical = false;
+    
+                                /**
+                                 * Snippet origin.
+                                 * @member {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin} origin
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 */
+                                Snippet.prototype.origin = 0;
+    
+                                /**
+                                 * Snippet segments.
+                                 * @member {Array.<google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment>} segments
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 */
+                                Snippet.prototype.segments = $util.emptyArray;
+    
+                                /**
+                                 * Creates a new Snippet instance using the specified properties.
+                                 * @function create
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.ISnippet=} [properties] Properties to set
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Snippet} Snippet instance
+                                 */
+                                Snippet.create = function create(properties) {
+                                    return new Snippet(properties);
+                                };
+    
+                                /**
+                                 * Encodes the specified Snippet message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Snippet.verify|verify} messages.
+                                 * @function encode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.ISnippet} message Snippet message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Snippet.encode = function encode(message, writer) {
+                                    if (!writer)
+                                        writer = $Writer.create();
+                                    if (message.regionTag != null && Object.hasOwnProperty.call(message, "regionTag"))
+                                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.regionTag);
+                                    if (message.title != null && Object.hasOwnProperty.call(message, "title"))
+                                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.title);
+                                    if (message.description != null && Object.hasOwnProperty.call(message, "description"))
+                                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.description);
+                                    if (message.file != null && Object.hasOwnProperty.call(message, "file"))
+                                        writer.uint32(/* id 4, wireType 2 =*/34).string(message.file);
+                                    if (message.language != null && Object.hasOwnProperty.call(message, "language"))
+                                        writer.uint32(/* id 5, wireType 0 =*/40).int32(message.language);
+                                    if (message.clientMethod != null && Object.hasOwnProperty.call(message, "clientMethod"))
+                                        $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.encode(message.clientMethod, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+                                    if (message.canonical != null && Object.hasOwnProperty.call(message, "canonical"))
+                                        writer.uint32(/* id 7, wireType 0 =*/56).bool(message.canonical);
+                                    if (message.origin != null && Object.hasOwnProperty.call(message, "origin"))
+                                        writer.uint32(/* id 8, wireType 0 =*/64).int32(message.origin);
+                                    if (message.segments != null && message.segments.length)
+                                        for (var i = 0; i < message.segments.length; ++i)
+                                            $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.encode(message.segments[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
+                                    return writer;
+                                };
+    
+                                /**
+                                 * Encodes the specified Snippet message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Snippet.verify|verify} messages.
+                                 * @function encodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.ISnippet} message Snippet message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Snippet.encodeDelimited = function encodeDelimited(message, writer) {
+                                    return this.encode(message, writer).ldelim();
+                                };
+    
+                                /**
+                                 * Decodes a Snippet message from the specified reader or buffer.
+                                 * @function decode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @param {number} [length] Message length if known beforehand
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Snippet} Snippet
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Snippet.decode = function decode(reader, length) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = $Reader.create(reader);
+                                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet();
+                                    while (reader.pos < end) {
+                                        var tag = reader.uint32();
+                                        switch (tag >>> 3) {
+                                        case 1:
+                                            message.regionTag = reader.string();
+                                            break;
+                                        case 2:
+                                            message.title = reader.string();
+                                            break;
+                                        case 3:
+                                            message.description = reader.string();
+                                            break;
+                                        case 4:
+                                            message.file = reader.string();
+                                            break;
+                                        case 5:
+                                            message.language = reader.int32();
+                                            break;
+                                        case 6:
+                                            message.clientMethod = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.decode(reader, reader.uint32());
+                                            break;
+                                        case 7:
+                                            message.canonical = reader.bool();
+                                            break;
+                                        case 8:
+                                            message.origin = reader.int32();
+                                            break;
+                                        case 9:
+                                            if (!(message.segments && message.segments.length))
+                                                message.segments = [];
+                                            message.segments.push($root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.decode(reader, reader.uint32()));
+                                            break;
+                                        default:
+                                            reader.skipType(tag & 7);
+                                            break;
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Decodes a Snippet message from the specified reader or buffer, length delimited.
+                                 * @function decodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Snippet} Snippet
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Snippet.decodeDelimited = function decodeDelimited(reader) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = new $Reader(reader);
+                                    return this.decode(reader, reader.uint32());
+                                };
+    
+                                /**
+                                 * Verifies a Snippet message.
+                                 * @function verify
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @static
+                                 * @param {Object.<string,*>} message Plain object to verify
+                                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                 */
+                                Snippet.verify = function verify(message) {
+                                    if (typeof message !== "object" || message === null)
+                                        return "object expected";
+                                    if (message.regionTag != null && message.hasOwnProperty("regionTag"))
+                                        if (!$util.isString(message.regionTag))
+                                            return "regionTag: string expected";
+                                    if (message.title != null && message.hasOwnProperty("title"))
+                                        if (!$util.isString(message.title))
+                                            return "title: string expected";
+                                    if (message.description != null && message.hasOwnProperty("description"))
+                                        if (!$util.isString(message.description))
+                                            return "description: string expected";
+                                    if (message.file != null && message.hasOwnProperty("file"))
+                                        if (!$util.isString(message.file))
+                                            return "file: string expected";
+                                    if (message.language != null && message.hasOwnProperty("language"))
+                                        switch (message.language) {
+                                        default:
+                                            return "language: enum value expected";
+                                        case 0:
+                                        case 1:
+                                        case 2:
+                                        case 3:
+                                        case 4:
+                                        case 5:
+                                        case 6:
+                                        case 7:
+                                        case 8:
+                                        case 9:
+                                        case 10:
+                                        case 11:
+                                        case 12:
+                                        case 13:
+                                        case 14:
+                                        case 15:
+                                        case 16:
+                                        case 17:
+                                            break;
+                                        }
+                                    if (message.clientMethod != null && message.hasOwnProperty("clientMethod")) {
+                                        var error = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.verify(message.clientMethod);
+                                        if (error)
+                                            return "clientMethod." + error;
+                                    }
+                                    if (message.canonical != null && message.hasOwnProperty("canonical"))
+                                        if (typeof message.canonical !== "boolean")
+                                            return "canonical: boolean expected";
+                                    if (message.origin != null && message.hasOwnProperty("origin"))
+                                        switch (message.origin) {
+                                        default:
+                                            return "origin: enum value expected";
+                                        case 0:
+                                        case 1:
+                                        case 2:
+                                        case 3:
+                                            break;
+                                        }
+                                    if (message.segments != null && message.hasOwnProperty("segments")) {
+                                        if (!Array.isArray(message.segments))
+                                            return "segments: array expected";
+                                        for (var i = 0; i < message.segments.length; ++i) {
+                                            var error = $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.verify(message.segments[i]);
+                                            if (error)
+                                                return "segments." + error;
+                                        }
+                                    }
+                                    return null;
+                                };
+    
+                                /**
+                                 * Creates a Snippet message from a plain object. Also converts values to their respective internal types.
+                                 * @function fromObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @static
+                                 * @param {Object.<string,*>} object Plain object
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Snippet} Snippet
+                                 */
+                                Snippet.fromObject = function fromObject(object) {
+                                    if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet)
+                                        return object;
+                                    var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet();
+                                    if (object.regionTag != null)
+                                        message.regionTag = String(object.regionTag);
+                                    if (object.title != null)
+                                        message.title = String(object.title);
+                                    if (object.description != null)
+                                        message.description = String(object.description);
+                                    if (object.file != null)
+                                        message.file = String(object.file);
+                                    switch (object.language) {
+                                    case "LANGUAGE_UNSPECIFIED":
+                                    case 0:
+                                        message.language = 0;
+                                        break;
+                                    case "C_PLUS_PLUS":
+                                    case 1:
+                                        message.language = 1;
+                                        break;
+                                    case "C_SHARP":
+                                    case 2:
+                                        message.language = 2;
+                                        break;
+                                    case "DART":
+                                    case 3:
+                                        message.language = 3;
+                                        break;
+                                    case "ELIXIR":
+                                    case 4:
+                                        message.language = 4;
+                                        break;
+                                    case "ERLANG":
+                                    case 5:
+                                        message.language = 5;
+                                        break;
+                                    case "F_SHARP":
+                                    case 6:
+                                        message.language = 6;
+                                        break;
+                                    case "GO":
+                                    case 7:
+                                        message.language = 7;
+                                        break;
+                                    case "JAVA":
+                                    case 8:
+                                        message.language = 8;
+                                        break;
+                                    case "JAVASCRIPT":
+                                    case 9:
+                                        message.language = 9;
+                                        break;
+                                    case "KOTLIN":
+                                    case 10:
+                                        message.language = 10;
+                                        break;
+                                    case "PHP":
+                                    case 11:
+                                        message.language = 11;
+                                        break;
+                                    case "PYTHON":
+                                    case 12:
+                                        message.language = 12;
+                                        break;
+                                    case "RUBY":
+                                    case 13:
+                                        message.language = 13;
+                                        break;
+                                    case "RUST":
+                                    case 14:
+                                        message.language = 14;
+                                        break;
+                                    case "SWIFT":
+                                    case 15:
+                                        message.language = 15;
+                                        break;
+                                    case "TYPESCRIPT":
+                                    case 16:
+                                        message.language = 16;
+                                        break;
+                                    case "VB_NET":
+                                    case 17:
+                                        message.language = 17;
+                                        break;
+                                    }
+                                    if (object.clientMethod != null) {
+                                        if (typeof object.clientMethod !== "object")
+                                            throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.Snippet.clientMethod: object expected");
+                                        message.clientMethod = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.fromObject(object.clientMethod);
+                                    }
+                                    if (object.canonical != null)
+                                        message.canonical = Boolean(object.canonical);
+                                    switch (object.origin) {
+                                    case "ORIGIN_UNSPECIFIED":
+                                    case 0:
+                                        message.origin = 0;
+                                        break;
+                                    case "API_DEFINITION":
+                                    case 1:
+                                        message.origin = 1;
+                                        break;
+                                    case "CONFIG":
+                                    case 2:
+                                        message.origin = 2;
+                                        break;
+                                    case "HANDWRITTEN":
+                                    case 3:
+                                        message.origin = 3;
+                                        break;
+                                    }
+                                    if (object.segments) {
+                                        if (!Array.isArray(object.segments))
+                                            throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.Snippet.segments: array expected");
+                                        message.segments = [];
+                                        for (var i = 0; i < object.segments.length; ++i) {
+                                            if (typeof object.segments[i] !== "object")
+                                                throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.Snippet.segments: object expected");
+                                            message.segments[i] = $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.fromObject(object.segments[i]);
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Creates a plain object from a Snippet message. Also converts values to other types if specified.
+                                 * @function toObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.Snippet} message Snippet
+                                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                 * @returns {Object.<string,*>} Plain object
+                                 */
+                                Snippet.toObject = function toObject(message, options) {
+                                    if (!options)
+                                        options = {};
+                                    var object = {};
+                                    if (options.arrays || options.defaults)
+                                        object.segments = [];
+                                    if (options.defaults) {
+                                        object.regionTag = "";
+                                        object.title = "";
+                                        object.description = "";
+                                        object.file = "";
+                                        object.language = options.enums === String ? "LANGUAGE_UNSPECIFIED" : 0;
+                                        object.clientMethod = null;
+                                        object.canonical = false;
+                                        object.origin = options.enums === String ? "ORIGIN_UNSPECIFIED" : 0;
+                                    }
+                                    if (message.regionTag != null && message.hasOwnProperty("regionTag"))
+                                        object.regionTag = message.regionTag;
+                                    if (message.title != null && message.hasOwnProperty("title"))
+                                        object.title = message.title;
+                                    if (message.description != null && message.hasOwnProperty("description"))
+                                        object.description = message.description;
+                                    if (message.file != null && message.hasOwnProperty("file"))
+                                        object.file = message.file;
+                                    if (message.language != null && message.hasOwnProperty("language"))
+                                        object.language = options.enums === String ? $root.google.cloud.tools.snippetgen.snippetindex.v1.Language[message.language] : message.language;
+                                    if (message.clientMethod != null && message.hasOwnProperty("clientMethod"))
+                                        object.clientMethod = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.toObject(message.clientMethod, options);
+                                    if (message.canonical != null && message.hasOwnProperty("canonical"))
+                                        object.canonical = message.canonical;
+                                    if (message.origin != null && message.hasOwnProperty("origin"))
+                                        object.origin = options.enums === String ? $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin[message.origin] : message.origin;
+                                    if (message.segments && message.segments.length) {
+                                        object.segments = [];
+                                        for (var j = 0; j < message.segments.length; ++j)
+                                            object.segments[j] = $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.toObject(message.segments[j], options);
+                                    }
+                                    return object;
+                                };
+    
+                                /**
+                                 * Converts this Snippet to JSON.
+                                 * @function toJSON
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                 * @instance
+                                 * @returns {Object.<string,*>} JSON object
+                                 */
+                                Snippet.prototype.toJSON = function toJSON() {
+                                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                };
+    
+                                /**
+                                 * Origin enum.
+                                 * @name google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin
+                                 * @enum {number}
+                                 * @property {number} ORIGIN_UNSPECIFIED=0 ORIGIN_UNSPECIFIED value
+                                 * @property {number} API_DEFINITION=1 API_DEFINITION value
+                                 * @property {number} CONFIG=2 CONFIG value
+                                 * @property {number} HANDWRITTEN=3 HANDWRITTEN value
+                                 */
+                                Snippet.Origin = (function() {
+                                    var valuesById = {}, values = Object.create(valuesById);
+                                    values[valuesById[0] = "ORIGIN_UNSPECIFIED"] = 0;
+                                    values[valuesById[1] = "API_DEFINITION"] = 1;
+                                    values[valuesById[2] = "CONFIG"] = 2;
+                                    values[valuesById[3] = "HANDWRITTEN"] = 3;
+                                    return values;
+                                })();
+    
+                                Snippet.Segment = (function() {
+    
+                                    /**
+                                     * Properties of a Segment.
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                     * @interface ISegment
+                                     * @property {number|null} [start] Segment start
+                                     * @property {number|null} [end] Segment end
+                                     * @property {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType|null} [type] Segment type
+                                     */
+    
+                                    /**
+                                     * Constructs a new Segment.
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet
+                                     * @classdesc Represents a Segment.
+                                     * @implements ISegment
+                                     * @constructor
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment=} [properties] Properties to set
+                                     */
+                                    function Segment(properties) {
+                                        if (properties)
+                                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                                if (properties[keys[i]] != null)
+                                                    this[keys[i]] = properties[keys[i]];
+                                    }
+    
+                                    /**
+                                     * Segment start.
+                                     * @member {number} start
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @instance
+                                     */
+                                    Segment.prototype.start = 0;
+    
+                                    /**
+                                     * Segment end.
+                                     * @member {number} end
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @instance
+                                     */
+                                    Segment.prototype.end = 0;
+    
+                                    /**
+                                     * Segment type.
+                                     * @member {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType} type
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @instance
+                                     */
+                                    Segment.prototype.type = 0;
+    
+                                    /**
+                                     * Creates a new Segment instance using the specified properties.
+                                     * @function create
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @static
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment=} [properties] Properties to set
+                                     * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment} Segment instance
+                                     */
+                                    Segment.create = function create(properties) {
+                                        return new Segment(properties);
+                                    };
+    
+                                    /**
+                                     * Encodes the specified Segment message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.verify|verify} messages.
+                                     * @function encode
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @static
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment} message Segment message or plain object to encode
+                                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                                     * @returns {$protobuf.Writer} Writer
+                                     */
+                                    Segment.encode = function encode(message, writer) {
+                                        if (!writer)
+                                            writer = $Writer.create();
+                                        if (message.start != null && Object.hasOwnProperty.call(message, "start"))
+                                            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.start);
+                                        if (message.end != null && Object.hasOwnProperty.call(message, "end"))
+                                            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.end);
+                                        if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                                            writer.uint32(/* id 3, wireType 0 =*/24).int32(message.type);
+                                        return writer;
+                                    };
+    
+                                    /**
+                                     * Encodes the specified Segment message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.verify|verify} messages.
+                                     * @function encodeDelimited
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @static
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment} message Segment message or plain object to encode
+                                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                                     * @returns {$protobuf.Writer} Writer
+                                     */
+                                    Segment.encodeDelimited = function encodeDelimited(message, writer) {
+                                        return this.encode(message, writer).ldelim();
+                                    };
+    
+                                    /**
+                                     * Decodes a Segment message from the specified reader or buffer.
+                                     * @function decode
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @static
+                                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                     * @param {number} [length] Message length if known beforehand
+                                     * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment} Segment
+                                     * @throws {Error} If the payload is not a reader or valid buffer
+                                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                     */
+                                    Segment.decode = function decode(reader, length) {
+                                        if (!(reader instanceof $Reader))
+                                            reader = $Reader.create(reader);
+                                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment();
+                                        while (reader.pos < end) {
+                                            var tag = reader.uint32();
+                                            switch (tag >>> 3) {
+                                            case 1:
+                                                message.start = reader.int32();
+                                                break;
+                                            case 2:
+                                                message.end = reader.int32();
+                                                break;
+                                            case 3:
+                                                message.type = reader.int32();
+                                                break;
+                                            default:
+                                                reader.skipType(tag & 7);
+                                                break;
+                                            }
+                                        }
+                                        return message;
+                                    };
+    
+                                    /**
+                                     * Decodes a Segment message from the specified reader or buffer, length delimited.
+                                     * @function decodeDelimited
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @static
+                                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                     * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment} Segment
+                                     * @throws {Error} If the payload is not a reader or valid buffer
+                                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                     */
+                                    Segment.decodeDelimited = function decodeDelimited(reader) {
+                                        if (!(reader instanceof $Reader))
+                                            reader = new $Reader(reader);
+                                        return this.decode(reader, reader.uint32());
+                                    };
+    
+                                    /**
+                                     * Verifies a Segment message.
+                                     * @function verify
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @static
+                                     * @param {Object.<string,*>} message Plain object to verify
+                                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                     */
+                                    Segment.verify = function verify(message) {
+                                        if (typeof message !== "object" || message === null)
+                                            return "object expected";
+                                        if (message.start != null && message.hasOwnProperty("start"))
+                                            if (!$util.isInteger(message.start))
+                                                return "start: integer expected";
+                                        if (message.end != null && message.hasOwnProperty("end"))
+                                            if (!$util.isInteger(message.end))
+                                                return "end: integer expected";
+                                        if (message.type != null && message.hasOwnProperty("type"))
+                                            switch (message.type) {
+                                            default:
+                                                return "type: enum value expected";
+                                            case 0:
+                                            case 1:
+                                            case 2:
+                                            case 3:
+                                            case 4:
+                                            case 5:
+                                            case 6:
+                                                break;
+                                            }
+                                        return null;
+                                    };
+    
+                                    /**
+                                     * Creates a Segment message from a plain object. Also converts values to their respective internal types.
+                                     * @function fromObject
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @static
+                                     * @param {Object.<string,*>} object Plain object
+                                     * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment} Segment
+                                     */
+                                    Segment.fromObject = function fromObject(object) {
+                                        if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment)
+                                            return object;
+                                        var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment();
+                                        if (object.start != null)
+                                            message.start = object.start | 0;
+                                        if (object.end != null)
+                                            message.end = object.end | 0;
+                                        switch (object.type) {
+                                        case "SEGMENT_TYPE_UNSPECIFIED":
+                                        case 0:
+                                            message.type = 0;
+                                            break;
+                                        case "FULL":
+                                        case 1:
+                                            message.type = 1;
+                                            break;
+                                        case "SHORT":
+                                        case 2:
+                                            message.type = 2;
+                                            break;
+                                        case "CLIENT_INITIALIZATION":
+                                        case 3:
+                                            message.type = 3;
+                                            break;
+                                        case "REQUEST_INITIALIZATION":
+                                        case 4:
+                                            message.type = 4;
+                                            break;
+                                        case "REQUEST_EXECUTION":
+                                        case 5:
+                                            message.type = 5;
+                                            break;
+                                        case "RESPONSE_HANDLING":
+                                        case 6:
+                                            message.type = 6;
+                                            break;
+                                        }
+                                        return message;
+                                    };
+    
+                                    /**
+                                     * Creates a plain object from a Segment message. Also converts values to other types if specified.
+                                     * @function toObject
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @static
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment} message Segment
+                                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                     * @returns {Object.<string,*>} Plain object
+                                     */
+                                    Segment.toObject = function toObject(message, options) {
+                                        if (!options)
+                                            options = {};
+                                        var object = {};
+                                        if (options.defaults) {
+                                            object.start = 0;
+                                            object.end = 0;
+                                            object.type = options.enums === String ? "SEGMENT_TYPE_UNSPECIFIED" : 0;
+                                        }
+                                        if (message.start != null && message.hasOwnProperty("start"))
+                                            object.start = message.start;
+                                        if (message.end != null && message.hasOwnProperty("end"))
+                                            object.end = message.end;
+                                        if (message.type != null && message.hasOwnProperty("type"))
+                                            object.type = options.enums === String ? $root.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType[message.type] : message.type;
+                                        return object;
+                                    };
+    
+                                    /**
+                                     * Converts this Segment to JSON.
+                                     * @function toJSON
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment
+                                     * @instance
+                                     * @returns {Object.<string,*>} JSON object
+                                     */
+                                    Segment.prototype.toJSON = function toJSON() {
+                                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                    };
+    
+                                    /**
+                                     * SegmentType enum.
+                                     * @name google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType
+                                     * @enum {number}
+                                     * @property {number} SEGMENT_TYPE_UNSPECIFIED=0 SEGMENT_TYPE_UNSPECIFIED value
+                                     * @property {number} FULL=1 FULL value
+                                     * @property {number} SHORT=2 SHORT value
+                                     * @property {number} CLIENT_INITIALIZATION=3 CLIENT_INITIALIZATION value
+                                     * @property {number} REQUEST_INITIALIZATION=4 REQUEST_INITIALIZATION value
+                                     * @property {number} REQUEST_EXECUTION=5 REQUEST_EXECUTION value
+                                     * @property {number} RESPONSE_HANDLING=6 RESPONSE_HANDLING value
+                                     */
+                                    Segment.SegmentType = (function() {
+                                        var valuesById = {}, values = Object.create(valuesById);
+                                        values[valuesById[0] = "SEGMENT_TYPE_UNSPECIFIED"] = 0;
+                                        values[valuesById[1] = "FULL"] = 1;
+                                        values[valuesById[2] = "SHORT"] = 2;
+                                        values[valuesById[3] = "CLIENT_INITIALIZATION"] = 3;
+                                        values[valuesById[4] = "REQUEST_INITIALIZATION"] = 4;
+                                        values[valuesById[5] = "REQUEST_EXECUTION"] = 5;
+                                        values[valuesById[6] = "RESPONSE_HANDLING"] = 6;
+                                        return values;
+                                    })();
+    
+                                    return Segment;
+                                })();
+    
+                                return Snippet;
+                            })();
+    
+                            v1.ClientMethod = (function() {
+    
+                                /**
+                                 * Properties of a ClientMethod.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @interface IClientMethod
+                                 * @property {string|null} [shortName] ClientMethod shortName
+                                 * @property {string|null} [fullName] ClientMethod fullName
+                                 * @property {boolean|null} [async] ClientMethod async
+                                 * @property {Array.<google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter>|null} [parameters] ClientMethod parameters
+                                 * @property {string|null} [resultType] ClientMethod resultType
+                                 * @property {google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient|null} [client] ClientMethod client
+                                 * @property {google.cloud.tools.snippetgen.snippetindex.v1.IMethod|null} [method] ClientMethod method
+                                 */
+    
+                                /**
+                                 * Constructs a new ClientMethod.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @classdesc Represents a ClientMethod.
+                                 * @implements IClientMethod
+                                 * @constructor
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod=} [properties] Properties to set
+                                 */
+                                function ClientMethod(properties) {
+                                    this.parameters = [];
+                                    if (properties)
+                                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                            if (properties[keys[i]] != null)
+                                                this[keys[i]] = properties[keys[i]];
+                                }
+    
+                                /**
+                                 * ClientMethod shortName.
+                                 * @member {string} shortName
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @instance
+                                 */
+                                ClientMethod.prototype.shortName = "";
+    
+                                /**
+                                 * ClientMethod fullName.
+                                 * @member {string} fullName
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @instance
+                                 */
+                                ClientMethod.prototype.fullName = "";
+    
+                                /**
+                                 * ClientMethod async.
+                                 * @member {boolean} async
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @instance
+                                 */
+                                ClientMethod.prototype.async = false;
+    
+                                /**
+                                 * ClientMethod parameters.
+                                 * @member {Array.<google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter>} parameters
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @instance
+                                 */
+                                ClientMethod.prototype.parameters = $util.emptyArray;
+    
+                                /**
+                                 * ClientMethod resultType.
+                                 * @member {string} resultType
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @instance
+                                 */
+                                ClientMethod.prototype.resultType = "";
+    
+                                /**
+                                 * ClientMethod client.
+                                 * @member {google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient|null|undefined} client
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @instance
+                                 */
+                                ClientMethod.prototype.client = null;
+    
+                                /**
+                                 * ClientMethod method.
+                                 * @member {google.cloud.tools.snippetgen.snippetindex.v1.IMethod|null|undefined} method
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @instance
+                                 */
+                                ClientMethod.prototype.method = null;
+    
+                                /**
+                                 * Creates a new ClientMethod instance using the specified properties.
+                                 * @function create
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod=} [properties] Properties to set
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod} ClientMethod instance
+                                 */
+                                ClientMethod.create = function create(properties) {
+                                    return new ClientMethod(properties);
+                                };
+    
+                                /**
+                                 * Encodes the specified ClientMethod message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.verify|verify} messages.
+                                 * @function encode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod} message ClientMethod message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                ClientMethod.encode = function encode(message, writer) {
+                                    if (!writer)
+                                        writer = $Writer.create();
+                                    if (message.shortName != null && Object.hasOwnProperty.call(message, "shortName"))
+                                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.shortName);
+                                    if (message.fullName != null && Object.hasOwnProperty.call(message, "fullName"))
+                                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.fullName);
+                                    if (message.async != null && Object.hasOwnProperty.call(message, "async"))
+                                        writer.uint32(/* id 3, wireType 0 =*/24).bool(message.async);
+                                    if (message.parameters != null && message.parameters.length)
+                                        for (var i = 0; i < message.parameters.length; ++i)
+                                            $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter.encode(message.parameters[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+                                    if (message.resultType != null && Object.hasOwnProperty.call(message, "resultType"))
+                                        writer.uint32(/* id 5, wireType 2 =*/42).string(message.resultType);
+                                    if (message.client != null && Object.hasOwnProperty.call(message, "client"))
+                                        $root.google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient.encode(message.client, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+                                    if (message.method != null && Object.hasOwnProperty.call(message, "method"))
+                                        $root.google.cloud.tools.snippetgen.snippetindex.v1.Method.encode(message.method, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
+                                    return writer;
+                                };
+    
+                                /**
+                                 * Encodes the specified ClientMethod message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.verify|verify} messages.
+                                 * @function encodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod} message ClientMethod message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                ClientMethod.encodeDelimited = function encodeDelimited(message, writer) {
+                                    return this.encode(message, writer).ldelim();
+                                };
+    
+                                /**
+                                 * Decodes a ClientMethod message from the specified reader or buffer.
+                                 * @function decode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @param {number} [length] Message length if known beforehand
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod} ClientMethod
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                ClientMethod.decode = function decode(reader, length) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = $Reader.create(reader);
+                                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod();
+                                    while (reader.pos < end) {
+                                        var tag = reader.uint32();
+                                        switch (tag >>> 3) {
+                                        case 1:
+                                            message.shortName = reader.string();
+                                            break;
+                                        case 2:
+                                            message.fullName = reader.string();
+                                            break;
+                                        case 3:
+                                            message.async = reader.bool();
+                                            break;
+                                        case 4:
+                                            if (!(message.parameters && message.parameters.length))
+                                                message.parameters = [];
+                                            message.parameters.push($root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter.decode(reader, reader.uint32()));
+                                            break;
+                                        case 5:
+                                            message.resultType = reader.string();
+                                            break;
+                                        case 6:
+                                            message.client = $root.google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient.decode(reader, reader.uint32());
+                                            break;
+                                        case 7:
+                                            message.method = $root.google.cloud.tools.snippetgen.snippetindex.v1.Method.decode(reader, reader.uint32());
+                                            break;
+                                        default:
+                                            reader.skipType(tag & 7);
+                                            break;
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Decodes a ClientMethod message from the specified reader or buffer, length delimited.
+                                 * @function decodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod} ClientMethod
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                ClientMethod.decodeDelimited = function decodeDelimited(reader) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = new $Reader(reader);
+                                    return this.decode(reader, reader.uint32());
+                                };
+    
+                                /**
+                                 * Verifies a ClientMethod message.
+                                 * @function verify
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @static
+                                 * @param {Object.<string,*>} message Plain object to verify
+                                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                 */
+                                ClientMethod.verify = function verify(message) {
+                                    if (typeof message !== "object" || message === null)
+                                        return "object expected";
+                                    if (message.shortName != null && message.hasOwnProperty("shortName"))
+                                        if (!$util.isString(message.shortName))
+                                            return "shortName: string expected";
+                                    if (message.fullName != null && message.hasOwnProperty("fullName"))
+                                        if (!$util.isString(message.fullName))
+                                            return "fullName: string expected";
+                                    if (message.async != null && message.hasOwnProperty("async"))
+                                        if (typeof message.async !== "boolean")
+                                            return "async: boolean expected";
+                                    if (message.parameters != null && message.hasOwnProperty("parameters")) {
+                                        if (!Array.isArray(message.parameters))
+                                            return "parameters: array expected";
+                                        for (var i = 0; i < message.parameters.length; ++i) {
+                                            var error = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter.verify(message.parameters[i]);
+                                            if (error)
+                                                return "parameters." + error;
+                                        }
+                                    }
+                                    if (message.resultType != null && message.hasOwnProperty("resultType"))
+                                        if (!$util.isString(message.resultType))
+                                            return "resultType: string expected";
+                                    if (message.client != null && message.hasOwnProperty("client")) {
+                                        var error = $root.google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient.verify(message.client);
+                                        if (error)
+                                            return "client." + error;
+                                    }
+                                    if (message.method != null && message.hasOwnProperty("method")) {
+                                        var error = $root.google.cloud.tools.snippetgen.snippetindex.v1.Method.verify(message.method);
+                                        if (error)
+                                            return "method." + error;
+                                    }
+                                    return null;
+                                };
+    
+                                /**
+                                 * Creates a ClientMethod message from a plain object. Also converts values to their respective internal types.
+                                 * @function fromObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @static
+                                 * @param {Object.<string,*>} object Plain object
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod} ClientMethod
+                                 */
+                                ClientMethod.fromObject = function fromObject(object) {
+                                    if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod)
+                                        return object;
+                                    var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod();
+                                    if (object.shortName != null)
+                                        message.shortName = String(object.shortName);
+                                    if (object.fullName != null)
+                                        message.fullName = String(object.fullName);
+                                    if (object.async != null)
+                                        message.async = Boolean(object.async);
+                                    if (object.parameters) {
+                                        if (!Array.isArray(object.parameters))
+                                            throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.parameters: array expected");
+                                        message.parameters = [];
+                                        for (var i = 0; i < object.parameters.length; ++i) {
+                                            if (typeof object.parameters[i] !== "object")
+                                                throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.parameters: object expected");
+                                            message.parameters[i] = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter.fromObject(object.parameters[i]);
+                                        }
+                                    }
+                                    if (object.resultType != null)
+                                        message.resultType = String(object.resultType);
+                                    if (object.client != null) {
+                                        if (typeof object.client !== "object")
+                                            throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.client: object expected");
+                                        message.client = $root.google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient.fromObject(object.client);
+                                    }
+                                    if (object.method != null) {
+                                        if (typeof object.method !== "object")
+                                            throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.method: object expected");
+                                        message.method = $root.google.cloud.tools.snippetgen.snippetindex.v1.Method.fromObject(object.method);
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Creates a plain object from a ClientMethod message. Also converts values to other types if specified.
+                                 * @function toObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod} message ClientMethod
+                                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                 * @returns {Object.<string,*>} Plain object
+                                 */
+                                ClientMethod.toObject = function toObject(message, options) {
+                                    if (!options)
+                                        options = {};
+                                    var object = {};
+                                    if (options.arrays || options.defaults)
+                                        object.parameters = [];
+                                    if (options.defaults) {
+                                        object.shortName = "";
+                                        object.fullName = "";
+                                        object.async = false;
+                                        object.resultType = "";
+                                        object.client = null;
+                                        object.method = null;
+                                    }
+                                    if (message.shortName != null && message.hasOwnProperty("shortName"))
+                                        object.shortName = message.shortName;
+                                    if (message.fullName != null && message.hasOwnProperty("fullName"))
+                                        object.fullName = message.fullName;
+                                    if (message.async != null && message.hasOwnProperty("async"))
+                                        object.async = message.async;
+                                    if (message.parameters && message.parameters.length) {
+                                        object.parameters = [];
+                                        for (var j = 0; j < message.parameters.length; ++j)
+                                            object.parameters[j] = $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter.toObject(message.parameters[j], options);
+                                    }
+                                    if (message.resultType != null && message.hasOwnProperty("resultType"))
+                                        object.resultType = message.resultType;
+                                    if (message.client != null && message.hasOwnProperty("client"))
+                                        object.client = $root.google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient.toObject(message.client, options);
+                                    if (message.method != null && message.hasOwnProperty("method"))
+                                        object.method = $root.google.cloud.tools.snippetgen.snippetindex.v1.Method.toObject(message.method, options);
+                                    return object;
+                                };
+    
+                                /**
+                                 * Converts this ClientMethod to JSON.
+                                 * @function toJSON
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                 * @instance
+                                 * @returns {Object.<string,*>} JSON object
+                                 */
+                                ClientMethod.prototype.toJSON = function toJSON() {
+                                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                };
+    
+                                ClientMethod.Parameter = (function() {
+    
+                                    /**
+                                     * Properties of a Parameter.
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                     * @interface IParameter
+                                     * @property {string|null} [type] Parameter type
+                                     * @property {string|null} [name] Parameter name
+                                     */
+    
+                                    /**
+                                     * Constructs a new Parameter.
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod
+                                     * @classdesc Represents a Parameter.
+                                     * @implements IParameter
+                                     * @constructor
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter=} [properties] Properties to set
+                                     */
+                                    function Parameter(properties) {
+                                        if (properties)
+                                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                                if (properties[keys[i]] != null)
+                                                    this[keys[i]] = properties[keys[i]];
+                                    }
+    
+                                    /**
+                                     * Parameter type.
+                                     * @member {string} type
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @instance
+                                     */
+                                    Parameter.prototype.type = "";
+    
+                                    /**
+                                     * Parameter name.
+                                     * @member {string} name
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @instance
+                                     */
+                                    Parameter.prototype.name = "";
+    
+                                    /**
+                                     * Creates a new Parameter instance using the specified properties.
+                                     * @function create
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @static
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter=} [properties] Properties to set
+                                     * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter} Parameter instance
+                                     */
+                                    Parameter.create = function create(properties) {
+                                        return new Parameter(properties);
+                                    };
+    
+                                    /**
+                                     * Encodes the specified Parameter message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter.verify|verify} messages.
+                                     * @function encode
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @static
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter} message Parameter message or plain object to encode
+                                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                                     * @returns {$protobuf.Writer} Writer
+                                     */
+                                    Parameter.encode = function encode(message, writer) {
+                                        if (!writer)
+                                            writer = $Writer.create();
+                                        if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.type);
+                                        if (message.name != null && Object.hasOwnProperty.call(message, "name"))
+                                            writer.uint32(/* id 2, wireType 2 =*/18).string(message.name);
+                                        return writer;
+                                    };
+    
+                                    /**
+                                     * Encodes the specified Parameter message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter.verify|verify} messages.
+                                     * @function encodeDelimited
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @static
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter} message Parameter message or plain object to encode
+                                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                                     * @returns {$protobuf.Writer} Writer
+                                     */
+                                    Parameter.encodeDelimited = function encodeDelimited(message, writer) {
+                                        return this.encode(message, writer).ldelim();
+                                    };
+    
+                                    /**
+                                     * Decodes a Parameter message from the specified reader or buffer.
+                                     * @function decode
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @static
+                                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                     * @param {number} [length] Message length if known beforehand
+                                     * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter} Parameter
+                                     * @throws {Error} If the payload is not a reader or valid buffer
+                                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                     */
+                                    Parameter.decode = function decode(reader, length) {
+                                        if (!(reader instanceof $Reader))
+                                            reader = $Reader.create(reader);
+                                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter();
+                                        while (reader.pos < end) {
+                                            var tag = reader.uint32();
+                                            switch (tag >>> 3) {
+                                            case 1:
+                                                message.type = reader.string();
+                                                break;
+                                            case 2:
+                                                message.name = reader.string();
+                                                break;
+                                            default:
+                                                reader.skipType(tag & 7);
+                                                break;
+                                            }
+                                        }
+                                        return message;
+                                    };
+    
+                                    /**
+                                     * Decodes a Parameter message from the specified reader or buffer, length delimited.
+                                     * @function decodeDelimited
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @static
+                                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                     * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter} Parameter
+                                     * @throws {Error} If the payload is not a reader or valid buffer
+                                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                     */
+                                    Parameter.decodeDelimited = function decodeDelimited(reader) {
+                                        if (!(reader instanceof $Reader))
+                                            reader = new $Reader(reader);
+                                        return this.decode(reader, reader.uint32());
+                                    };
+    
+                                    /**
+                                     * Verifies a Parameter message.
+                                     * @function verify
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @static
+                                     * @param {Object.<string,*>} message Plain object to verify
+                                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                     */
+                                    Parameter.verify = function verify(message) {
+                                        if (typeof message !== "object" || message === null)
+                                            return "object expected";
+                                        if (message.type != null && message.hasOwnProperty("type"))
+                                            if (!$util.isString(message.type))
+                                                return "type: string expected";
+                                        if (message.name != null && message.hasOwnProperty("name"))
+                                            if (!$util.isString(message.name))
+                                                return "name: string expected";
+                                        return null;
+                                    };
+    
+                                    /**
+                                     * Creates a Parameter message from a plain object. Also converts values to their respective internal types.
+                                     * @function fromObject
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @static
+                                     * @param {Object.<string,*>} object Plain object
+                                     * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter} Parameter
+                                     */
+                                    Parameter.fromObject = function fromObject(object) {
+                                        if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter)
+                                            return object;
+                                        var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter();
+                                        if (object.type != null)
+                                            message.type = String(object.type);
+                                        if (object.name != null)
+                                            message.name = String(object.name);
+                                        return message;
+                                    };
+    
+                                    /**
+                                     * Creates a plain object from a Parameter message. Also converts values to other types if specified.
+                                     * @function toObject
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @static
+                                     * @param {google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter} message Parameter
+                                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                     * @returns {Object.<string,*>} Plain object
+                                     */
+                                    Parameter.toObject = function toObject(message, options) {
+                                        if (!options)
+                                            options = {};
+                                        var object = {};
+                                        if (options.defaults) {
+                                            object.type = "";
+                                            object.name = "";
+                                        }
+                                        if (message.type != null && message.hasOwnProperty("type"))
+                                            object.type = message.type;
+                                        if (message.name != null && message.hasOwnProperty("name"))
+                                            object.name = message.name;
+                                        return object;
+                                    };
+    
+                                    /**
+                                     * Converts this Parameter to JSON.
+                                     * @function toJSON
+                                     * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter
+                                     * @instance
+                                     * @returns {Object.<string,*>} JSON object
+                                     */
+                                    Parameter.prototype.toJSON = function toJSON() {
+                                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                    };
+    
+                                    return Parameter;
+                                })();
+    
+                                return ClientMethod;
+                            })();
+    
+                            v1.ServiceClient = (function() {
+    
+                                /**
+                                 * Properties of a ServiceClient.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @interface IServiceClient
+                                 * @property {string|null} [shortName] ServiceClient shortName
+                                 * @property {string|null} [fullName] ServiceClient fullName
+                                 */
+    
+                                /**
+                                 * Constructs a new ServiceClient.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @classdesc Represents a ServiceClient.
+                                 * @implements IServiceClient
+                                 * @constructor
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient=} [properties] Properties to set
+                                 */
+                                function ServiceClient(properties) {
+                                    if (properties)
+                                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                            if (properties[keys[i]] != null)
+                                                this[keys[i]] = properties[keys[i]];
+                                }
+    
+                                /**
+                                 * ServiceClient shortName.
+                                 * @member {string} shortName
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @instance
+                                 */
+                                ServiceClient.prototype.shortName = "";
+    
+                                /**
+                                 * ServiceClient fullName.
+                                 * @member {string} fullName
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @instance
+                                 */
+                                ServiceClient.prototype.fullName = "";
+    
+                                /**
+                                 * Creates a new ServiceClient instance using the specified properties.
+                                 * @function create
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient=} [properties] Properties to set
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient} ServiceClient instance
+                                 */
+                                ServiceClient.create = function create(properties) {
+                                    return new ServiceClient(properties);
+                                };
+    
+                                /**
+                                 * Encodes the specified ServiceClient message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient.verify|verify} messages.
+                                 * @function encode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient} message ServiceClient message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                ServiceClient.encode = function encode(message, writer) {
+                                    if (!writer)
+                                        writer = $Writer.create();
+                                    if (message.shortName != null && Object.hasOwnProperty.call(message, "shortName"))
+                                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.shortName);
+                                    if (message.fullName != null && Object.hasOwnProperty.call(message, "fullName"))
+                                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.fullName);
+                                    return writer;
+                                };
+    
+                                /**
+                                 * Encodes the specified ServiceClient message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient.verify|verify} messages.
+                                 * @function encodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient} message ServiceClient message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                ServiceClient.encodeDelimited = function encodeDelimited(message, writer) {
+                                    return this.encode(message, writer).ldelim();
+                                };
+    
+                                /**
+                                 * Decodes a ServiceClient message from the specified reader or buffer.
+                                 * @function decode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @param {number} [length] Message length if known beforehand
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient} ServiceClient
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                ServiceClient.decode = function decode(reader, length) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = $Reader.create(reader);
+                                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient();
+                                    while (reader.pos < end) {
+                                        var tag = reader.uint32();
+                                        switch (tag >>> 3) {
+                                        case 1:
+                                            message.shortName = reader.string();
+                                            break;
+                                        case 2:
+                                            message.fullName = reader.string();
+                                            break;
+                                        default:
+                                            reader.skipType(tag & 7);
+                                            break;
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Decodes a ServiceClient message from the specified reader or buffer, length delimited.
+                                 * @function decodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient} ServiceClient
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                ServiceClient.decodeDelimited = function decodeDelimited(reader) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = new $Reader(reader);
+                                    return this.decode(reader, reader.uint32());
+                                };
+    
+                                /**
+                                 * Verifies a ServiceClient message.
+                                 * @function verify
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @static
+                                 * @param {Object.<string,*>} message Plain object to verify
+                                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                 */
+                                ServiceClient.verify = function verify(message) {
+                                    if (typeof message !== "object" || message === null)
+                                        return "object expected";
+                                    if (message.shortName != null && message.hasOwnProperty("shortName"))
+                                        if (!$util.isString(message.shortName))
+                                            return "shortName: string expected";
+                                    if (message.fullName != null && message.hasOwnProperty("fullName"))
+                                        if (!$util.isString(message.fullName))
+                                            return "fullName: string expected";
+                                    return null;
+                                };
+    
+                                /**
+                                 * Creates a ServiceClient message from a plain object. Also converts values to their respective internal types.
+                                 * @function fromObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @static
+                                 * @param {Object.<string,*>} object Plain object
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient} ServiceClient
+                                 */
+                                ServiceClient.fromObject = function fromObject(object) {
+                                    if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient)
+                                        return object;
+                                    var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient();
+                                    if (object.shortName != null)
+                                        message.shortName = String(object.shortName);
+                                    if (object.fullName != null)
+                                        message.fullName = String(object.fullName);
+                                    return message;
+                                };
+    
+                                /**
+                                 * Creates a plain object from a ServiceClient message. Also converts values to other types if specified.
+                                 * @function toObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient} message ServiceClient
+                                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                 * @returns {Object.<string,*>} Plain object
+                                 */
+                                ServiceClient.toObject = function toObject(message, options) {
+                                    if (!options)
+                                        options = {};
+                                    var object = {};
+                                    if (options.defaults) {
+                                        object.shortName = "";
+                                        object.fullName = "";
+                                    }
+                                    if (message.shortName != null && message.hasOwnProperty("shortName"))
+                                        object.shortName = message.shortName;
+                                    if (message.fullName != null && message.hasOwnProperty("fullName"))
+                                        object.fullName = message.fullName;
+                                    return object;
+                                };
+    
+                                /**
+                                 * Converts this ServiceClient to JSON.
+                                 * @function toJSON
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient
+                                 * @instance
+                                 * @returns {Object.<string,*>} JSON object
+                                 */
+                                ServiceClient.prototype.toJSON = function toJSON() {
+                                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                };
+    
+                                return ServiceClient;
+                            })();
+    
+                            v1.ClientLibrary = (function() {
+    
+                                /**
+                                 * Properties of a ClientLibrary.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @interface IClientLibrary
+                                 * @property {string|null} [name] ClientLibrary name
+                                 * @property {string|null} [version] ClientLibrary version
+                                 * @property {google.cloud.tools.snippetgen.snippetindex.v1.Language|null} [language] ClientLibrary language
+                                 * @property {Array.<google.cloud.tools.snippetgen.snippetindex.v1.IApi>|null} [apis] ClientLibrary apis
+                                 */
+    
+                                /**
+                                 * Constructs a new ClientLibrary.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @classdesc Represents a ClientLibrary.
+                                 * @implements IClientLibrary
+                                 * @constructor
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary=} [properties] Properties to set
+                                 */
+                                function ClientLibrary(properties) {
+                                    this.apis = [];
+                                    if (properties)
+                                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                            if (properties[keys[i]] != null)
+                                                this[keys[i]] = properties[keys[i]];
+                                }
+    
+                                /**
+                                 * ClientLibrary name.
+                                 * @member {string} name
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @instance
+                                 */
+                                ClientLibrary.prototype.name = "";
+    
+                                /**
+                                 * ClientLibrary version.
+                                 * @member {string} version
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @instance
+                                 */
+                                ClientLibrary.prototype.version = "";
+    
+                                /**
+                                 * ClientLibrary language.
+                                 * @member {google.cloud.tools.snippetgen.snippetindex.v1.Language} language
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @instance
+                                 */
+                                ClientLibrary.prototype.language = 0;
+    
+                                /**
+                                 * ClientLibrary apis.
+                                 * @member {Array.<google.cloud.tools.snippetgen.snippetindex.v1.IApi>} apis
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @instance
+                                 */
+                                ClientLibrary.prototype.apis = $util.emptyArray;
+    
+                                /**
+                                 * Creates a new ClientLibrary instance using the specified properties.
+                                 * @function create
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary=} [properties] Properties to set
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary} ClientLibrary instance
+                                 */
+                                ClientLibrary.create = function create(properties) {
+                                    return new ClientLibrary(properties);
+                                };
+    
+                                /**
+                                 * Encodes the specified ClientLibrary message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.verify|verify} messages.
+                                 * @function encode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary} message ClientLibrary message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                ClientLibrary.encode = function encode(message, writer) {
+                                    if (!writer)
+                                        writer = $Writer.create();
+                                    if (message.name != null && Object.hasOwnProperty.call(message, "name"))
+                                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
+                                    if (message.version != null && Object.hasOwnProperty.call(message, "version"))
+                                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.version);
+                                    if (message.language != null && Object.hasOwnProperty.call(message, "language"))
+                                        writer.uint32(/* id 3, wireType 0 =*/24).int32(message.language);
+                                    if (message.apis != null && message.apis.length)
+                                        for (var i = 0; i < message.apis.length; ++i)
+                                            $root.google.cloud.tools.snippetgen.snippetindex.v1.Api.encode(message.apis[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+                                    return writer;
+                                };
+    
+                                /**
+                                 * Encodes the specified ClientLibrary message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.verify|verify} messages.
+                                 * @function encodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary} message ClientLibrary message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                ClientLibrary.encodeDelimited = function encodeDelimited(message, writer) {
+                                    return this.encode(message, writer).ldelim();
+                                };
+    
+                                /**
+                                 * Decodes a ClientLibrary message from the specified reader or buffer.
+                                 * @function decode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @param {number} [length] Message length if known beforehand
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary} ClientLibrary
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                ClientLibrary.decode = function decode(reader, length) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = $Reader.create(reader);
+                                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary();
+                                    while (reader.pos < end) {
+                                        var tag = reader.uint32();
+                                        switch (tag >>> 3) {
+                                        case 1:
+                                            message.name = reader.string();
+                                            break;
+                                        case 2:
+                                            message.version = reader.string();
+                                            break;
+                                        case 3:
+                                            message.language = reader.int32();
+                                            break;
+                                        case 4:
+                                            if (!(message.apis && message.apis.length))
+                                                message.apis = [];
+                                            message.apis.push($root.google.cloud.tools.snippetgen.snippetindex.v1.Api.decode(reader, reader.uint32()));
+                                            break;
+                                        default:
+                                            reader.skipType(tag & 7);
+                                            break;
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Decodes a ClientLibrary message from the specified reader or buffer, length delimited.
+                                 * @function decodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary} ClientLibrary
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                ClientLibrary.decodeDelimited = function decodeDelimited(reader) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = new $Reader(reader);
+                                    return this.decode(reader, reader.uint32());
+                                };
+    
+                                /**
+                                 * Verifies a ClientLibrary message.
+                                 * @function verify
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @static
+                                 * @param {Object.<string,*>} message Plain object to verify
+                                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                 */
+                                ClientLibrary.verify = function verify(message) {
+                                    if (typeof message !== "object" || message === null)
+                                        return "object expected";
+                                    if (message.name != null && message.hasOwnProperty("name"))
+                                        if (!$util.isString(message.name))
+                                            return "name: string expected";
+                                    if (message.version != null && message.hasOwnProperty("version"))
+                                        if (!$util.isString(message.version))
+                                            return "version: string expected";
+                                    if (message.language != null && message.hasOwnProperty("language"))
+                                        switch (message.language) {
+                                        default:
+                                            return "language: enum value expected";
+                                        case 0:
+                                        case 1:
+                                        case 2:
+                                        case 3:
+                                        case 4:
+                                        case 5:
+                                        case 6:
+                                        case 7:
+                                        case 8:
+                                        case 9:
+                                        case 10:
+                                        case 11:
+                                        case 12:
+                                        case 13:
+                                        case 14:
+                                        case 15:
+                                        case 16:
+                                        case 17:
+                                            break;
+                                        }
+                                    if (message.apis != null && message.hasOwnProperty("apis")) {
+                                        if (!Array.isArray(message.apis))
+                                            return "apis: array expected";
+                                        for (var i = 0; i < message.apis.length; ++i) {
+                                            var error = $root.google.cloud.tools.snippetgen.snippetindex.v1.Api.verify(message.apis[i]);
+                                            if (error)
+                                                return "apis." + error;
+                                        }
+                                    }
+                                    return null;
+                                };
+    
+                                /**
+                                 * Creates a ClientLibrary message from a plain object. Also converts values to their respective internal types.
+                                 * @function fromObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @static
+                                 * @param {Object.<string,*>} object Plain object
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary} ClientLibrary
+                                 */
+                                ClientLibrary.fromObject = function fromObject(object) {
+                                    if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary)
+                                        return object;
+                                    var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary();
+                                    if (object.name != null)
+                                        message.name = String(object.name);
+                                    if (object.version != null)
+                                        message.version = String(object.version);
+                                    switch (object.language) {
+                                    case "LANGUAGE_UNSPECIFIED":
+                                    case 0:
+                                        message.language = 0;
+                                        break;
+                                    case "C_PLUS_PLUS":
+                                    case 1:
+                                        message.language = 1;
+                                        break;
+                                    case "C_SHARP":
+                                    case 2:
+                                        message.language = 2;
+                                        break;
+                                    case "DART":
+                                    case 3:
+                                        message.language = 3;
+                                        break;
+                                    case "ELIXIR":
+                                    case 4:
+                                        message.language = 4;
+                                        break;
+                                    case "ERLANG":
+                                    case 5:
+                                        message.language = 5;
+                                        break;
+                                    case "F_SHARP":
+                                    case 6:
+                                        message.language = 6;
+                                        break;
+                                    case "GO":
+                                    case 7:
+                                        message.language = 7;
+                                        break;
+                                    case "JAVA":
+                                    case 8:
+                                        message.language = 8;
+                                        break;
+                                    case "JAVASCRIPT":
+                                    case 9:
+                                        message.language = 9;
+                                        break;
+                                    case "KOTLIN":
+                                    case 10:
+                                        message.language = 10;
+                                        break;
+                                    case "PHP":
+                                    case 11:
+                                        message.language = 11;
+                                        break;
+                                    case "PYTHON":
+                                    case 12:
+                                        message.language = 12;
+                                        break;
+                                    case "RUBY":
+                                    case 13:
+                                        message.language = 13;
+                                        break;
+                                    case "RUST":
+                                    case 14:
+                                        message.language = 14;
+                                        break;
+                                    case "SWIFT":
+                                    case 15:
+                                        message.language = 15;
+                                        break;
+                                    case "TYPESCRIPT":
+                                    case 16:
+                                        message.language = 16;
+                                        break;
+                                    case "VB_NET":
+                                    case 17:
+                                        message.language = 17;
+                                        break;
+                                    }
+                                    if (object.apis) {
+                                        if (!Array.isArray(object.apis))
+                                            throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.apis: array expected");
+                                        message.apis = [];
+                                        for (var i = 0; i < object.apis.length; ++i) {
+                                            if (typeof object.apis[i] !== "object")
+                                                throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.apis: object expected");
+                                            message.apis[i] = $root.google.cloud.tools.snippetgen.snippetindex.v1.Api.fromObject(object.apis[i]);
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Creates a plain object from a ClientLibrary message. Also converts values to other types if specified.
+                                 * @function toObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary} message ClientLibrary
+                                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                 * @returns {Object.<string,*>} Plain object
+                                 */
+                                ClientLibrary.toObject = function toObject(message, options) {
+                                    if (!options)
+                                        options = {};
+                                    var object = {};
+                                    if (options.arrays || options.defaults)
+                                        object.apis = [];
+                                    if (options.defaults) {
+                                        object.name = "";
+                                        object.version = "";
+                                        object.language = options.enums === String ? "LANGUAGE_UNSPECIFIED" : 0;
+                                    }
+                                    if (message.name != null && message.hasOwnProperty("name"))
+                                        object.name = message.name;
+                                    if (message.version != null && message.hasOwnProperty("version"))
+                                        object.version = message.version;
+                                    if (message.language != null && message.hasOwnProperty("language"))
+                                        object.language = options.enums === String ? $root.google.cloud.tools.snippetgen.snippetindex.v1.Language[message.language] : message.language;
+                                    if (message.apis && message.apis.length) {
+                                        object.apis = [];
+                                        for (var j = 0; j < message.apis.length; ++j)
+                                            object.apis[j] = $root.google.cloud.tools.snippetgen.snippetindex.v1.Api.toObject(message.apis[j], options);
+                                    }
+                                    return object;
+                                };
+    
+                                /**
+                                 * Converts this ClientLibrary to JSON.
+                                 * @function toJSON
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary
+                                 * @instance
+                                 * @returns {Object.<string,*>} JSON object
+                                 */
+                                ClientLibrary.prototype.toJSON = function toJSON() {
+                                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                };
+    
+                                return ClientLibrary;
+                            })();
+    
+                            v1.Method = (function() {
+    
+                                /**
+                                 * Properties of a Method.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @interface IMethod
+                                 * @property {string|null} [shortName] Method shortName
+                                 * @property {string|null} [fullName] Method fullName
+                                 * @property {google.cloud.tools.snippetgen.snippetindex.v1.IService|null} [service] Method service
+                                 */
+    
+                                /**
+                                 * Constructs a new Method.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @classdesc Represents a Method.
+                                 * @implements IMethod
+                                 * @constructor
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IMethod=} [properties] Properties to set
+                                 */
+                                function Method(properties) {
+                                    if (properties)
+                                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                            if (properties[keys[i]] != null)
+                                                this[keys[i]] = properties[keys[i]];
+                                }
+    
+                                /**
+                                 * Method shortName.
+                                 * @member {string} shortName
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @instance
+                                 */
+                                Method.prototype.shortName = "";
+    
+                                /**
+                                 * Method fullName.
+                                 * @member {string} fullName
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @instance
+                                 */
+                                Method.prototype.fullName = "";
+    
+                                /**
+                                 * Method service.
+                                 * @member {google.cloud.tools.snippetgen.snippetindex.v1.IService|null|undefined} service
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @instance
+                                 */
+                                Method.prototype.service = null;
+    
+                                /**
+                                 * Creates a new Method instance using the specified properties.
+                                 * @function create
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IMethod=} [properties] Properties to set
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Method} Method instance
+                                 */
+                                Method.create = function create(properties) {
+                                    return new Method(properties);
+                                };
+    
+                                /**
+                                 * Encodes the specified Method message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Method.verify|verify} messages.
+                                 * @function encode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IMethod} message Method message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Method.encode = function encode(message, writer) {
+                                    if (!writer)
+                                        writer = $Writer.create();
+                                    if (message.shortName != null && Object.hasOwnProperty.call(message, "shortName"))
+                                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.shortName);
+                                    if (message.fullName != null && Object.hasOwnProperty.call(message, "fullName"))
+                                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.fullName);
+                                    if (message.service != null && Object.hasOwnProperty.call(message, "service"))
+                                        $root.google.cloud.tools.snippetgen.snippetindex.v1.Service.encode(message.service, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                                    return writer;
+                                };
+    
+                                /**
+                                 * Encodes the specified Method message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Method.verify|verify} messages.
+                                 * @function encodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IMethod} message Method message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Method.encodeDelimited = function encodeDelimited(message, writer) {
+                                    return this.encode(message, writer).ldelim();
+                                };
+    
+                                /**
+                                 * Decodes a Method message from the specified reader or buffer.
+                                 * @function decode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @param {number} [length] Message length if known beforehand
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Method} Method
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Method.decode = function decode(reader, length) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = $Reader.create(reader);
+                                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Method();
+                                    while (reader.pos < end) {
+                                        var tag = reader.uint32();
+                                        switch (tag >>> 3) {
+                                        case 1:
+                                            message.shortName = reader.string();
+                                            break;
+                                        case 2:
+                                            message.fullName = reader.string();
+                                            break;
+                                        case 3:
+                                            message.service = $root.google.cloud.tools.snippetgen.snippetindex.v1.Service.decode(reader, reader.uint32());
+                                            break;
+                                        default:
+                                            reader.skipType(tag & 7);
+                                            break;
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Decodes a Method message from the specified reader or buffer, length delimited.
+                                 * @function decodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Method} Method
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Method.decodeDelimited = function decodeDelimited(reader) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = new $Reader(reader);
+                                    return this.decode(reader, reader.uint32());
+                                };
+    
+                                /**
+                                 * Verifies a Method message.
+                                 * @function verify
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @static
+                                 * @param {Object.<string,*>} message Plain object to verify
+                                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                 */
+                                Method.verify = function verify(message) {
+                                    if (typeof message !== "object" || message === null)
+                                        return "object expected";
+                                    if (message.shortName != null && message.hasOwnProperty("shortName"))
+                                        if (!$util.isString(message.shortName))
+                                            return "shortName: string expected";
+                                    if (message.fullName != null && message.hasOwnProperty("fullName"))
+                                        if (!$util.isString(message.fullName))
+                                            return "fullName: string expected";
+                                    if (message.service != null && message.hasOwnProperty("service")) {
+                                        var error = $root.google.cloud.tools.snippetgen.snippetindex.v1.Service.verify(message.service);
+                                        if (error)
+                                            return "service." + error;
+                                    }
+                                    return null;
+                                };
+    
+                                /**
+                                 * Creates a Method message from a plain object. Also converts values to their respective internal types.
+                                 * @function fromObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @static
+                                 * @param {Object.<string,*>} object Plain object
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Method} Method
+                                 */
+                                Method.fromObject = function fromObject(object) {
+                                    if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.Method)
+                                        return object;
+                                    var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Method();
+                                    if (object.shortName != null)
+                                        message.shortName = String(object.shortName);
+                                    if (object.fullName != null)
+                                        message.fullName = String(object.fullName);
+                                    if (object.service != null) {
+                                        if (typeof object.service !== "object")
+                                            throw TypeError(".google.cloud.tools.snippetgen.snippetindex.v1.Method.service: object expected");
+                                        message.service = $root.google.cloud.tools.snippetgen.snippetindex.v1.Service.fromObject(object.service);
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Creates a plain object from a Method message. Also converts values to other types if specified.
+                                 * @function toObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.Method} message Method
+                                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                 * @returns {Object.<string,*>} Plain object
+                                 */
+                                Method.toObject = function toObject(message, options) {
+                                    if (!options)
+                                        options = {};
+                                    var object = {};
+                                    if (options.defaults) {
+                                        object.shortName = "";
+                                        object.fullName = "";
+                                        object.service = null;
+                                    }
+                                    if (message.shortName != null && message.hasOwnProperty("shortName"))
+                                        object.shortName = message.shortName;
+                                    if (message.fullName != null && message.hasOwnProperty("fullName"))
+                                        object.fullName = message.fullName;
+                                    if (message.service != null && message.hasOwnProperty("service"))
+                                        object.service = $root.google.cloud.tools.snippetgen.snippetindex.v1.Service.toObject(message.service, options);
+                                    return object;
+                                };
+    
+                                /**
+                                 * Converts this Method to JSON.
+                                 * @function toJSON
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Method
+                                 * @instance
+                                 * @returns {Object.<string,*>} JSON object
+                                 */
+                                Method.prototype.toJSON = function toJSON() {
+                                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                };
+    
+                                return Method;
+                            })();
+    
+                            v1.Service = (function() {
+    
+                                /**
+                                 * Properties of a Service.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @interface IService
+                                 * @property {string|null} [shortName] Service shortName
+                                 * @property {string|null} [fullName] Service fullName
+                                 */
+    
+                                /**
+                                 * Constructs a new Service.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @classdesc Represents a Service.
+                                 * @implements IService
+                                 * @constructor
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IService=} [properties] Properties to set
+                                 */
+                                function Service(properties) {
+                                    if (properties)
+                                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                            if (properties[keys[i]] != null)
+                                                this[keys[i]] = properties[keys[i]];
+                                }
+    
+                                /**
+                                 * Service shortName.
+                                 * @member {string} shortName
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @instance
+                                 */
+                                Service.prototype.shortName = "";
+    
+                                /**
+                                 * Service fullName.
+                                 * @member {string} fullName
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @instance
+                                 */
+                                Service.prototype.fullName = "";
+    
+                                /**
+                                 * Creates a new Service instance using the specified properties.
+                                 * @function create
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IService=} [properties] Properties to set
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Service} Service instance
+                                 */
+                                Service.create = function create(properties) {
+                                    return new Service(properties);
+                                };
+    
+                                /**
+                                 * Encodes the specified Service message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Service.verify|verify} messages.
+                                 * @function encode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IService} message Service message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Service.encode = function encode(message, writer) {
+                                    if (!writer)
+                                        writer = $Writer.create();
+                                    if (message.shortName != null && Object.hasOwnProperty.call(message, "shortName"))
+                                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.shortName);
+                                    if (message.fullName != null && Object.hasOwnProperty.call(message, "fullName"))
+                                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.fullName);
+                                    return writer;
+                                };
+    
+                                /**
+                                 * Encodes the specified Service message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Service.verify|verify} messages.
+                                 * @function encodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IService} message Service message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Service.encodeDelimited = function encodeDelimited(message, writer) {
+                                    return this.encode(message, writer).ldelim();
+                                };
+    
+                                /**
+                                 * Decodes a Service message from the specified reader or buffer.
+                                 * @function decode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @param {number} [length] Message length if known beforehand
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Service} Service
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Service.decode = function decode(reader, length) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = $Reader.create(reader);
+                                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Service();
+                                    while (reader.pos < end) {
+                                        var tag = reader.uint32();
+                                        switch (tag >>> 3) {
+                                        case 1:
+                                            message.shortName = reader.string();
+                                            break;
+                                        case 2:
+                                            message.fullName = reader.string();
+                                            break;
+                                        default:
+                                            reader.skipType(tag & 7);
+                                            break;
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Decodes a Service message from the specified reader or buffer, length delimited.
+                                 * @function decodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Service} Service
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Service.decodeDelimited = function decodeDelimited(reader) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = new $Reader(reader);
+                                    return this.decode(reader, reader.uint32());
+                                };
+    
+                                /**
+                                 * Verifies a Service message.
+                                 * @function verify
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @static
+                                 * @param {Object.<string,*>} message Plain object to verify
+                                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                 */
+                                Service.verify = function verify(message) {
+                                    if (typeof message !== "object" || message === null)
+                                        return "object expected";
+                                    if (message.shortName != null && message.hasOwnProperty("shortName"))
+                                        if (!$util.isString(message.shortName))
+                                            return "shortName: string expected";
+                                    if (message.fullName != null && message.hasOwnProperty("fullName"))
+                                        if (!$util.isString(message.fullName))
+                                            return "fullName: string expected";
+                                    return null;
+                                };
+    
+                                /**
+                                 * Creates a Service message from a plain object. Also converts values to their respective internal types.
+                                 * @function fromObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @static
+                                 * @param {Object.<string,*>} object Plain object
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Service} Service
+                                 */
+                                Service.fromObject = function fromObject(object) {
+                                    if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.Service)
+                                        return object;
+                                    var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Service();
+                                    if (object.shortName != null)
+                                        message.shortName = String(object.shortName);
+                                    if (object.fullName != null)
+                                        message.fullName = String(object.fullName);
+                                    return message;
+                                };
+    
+                                /**
+                                 * Creates a plain object from a Service message. Also converts values to other types if specified.
+                                 * @function toObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.Service} message Service
+                                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                 * @returns {Object.<string,*>} Plain object
+                                 */
+                                Service.toObject = function toObject(message, options) {
+                                    if (!options)
+                                        options = {};
+                                    var object = {};
+                                    if (options.defaults) {
+                                        object.shortName = "";
+                                        object.fullName = "";
+                                    }
+                                    if (message.shortName != null && message.hasOwnProperty("shortName"))
+                                        object.shortName = message.shortName;
+                                    if (message.fullName != null && message.hasOwnProperty("fullName"))
+                                        object.fullName = message.fullName;
+                                    return object;
+                                };
+    
+                                /**
+                                 * Converts this Service to JSON.
+                                 * @function toJSON
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Service
+                                 * @instance
+                                 * @returns {Object.<string,*>} JSON object
+                                 */
+                                Service.prototype.toJSON = function toJSON() {
+                                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                };
+    
+                                return Service;
+                            })();
+    
+                            v1.Api = (function() {
+    
+                                /**
+                                 * Properties of an Api.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @interface IApi
+                                 * @property {string|null} [id] Api id
+                                 * @property {string|null} [version] Api version
+                                 */
+    
+                                /**
+                                 * Constructs a new Api.
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1
+                                 * @classdesc Represents an Api.
+                                 * @implements IApi
+                                 * @constructor
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IApi=} [properties] Properties to set
+                                 */
+                                function Api(properties) {
+                                    if (properties)
+                                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                            if (properties[keys[i]] != null)
+                                                this[keys[i]] = properties[keys[i]];
+                                }
+    
+                                /**
+                                 * Api id.
+                                 * @member {string} id
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @instance
+                                 */
+                                Api.prototype.id = "";
+    
+                                /**
+                                 * Api version.
+                                 * @member {string} version
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @instance
+                                 */
+                                Api.prototype.version = "";
+    
+                                /**
+                                 * Creates a new Api instance using the specified properties.
+                                 * @function create
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IApi=} [properties] Properties to set
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Api} Api instance
+                                 */
+                                Api.create = function create(properties) {
+                                    return new Api(properties);
+                                };
+    
+                                /**
+                                 * Encodes the specified Api message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Api.verify|verify} messages.
+                                 * @function encode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IApi} message Api message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Api.encode = function encode(message, writer) {
+                                    if (!writer)
+                                        writer = $Writer.create();
+                                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
+                                    if (message.version != null && Object.hasOwnProperty.call(message, "version"))
+                                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.version);
+                                    return writer;
+                                };
+    
+                                /**
+                                 * Encodes the specified Api message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Api.verify|verify} messages.
+                                 * @function encodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.IApi} message Api message or plain object to encode
+                                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                                 * @returns {$protobuf.Writer} Writer
+                                 */
+                                Api.encodeDelimited = function encodeDelimited(message, writer) {
+                                    return this.encode(message, writer).ldelim();
+                                };
+    
+                                /**
+                                 * Decodes an Api message from the specified reader or buffer.
+                                 * @function decode
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @param {number} [length] Message length if known beforehand
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Api} Api
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Api.decode = function decode(reader, length) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = $Reader.create(reader);
+                                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Api();
+                                    while (reader.pos < end) {
+                                        var tag = reader.uint32();
+                                        switch (tag >>> 3) {
+                                        case 1:
+                                            message.id = reader.string();
+                                            break;
+                                        case 2:
+                                            message.version = reader.string();
+                                            break;
+                                        default:
+                                            reader.skipType(tag & 7);
+                                            break;
+                                        }
+                                    }
+                                    return message;
+                                };
+    
+                                /**
+                                 * Decodes an Api message from the specified reader or buffer, length delimited.
+                                 * @function decodeDelimited
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @static
+                                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Api} Api
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                Api.decodeDelimited = function decodeDelimited(reader) {
+                                    if (!(reader instanceof $Reader))
+                                        reader = new $Reader(reader);
+                                    return this.decode(reader, reader.uint32());
+                                };
+    
+                                /**
+                                 * Verifies an Api message.
+                                 * @function verify
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @static
+                                 * @param {Object.<string,*>} message Plain object to verify
+                                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                                 */
+                                Api.verify = function verify(message) {
+                                    if (typeof message !== "object" || message === null)
+                                        return "object expected";
+                                    if (message.id != null && message.hasOwnProperty("id"))
+                                        if (!$util.isString(message.id))
+                                            return "id: string expected";
+                                    if (message.version != null && message.hasOwnProperty("version"))
+                                        if (!$util.isString(message.version))
+                                            return "version: string expected";
+                                    return null;
+                                };
+    
+                                /**
+                                 * Creates an Api message from a plain object. Also converts values to their respective internal types.
+                                 * @function fromObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @static
+                                 * @param {Object.<string,*>} object Plain object
+                                 * @returns {google.cloud.tools.snippetgen.snippetindex.v1.Api} Api
+                                 */
+                                Api.fromObject = function fromObject(object) {
+                                    if (object instanceof $root.google.cloud.tools.snippetgen.snippetindex.v1.Api)
+                                        return object;
+                                    var message = new $root.google.cloud.tools.snippetgen.snippetindex.v1.Api();
+                                    if (object.id != null)
+                                        message.id = String(object.id);
+                                    if (object.version != null)
+                                        message.version = String(object.version);
+                                    return message;
+                                };
+    
+                                /**
+                                 * Creates a plain object from an Api message. Also converts values to other types if specified.
+                                 * @function toObject
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @static
+                                 * @param {google.cloud.tools.snippetgen.snippetindex.v1.Api} message Api
+                                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                                 * @returns {Object.<string,*>} Plain object
+                                 */
+                                Api.toObject = function toObject(message, options) {
+                                    if (!options)
+                                        options = {};
+                                    var object = {};
+                                    if (options.defaults) {
+                                        object.id = "";
+                                        object.version = "";
+                                    }
+                                    if (message.id != null && message.hasOwnProperty("id"))
+                                        object.id = message.id;
+                                    if (message.version != null && message.hasOwnProperty("version"))
+                                        object.version = message.version;
+                                    return object;
+                                };
+    
+                                /**
+                                 * Converts this Api to JSON.
+                                 * @function toJSON
+                                 * @memberof google.cloud.tools.snippetgen.snippetindex.v1.Api
+                                 * @instance
+                                 * @returns {Object.<string,*>} JSON object
+                                 */
+                                Api.prototype.toJSON = function toJSON() {
+                                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                                };
+    
+                                return Api;
+                            })();
+    
+                            /**
+                             * Language enum.
+                             * @name google.cloud.tools.snippetgen.snippetindex.v1.Language
+                             * @enum {number}
+                             * @property {number} LANGUAGE_UNSPECIFIED=0 LANGUAGE_UNSPECIFIED value
+                             * @property {number} C_PLUS_PLUS=1 C_PLUS_PLUS value
+                             * @property {number} C_SHARP=2 C_SHARP value
+                             * @property {number} DART=3 DART value
+                             * @property {number} ELIXIR=4 ELIXIR value
+                             * @property {number} ERLANG=5 ERLANG value
+                             * @property {number} F_SHARP=6 F_SHARP value
+                             * @property {number} GO=7 GO value
+                             * @property {number} JAVA=8 JAVA value
+                             * @property {number} JAVASCRIPT=9 JAVASCRIPT value
+                             * @property {number} KOTLIN=10 KOTLIN value
+                             * @property {number} PHP=11 PHP value
+                             * @property {number} PYTHON=12 PYTHON value
+                             * @property {number} RUBY=13 RUBY value
+                             * @property {number} RUST=14 RUST value
+                             * @property {number} SWIFT=15 SWIFT value
+                             * @property {number} TYPESCRIPT=16 TYPESCRIPT value
+                             * @property {number} VB_NET=17 VB_NET value
+                             */
+                            v1.Language = (function() {
+                                var valuesById = {}, values = Object.create(valuesById);
+                                values[valuesById[0] = "LANGUAGE_UNSPECIFIED"] = 0;
+                                values[valuesById[1] = "C_PLUS_PLUS"] = 1;
+                                values[valuesById[2] = "C_SHARP"] = 2;
+                                values[valuesById[3] = "DART"] = 3;
+                                values[valuesById[4] = "ELIXIR"] = 4;
+                                values[valuesById[5] = "ERLANG"] = 5;
+                                values[valuesById[6] = "F_SHARP"] = 6;
+                                values[valuesById[7] = "GO"] = 7;
+                                values[valuesById[8] = "JAVA"] = 8;
+                                values[valuesById[9] = "JAVASCRIPT"] = 9;
+                                values[valuesById[10] = "KOTLIN"] = 10;
+                                values[valuesById[11] = "PHP"] = 11;
+                                values[valuesById[12] = "PYTHON"] = 12;
+                                values[valuesById[13] = "RUBY"] = 13;
+                                values[valuesById[14] = "RUST"] = 14;
+                                values[valuesById[15] = "SWIFT"] = 15;
+                                values[valuesById[16] = "TYPESCRIPT"] = 16;
+                                values[valuesById[17] = "VB_NET"] = 17;
+                                return values;
+                            })();
+    
+                            return v1;
+                        })();
+    
+                        return snippetindex;
+                    })();
+    
+                    return snippetgen;
+                })();
+    
+                return tools;
+            })();
+    
+            return cloud;
+        })();
+    
         return google;
     })();
 
