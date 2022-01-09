@@ -58,8 +58,7 @@ async function recursiveFileList(
 
 function createSnippetIndexMetadata(
   api: API,
-  service: ServiceDescriptorProto,
-  relativeTemplateName: string
+  service: ServiceDescriptorProto
 ): protos.google.cloud.tools.snippetgen.snippetindex.v1.IIndex {
   const apis: protos.google.cloud.tools.snippetgen.snippetindex.v1.IApi[] = [];
 
@@ -74,14 +73,13 @@ function createSnippetIndexMetadata(
     apis,
   };
 
-  const snippets = createSnippetMetadata(api, service, relativeTemplateName);
+  const snippets = createSnippetMetadata(api, service);
   return {clientLibrary, snippets};
 }
 
 function createSnippetMetadata(
   api: API,
-  service: ServiceDescriptorProto,
-  relativeTemplateName: string
+  service: ServiceDescriptorProto
 ): protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] {
   const snippets: protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] = [];
 
@@ -179,11 +177,7 @@ function processOneTemplate(
         .replace(/\.njk$/, '')
         .replace(/\$service/, service.name!.toSnakeCase());
 
-      const jsonMetadata = createSnippetIndexMetadata(
-        api,
-        service,
-        pushFilename
-      );
+      const jsonMetadata = createSnippetIndexMetadata(api, service);
       const output = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
       output.name = pushFilename;
       output.content = JSON.stringify(jsonMetadata, null, '  ') + '\n';
