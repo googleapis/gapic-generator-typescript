@@ -98,11 +98,10 @@ function createSnippetMetadata(
       title: `${api.mainServiceName} ${method?.name?.toCamelCase()} Sample`,
       description: method.comments.join(''),
       canonical: api.handwrittenLayer ? false : true,
-      file: relativeTemplateName
-        .replace(/\$version/, api.naming.version)
-        .replace(/\.njk$/, '')
-        .replace(/\$method/, method.name!.toSnakeCase())
-        .replace(/\$service/, service.name!.toSnakeCase()),
+      file: 'snippet_metadata.$service.json'.replace(
+        /\$service/,
+        service.name!.toSnakeCase()
+      ),
       language:
         protos.google.cloud.tools.snippetgen.snippetindex.v1.Language
           .JAVASCRIPT,
