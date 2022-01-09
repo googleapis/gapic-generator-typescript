@@ -97,7 +97,7 @@ function createSnippetMetadata(
       }_generated_${service.name}_${method.name}_async`,
       title: `${api.mainServiceName} ${method?.name?.toCamelCase()} Sample`,
       description: method.comments.join(''),
-      canonical: api.handwrittenLayer ? true : false,
+      canonical: api.handwrittenLayer ? false : true,
       file: relativeTemplateName
         .replace(/\$version/, api.naming.version)
         .replace(/\.njk$/, '')
