@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as fs from 'fs';
+import {google} from 'google-gax/build/protos/operations';
 import * as nunjucks from 'nunjucks';
 import * as path from 'path';
 import * as util from 'util';
@@ -68,8 +69,7 @@ function createSnippetIndexMetadata(
   const clientLibrary: protos.google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary = {
     name: `nodejs-${api.naming.productName.toKebabCase()}`,
     version: '0.1.0',
-    language:
-      protos.google.cloud.tools.snippetgen.snippetindex.v1.Language.JAVASCRIPT,
+    language: ('TYPESCRIPT' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
     apis,
   };
 
@@ -99,9 +99,7 @@ function createSnippetMetadata(
       file: '$service.$method.js'
         .replace(/\$service/, service.name!.toSnakeCase())
         .replace(/\$method/, method.name!.toSnakeCase()),
-      language:
-        protos.google.cloud.tools.snippetgen.snippetindex.v1.Language
-          .JAVASCRIPT,
+      language: ('JAVASCRIPT' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
       clientMethod: {
         fullName: method.name,
         async: true,
@@ -168,13 +166,14 @@ function processOneTemplate(
   // services.
   outputFilename = outputFilename.replace(/\$version/, api.naming.version);
 
-  // CHeck to see if the outputFilename matches the snippet index
+  // Check to see if the outputFilename matches the snippet index
   // then, build the object we have the proto interface for
   // pass that object into the template as an argument
   if (outputFilename.match(/snippet_metadata/)) {
     for (const service of api.services) {
       const pushFilename = outputFilename
         .replace(/\.njk$/, '')
+        .replace(/\$version/, api.naming.version)
         .replace(/\$service/, service.name!.toSnakeCase());
 
       const jsonMetadata = createSnippetIndexMetadata(api, service);
