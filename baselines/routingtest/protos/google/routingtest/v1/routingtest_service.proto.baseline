@@ -52,6 +52,10 @@ service TestService {
       routing_parameters {
         field: "name"
       }
+      routing_parameters {
+        field: "name"
+        path_template: "{routing_id=**}"
+      }
     };
   };
 
@@ -64,15 +68,15 @@ service TestService {
     // This routing annotation is only for baseline testing purposes.
     option (google.api.routing) = {
       routing_parameters {
-        field: "parent",
+        field: "parent_id",
         path_template: "{database=projects/*}"
       }
       routing_parameters {
-        field: "parent",
+        field: "nest1.nest2.name_id",
         path_template: "{database=projects/*/databases/*}/documents"
       }
       routing_parameters {
-        field: "parent",
+        field: "another_parent_id",
         path_template: "{routing_id=projects/*}/databases/*/documents"
       }
     };
@@ -82,10 +86,18 @@ service TestService {
 // This is a message description.
 // Lorum ipsum dolor sit amet consectetur adipiscing elit.
 message FibonacciRequest {
+  message Inner1{
+    message Inner2{
+      string name_id = 1;
+    }
+    Inner2 nest2 = 1;
+  }
+  Inner1 nest1 = 1;
   // The nth term to retrieve in the Fibonacci sequence.
-  int32 value = 1;
+  int32 value = 2;
   // This is for testing the routing annotation.
-  string name = 2;
+  string name = 3;
   // This is for testing the routing annotation.
-  string parent = 3;
+  string parent_id = 4;
+  string another_parent_id = 5;
 }

@@ -16,6 +16,7 @@ import * as assert from 'assert';
 import {describe, it} from 'mocha';
 import * as protos from '../../../protos';
 import {
+  convertFieldToCamelCase,
   DynamicRoutingParameters,
   getDynamicHeaderRequestParams,
   getHeaderRequestParams,
@@ -191,7 +192,7 @@ describe('src/schema/proto.ts', () => {
         ],
         [
           {
-            fieldRetrieve: 'app_profile_id',
+            fieldRetrieve: 'appProfileId',
             fieldSend: 'profile_id',
             messageRegex: '(?<profile_id>projects)/[^/]+(?:/.*)?',
             namedSegment: '(?<profile_id>projects/[^/]+)',
@@ -237,7 +238,7 @@ describe('src/schema/proto.ts', () => {
         ],
         [
           {
-            fieldRetrieve: 'app_profile_id',
+            fieldRetrieve: 'appProfileId',
             fieldSend: 'profile_id',
             messageRegex: '(?<profile_id>projects)/[^/]+(?:/.*)?',
             namedSegment: '(?<profile_id>projects/[^/]+)',
@@ -250,6 +251,32 @@ describe('src/schema/proto.ts', () => {
       );
     });
   });
+
+  describe('should return a string set to camelCase', () => {
+    it('should return this to camelCase', () => {
+      assert.deepStrictEqual(
+        convertFieldToCamelCase('name.name2.name3'),
+        'name.name2.name3'
+      );
+      assert.deepStrictEqual(
+        convertFieldToCamelCase(''),
+        ''
+      );
+      assert.deepStrictEqual(
+        convertFieldToCamelCase('parent_id'),
+        'parentId'
+      );
+      assert.deepStrictEqual(
+        convertFieldToCamelCase('app_profile_id'),
+        'appProfileId'
+      );
+      assert.deepStrictEqual(
+        convertFieldToCamelCase('name.parent_id.another_parent_id'),
+        'name.parentId.anotherParentId'
+      );
+    });
+  });
+
 
   describe('should get return an array from a single routing parameters rule', () => {
     it('should return an empty DynamicRoutingParameters interface if the annotation is malformed', () => {
@@ -298,11 +325,11 @@ describe('src/schema/proto.ts', () => {
     });
     it('works with a basic path template', () => {
       const routingRule: protos.google.api.IRoutingParameter = {
-        field: 'app_profile_id',
+        field: 'app_profile_id.parent_id',
         pathTemplate: '{routing_id=**}',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
-        fieldRetrieve: 'app_profile_id',
+        fieldRetrieve: 'appProfileId.parentId',
         fieldSend: 'routing_id',
         messageRegex: '(?<routing_id>(?:/.*)?)',
         namedSegment: '(?<routing_id>.*)',
@@ -318,7 +345,7 @@ describe('src/schema/proto.ts', () => {
         pathTemplate: '{routing_id=projects/*}/**',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
-        fieldRetrieve: 'app_profile_id',
+        fieldRetrieve: 'appProfileId',
         fieldSend: 'routing_id',
         messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
         namedSegment: '(?<routing_id>projects/[^/]+)',
