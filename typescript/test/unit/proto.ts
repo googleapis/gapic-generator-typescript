@@ -258,14 +258,8 @@ describe('src/schema/proto.ts', () => {
         convertFieldToCamelCase('name.name2.name3'),
         'name.name2.name3'
       );
-      assert.deepStrictEqual(
-        convertFieldToCamelCase(''),
-        ''
-      );
-      assert.deepStrictEqual(
-        convertFieldToCamelCase('parent_id'),
-        'parentId'
-      );
+      assert.deepStrictEqual(convertFieldToCamelCase(''), '');
+      assert.deepStrictEqual(convertFieldToCamelCase('parent_id'), 'parentId');
       assert.deepStrictEqual(
         convertFieldToCamelCase('app_profile_id'),
         'appProfileId'
@@ -276,7 +270,6 @@ describe('src/schema/proto.ts', () => {
       );
     });
   });
-
 
   describe('should get return an array from a single routing parameters rule', () => {
     it('should return an empty DynamicRoutingParameters interface if the annotation is malformed', () => {

@@ -669,17 +669,14 @@ export interface DynamicRoutingParameters {
 }
 
 // The field to be retrieved needs to be converted into camelCase
-export function convertFieldToCamelCase(
-  field: string
-) {
-  let camelCaseFields: string[] = []
-  let fieldsToRetrieve = field.split(".")
-  fieldsToRetrieve.forEach((field) => {
-    camelCaseFields.push(field.toCamelCase())
-  })
-  return camelCaseFields.join(".")
+export function convertFieldToCamelCase(field: string) {
+  const camelCaseFields: string[] = [];
+  const fieldsToRetrieve = field.split('.');
+  fieldsToRetrieve.forEach(field => {
+    camelCaseFields.push(field.toCamelCase());
+  });
+  return camelCaseFields.join('.');
 }
-
 
 // This parses a single Routing Parameter and returns a MapRoutingParameters interface.
 export function getSingleRoutingHeaderParam(
