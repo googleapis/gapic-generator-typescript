@@ -58,93 +58,93 @@ async function recursiveFileList(
 
 function createSnippetIndexMetadata(
   api: API,
-  service: ServiceDescriptorProto,
   basePath: string
 ): protos.google.cloud.tools.snippetgen.snippetindex.v1.IIndex {
   const apis: protos.google.cloud.tools.snippetgen.snippetindex.v1.IApi[] = [];
 
-  api.services.forEach(x =>
-    apis.push({id: x.name, version: api.naming.version})
-  );
   const clientLibrary: protos.google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary = {
     name: `nodejs-${api.naming.productName.toKebabCase()}`,
     version: '0.1.0',
     language: ('TYPESCRIPT' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
-    apis,
+    apis: [{id: api.naming.protoPackage, version: api.naming.version}],
   };
 
-  const snippets = createSnippetMetadata(api, service, basePath);
+  const snippets = createSnippetMetadata(api, basePath);
   return {clientLibrary, snippets};
 }
 
 function createSnippetMetadata(
   api: API,
-  service: ServiceDescriptorProto,
   basePath: string
 ): protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] {
   const snippets: protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] = [];
 
-  for (const method of service.method) {
-    const paramNameAndTypes: protos.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter[] = [];
+  for (const service of api.services) {
+    for (const method of service.method) {
+      const paramNameAndTypes: protos.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter[] = [];
 
-    method.paramComment?.forEach(x =>
-      paramNameAndTypes.push({name: x.paramName, type: x.paramType})
-    );
+      method.paramComment?.forEach(x =>
+        paramNameAndTypes.push({name: x.paramName, type: x.paramType})
+      );
 
-    const startRegionTag = countRegionTagLines(
-      'samples/generated/$version/$service.$method.js.njk',
-      basePath,
-      api,
-      service,
-      method
-    );
+      const startRegionTag = countRegionTagLines(
+        'samples/generated/$version/$service.$method.js.njk',
+        basePath,
+        api,
+        service,
+        method
+      );
 
-    const start = startRegionTag.start ? startRegionTag.start + 2 : undefined;
-    const end = startRegionTag.end ?? undefined;
+      const start = startRegionTag.start ? startRegionTag.start + 2 : undefined;
+      const end = startRegionTag.end ?? undefined;
 
-    snippets.push({
-      regionTag: `${api.hostName?.split('.')[0]}_${
-        api.naming.version
-      }_generated_${service.name}_${method.name}_async`,
-      title: `${api.mainServiceName} ${method?.name?.toCamelCase()} Sample`,
-      origin: ('API_DEFINITION' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin,
-      description: method.comments.join(''),
-      canonical: api.handwrittenLayer ? false : true,
-      file: '$service.$method.js'
-        .replace(/\$service/, service.name!.toSnakeCase())
-        .replace(/\$method/, method.name!.toSnakeCase()),
-      language: ('JAVASCRIPT' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
-      segments: [
-        {
-          start,
-          end,
-          type: ('FULL' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType,
-        },
-      ],
-      clientMethod: {
-        shortName: method.name,
-        fullName: `${api.naming.protoPackage}.${method.name}`,
-        async: true,
-        parameters: paramNameAndTypes,
-        resultType: method.outputType,
-        client: {
-          shortName: `${service.name?.toPascalCase()}Client`,
+      snippets.push({
+        regionTag: `${api.hostName?.split('.')[0]}_${
+          api.naming.version
+        }_generated_${service.name}_${method.name}_async`,
+        title: `${api.mainServiceName} ${method?.name?.toCamelCase()} Sample`,
+        origin: ('API_DEFINITION' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin,
+        description: method.comments.join(''),
+        canonical: api.handwrittenLayer ? false : true,
+        file: '$service.$method.js'
+          .replace(/\$service/, service.name!.toSnakeCase())
+          .replace(/\$method/, method.name!.toSnakeCase()),
+        language: ('JAVASCRIPT' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
+        segments: [
+          {
+            start,
+            end,
+            type: ('FULL' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType,
+          },
+        ],
+        clientMethod: {
+          shortName: method.name,
           fullName: `${
             api.naming.protoPackage
-          }.${service.name?.toPascalCase()}Client`,
-        },
-        method: {
-          shortName: method.name?.toPascalCase(),
-          fullName: `${api.naming.protoPackage}.${method.name?.toPascalCase()}`,
-          service: {
-            shortName: service.name,
-            fullName: `${api.naming.protoPackage}.${service.name}`,
+          }.${service.name?.toPascalCase()}.${method.name}`,
+          async: true,
+          parameters: paramNameAndTypes,
+          resultType: method.outputType,
+          client: {
+            shortName: `${service.name?.toPascalCase()}Client`,
+            fullName: `${
+              api.naming.protoPackage
+            }.${service.name?.toPascalCase()}Client`,
+          },
+          method: {
+            shortName: method.name?.toPascalCase(),
+            fullName: `${
+              api.naming.protoPackage
+            }.${service.name?.toPascalCase()}.${method.name?.toPascalCase()}`,
+            service: {
+              shortName: service.name,
+              fullName: `${api.naming.protoPackage}.${service.name}`,
+            },
           },
         },
-      },
-    });
+      });
+    }
   }
-
   return snippets;
 }
 
@@ -225,19 +225,16 @@ function processOneTemplate(
   // then, build the object we have the proto interface for
   // pass that object into the template as an argument
   if (outputFilename.match(/snippet_metadata/)) {
-    for (const service of api.services) {
-      const pushFilename = outputFilename
-        .replace(/\.njk$/, '')
-        .replace(/\$version/, api.naming.version)
-        .replace(/\$service/, service.name!.toSnakeCase());
+    const pushFilename = outputFilename
+      .replace(/\.njk$/, '')
+      .replace(/\$apiNamingProtoPackage/, api.naming.protoPackage);
 
-      const jsonMetadata = createSnippetIndexMetadata(api, service, basePath);
-      const output = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
-      output.name = pushFilename;
-      output.content = JSON.stringify(jsonMetadata, null, '  ') + '\n';
+    const jsonMetadata = createSnippetIndexMetadata(api, basePath);
+    const output = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+    output.name = pushFilename;
+    output.content = JSON.stringify(jsonMetadata, null, '  ') + '\n';
 
-      result.push(output);
-    }
+    result.push(output);
   } else if (outputFilename.match(/\$method/)) {
     for (const service of api.services) {
       for (const method of service.method) {
