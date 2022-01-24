@@ -668,6 +668,16 @@ export interface DynamicRoutingParameters {
   namedSegment: string;
 }
 
+// The field to be retrieved needs to be converted into camelCase
+export function convertFieldToCamelCase(field: string) {
+  const camelCaseFields: string[] = [];
+  const fieldsToRetrieve = field.split('.');
+  fieldsToRetrieve.forEach(field => {
+    camelCaseFields.push(field.toCamelCase());
+  });
+  return camelCaseFields.join('.');
+}
+
 // This parses a single Routing Parameter and returns a MapRoutingParameters interface.
 export function getSingleRoutingHeaderParam(
   rule: protos.google.api.IRoutingParameter
@@ -684,7 +694,7 @@ export function getSingleRoutingHeaderParam(
   } else if (!rule.pathTemplate) {
     // If there is no path template, then capture the full field from the message
     dynamicRoutingRule = {
-      fieldRetrieve: rule.field,
+      fieldRetrieve: convertFieldToCamelCase(rule.field),
       fieldSend: rule.field,
       messageRegex: '[^/]+',
       namedSegment: '[^/]+',
@@ -695,7 +705,7 @@ export function getSingleRoutingHeaderParam(
     return dynamicRoutingRule;
   } else {
     dynamicRoutingRule = {
-      fieldRetrieve: rule.field,
+      fieldRetrieve: convertFieldToCamelCase(rule.field),
       fieldSend: getNamedSegment(rule.pathTemplate)[1],
       messageRegex: convertTemplateToRegex(rule.pathTemplate),
       namedSegment: getNamedSegment(rule.pathTemplate)[3],
