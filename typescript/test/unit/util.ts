@@ -209,6 +209,10 @@ describe('src/util.ts', () => {
         'display_video_360_advertiser_link'.toCamelCase(),
         'displayVideo_360AdvertiserLink'
       );
+      assert.deepStrictEqual(
+        'name?_(1)'.toCamelCase(),
+        'name_1'
+      );
     });
 
     it('should convert to PascalCase', () => {
