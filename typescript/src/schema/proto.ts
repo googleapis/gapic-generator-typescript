@@ -642,16 +642,15 @@ export function getDynamicHeaderRequestParams(
       params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
     }
     // If the 'fieldSend' is the same as the previous rule, then add it to the same array. Otherwise, start a new array.
-    // Add newer items to front of array due to "last one wins" rule.
     else if (
       getSingleRoutingHeaderParam(rule).fieldSend ===
       getSingleRoutingHeaderParam(rules[index - 1]).fieldSend
     ) {
-      params[countOfParameters].unshift(getSingleRoutingHeaderParam(rule));
+      params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
     } else {
       countOfParameters++;
       params[countOfParameters] = [];
-      params[countOfParameters].unshift(getSingleRoutingHeaderParam(rule));
+      params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
     }
   });
   return params;
