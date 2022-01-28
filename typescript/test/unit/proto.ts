@@ -145,11 +145,10 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
-            fieldRetrieve: 'database',
+            fieldRetrieve: 'name',
             fieldSend: 'routing_id',
-            messageRegex:
-              '(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
-            namedSegment: '(?<routing_id>projects/[^/]+/databases/[^/]+)',
+            messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
+            namedSegment: '(?<routing_id>projects/[^/]+)',
           },
           {
             fieldRetrieve: 'database',
@@ -158,10 +157,11 @@ describe('src/schema/proto.ts', () => {
             namedSegment: '(?<routing_id>.*)',
           },
           {
-            fieldRetrieve: 'name',
+            fieldRetrieve: 'database',
             fieldSend: 'routing_id',
-            messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
-            namedSegment: '(?<routing_id>projects/[^/]+)',
+            messageRegex:
+              '(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
+            namedSegment: '(?<routing_id>projects/[^/]+/databases/[^/]+)',
           },
         ],
       ];
@@ -225,15 +225,15 @@ describe('src/schema/proto.ts', () => {
           {
             fieldRetrieve: 'name',
             fieldSend: 'routing_id',
-            messageRegex:
-              'test/(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
-            namedSegment: '(?<routing_id>projects/[^/]+/databases/[^/]+)',
+            messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
+            namedSegment: '(?<routing_id>projects/[^/]+)',
           },
           {
             fieldRetrieve: 'name',
             fieldSend: 'routing_id',
-            messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
-            namedSegment: '(?<routing_id>projects/[^/]+)',
+            messageRegex:
+              'test/(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
+            namedSegment: '(?<routing_id>projects/[^/]+/databases/[^/]+)',
           },
         ],
         [
