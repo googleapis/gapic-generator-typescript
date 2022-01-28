@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.12.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.0...v2.12.1) (2022-01-28)
+
+
+### Bug Fixes
+
+* remove empty else ([#1095](https://github.com/googleapis/gapic-generator-typescript/issues/1095)) ([52b2aa8](https://github.com/googleapis/gapic-generator-typescript/commit/52b2aa873aee307b84255d002a97cd27fed7936f))
+
 ## [2.12.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.11.0...v2.12.0) (2022-01-24)
 
 
