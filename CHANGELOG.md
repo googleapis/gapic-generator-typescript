@@ -1,5 +1,38 @@
 # Changelog
 
+### [2.12.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.1...v2.12.2) (2022-02-01)
+
+
+### Bug Fixes
+
+* add check for undefined routing header parameters ([#1098](https://github.com/googleapis/gapic-generator-typescript/issues/1098)) ([b20e514](https://github.com/googleapis/gapic-generator-typescript/commit/b20e514d39efd1b958f536cf38df5b99f3b93a68))
+
+### [2.12.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.0...v2.12.1) (2022-01-28)
+
+
+### Bug Fixes
+
+* remove empty else ([#1095](https://github.com/googleapis/gapic-generator-typescript/issues/1095)) ([52b2aa8](https://github.com/googleapis/gapic-generator-typescript/commit/52b2aa873aee307b84255d002a97cd27fed7936f))
+
+## [2.12.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.11.0...v2.12.0) (2022-01-24)
+
+
+### Features
+
+* add handwritten_layer variable for handwritten samples ([#1065](https://github.com/googleapis/gapic-generator-typescript/issues/1065)) ([f614a1d](https://github.com/googleapis/gapic-generator-typescript/commit/f614a1d2c2820b4f80210b1f53826d212610006e))
+
+
+### Bug Fixes
+
+* add null request for bi_di stream call ([#1066](https://github.com/googleapis/gapic-generator-typescript/issues/1066)) ([1149cb1](https://github.com/googleapis/gapic-generator-typescript/commit/1149cb16463531694c580034cc05b9f659a0a058))
+* change dynamic routing header field to camelCase ([#1091](https://github.com/googleapis/gapic-generator-typescript/issues/1091)) ([1e05e76](https://github.com/googleapis/gapic-generator-typescript/commit/1e05e7668fb7f4b40c448f784485a73719f9f90d))
+* **deps:** update all dependencies ([#1067](https://github.com/googleapis/gapic-generator-typescript/issues/1067)) ([45c1e7e](https://github.com/googleapis/gapic-generator-typescript/commit/45c1e7ef53191d959b22cc1ed31cf6a38b1d6435))
+* **deps:** update all dependencies ([#1083](https://github.com/googleapis/gapic-generator-typescript/issues/1083)) ([7820278](https://github.com/googleapis/gapic-generator-typescript/commit/7820278c77dcdb650066895cb7c018ae2d6cc4e6))
+* **deps:** update dependency @types/js-yaml to ^4.0.5 ([#1062](https://github.com/googleapis/gapic-generator-typescript/issues/1062)) ([6ce721a](https://github.com/googleapis/gapic-generator-typescript/commit/6ce721aa72ceb0124e9c4a1d3cb0b2ea7bd1e7a8))
+* ignore generating non-diregapic pagination with map response ([#1076](https://github.com/googleapis/gapic-generator-typescript/issues/1076)) ([b7dc09f](https://github.com/googleapis/gapic-generator-typescript/commit/b7dc09f6ad026476ea9a20abe331c2dfb033b113))
+* **test:** update copyright year in baselines ([#1077](https://github.com/googleapis/gapic-generator-typescript/issues/1077)) ([d19e653](https://github.com/googleapis/gapic-generator-typescript/commit/d19e65355bde5a8cb1e3c1d5715ff4b7f1289f88))
+* update test template for dynamic routing header ([#1058](https://github.com/googleapis/gapic-generator-typescript/issues/1058)) ([1f210d4](https://github.com/googleapis/gapic-generator-typescript/commit/1f210d4077562bad3783ef19820f07eaec1bb835))
+
 ## [2.11.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.10.0...v2.11.0) (2021-11-08)
 
 
