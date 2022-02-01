@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.12.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.1...v2.12.2) (2022-02-01)
+
+
+### Bug Fixes
+
+* add check for undefined routing header parameters ([#1098](https://github.com/googleapis/gapic-generator-typescript/issues/1098)) ([b20e514](https://github.com/googleapis/gapic-generator-typescript/commit/b20e514d39efd1b958f536cf38df5b99f3b93a68))
+
 ### [2.12.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.0...v2.12.1) (2022-01-28)
 
 
