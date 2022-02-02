@@ -30,11 +30,12 @@ import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.longRunning.length > 0 or service.diregapicLRO.length > 0 %}, LROperation{%- endif -%}
 {%- if service.paging.length > 0 %}, PaginationCallback, GaxCall{%- endif -%}
+{%- if service.streaming.length > 0 %}, GoogleError{%- endif -%}
 {%- if service.IAMPolicyMixin > 0 %}, IamClient, IamProtos{%- endif -%}
 {%- if service.LocationMixin > 0 %}, LocationsClient, LocationProtos{%- endif -%}
 } from 'google-gax';
 {% if service.paging.length > 0 %}
-import { Transform } from 'stream';
+import { Transform{%- if service.streaming.length > 0 %}, PassThrough{%- endif -%}} from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
 {%- endif %}
 import * as protos from '../../protos/protos';
@@ -395,6 +396,14 @@ export class {{ service.name }}Client {
       const callPromise = this.{{ service.name.toCamelCase() }}Stub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
+            {%- if service.streaming.length > 0 -%}
+            if (methodName in this.descriptors.stream) {
+              const stream = new PassThrough();
+              setImmediate(() => {
+                stream.emit('error', new GoogleError('The client has already been closed.'));
+              });
+              return stream;
+            }
             return Promise.reject('The client has already been closed.');
           }
           const func = stub[methodName];
