@@ -33,7 +33,7 @@ const COMMON_PROTO_LIST = [
   'google.type',
 ];
 
-interface MethodDescriptorProto
+export interface MethodDescriptorProto
   extends protos.google.protobuf.IMethodDescriptorProto {
   longRunning?: protos.google.longrunning.IOperationInfo;
   longRunningResponseType?: string;

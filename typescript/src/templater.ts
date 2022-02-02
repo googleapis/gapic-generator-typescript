@@ -20,6 +20,7 @@ import * as util from 'util';
 import * as protos from '../../protos';
 
 import {API} from './schema/api';
+import {MethodDescriptorProto, ServiceDescriptorProto} from './schema/proto';
 
 interface Namer {
   register: (name: string, serviceName?: string) => string;
@@ -55,12 +56,133 @@ async function recursiveFileList(
   return result;
 }
 
+function createSnippetIndexMetadata(
+  api: API,
+  basePath: string
+): protos.google.cloud.tools.snippetgen.snippetindex.v1.IIndex {
+  const apis: protos.google.cloud.tools.snippetgen.snippetindex.v1.IApi[] = [];
+
+  const clientLibrary: protos.google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary = {
+    name: `nodejs-${api.naming.productName.toKebabCase()}`,
+    version: '0.1.0',
+    language: ('TYPESCRIPT' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
+    apis: [{id: api.naming.protoPackage, version: api.naming.version}],
+  };
+
+  const snippets = createSnippetMetadata(api, basePath);
+  return {clientLibrary, snippets};
+}
+
+function createSnippetMetadata(
+  api: API,
+  basePath: string
+): protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] {
+  const snippets: protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] = [];
+
+  for (const service of api.services) {
+    for (const method of service.method) {
+      const paramNameAndTypes: protos.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter[] = [];
+
+      method.paramComment?.forEach(x =>
+        paramNameAndTypes.push({name: x.paramName, type: x.paramType})
+      );
+
+      const startRegionTag = countRegionTagLines(
+        'samples/generated/$version/$service.$method.js.njk',
+        basePath,
+        api,
+        service,
+        method
+      );
+
+      const start = startRegionTag.start ? startRegionTag.start + 2 : undefined;
+      const end = startRegionTag.end ?? undefined;
+
+      snippets.push({
+        regionTag: `${api.hostName?.split('.')[0]}_${
+          api.naming.version
+        }_generated_${service.name}_${method.name}_async`,
+        title: `${api.mainServiceName} ${method?.name?.toCamelCase()} Sample`,
+        origin: ('API_DEFINITION' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin,
+        description: method.comments.join(''),
+        canonical: api.handwrittenLayer ? false : true,
+        file: '$service.$method.js'
+          .replace(/\$service/, service.name!.toSnakeCase())
+          .replace(/\$method/, method.name!.toSnakeCase()),
+        language: ('JAVASCRIPT' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
+        segments: [
+          {
+            start,
+            end,
+            type: ('FULL' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType,
+          },
+        ],
+        clientMethod: {
+          shortName: method.name,
+          fullName: `${
+            api.naming.protoPackage
+          }.${service.name?.toPascalCase()}.${method.name}`,
+          async: true,
+          parameters: paramNameAndTypes,
+          resultType: method.outputType,
+          client: {
+            shortName: `${service.name?.toPascalCase()}Client`,
+            fullName: `${
+              api.naming.protoPackage
+            }.${service.name?.toPascalCase()}Client`,
+          },
+          method: {
+            shortName: method.name?.toPascalCase(),
+            fullName: `${
+              api.naming.protoPackage
+            }.${service.name?.toPascalCase()}.${method.name?.toPascalCase()}`,
+            service: {
+              shortName: service.name,
+              fullName: `${api.naming.protoPackage}.${service.name}`,
+            },
+          },
+        },
+      });
+    }
+  }
+  return snippets;
+}
+
+function countRegionTagLines(
+  templateName: string,
+  basePath: string,
+  api: API,
+  service: ServiceDescriptorProto,
+  method: MethodDescriptorProto
+) {
+  const id = loadNamerPlugin(basePath);
+  const processed = nunjucks.render(templateName, {api, service, method, id});
+
+  const processedArray = processed.split(/\r?\n/);
+
+  let start;
+  let end;
+
+  for (let x = 0; x < processedArray.length; x++) {
+    if (processedArray[x].includes('START')) {
+      start = x;
+    }
+
+    if (processedArray[x].includes('END')) {
+      end = x;
+    }
+  }
+
+  return {start, end};
+}
+
 function renderFile(
   targetFilename: string,
   templateName: string,
   renderParameters: {}
 ) {
   let processed = nunjucks.render(templateName, renderParameters);
+
   // Pretty-print generated JSON files
   if (targetFilename.match(/\.json$/i)) {
     try {
@@ -99,7 +221,21 @@ function processOneTemplate(
   // services.
   outputFilename = outputFilename.replace(/\$version/, api.naming.version);
 
-  if (outputFilename.match(/\$method/)) {
+  // Check to see if the outputFilename matches the snippet index
+  // then, build the object we have the proto interface for
+  // pass that object into the template as an argument
+  if (outputFilename.match(/snippet_metadata/)) {
+    const pushFilename = outputFilename
+      .replace(/\.njk$/, '')
+      .replace(/\$apiNamingProtoPackage/, api.naming.protoPackage);
+
+    const jsonMetadata = createSnippetIndexMetadata(api, basePath);
+    const output = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+    output.name = pushFilename;
+    output.content = JSON.stringify(jsonMetadata, null, '  ') + '\n';
+
+    result.push(output);
+  } else if (outputFilename.match(/\$method/)) {
     for (const service of api.services) {
       for (const method of service.method) {
         const pushFilename = outputFilename
@@ -141,11 +277,7 @@ function processOneTemplate(
   return result;
 }
 
-export async function processTemplates(basePath: string, api: API) {
-  nunjucks.configure(basePath);
-  basePath = basePath.replace(/\/*$/, '');
-
-  // If this template provides a namer plugin, load it
+function loadNamerPlugin(basePath: string) {
   const namerLocation = path.join(basePath, 'namer.js');
   const id: Namer = {
     register: () => {
@@ -168,6 +300,16 @@ export async function processTemplates(basePath: string, api: API) {
     id.register = register;
     id.get = get;
   }
+
+  return id;
+}
+
+export async function processTemplates(basePath: string, api: API) {
+  nunjucks.configure(basePath);
+  basePath = basePath.replace(/\/*$/, '');
+
+  // If this template provides a namer plugin, load it
+  const id = loadNamerPlugin(basePath);
 
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
