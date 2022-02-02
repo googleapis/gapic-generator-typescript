@@ -35,8 +35,11 @@ import {Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.LocationMixin > 0 %}, LocationsClient, LocationProtos{%- endif -%}
 } from 'google-gax';
 {% if service.paging.length > 0 %}
-import { Transform{%- if service.streaming.length > 0 %}, PassThrough{%- endif -%}} from 'stream';
+import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
+{%- endif %}
+{%- if service.streaming.length > 0 %}
+import { PassThrough } from 'stream';
 {%- endif %}
 import * as protos from '../../protos/protos';
 {%- if api.legacyProtoLoad %}
@@ -404,6 +407,7 @@ export class {{ service.name }}Client {
               });
               return stream;
             }
+            {%- endif -%}
             return Promise.reject('The client has already been closed.');
           }
           const func = stub[methodName];
