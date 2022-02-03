@@ -1156,31 +1156,6 @@ describe('v1beta1.MessagingClient', () => {
             assert.deepStrictEqual(((stream as unknown as PassThrough)
                 ._transform as SinonStub).getCall(0).args[0], request);
         });
-
-        it('invokes connect with closed client', async () => {
-            const client = new messagingModule.v1beta1.MessagingClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ConnectRequest());
-            const expectedError = new Error('The client has already been closed.');
-            setTimeout(() => {
-                client.close();
-            }, 1000);
-            const stream = client.connect();
-            const promise = new Promise((resolve, reject) => {
-                stream.on('data', (response: protos.google.showcase.v1beta1.StreamBlurbsResponse) => {
-                    resolve(response);
-                });
-                stream.on('error', (err: Error) => {
-                    reject(err);
-                });
-                stream.write(request);
-                stream.end();
-            });
-            await assert.rejects(promise, expectedError);
-        });
     });
 
     describe('sendBlurbs', () => {
@@ -1238,33 +1213,6 @@ describe('v1beta1.MessagingClient', () => {
             await assert.rejects(promise, expectedError);
             assert((client.innerApiCalls.sendBlurbs as SinonStub)
                 .getCall(0).calledWith(null, {} /*, callback defined above */));
-        });
-
-        it('invokes sendBlurbs with closed client', async () => {
-            const client = new messagingModule.v1beta1.MessagingClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
-            const expectedError = new Error('The client has already been closed.');
-            setTimeout(() => {
-                client.close();
-            }, 1000);
-            let stream: PassThrough;
-            const promise = new Promise((resolve, reject) => {
-                stream = client.sendBlurbs(
-                    (err?: Error|null, result?: protos.google.showcase.v1beta1.ISendBlurbsResponse|null) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(result);
-                        }
-                    }) as unknown as PassThrough;
-                stream.write(request);
-                stream.end();
-            });
-            await assert.rejects(promise, expectedError);
         });
     });
 
