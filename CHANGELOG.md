@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.13.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.2...v2.13.0) (2022-02-03)
+
+
+### Features
+
+* add snippet metadata file ([#1084](https://github.com/googleapis/gapic-generator-typescript/issues/1084)) ([5965e9c](https://github.com/googleapis/gapic-generator-typescript/commit/5965e9cfceedee3f93f8d998beea64087a4277f6))
+
+
+### Bug Fixes
+
+* close client with stream methodshould return stream object ([#1101](https://github.com/googleapis/gapic-generator-typescript/issues/1101)) ([40f23d1](https://github.com/googleapis/gapic-generator-typescript/commit/40f23d1d310dfd34e620a6d2f3e43d43f93fde77))
+
 ### [2.12.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.1...v2.12.2) (2022-02-01)
 
 
