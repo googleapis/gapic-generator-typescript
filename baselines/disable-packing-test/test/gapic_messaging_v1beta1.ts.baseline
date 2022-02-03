@@ -1077,6 +1077,27 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.streamBlurbs as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions));
         });
+
+        it('invokes streamBlurbs with closed client', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            const stream = client.streamBlurbs(request);
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos.google.showcase.v1beta1.StreamBlurbsResponse) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+            });
+            await assert.rejects(promise, expectedError);
+        });
     });
 
     describe('connect', () => {
