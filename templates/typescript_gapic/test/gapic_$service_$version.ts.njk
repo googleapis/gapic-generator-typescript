@@ -525,6 +525,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const expectedError = new Error('The client has already been closed.');
             setTimeout(() => {
                 client.close();
             }, 1000);
@@ -537,7 +538,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     reject(err);
                 });
             });
-            await assert.rejects(promise, new Error('The client has already been closed.'));
+            await assert.rejects(promise, expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
@@ -615,6 +616,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const expectedError = new Error('The client has already been closed.');
             setTimeout(() => {
                 client.close();
             }, 1000);
@@ -699,6 +701,36 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(null, {} /*, callback defined above */));
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} with closed client', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.{{ id.get("initialize") }}();
+            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const expectedError = new Error('The client has already been closed.');
+            setTimeout(() => {
+                client.close();
+            }, 1000);
+            let stream: PassThrough;
+            const promise = new Promise((resolve, reject) => {
+                stream = client.{{ method.name.toCamelCase() }}(
+                    (err?: Error|null, result?: {{ util.toInterface(method.outputInterface) }}|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    }) as unknown as PassThrough;
+                stream.write(request);
+                stream.end();
+            });
+            await assert.rejects(promise, expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
         });
     });
 {%- endfor %}
