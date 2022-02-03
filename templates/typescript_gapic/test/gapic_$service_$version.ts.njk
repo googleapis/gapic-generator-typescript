@@ -524,7 +524,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            {{ util.initRequestWithHeaderParam(method) -}}
+            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
             setTimeout(() => {
                 client.close();
             }, 1000);
@@ -607,6 +607,33 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert.deepStrictEqual(((stream as unknown as PassThrough)
                 ._transform as SinonStub).getCall(0).args[0], request);
         });
+
+        it('invokes {{ method.name.toCamelCase() }} with closed client', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.{{ id.get("initialize") }}();
+            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            setTimeout(() => {
+                client.close();
+            }, 1000);
+            const stream = client.{{ method.name.toCamelCase() }}(request);
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos{{ method.outputInterface }}) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+                stream.write(request);
+                stream.end();
+            });
+            await assert.rejects(promise, expectedError);
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+        }
     });
 {%- endfor %}
 {%- for method in service.clientStreaming %}
