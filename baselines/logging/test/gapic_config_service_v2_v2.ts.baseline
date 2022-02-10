@@ -125,12 +125,27 @@ describe('v2.ConfigServiceV2Client', () => {
         assert(client.configServiceV2Stub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', (done) => {
         const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
         });
-        client.close();
+        client.initialize();
+        assert(client.configServiceV2Stub);
+        client.close().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', (done) => {
+        const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+        assert.strictEqual(client.configServiceV2Stub, undefined);
+        client.close().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {

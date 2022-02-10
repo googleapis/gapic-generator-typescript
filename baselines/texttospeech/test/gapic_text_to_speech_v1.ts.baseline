@@ -78,12 +78,27 @@ describe('v1.TextToSpeechClient', () => {
         assert(client.textToSpeechStub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', (done) => {
         const client = new texttospeechModule.v1.TextToSpeechClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
         });
-        client.close();
+        client.initialize();
+        assert(client.textToSpeechStub);
+        client.close().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', (done) => {
+        const client = new texttospeechModule.v1.TextToSpeechClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+        assert.strictEqual(client.textToSpeechStub, undefined);
+        client.close().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {

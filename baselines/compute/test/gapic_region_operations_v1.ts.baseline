@@ -89,12 +89,27 @@ describe('v1.RegionOperationsClient', () => {
         assert(client.regionOperationsStub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', (done) => {
         const client = new regionoperationsModule.v1.RegionOperationsClient({
               auth: googleAuth,
               projectId: 'bogus',
         });
-        client.close();
+        client.initialize();
+        assert(client.regionOperationsStub);
+        client.close().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', (done) => {
+        const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+        assert.strictEqual(client.regionOperationsStub, undefined);
+        client.close().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {

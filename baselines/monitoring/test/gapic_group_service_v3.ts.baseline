@@ -125,12 +125,27 @@ describe('v3.GroupServiceClient', () => {
         assert(client.groupServiceStub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', (done) => {
         const client = new groupserviceModule.v3.GroupServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
         });
-        client.close();
+        client.initialize();
+        assert(client.groupServiceStub);
+        client.close().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', (done) => {
+        const client = new groupserviceModule.v3.GroupServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+        assert.strictEqual(client.groupServiceStub, undefined);
+        client.close().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {
