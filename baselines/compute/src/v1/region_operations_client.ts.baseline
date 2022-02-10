@@ -18,7 +18,7 @@
 
 /* global window */
 import * as gax from 'google-gax';
-import {Callback, CallOptions, Descriptors, ClientOptions} from 'google-gax';
+import {Callback, CallOptions, Descriptors, ClientOptions, GoogleError} from 'google-gax';
 
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
@@ -199,7 +199,7 @@ export class RegionOperationsClient {
       const callPromise = this.regionOperationsStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
-            return Promise.reject('The client has already been closed.');
+            return new GoogleError('The client has already been closed.'));
           }
           const func = stub[methodName];
           return func.apply(stub, args);
@@ -441,9 +441,8 @@ export class RegionOperationsClient {
    * @returns {Promise} A promise that resolves when the client is closed.
    */
   close(): Promise<void> {
-    this.initialize();
-    if (!this._terminated) {
-      return this.regionOperationsStub!.then(stub => {
+    if (this.regionOperationsStub && !this._terminated) {
+      return this.regionOperationsStub.then(stub => {
         this._terminated = true;
         stub.close();
       });

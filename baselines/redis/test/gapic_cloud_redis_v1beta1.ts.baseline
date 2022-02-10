@@ -263,6 +263,17 @@ describe('v1beta1.CloudRedisClient', () => {
             assert((client.innerApiCalls.getInstance as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getInstance with closed client', async () => {
+            const client = new cloudredisModule.v1beta1.CloudRedisClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.GetInstanceRequest());
+            const expectedError = new Error('The client has already been closed.');
+            await assert.rejects(client.getInstance(request), expectedError);
+        });
     });
 
     describe('createInstance', () => {

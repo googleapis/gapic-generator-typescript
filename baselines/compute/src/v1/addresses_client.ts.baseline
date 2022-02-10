@@ -18,7 +18,7 @@
 
 /* global window */
 import * as gax from 'google-gax';
-import {Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback, GaxCall} from 'google-gax';
+import {Callback, CallOptions, Descriptors, ClientOptions, GoogleError, LROperation, PaginationCallback, GaxCall} from 'google-gax';
 
 import { Transform } from 'stream';
 import { RequestType } from 'google-gax/build/src/apitypes';
@@ -214,7 +214,7 @@ export class AddressesClient {
       const callPromise = this.addressesStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
-            return Promise.reject('The client has already been closed.');
+            return new GoogleError('The client has already been closed.'));
           }
           const func = stub[methodName];
           return func.apply(stub, args);
@@ -773,9 +773,8 @@ export class AddressesClient {
    * @returns {Promise} A promise that resolves when the client is closed.
    */
   close(): Promise<void> {
-    this.initialize();
-    if (!this._terminated) {
-      return this.addressesStub!.then(stub => {
+    if (this.addressesStub && !this._terminated) {
+      return this.addressesStub.then(stub => {
         this._terminated = true;
         stub.close();
       });

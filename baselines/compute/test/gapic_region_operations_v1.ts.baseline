@@ -211,6 +211,17 @@ describe('v1.RegionOperationsClient', () => {
             assert((client.innerApiCalls.get as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes get with closed client', async () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.compute.v1.GetRegionOperationRequest());
+            const expectedError = new Error('The client has already been closed.');
+            await assert.rejects(client.get(request), expectedError);
+        });
     });
 
     describe('wait', () => {
@@ -294,6 +305,17 @@ describe('v1.RegionOperationsClient', () => {
             await assert.rejects(client.wait(request), expectedError);
             assert((client.innerApiCalls.wait as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes wait with closed client', async () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.compute.v1.WaitRegionOperationRequest());
+            const expectedError = new Error('The client has already been closed.');
+            await assert.rejects(client.wait(request), expectedError);
         });
     });
 });

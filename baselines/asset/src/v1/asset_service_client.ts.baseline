@@ -18,7 +18,7 @@
 
 /* global window */
 import * as gax from 'google-gax';
-import {Callback, CallOptions, Descriptors, ClientOptions, LROperation} from 'google-gax';
+import {Callback, CallOptions, Descriptors, ClientOptions, GoogleError, LROperation} from 'google-gax';
 
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
@@ -235,7 +235,7 @@ export class AssetServiceClient {
       const callPromise = this.assetServiceStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
-            return Promise.reject('The client has already been closed.');
+            return new GoogleError('The client has already been closed.'));
           }
           const func = stub[methodName];
           return func.apply(stub, args);
@@ -1032,9 +1032,8 @@ export class AssetServiceClient {
    * @returns {Promise} A promise that resolves when the client is closed.
    */
   close(): Promise<void> {
-    this.initialize();
-    if (!this._terminated) {
-      return this.assetServiceStub!.then(stub => {
+    if (this.assetServiceStub && !this._terminated) {
+      return this.assetServiceStub.then(stub => {
         this._terminated = true;
         stub.close();
         this.operationsClient.close();

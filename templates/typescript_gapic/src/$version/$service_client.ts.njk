@@ -27,10 +27,9 @@ limitations under the License.
 {% import "../../_namer.njk" as namer -%}
 {{- namer.initialize(id, service) -}}
 import * as gax from 'google-gax';
-import {Callback, CallOptions, Descriptors, ClientOptions
+import {Callback, CallOptions, Descriptors, ClientOptions, GoogleError
 {%- if service.longRunning.length > 0 or service.diregapicLRO.length > 0 %}, LROperation{%- endif -%}
 {%- if service.paging.length > 0 %}, PaginationCallback, GaxCall{%- endif -%}
-{%- if service.streaming.length > 0 %}, GoogleError{%- endif -%}
 {%- if service.IAMPolicyMixin > 0 %}, IamClient, IamProtos{%- endif -%}
 {%- if service.LocationMixin > 0 %}, LocationsClient, LocationProtos{%- endif -%}
 } from 'google-gax';
@@ -408,7 +407,7 @@ export class {{ service.name }}Client {
               return stream;
             }
             {%- endif %}
-            return Promise.reject('The client has already been closed.');
+            return new GoogleError('The client has already been closed.'));
           }
           const func = stub[methodName];
           return func.apply(stub, args);
@@ -938,9 +937,8 @@ export class {{ service.name }}Client {
    * @returns {Promise} A promise that resolves when the client is closed.
    */
   {{ id.get("close") }}(): Promise<void> {
-    this.{{ id.get("initialize") }}();
-    if (!this._terminated) {
-      return this.{{ service.name.toCamelCase() }}Stub!.then(stub => {
+    if (this.{{ service.name.toCamelCase() }}Stub && !this._terminated) {
+      return this.{{ service.name.toCamelCase() }}Stub.then(stub => {
         this._terminated = true;
         stub.close();
         {%- if service.IAMPolicyMixin > 0 %}
