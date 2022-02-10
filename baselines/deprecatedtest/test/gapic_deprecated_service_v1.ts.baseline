@@ -176,6 +176,18 @@ describe('v1.DeprecatedServiceClient', () => {
             assert((client.innerApiCalls.fastFibonacci as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes fastFibonacci with closed client', async () => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.fastFibonacci(request), expectedError);
+        });
     });
 
     describe('slowFibonacci', () => {
@@ -241,6 +253,20 @@ describe('v1.DeprecatedServiceClient', () => {
             assert(stub.calledOnce);
             assert((client.innerApiCalls.slowFibonacci as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes slowFibonacci with closed client', async () => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+            const stub = sinon.stub(client, 'warn');
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.slowFibonacci(request), expectedError);
+            assert(stub.calledOnce);
         });
     });
 });
