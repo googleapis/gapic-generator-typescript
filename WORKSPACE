@@ -24,7 +24,9 @@ yarn_install(
     name = "npm",
     package_json = "//:package.json",
     yarn_lock = "//:yarn.lock",
+    symlink_node_modules = True,
 )
 
-load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dependencies")
+load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dependencies", "build_bazel_rules_nodejs_dev_dependencies")
 build_bazel_rules_nodejs_dependencies()
+build_bazel_rules_nodejs_dev_dependencies()
