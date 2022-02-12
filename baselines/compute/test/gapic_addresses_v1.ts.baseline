@@ -136,12 +136,27 @@ describe('v1.AddressesClient', () => {
         assert(client.addressesStub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', done => {
         const client = new addressesModule.v1.AddressesClient({
               auth: googleAuth,
               projectId: 'bogus',
         });
-        client.close();
+        client.initialize();
+        assert(client.addressesStub);
+        client.close().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', done => {
+        const client = new addressesModule.v1.AddressesClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+        assert.strictEqual(client.addressesStub, undefined);
+        client.close().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {

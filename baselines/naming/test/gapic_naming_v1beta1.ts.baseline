@@ -141,12 +141,27 @@ describe('v1beta1.NamingClient', () => {
         assert(client.namingStub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', done => {
         const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
         });
-        client.close();
+        client.initialize1();
+        assert(client.namingStub);
+        client.close().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', done => {
+        const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+        assert.strictEqual(client.namingStub, undefined);
+        client.close().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {
