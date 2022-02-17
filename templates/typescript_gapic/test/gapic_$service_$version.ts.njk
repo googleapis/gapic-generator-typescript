@@ -218,9 +218,21 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         assert(client.{{ service.name.toCamelCase() }}Stub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', done => {
         const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
-        client.{{ id.get("close") }}();
+        client.{{ id.get("initialize") }}();
+        assert(client.{{ service.name.toCamelCase() }}Stub);
+        client.{{ id.get("close") }}().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', done => {
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+        assert.strictEqual(client.{{ service.name.toCamelCase() }}Stub, undefined);
+        client.{{ id.get("close") }}().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {

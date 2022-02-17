@@ -125,12 +125,27 @@ describe('v2.LoggingServiceV2Client', () => {
         assert(client.loggingServiceV2Stub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', done => {
         const client = new loggingservicev2Module.v2.LoggingServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
         });
-        client.close();
+        client.initialize();
+        assert(client.loggingServiceV2Stub);
+        client.close().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', done => {
+        const client = new loggingservicev2Module.v2.LoggingServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+        assert.strictEqual(client.loggingServiceV2Stub, undefined);
+        client.close().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {

@@ -125,12 +125,27 @@ describe('v3.AlertPolicyServiceClient', () => {
         assert(client.alertPolicyServiceStub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', done => {
         const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
         });
-        client.close();
+        client.initialize();
+        assert(client.alertPolicyServiceStub);
+        client.close().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', done => {
+        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+        assert.strictEqual(client.alertPolicyServiceStub, undefined);
+        client.close().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {

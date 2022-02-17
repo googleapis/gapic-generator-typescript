@@ -78,12 +78,27 @@ describe('v1.DeprecatedServiceClient', () => {
         assert(client.deprecatedServiceStub);
     });
 
-    it('has close method', () => {
+    it('has close method for the initialized client', done => {
         const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
         });
-        client.close();
+        client.initialize();
+        assert(client.deprecatedServiceStub);
+        client.close().then(() => {
+            done();
+        });
+    });
+
+    it('has close method for the non-initialized client', done => {
+        const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+        assert.strictEqual(client.deprecatedServiceStub, undefined);
+        client.close().then(() => {
+            done();
+        });
     });
 
     it('has getProjectId method', async () => {
