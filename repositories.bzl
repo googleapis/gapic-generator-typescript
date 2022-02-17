@@ -27,7 +27,7 @@ def gapic_generator_typescript_repositories():
       strip_prefix = "rules_gapic-%s" % _rules_gapic_version,
       urls = ["https://github.com/googleapis/rules_gapic/archive/v%s.tar.gz" % _rules_gapic_version],
   )
- 
+
   maybe(
       http_archive,
       name = "com_google_protobuf",
