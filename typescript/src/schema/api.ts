@@ -52,6 +52,7 @@ export class API {
       fd.package === 'google.protobuf' ||
       fd.package === 'google.type' ||
       fd.package === 'google.rpc' ||
+      fd.package === 'google.rpc.context' ||
       fd.package === 'google.api'
     );
   }

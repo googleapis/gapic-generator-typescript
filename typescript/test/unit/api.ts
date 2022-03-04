@@ -113,7 +113,10 @@ describe('src/schema/api.ts', () => {
     const fd5 = new protos.google.protobuf.FileDescriptorProto();
     fd5.name = 'google/api/servicemanagement/v1/servicemanager.proto';
     fd5.package = 'google.api.servicemanager.v1';
-    const api = new API([fd1, fd2, fd3, fd4, fd5], 'google', {
+    const fd6 = new protos.google.protobuf.FileDescriptorProto();
+    fd6.name = 'google/rpc/context/attribute_context.proto';
+    fd6.package = 'google.rpc.context';
+    const api = new API([fd1, fd2, fd3, fd4, fd5, fd6], 'google', {
       grpcServiceConfig: new protos.grpc.service_config.ServiceConfig(),
     });
     assert.deepStrictEqual(api.filesToGenerate, [
