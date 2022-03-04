@@ -52,6 +52,7 @@ export class API {
       fd.package === 'google.protobuf' ||
       fd.package === 'google.type' ||
       fd.package === 'google.rpc' ||
+      fd.package === 'google.rpc.context' ||
       fd.package === 'google.api'
     );
   }
@@ -194,6 +195,7 @@ export class API {
   }
 
   get protoFilesToGenerateJSON() {
+    console.warn('-=-=-=-=-this.filesToGenerate: ', this.filesToGenerate);
     return JSON.stringify(
       this.filesToGenerate
         .map(file => {

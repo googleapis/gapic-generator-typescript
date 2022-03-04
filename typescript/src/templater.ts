@@ -60,8 +60,6 @@ function createSnippetIndexMetadata(
   api: API,
   basePath: string
 ): protos.google.cloud.tools.snippetgen.snippetindex.v1.IIndex {
-  const apis: protos.google.cloud.tools.snippetgen.snippetindex.v1.IApi[] = [];
-
   const clientLibrary: protos.google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary = {
     name: `nodejs-${api.naming.productName.toKebabCase()}`,
     version: '0.1.0',
