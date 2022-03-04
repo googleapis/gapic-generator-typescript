@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.14.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.0...v2.14.1) (2022-03-04)
+
+
+### Bug Fixes
+
+* should ignore google/rpc/context/*.proto ([#1119](https://github.com/googleapis/gapic-generator-typescript/issues/1119)) ([62d6913](https://github.com/googleapis/gapic-generator-typescript/commit/62d6913455d09e2fb406f4c44fa34509c1f0181f))
+
 ## [2.14.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.13.0...v2.14.0) (2022-02-15)
 
 
