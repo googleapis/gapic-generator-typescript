@@ -195,7 +195,6 @@ export class API {
   }
 
   get protoFilesToGenerateJSON() {
-    console.warn('-=-=-=-=-this.filesToGenerate: ', this.filesToGenerate);
     return JSON.stringify(
       this.filesToGenerate
         .map(file => {
