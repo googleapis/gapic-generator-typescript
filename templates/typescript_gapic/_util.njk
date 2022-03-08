@@ -283,6 +283,24 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endif %}
 {%- endmacro -%}
 
+{%- macro initRequest(method) -%}
+            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+{%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
+{%- set expectedRequestParamJoiner = joiner("&") -%}
+{%- set expectedRequestParams = "" %}
+{%- for requestParam in method.headerRequestParams %}
+{%- set chain = "request" -%}
+{%- set originalName = "" -%}
+{%- for field in requestParam.slice(0, -1) %}
+            {{ chain }}.{{ field.toCamelCase() }} = {};
+{%- set chain = chain + "." + field.toCamelCase() -%}
+{%- set originalName = originalName + field + "." -%}
+{%- endfor %}
+            {{ chain }}.{{ requestParam.slice(-1)[0].toCamelCase() }} = '';
+{%- endfor %}
+{%- endif %}
+{%- endmacro -%}
+
 {%- macro initRequestWithHeaderParam(method) -%}
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
 {%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
