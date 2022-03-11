@@ -913,33 +913,33 @@ export class {{ service.name }}Client {
    * Return a fully-qualified {{ template.name.toCamelCase() }} resource name string.
    *
 {%- for param in template.params %}
-   * @param {string} {{ param | replace(regExp, '{@link $2|$1}') }}
+   * @param {string} {{ id.get(param) | replace(regExp, '{@link $2|$1}') }}
 {%- endfor %}
    * @returns {string} Resource name string.
    */
   {{ id.get(template.name.toCamelCase() + "Path") }}(
 {%- set paramJoiner = joiner() %}
 {%- for param in template.params %}
-{{-paramJoiner()-}}{{ param.toCamelCase() }}:string
+{{-paramJoiner()-}}{{ id.get(param.toCamelCase()) }}:string
 {%- endfor -%}
   ) {
     return this.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.render({
 {%- for param in template.params %}
-      {{ param }}: {{ param.toCamelCase() }},
+      {{ id.get(param) }}: {{ id.get(param.toCamelCase()) }},
 {%- endfor %}
     });
   }
 {%- for param in template.params %}
 
   /**
-   * Parse the {{ param }} from {{ template.name.toPascalCase() }} resource.
+   * Parse the {{ id.get(param) }} from {{ template.name.toPascalCase() }} resource.
    *
    * @param {string} {{ template.name.toCamelCase() }}Name
    *   A fully-qualified path representing {{ template.name }} resource.
-   * @returns {string} A string representing the {{ param }}.
+   * @returns {string} A string representing the {{ id.get(param) }}.
    */
-  {{ id.get("match" + param.toPascalCase() + "From" + template.name.toPascalCase() + "Name") }}({{ template.name.toCamelCase() }}Name: string) {
-    return this.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match({{ template.name.toCamelCase() }}Name).{{ param }};
+  {{ id.get("match" + id.get(param.toPascalCase()) + "From" + template.name.toPascalCase() + "Name") }}({{ template.name.toCamelCase() }}Name: string) {
+    return this.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match({{ template.name.toCamelCase() }}Name).{{ id.get(param) }};
   }
 {%- endfor %}
 {%- endfor %}

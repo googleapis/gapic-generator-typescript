@@ -33,19 +33,6 @@ const COMMON_PROTO_LIST = [
   'google.type',
 ];
 
-const STRICT_MODE_RESERVED_WORDS = new Set<String>([
-  'as',
-  'implements',
-  'interface',
-  'let',
-  'package',
-  'private',
-  'protected',
-  'public',
-  'static',
-  'yield',
-]);
-
 export interface MethodDescriptorProto
   extends protos.google.protobuf.IMethodDescriptorProto {
   longRunning?: protos.google.longrunning.IOperationInfo;
@@ -838,11 +825,6 @@ function augmentService(parameters: AugmentServiceParameters) {
   const allPatterns = parameters.resourceDatabase.patterns;
   for (const pattern of Object.keys(allPatterns)) {
     const resource = allPatterns[pattern];
-    resource.params.forEach((param, index) => {
-      if (STRICT_MODE_RESERVED_WORDS.has(param)) {
-        resource.params[index] = param.concat('Param');
-      }
-    });
     uniqueResources[resource.name] = resource;
   }
 

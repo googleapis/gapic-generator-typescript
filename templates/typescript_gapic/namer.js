@@ -20,6 +20,19 @@
  * the template engine.
  */
 
+const STRICT_MODE_RESERVED_WORDS = new Set([
+  'as',
+  'implements',
+  'interface',
+  'let',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'static',
+  'yield',
+]);
+
 /**
  * Initialize local names storage.
  */
@@ -38,6 +51,11 @@ function initialize() {
  */
 function get(name) {
   initialize();
+
+  // Rename if the name is the reserved words in strict mode.
+  if (STRICT_MODE_RESERVED_WORDS.has(name)) {
+    name = name.concat('Param')
+  }
 
   let counter = 0;
   let newName = name;

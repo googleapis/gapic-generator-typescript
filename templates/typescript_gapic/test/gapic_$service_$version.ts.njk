@@ -1421,8 +1421,8 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 {%- set callParameters = "" -%}
 {%- set callParametersJoiner = joiner(", ") -%}
 {%- for param in template.params %}
-                {{ param }}: "{{ param.toCamelCase() }}Value",
-{%- set callParameters = callParameters + callParametersJoiner() + '"' + param.toCamelCase() + 'Value"' %}
+                {{ id.get(param) }}: "{{ id.get(param.toCamelCase()) }}Value",
+{%- set callParameters = callParameters + callParametersJoiner() + '"' + id.get(param.toCamelCase()) + 'Value"' %}
 {%- endfor %}
             };
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
@@ -1443,9 +1443,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             });
 {%- for param in template.params %}
 
-            it('{{ id.get("match" + param.toPascalCase() + "From" + template.name.toPascalCase() + "Name") }}', () => {
-                const result = client.{{ id.get("match" + param.toPascalCase() + "From" + template.name.toPascalCase() + "Name") }}(fakePath);
-                assert.strictEqual(result, "{{ param.toCamelCase() }}Value");
+            it('{{ id.get("match" + id.get(param.toPascalCase()) + "From" + template.name.toPascalCase() + "Name") }}', () => {
+                const result = client.{{ id.get("match" + id.get(param.toPascalCase()) + "From" + template.name.toPascalCase() + "Name") }}(fakePath);
+                assert.strictEqual(result, "{{ id.get(param.toCamelCase()) }}Value");
                 assert((client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
