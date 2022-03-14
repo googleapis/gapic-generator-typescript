@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const { string } = require("yargs");
+
 /* This helper file must export two functions that will be passed to
  * the template engine.  The purpose of these functions is to perform
  * name conflicts resolution that cannot be handled in the generator
@@ -33,6 +35,55 @@ const STRICT_MODE_RESERVED_WORDS = new Set([
   'yield',
 ]);
 
+const TYPESCRIPT_RESERVED_WORDS = new Set([
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'import',
+  'in',
+  'instanceof',
+  'new',
+  'null',
+  'return',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with'
+]);
+
+/**
+ * Check if the word is a Typescript reserved word. https://github.com/microsoft/TypeScript/issues/2536
+ */
+function isReservedWord(word) {
+  if (STRICT_MODE_RESERVED_WORDS.has(word) || TYPESCRIPT_RESERVED_WORDS.has(word)) {
+    return true;
+  }
+  return false
+}
+
 /**
  * Initialize local names storage.
  */
@@ -52,8 +103,8 @@ function initialize() {
 function get(name) {
   initialize();
 
-  // Rename if the name is the reserved words in strict mode.
-  if (STRICT_MODE_RESERVED_WORDS.has(name)) {
+  // Rename if the name is in Typescript reserved words.
+  if (isReservedWord(name)) {
     name = name.concat('Param')
   }
 

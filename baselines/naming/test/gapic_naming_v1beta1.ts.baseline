@@ -844,6 +844,78 @@ describe('v1beta1.NamingClient', () => {
         });
     });
 
+    describe('getReservedWord', () => {
+        it('invokes getReservedWord without error', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+            client.initialize1();
+            const request = generateSampleMessage(new protos.google.naming.v1beta1.GetReservedWordRequest());
+            const expectedOptions = {otherArgs: {headers: {}}};;
+            const expectedResponse = generateSampleMessage(new protos.google.naming.v1beta1.ReservedWord());
+            client.innerApiCalls.getReservedWord = stubSimpleCall(expectedResponse);
+            const [response] = await client.getReservedWord(request);
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.getReservedWord as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes getReservedWord without error using callback', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+            client.initialize1();
+            const request = generateSampleMessage(new protos.google.naming.v1beta1.GetReservedWordRequest());
+            const expectedOptions = {otherArgs: {headers: {}}};;
+            const expectedResponse = generateSampleMessage(new protos.google.naming.v1beta1.ReservedWord());
+            client.innerApiCalls.getReservedWord = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.getReservedWord(
+                    request,
+                    (err?: Error|null, result?: protos.google.naming.v1beta1.IReservedWord|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            assert((client.innerApiCalls.getReservedWord as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+        });
+
+        it('invokes getReservedWord with error', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+            client.initialize1();
+            const request = generateSampleMessage(new protos.google.naming.v1beta1.GetReservedWordRequest());
+            const expectedOptions = {otherArgs: {headers: {}}};;
+            const expectedError = new Error('expected');
+            client.innerApiCalls.getReservedWord = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.getReservedWord(request), expectedError);
+            assert((client.innerApiCalls.getReservedWord as SinonStub)
+                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes getReservedWord with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+        });
+            client.initialize1();
+            const request = generateSampleMessage(new protos.google.naming.v1beta1.GetReservedWordRequest());
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getReservedWord(request), expectedError);
+        });
+    });
+
     describe('longRunning', () => {
         it('invokes longRunning without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
@@ -1124,6 +1196,85 @@ describe('v1beta1.NamingClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.paginatedMethod.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
+        });
+    });
+
+    describe('Path templates', () => {
+
+        describe('projectExport', () => {
+            const fakePath = "/rendered/path/projectExport";
+            const expectedParameters = {
+                project: "projectValue",
+                exportParam: "exportParamValue",
+            };
+            const client = new namingModule.v1beta1.NamingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize1();
+            client.pathTemplates.projectExportPathTemplate.render =
+                sinon.stub().returns(fakePath);
+            client.pathTemplates.projectExportPathTemplate.match =
+                sinon.stub().returns(expectedParameters);
+
+            it('projectExportPath', () => {
+                const result = client.projectExportPath("projectValue", "exportParamValue");
+                assert.strictEqual(result, fakePath);
+                assert((client.pathTemplates.projectExportPathTemplate.render as SinonStub)
+                    .getCall(-1).calledWith(expectedParameters));
+            });
+
+            it('matchProjectFromProjectExportName', () => {
+                const result = client.matchProjectFromProjectExportName(fakePath);
+                assert.strictEqual(result, "projectValue");
+                assert((client.pathTemplates.projectExportPathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
+
+            it('matchExportFromProjectExportName', () => {
+                const result = client.matchExportFromProjectExportName(fakePath);
+                assert.strictEqual(result, "exportParamValue");
+                assert((client.pathTemplates.projectExportPathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
+        });
+
+        describe('projectPackage', () => {
+            const fakePath = "/rendered/path/projectPackage";
+            const expectedParameters = {
+                project: "projectValue",
+                packageParam: "packageParamValue",
+            };
+            const client = new namingModule.v1beta1.NamingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize1();
+            client.pathTemplates.projectPackagePathTemplate.render =
+                sinon.stub().returns(fakePath);
+            client.pathTemplates.projectPackagePathTemplate.match =
+                sinon.stub().returns(expectedParameters);
+
+            it('projectPackagePath', () => {
+                const result = client.projectPackagePath("projectValue", "packageParamValue");
+                assert.strictEqual(result, fakePath);
+                assert((client.pathTemplates.projectPackagePathTemplate.render as SinonStub)
+                    .getCall(-1).calledWith(expectedParameters));
+            });
+
+            it('matchProjectFromProjectPackageName', () => {
+                const result = client.matchProjectFromProjectPackageName(fakePath);
+                assert.strictEqual(result, "projectValue");
+                assert((client.pathTemplates.projectPackagePathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
+
+            it('matchPackageFromProjectPackageName', () => {
+                const result = client.matchPackageFromProjectPackageName(fakePath);
+                assert.strictEqual(result, "packageParamValue");
+                assert((client.pathTemplates.projectPackagePathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
         });
     });
 });
