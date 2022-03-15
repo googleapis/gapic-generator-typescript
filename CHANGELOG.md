@@ -1,5 +1,14 @@
 # Changelog
 
+### [2.14.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.1...v2.14.2) (2022-03-15)
+
+
+### Bug Fixes
+
+* closed method unit test ([#1121](https://github.com/googleapis/gapic-generator-typescript/issues/1121)) ([56dadc8](https://github.com/googleapis/gapic-generator-typescript/commit/56dadc887f4581356db4b6f8be52bbd31ddec795))
+* rename path template params which is reserved word in strict mode ([#1124](https://github.com/googleapis/gapic-generator-typescript/issues/1124)) ([e1ebf3a](https://github.com/googleapis/gapic-generator-typescript/commit/e1ebf3aecebf11c78ea77bb9ba275883a8ff2237))
+* update comment for diregapic LRO method with map response ([#1123](https://github.com/googleapis/gapic-generator-typescript/issues/1123)) ([79ca616](https://github.com/googleapis/gapic-generator-typescript/commit/79ca616c0ae2f4055563cc0ff513a89facf47c44))
+
 ### [2.14.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.0...v2.14.1) (2022-03-04)
 
 
