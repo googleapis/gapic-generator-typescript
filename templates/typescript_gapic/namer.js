@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const { string } = require("yargs");
-
 /* This helper file must export two functions that will be passed to
  * the template engine.  The purpose of these functions is to perform
  * name conflicts resolution that cannot be handled in the generator
