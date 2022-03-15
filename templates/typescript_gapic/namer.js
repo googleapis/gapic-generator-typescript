@@ -20,6 +20,68 @@
  * the template engine.
  */
 
+const STRICT_MODE_RESERVED_WORDS = new Set([
+  'as',
+  'implements',
+  'interface',
+  'let',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'static',
+  'yield',
+]);
+
+const TYPESCRIPT_RESERVED_WORDS = new Set([
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'import',
+  'in',
+  'instanceof',
+  'new',
+  'null',
+  'return',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with'
+]);
+
+/**
+ * Check if the word is a Typescript reserved word. https://github.com/microsoft/TypeScript/issues/2536
+ */
+function isReservedWord(word) {
+  if (STRICT_MODE_RESERVED_WORDS.has(word) || TYPESCRIPT_RESERVED_WORDS.has(word)) {
+    return true;
+  }
+  return false
+}
+
 /**
  * Initialize local names storage.
  */
@@ -38,6 +100,11 @@ function initialize() {
  */
 function get(name) {
   initialize();
+
+  // Rename if the name is in Typescript reserved words.
+  if (isReservedWord(name)) {
+    name = name.concat('Param')
+  }
 
   let counter = 0;
   let newName = name;
