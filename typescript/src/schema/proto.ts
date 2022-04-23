@@ -568,13 +568,6 @@ function augmentMethod(
     method.headerRequestParams = getHeaderRequestParams(
       method.options?.['.google.api.http']
     );
-    if (method.name === 'ListJobs') {
-      console.warn('--- method.name:: ', method.name)
-      console.warn('--- method.option?.[.google/api/http]', method.options?.['.google.api.http'])
-      console.warn('--method.headerRequestParams:: ', method.headerRequestParams)
-    }
-
-    // console.warn('--- method.headerRequestParams:: ', method.headerRequestParams)
   }
   // If dynamic routing annotation exists and is non-empty, then send dynamic routing headers.
   else if (
