@@ -568,6 +568,13 @@ function augmentMethod(
     method.headerRequestParams = getHeaderRequestParams(
       method.options?.['.google.api.http']
     );
+    if (method.name === 'ListJobs') {
+      console.warn('--- method.name:: ', method.name)
+      console.warn('--- method.option?.[.google/api/http]', method.options?.['.google.api.http'])
+      console.warn('--method.headerRequestParams:: ', method.headerRequestParams)
+    }
+
+    // console.warn('--- method.headerRequestParams:: ', method.headerRequestParams)
   }
   // If dynamic routing annotation exists and is non-empty, then send dynamic routing headers.
   else if (
@@ -586,12 +593,16 @@ function augmentMethod(
 
 export function getSingleHeaderParam(
   rule: protos.google.api.IHttpRule
-): string[] {
+): string[][] {
   const message =
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
   if (message) {
-    const res = message.match(/{(.*?)[=}]/);
-    return res?.[1] ? res[1].split('.') : [];
+    const result: string[][] = [];
+    const matches = message.matchAll(/{(.*?)[=}]/g);
+    for (const match of matches) {
+      result.push(match[1] ? match[1].split('.') : []);
+    }
+    return result;
   }
   return [];
 }
@@ -602,11 +613,10 @@ export function getHeaderRequestParams(
   if (!httpRule) {
     return [];
   }
-  const params: string[][] = [];
-  params.push(getSingleHeaderParam(httpRule));
-
+  let params: string[][] = [];
+  params = params.concat(getSingleHeaderParam(httpRule));
   httpRule.additionalBindings = httpRule.additionalBindings ?? [];
-  params.push(
+  params = params.concat(
     ...httpRule.additionalBindings.map(binding => getSingleHeaderParam(binding))
   );
 
@@ -624,7 +634,6 @@ export function getHeaderRequestParams(
     used.add(joined);
     result.push(param);
   }
-
   return result;
 }
 
