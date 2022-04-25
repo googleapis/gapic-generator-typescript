@@ -612,7 +612,6 @@ export function getHeaderRequestParams(
   params = params.concat(
     ...httpRule.additionalBindings.map(binding => getSingleHeaderParam(binding))
   );
-
   // de-dup result array
   const used = new Set();
   const result: string[][] = [];
