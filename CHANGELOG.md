@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.14.3](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.2...v2.14.3) (2022-04-27)
+
+
+### Bug Fixes
+
+* dynamic route fix ([#1130](https://github.com/googleapis/gapic-generator-typescript/issues/1130)) ([e6cd782](https://github.com/googleapis/gapic-generator-typescript/commit/e6cd782865dfd7ba3d09d2b42a2746ac2d1dc7fa))
+
 ### [2.14.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.1...v2.14.2) (2022-03-15)
 
 
