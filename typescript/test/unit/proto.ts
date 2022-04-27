@@ -102,6 +102,21 @@ describe('src/schema/proto.ts', () => {
         getHeaderRequestParams(httpRule)
       );
     });
+
+    it('works with multiple variables', () => {
+      const httpRule: protos.google.api.IHttpRule = {
+        get: 'v1/param1/{foo}/param2/{bar}/',
+        additionalBindings: [
+          {
+            get: 'v1/param1/{foo}',
+          },
+        ],
+      };
+      assert.deepStrictEqual(
+        [['foo'], ['bar']],
+        getHeaderRequestParams(httpRule)
+      );
+    });
   });
 
   describe('should get all the dynamic routing header parameters from routing parameters rule', () => {
