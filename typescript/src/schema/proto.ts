@@ -586,12 +586,18 @@ function augmentMethod(
 
 export function getSingleHeaderParam(
   rule: protos.google.api.IHttpRule
-): string[] {
+): string[][] {
   const message =
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
   if (message) {
-    const res = message.match(/{(.*?)[=}]/);
-    return res?.[1] ? res[1].split('.') : [];
+    const result: string[][] = [];
+    const matches = message.matchAll(/{(.*?)[=}]/g);
+    for (const match of matches) {
+      if (match[1]) {
+        result.push(match[1].split('.'));
+      }
+    }
+    return result;
   }
   return [];
 }
@@ -602,14 +608,12 @@ export function getHeaderRequestParams(
   if (!httpRule) {
     return [];
   }
-  const params: string[][] = [];
-  params.push(getSingleHeaderParam(httpRule));
-
+  let params: string[][] = [];
+  params = params.concat(getSingleHeaderParam(httpRule));
   httpRule.additionalBindings = httpRule.additionalBindings ?? [];
-  params.push(
+  params = params.concat(
     ...httpRule.additionalBindings.map(binding => getSingleHeaderParam(binding))
   );
-
   // de-dup result array
   const used = new Set();
   const result: string[][] = [];
@@ -624,7 +628,6 @@ export function getHeaderRequestParams(
     used.add(joined);
     result.push(param);
   }
-
   return result;
 }
 
