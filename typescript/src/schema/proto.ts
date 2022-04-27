@@ -593,7 +593,9 @@ export function getSingleHeaderParam(
     const result: string[][] = [];
     const matches = message.matchAll(/{(.*?)[=}]/g);
     for (const match of matches) {
-      result.push(match[1] ? match[1].split('.') : []);
+      if (match[1]) {
+        result.push(match[1].split('.'));
+      }
     }
     return result;
   }
