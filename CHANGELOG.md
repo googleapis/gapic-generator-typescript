@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.14.4](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.3...v2.14.4) (2022-05-10)
+
+
+### Bug Fixes
+
+* determine transport for construct StreamDescriptor ([#1131](https://github.com/googleapis/gapic-generator-typescript/issues/1131)) ([b542bcf](https://github.com/googleapis/gapic-generator-typescript/commit/b542bcf995200c00a394d328a0c968d3eb1436d7))
+
 ### [2.14.3](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.2...v2.14.3) (2022-04-27)
 
 
