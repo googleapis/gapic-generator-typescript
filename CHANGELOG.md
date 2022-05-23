@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.14.5](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.4...v2.14.5) (2022-05-23)
+
+
+### Bug Fixes
+
+* use optional chaining for routing parameters ([#1138](https://github.com/googleapis/gapic-generator-typescript/issues/1138)) ([b1aa357](https://github.com/googleapis/gapic-generator-typescript/commit/b1aa3577bdcd5b742516136b1753919485504819))
+
 ### [2.14.4](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.3...v2.14.4) (2022-05-10)
 
 
