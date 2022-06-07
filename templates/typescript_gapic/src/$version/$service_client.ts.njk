@@ -288,6 +288,7 @@ export class {{ service.name }}Client {
       auth: this.auth,
       grpc: 'grpc' in this._gaxGrpc ? this._gaxGrpc.grpc : undefined
     };
+{%- if not api.legacyProtoLoad %}
     if (opts.fallback === 'rest') {
       Object.assign(lroOptions, {
 {%- if (service.longRunning.length > 0) or (service.bundleConfigs.length > 0) %}
@@ -298,6 +299,7 @@ export class {{ service.name }}Client {
         httpRules: {{ util.toHttpRules(service.httpRules) }},
       });
     }
+{%- endif %}
     this.operationsClient = this._gaxModule.lro(lroOptions).operationsClient(opts);
 
 {%- for method in service.longRunning %}
