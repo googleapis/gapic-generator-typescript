@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {google} from 'protos';
+
+export interface Http {
+  rules: google.api.IHttpRule[];
+}
+
 export interface ServiceYaml {
   title: string;
   apis: string[];
   // TODO (alicejli): Dynamic routing headers will eventually be part of the ServiceYaml
   // Refactor reading the annotation from the proto to the serviceYaml file once that is implemented.
+  http: Http;
 }

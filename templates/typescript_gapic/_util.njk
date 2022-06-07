@@ -423,3 +423,21 @@ protos{{ method.pagingResponseType }}
               projectId: 'bogus',
         }
 {%- endmacro -%}
+
+{%- macro toHttpRules(httpRules) -%}
+[
+{%- set httpJoiner = joiner() -%}
+{%- for httpRule in httpRules -%}
+  {{ httpJoiner() -}}
+  {
+    {%- for key, value in httpRule -%}
+      {%- if key === 'additional_bindings' -%}
+      {{ key }}: {{ toHttpRules(value) }},
+      {% else -%}
+      {{ key }}: '{{ value }}',
+      {%- endif -%}
+    {% endfor -%}
+  }
+{%- endfor -%}
+]
+{%- endmacro -%}
