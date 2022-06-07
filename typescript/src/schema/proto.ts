@@ -666,7 +666,7 @@ export function getDynamicHeaderRequestParams(
 // messageRegex is the regex of the path template that the message field should match.
 // namedSegment is the regex capture of the named value of the field.
 export interface DynamicRoutingParameters {
-  fieldRetrieve: string;
+  fieldRetrieve: string[];
   fieldSend: string;
   messageRegex: string;
   namedSegment: string;
@@ -675,11 +675,14 @@ export interface DynamicRoutingParameters {
 // The field to be retrieved needs to be converted into camelCase
 export function convertFieldToCamelCase(field: string) {
   const camelCaseFields: string[] = [];
+  if (field === '') {
+    return camelCaseFields;
+  }
   const fieldsToRetrieve = field.split('.');
   fieldsToRetrieve.forEach(field => {
     camelCaseFields.push(field.toCamelCase());
   });
-  return camelCaseFields.join('.');
+  return camelCaseFields;
 }
 
 // This parses a single Routing Parameter and returns a MapRoutingParameters interface.
@@ -687,7 +690,7 @@ export function getSingleRoutingHeaderParam(
   rule: protos.google.api.IRoutingParameter
 ): DynamicRoutingParameters {
   let dynamicRoutingRule: DynamicRoutingParameters = {
-    fieldRetrieve: '',
+    fieldRetrieve: [],
     fieldSend: '',
     messageRegex: '',
     namedSegment: '',

@@ -130,7 +130,7 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
-            fieldRetrieve: '',
+            fieldRetrieve: [],
             fieldSend: '',
             messageRegex: '',
             namedSegment: '',
@@ -160,19 +160,19 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
-            fieldRetrieve: 'name',
+            fieldRetrieve: ['name'],
             fieldSend: 'routing_id',
             messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
             namedSegment: '(?<routing_id>projects/[^/]+)',
           },
           {
-            fieldRetrieve: 'database',
+            fieldRetrieve: ['database'],
             fieldSend: 'routing_id',
             messageRegex: '(?<routing_id>(?:/.*)?)',
             namedSegment: '(?<routing_id>.*)',
           },
           {
-            fieldRetrieve: 'database',
+            fieldRetrieve: ['database'],
             fieldSend: 'routing_id',
             messageRegex:
               '(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
@@ -199,7 +199,7 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
-            fieldRetrieve: 'name',
+            fieldRetrieve: ['name'],
             fieldSend: 'routing_id',
             messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
             namedSegment: '(?<routing_id>projects/[^/]+)',
@@ -207,7 +207,7 @@ describe('src/schema/proto.ts', () => {
         ],
         [
           {
-            fieldRetrieve: 'appProfileId',
+            fieldRetrieve: ['appProfileId'],
             fieldSend: 'profile_id',
             messageRegex: '(?<profile_id>projects)/[^/]+(?:/.*)?',
             namedSegment: '(?<profile_id>projects/[^/]+)',
@@ -238,13 +238,13 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
-            fieldRetrieve: 'name',
+            fieldRetrieve: ['name'],
             fieldSend: 'routing_id',
             messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
             namedSegment: '(?<routing_id>projects/[^/]+)',
           },
           {
-            fieldRetrieve: 'name',
+            fieldRetrieve: ['name'],
             fieldSend: 'routing_id',
             messageRegex:
               'test/(?<routing_id>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?',
@@ -253,7 +253,7 @@ describe('src/schema/proto.ts', () => {
         ],
         [
           {
-            fieldRetrieve: 'appProfileId',
+            fieldRetrieve: ['appProfileId'],
             fieldSend: 'profile_id',
             messageRegex: '(?<profile_id>projects)/[^/]+(?:/.*)?',
             namedSegment: '(?<profile_id>projects/[^/]+)',
@@ -269,19 +269,21 @@ describe('src/schema/proto.ts', () => {
 
   describe('should return a string set to camelCase', () => {
     it('should return this to camelCase', () => {
-      assert.deepStrictEqual(
-        convertFieldToCamelCase('name.name2.name3'),
-        'name.name2.name3'
-      );
-      assert.deepStrictEqual(convertFieldToCamelCase(''), '');
-      assert.deepStrictEqual(convertFieldToCamelCase('parent_id'), 'parentId');
-      assert.deepStrictEqual(
-        convertFieldToCamelCase('app_profile_id'),
-        'appProfileId'
-      );
+      assert.deepStrictEqual(convertFieldToCamelCase('name.name2.name3'), [
+        'name',
+        'name2',
+        'name3',
+      ]);
+      assert.deepStrictEqual(convertFieldToCamelCase(''), []);
+      assert.deepStrictEqual(convertFieldToCamelCase('parent_id'), [
+        'parentId',
+      ]);
+      assert.deepStrictEqual(convertFieldToCamelCase('app_profile_id'), [
+        'appProfileId',
+      ]);
       assert.deepStrictEqual(
         convertFieldToCamelCase('name.parent_id.another_parent_id'),
-        'name.parentId.anotherParentId'
+        ['name', 'parentId', 'anotherParentId']
       );
     });
   });
@@ -293,7 +295,7 @@ describe('src/schema/proto.ts', () => {
         pathTemplate: 'test/database',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
-        fieldRetrieve: '',
+        fieldRetrieve: [],
         fieldSend: '',
         messageRegex: '',
         namedSegment: '',
@@ -306,7 +308,7 @@ describe('src/schema/proto.ts', () => {
     it('works with no parameters', () => {
       const routingRule: protos.google.api.IRoutingParameter = {};
       const expectedRoutingParameters: DynamicRoutingParameters = {
-        fieldRetrieve: '',
+        fieldRetrieve: [],
         fieldSend: '',
         messageRegex: '',
         namedSegment: '',
@@ -321,7 +323,7 @@ describe('src/schema/proto.ts', () => {
         field: 'name',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
-        fieldRetrieve: 'name',
+        fieldRetrieve: ['name'],
         fieldSend: 'name',
         messageRegex: '[^/]+',
         namedSegment: '[^/]+',
@@ -337,7 +339,7 @@ describe('src/schema/proto.ts', () => {
         pathTemplate: '{routing_id=**}',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
-        fieldRetrieve: 'appProfileId.parentId',
+        fieldRetrieve: ['appProfileId', 'parentId'],
         fieldSend: 'routing_id',
         messageRegex: '(?<routing_id>(?:/.*)?)',
         namedSegment: '(?<routing_id>.*)',
@@ -353,7 +355,7 @@ describe('src/schema/proto.ts', () => {
         pathTemplate: '{routing_id=projects/*}/**',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
-        fieldRetrieve: 'appProfileId',
+        fieldRetrieve: ['appProfileId'],
         fieldSend: 'routing_id',
         messageRegex: '(?<routing_id>projects)/[^/]+(?:/.*)?',
         namedSegment: '(?<routing_id>projects/[^/]+)',
