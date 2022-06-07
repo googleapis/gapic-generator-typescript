@@ -290,7 +290,11 @@ export class {{ service.name }}Client {
     };
     if (opts.fallback === 'rest') {
       Object.assign(lroOptions, {
+{%- if (service.longRunning.length > 0) or (service.bundleConfigs.length > 0) %}
+        protoJson: protoFilesRoot,
+{%- else %}
         protoJson: this._gaxModule.protobuf.Root.fromJSON(jsonProtos),
+{%- endif %}
         httpRules: {{ util.toHttpRules(service.httpRules) }},
       });
     }
