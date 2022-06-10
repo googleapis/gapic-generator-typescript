@@ -18,7 +18,7 @@
 
 /* global window */
 import * as gax from 'google-gax';
-import {Callback, CallOptions, Descriptors, ClientOptions, GoogleError} from 'google-gax';
+import {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, GoogleError} from 'google-gax';
 
 import { PassThrough } from 'stream';
 import * as protos from '../../protos/protos';
@@ -169,6 +169,8 @@ export class BigQueryStorageClient {
     this.descriptors.stream = {
       readRows: new this._gaxModule.StreamDescriptor(gax.StreamType.SERVER_STREAMING, opts.fallback === 'rest')
     };
+
+    const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
 
     // Put together the default options sent with requests.
     this._defaults = this._gaxGrpc.constructSettings(
