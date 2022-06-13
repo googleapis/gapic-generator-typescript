@@ -25,6 +25,7 @@ import {
 import {BundleConfig} from '../bundle';
 import {Options} from './naming';
 import {ServiceYaml} from '../serviceyaml';
+import {google} from '../../../protos';
 
 const COMMON_PROTO_LIST = [
   'google.api',
@@ -98,6 +99,7 @@ export interface ServiceDescriptorProto
   LongRunningOperationsMixin: number;
   protoFile: string;
   diregapicLRO?: MethodDescriptorProto[];
+  httpRules?: google.api.IHttpRule[];
 }
 
 export interface ServicesMap {
@@ -754,6 +756,9 @@ function augmentService(parameters: AugmentServiceParameters) {
     )
   ) {
     augmentedService.LongRunningOperationsMixin = 1;
+  }
+  if (parameters.options.serviceYaml?.http) {
+    augmentedService.httpRules = parameters.options.serviceYaml.http.rules;
   }
   augmentedService.comments = parameters.commentsMap.getServiceComment(
     parameters.service.name!
