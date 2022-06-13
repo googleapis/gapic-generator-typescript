@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.14.6](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.5...v2.14.6) (2022-06-10)
+
+
+### Bug Fixes
+
+* unit tests for LRO and Location need async iteration stub ([#1145](https://github.com/googleapis/gapic-generator-typescript/issues/1145)) ([44e5804](https://github.com/googleapis/gapic-generator-typescript/commit/44e5804b4ad9c0366dbcc86ffd2a66f024953b05))
+
 ### [2.14.5](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.4...v2.14.5) (2022-05-23)
 
 
