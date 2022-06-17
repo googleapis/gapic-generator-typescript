@@ -14,11 +14,11 @@
 
 interface String {
   capitalize(): string;
-  words(): string[];
-  toCamelCase(): string;
-  toPascalCase(): string;
-  toKebabCase(): string;
-  toSnakeCase(): string;
+  words(protobufJsStyle?: boolean): string[];
+  toCamelCase(protobufJsStyle?: boolean): string;
+  toPascalCase(protobufJsStyle?: boolean): string;
+  toKebabCase(protobufJsStyle?: boolean): string;
+  toSnakeCase(protobufJsStyle?: boolean): string;
   replaceAll(this: string, search: string, replacement: string): string;
 }
 
