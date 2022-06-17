@@ -82,15 +82,36 @@ String.prototype.capitalize = function (this: string): string {
   return this[0].toUpperCase() + this.slice(1);
 };
 
-String.prototype.words = function (this: string): string[] {
+String.prototype.words = function (
+  this: string,
+  protobufJsStyle = false
+): string[] {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  let arg = this;
+  if (protobufJsStyle) {
+    // treat multiple capital letters as one word
+    // e.g. CreateOSPolicy => create, os, policy
+    // (the default would've been create, o, s, policy)
+    arg = this.replace(/([A-Z])([A-Z]+)([A-Z])/g, (str: string) => {
+      return (
+        str[0] +
+        str.slice(1, str.length - 1).toLowerCase() +
+        str[str.length - 1]
+      );
+    });
+  }
   // split on spaces, non-alphanumeric, or capital letters
-  return this.split(/(?=[A-Z])|[\s\W_]+/)
+  return arg
+    .split(/(?=[A-Z])|[\s\W_]+/)
     .filter(w => w.length > 0)
     .map(w => w.toLowerCase());
 };
 
-String.prototype.toCamelCase = function (this: string): string {
-  const words = this.words();
+String.prototype.toCamelCase = function (
+  this: string,
+  protobufJsStyle = false
+): string {
+  const words = this.words(protobufJsStyle);
   if (words.length === 0) {
     return this;
   }
@@ -106,8 +127,11 @@ String.prototype.toCamelCase = function (this: string): string {
   return result.join('');
 };
 
-String.prototype.toPascalCase = function (this: string): string {
-  const words = this.words();
+String.prototype.toPascalCase = function (
+  this: string,
+  protobufJsStyle = false
+): string {
+  const words = this.words(protobufJsStyle);
   if (words.length === 0) {
     return this;
   }
@@ -115,16 +139,22 @@ String.prototype.toPascalCase = function (this: string): string {
   return result.join('');
 };
 
-String.prototype.toKebabCase = function (this: string): string {
-  const words = this.words();
+String.prototype.toKebabCase = function (
+  this: string,
+  protobufJsStyle = false
+): string {
+  const words = this.words(protobufJsStyle);
   if (words.length === 0) {
     return this;
   }
   return words.join('-');
 };
 
-String.prototype.toSnakeCase = function (this: string): string {
-  const words = this.words();
+String.prototype.toSnakeCase = function (
+  this: string,
+  protobufJsStyle = false
+): string {
+  const words = this.words(protobufJsStyle);
   if (words.length === 0) {
     return this;
   }

@@ -140,11 +140,35 @@ describe('src/util.ts', () => {
         'case',
         'string',
       ]);
+      assert.deepStrictEqual('camelCaseABCString'.words(), [
+        'camel',
+        'case',
+        'a',
+        'b',
+        'c',
+        'string',
+      ]);
+      assert.deepStrictEqual(
+        'camelCaseABCString'.words(/*protobufJsStyle:*/ true),
+        ['camel', 'case', 'abc', 'string']
+      );
       assert.deepStrictEqual('PascalCaseString'.words(), [
         'pascal',
         'case',
         'string',
       ]);
+      assert.deepStrictEqual('PascalCaseABCString'.words(), [
+        'pascal',
+        'case',
+        'a',
+        'b',
+        'c',
+        'string',
+      ]);
+      assert.deepStrictEqual(
+        'PascalCaseABCString'.words(/*protobufJsStyle:*/ true),
+        ['pascal', 'case', 'abc', 'string']
+      );
       assert.deepStrictEqual('snake_case_string'.words(), [
         'snake',
         'case',
@@ -208,6 +232,14 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(
         'display_video_360_advertiser_link'.toCamelCase(),
         'displayVideo_360AdvertiserLink'
+      );
+      assert.deepStrictEqual(
+        'CreateOSSomething'.toCamelCase(),
+        'createOSSomething'
+      );
+      assert.deepStrictEqual(
+        'CreateOSSomething'.toCamelCase(/*protobufJsStyle:*/ true),
+        'createOsSomething'
       );
     });
 
