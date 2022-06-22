@@ -57,6 +57,11 @@ import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.j
 {% if service.longRunning.length > 0 or service.LongRunningOperationsMixin > 0 -%}
 import { operationsProtos } from 'google-gax';
 {%- endif %}
+{%- if service.diregapicLRO.length > 0 and service.diregapicLROServices.length > 0 -%}
+{%- for client in service.diregapicLROServices %}
+import { {{client}}Client } from './{{ client.toSnakeCase() }}_client';
+{% endfor %}
+{%- endif %}
 const version = require('../../../package.json').version;
 
 /**
@@ -316,6 +321,26 @@ export class {{ service.name }}Client {
     };
 {%- endif %}
 
+{%- if service.diregapicLRO.length > 0 %}
+    const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
+    // This API contains "long-running operations", which return a
+    // an Operation object that allows for tracking of the operation,
+    // rather than holding a request open.
+{%- for name in service.diregapicLROServices %}
+    const {{ name.toCamelCase() }}LROOptions = {
+      pollingMethodName: "{{ service.diregapicLROServiceMap.get(name).pollingMethodName.toCamelCase() }}",
+      pollingMethodRequestType: protoFilesRoot.lookupType('{{ service.diregapicLROServiceMap.get(name).pollingMethodRequest }}') as gax.protobuf.Type,
+    }
+{%- endfor %}
+    this.descriptors.longrunning = {
+{%- set diregapicLROJoiner = joiner() %}
+{%- for method in service.diregapicLRO %}
+      {{- diregapicLROJoiner() }}
+      {{ method.name.toCamelCase() }}: new this._gaxModule.LongrunningDescriptor(new {{ method.diregapicLROPollingService }}Client({fallback: 'rest'}), null, null, {{ method.diregapicLROPollingService.toCamelCase() }}LROOptions)
+{%- endfor %}
+    };
+{%- endif %}
+
 {%- if service.bundleConfigs.length > 0 %}
     // Some methods on this API support automatically batching
     // requests; denote this.
@@ -431,7 +456,7 @@ export class {{ service.name }}Client {
 {%- if service.streaming.length > 0 %}
         this.descriptors.stream[methodName] ||
 {%- endif %}
-{%- if service.longRunning.length > 0 %}
+{%- if service.longRunning.length > 0 or service.diregapicLRO.length > 0 %}
         this.descriptors.longrunning[methodName] ||
 {%- endif %}
 {%- if service.bundleConfigs.length > 0 %}
@@ -588,18 +613,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    {%- if method.isDiregapicLRO %}
-    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback)
-    .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
-      return [
-          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
-          operation,
-          rawResponse
-        ];
-    });
-    {%- else %}
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
-    {%- endif %}
   }
 {%- endfor %}
 {% for method in service.streaming %}

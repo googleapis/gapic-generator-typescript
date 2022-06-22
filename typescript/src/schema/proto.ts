@@ -26,6 +26,7 @@ import {BundleConfig} from '../bundle';
 import {Options} from './naming';
 import {ServiceYaml} from '../serviceyaml';
 import {google} from '../../../protos';
+import {IServiceDescriptorProto} from 'protobufjs/ext/descriptor';
 
 const COMMON_PROTO_LIST = [
   'google.api',
@@ -69,6 +70,7 @@ export interface MethodDescriptorProto
   bundleConfig?: BundleConfig;
   toJSON: Function | undefined;
   isDiregapicLRO?: boolean;
+  diregapicLROPollingService?: string;
 }
 
 export interface ServiceDescriptorProto
@@ -100,6 +102,8 @@ export interface ServiceDescriptorProto
   protoFile: string;
   diregapicLRO?: MethodDescriptorProto[];
   httpRules?: google.api.IHttpRule[];
+  diregapicLROServices?: string[] | undefined;
+  diregapicLROServiceMap?: Map<string, DiregapicLRO> | null | undefined;
 }
 
 export interface ServicesMap {
@@ -170,7 +174,6 @@ function longRunningMetadataType(
 }
 
 // Detect non-AIP-compliant LRO method for DIREGAPIC, where the response type is customized Operation and the method is not polling method.
-// (TODO: summerji) Update the detector when DIREGAPIC LRO annotation merged in googleapis-discovery.
 function isDiregapicLRO(
   packageName: string,
   method: MethodDescriptorProto,
@@ -181,12 +184,21 @@ function isDiregapicLRO(
     isDiregapic &&
     method.outputType &&
     method.outputType === operationOutputType &&
-    method.options?.['.google.api.http'] &&
-    !(
-      method.options?.['.google.api.http'].get ||
-      (method.name === 'Wait' && method.options?.['.google.api.http'].post)
-    )
+    method.options &&
+    method.options['.google.cloud.operationService'] !== (undefined || null) &&
+    method.options['.google.cloud.operationService']!.length > 0
   );
+}
+
+function diregapicLROPollingService(
+  packageName: string,
+  method: MethodDescriptorProto,
+  isDiregapic?: boolean
+): string | null | undefined {
+  if (!isDiregapicLRO(packageName, method, isDiregapic)) {
+    return null;
+  }
+  return method.options!['.google.cloud.operationService'];
 }
 
 // convert from input interface to message name
@@ -435,6 +447,11 @@ function augmentMethod(
         method
       ),
       isDiregapicLRO: isDiregapicLRO(
+        parameters.service.packageName,
+        method,
+        parameters.diregapic
+      ),
+      diregapicLROPollingService: diregapicLROPollingService(
         parameters.service.packageName,
         method,
         parameters.diregapic
@@ -721,6 +738,12 @@ export function getSingleRoutingHeaderParam(
   return dynamicRoutingRule;
 }
 
+interface DiregapicLRO {
+  pollingSerivce: string;
+  pollingMethodName: string;
+  pollingMethodRequest: string;
+}
+
 interface AugmentServiceParameters {
   allMessages: MessagesMap;
   localMessages: MessagesMap;
@@ -731,6 +754,7 @@ interface AugmentServiceParameters {
   resourceDatabase: ResourceDatabase;
   options: Options;
   protoFile: string;
+  diregapicLROServiceMap: Map<string, DiregapicLRO> | null;
 }
 
 function augmentService(parameters: AugmentServiceParameters) {
@@ -792,6 +816,19 @@ function augmentService(parameters: AugmentServiceParameters) {
   );
   augmentedService.diregapicLRO = augmentedService.method.filter(
     method => method.isDiregapicLRO
+  );
+  augmentedService.diregapicLROServiceMap = parameters.diregapicLROServiceMap;
+  augmentedService.diregapicLROServices = augmentedService.diregapicLRO.reduce(
+    (clients, cur) => {
+      if (
+        cur.diregapicLROPollingService &&
+        !clients.includes(cur.diregapicLROPollingService)
+      ) {
+        clients.push(cur.diregapicLROPollingService);
+      }
+      return clients;
+    },
+    Array<string>()
   );
   augmentedService.streaming = augmentedService.method.filter(
     method => method.streaming
@@ -918,7 +955,6 @@ export class Proto {
   constructor(parameters: ProtoParameters) {
     parameters.fd.service = parameters.fd.service || [];
     parameters.fd.messageType = parameters.fd.messageType || [];
-
     this.filePB2 = parameters.fd;
     this.allMessages = parameters.allMessages;
     this.localMessages = parameters.fd.messageType
@@ -958,11 +994,45 @@ export class Proto {
           resourceDatabase: parameters.resourceDatabase,
           options: parameters.options,
           protoFile: parameters.fd.name!,
+          diregapicLROServiceMap: this.getDiregapicLROServiceMap(
+            this.diregapic,
+            parameters.fd.service
+          ),
         })
       )
       .reduce((map, service) => {
         map[service.name!] = service;
         return map;
       }, {} as ServicesMap);
+  }
+
+  getDiregapicLROServiceMap(
+    diregapic?: boolean,
+    services?: google.protobuf.IServiceDescriptorProto[] | null
+  ) {
+    if (!diregapic || !services || services.length === 0) {
+      return null;
+    }
+    const filteredServices = services
+      .filter(service => service.name && service.name!.endsWith('Operations'))
+      .filter(service => service.method && service.method.length > 0);
+    const pollingMap = new Map(
+      filteredServices.map(service => {
+        const pollingMethod = service
+          .method!.filter(
+            method =>
+              method.options &&
+              method.options['.google.cloud.operationPollingMethod']
+          )
+          .shift();
+        const diregapicLRO: DiregapicLRO = {
+          pollingSerivce: service.name!,
+          pollingMethodName: pollingMethod!.name!,
+          pollingMethodRequest: pollingMethod!.inputType!,
+        };
+        return [service.name!, diregapicLRO];
+      })
+    );
+    return pollingMap;
   }
 }

@@ -26,10 +26,12 @@ import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
 /**
  * Client JSON configuration object, loaded from
- * `src/v1/addresses_client_config.json`.
+ * `src/v1small/addresses_client_config.json`.
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
 import * as gapicConfig from './addresses_client_config.json';
+
+import { RegionOperationsClient } from './region_operations_client';
 
 const version = require('../../../package.json').version;
 
@@ -39,7 +41,7 @@ const version = require('../../../package.json').version;
  *
  *  The Addresses API.
  * @class
- * @memberof v1
+ * @memberof v1small
  */
 export class AddressesClient {
   private _terminated = false;
@@ -165,10 +167,22 @@ export class AddressesClient {
       list:
           new this._gaxModule.PageDescriptor('pageToken', 'nextPageToken', 'items')
     };
+    const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
+    // This API contains "long-running operations", which return a
+    // an Operation object that allows for tracking of the operation,
+    // rather than holding a request open.
+    const regionOperationsLROOptions = {
+      pollingMethodName: "get",
+      pollingMethodRequestType: protoFilesRoot.lookupType('.google.cloud.compute.v1small.GetRegionOperationRequest') as gax.protobuf.Type,
+    }
+    this.descriptors.longrunning = {
+      delete: new this._gaxModule.LongrunningDescriptor(new RegionOperationsClient({fallback: 'rest'}), null, null, regionOperationsLROOptions),
+      insert: new this._gaxModule.LongrunningDescriptor(new RegionOperationsClient({fallback: 'rest'}), null, null, regionOperationsLROOptions)
+    };
 
     // Put together the default options sent with requests.
     this._defaults = this._gaxGrpc.constructSettings(
-        'google.cloud.compute.v1.Addresses', gapicConfig as gax.ClientConfig,
+        'google.cloud.compute.v1small.Addresses', gapicConfig as gax.ClientConfig,
         opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
 
     // Set up a dictionary of "inner API calls"; the core implementation
@@ -198,12 +212,12 @@ export class AddressesClient {
     }
 
     // Put together the "service stub" for
-    // google.cloud.compute.v1.Addresses.
+    // google.cloud.compute.v1small.Addresses.
     this.addressesStub = this._gaxGrpc.createStub(
         this._opts.fallback ?
-          (this._protos as protobuf.Root).lookupService('google.cloud.compute.v1.Addresses') :
+          (this._protos as protobuf.Root).lookupService('google.cloud.compute.v1small.Addresses') :
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (this._protos as any).google.cloud.compute.v1.Addresses,
+          (this._protos as any).google.cloud.compute.v1small.Addresses,
         this._opts, this._providedCustomServicePath) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
@@ -225,6 +239,7 @@ export class AddressesClient {
 
       const descriptor =
         this.descriptors.page[methodName] ||
+        this.descriptors.longrunning[methodName] ||
         undefined;
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
@@ -322,42 +337,42 @@ export class AddressesClient {
  *   stable it is still a work-in-progress and under active development,
  *   and might get backwards-incompatible changes at any time.
  *   `.promise()` is not supported yet.
- * @example <caption>include:samples/generated/v1/addresses.delete.js</caption>
- * region_tag:compute_v1_generated_Addresses_Delete_async
+ * @example <caption>include:samples/generated/v1small/addresses.delete.js</caption>
+ * region_tag:compute_v1small_generated_Addresses_Delete_async
  */
   delete(
-      request?: protos.google.cloud.compute.v1.IDeleteAddressRequest,
+      request?: protos.google.cloud.compute.v1small.IDeleteAddressRequest,
       options?: CallOptions):
       Promise<[
-        LROperation<protos.google.cloud.compute.v1.IOperation, null>,
-        protos.google.cloud.compute.v1.IOperation|undefined, {}|undefined
+        LROperation<protos.google.cloud.compute.v1small.IOperation, null>,
+        protos.google.cloud.compute.v1small.IOperation|undefined, {}|undefined
       ]>;
   delete(
-      request: protos.google.cloud.compute.v1.IDeleteAddressRequest,
+      request: protos.google.cloud.compute.v1small.IDeleteAddressRequest,
       options: CallOptions,
       callback: Callback<
-          protos.google.cloud.compute.v1.IOperation,
-          protos.google.cloud.compute.v1.IDeleteAddressRequest|null|undefined,
+          protos.google.cloud.compute.v1small.IOperation,
+          protos.google.cloud.compute.v1small.IDeleteAddressRequest|null|undefined,
           {}|null|undefined>): void;
   delete(
-      request: protos.google.cloud.compute.v1.IDeleteAddressRequest,
+      request: protos.google.cloud.compute.v1small.IDeleteAddressRequest,
       callback: Callback<
-          protos.google.cloud.compute.v1.IOperation,
-          protos.google.cloud.compute.v1.IDeleteAddressRequest|null|undefined,
+          protos.google.cloud.compute.v1small.IOperation,
+          protos.google.cloud.compute.v1small.IDeleteAddressRequest|null|undefined,
           {}|null|undefined>): void;
   delete(
-      request?: protos.google.cloud.compute.v1.IDeleteAddressRequest,
+      request?: protos.google.cloud.compute.v1small.IDeleteAddressRequest,
       optionsOrCallback?: CallOptions|Callback<
-          protos.google.cloud.compute.v1.IOperation,
-          protos.google.cloud.compute.v1.IDeleteAddressRequest|null|undefined,
+          protos.google.cloud.compute.v1small.IOperation,
+          protos.google.cloud.compute.v1small.IDeleteAddressRequest|null|undefined,
           {}|null|undefined>,
       callback?: Callback<
-          protos.google.cloud.compute.v1.IOperation,
-          protos.google.cloud.compute.v1.IDeleteAddressRequest|null|undefined,
+          protos.google.cloud.compute.v1small.IOperation,
+          protos.google.cloud.compute.v1small.IDeleteAddressRequest|null|undefined,
           {}|null|undefined>):
       Promise<[
-        LROperation<protos.google.cloud.compute.v1.IOperation, null>,
-        protos.google.cloud.compute.v1.IOperation|undefined, {}|undefined
+        LROperation<protos.google.cloud.compute.v1small.IOperation, null>,
+        protos.google.cloud.compute.v1small.IOperation|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: CallOptions;
@@ -379,21 +394,14 @@ export class AddressesClient {
       'address': request.address || '',
     });
     this.initialize();
-    return this.innerApiCalls.delete(request, options, callback)
-    .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
-      return [
-          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
-          operation,
-          rawResponse
-        ];
-    });
+    return this.innerApiCalls.delete(request, options, callback);
   }
 /**
  * Creates an address resource in the specified project by using the data included in the request.
  *
  * @param {Object} request
  *   The request object that will be sent.
- * @param {google.cloud.compute.v1.Address} request.addressResource
+ * @param {google.cloud.compute.v1small.Address} request.addressResource
  *   The body resource for this request
  * @param {string} request.project
  *   Project ID for this request.
@@ -417,42 +425,42 @@ export class AddressesClient {
  *   stable it is still a work-in-progress and under active development,
  *   and might get backwards-incompatible changes at any time.
  *   `.promise()` is not supported yet.
- * @example <caption>include:samples/generated/v1/addresses.insert.js</caption>
- * region_tag:compute_v1_generated_Addresses_Insert_async
+ * @example <caption>include:samples/generated/v1small/addresses.insert.js</caption>
+ * region_tag:compute_v1small_generated_Addresses_Insert_async
  */
   insert(
-      request?: protos.google.cloud.compute.v1.IInsertAddressRequest,
+      request?: protos.google.cloud.compute.v1small.IInsertAddressRequest,
       options?: CallOptions):
       Promise<[
-        LROperation<protos.google.cloud.compute.v1.IOperation, null>,
-        protos.google.cloud.compute.v1.IOperation|undefined, {}|undefined
+        LROperation<protos.google.cloud.compute.v1small.IOperation, null>,
+        protos.google.cloud.compute.v1small.IOperation|undefined, {}|undefined
       ]>;
   insert(
-      request: protos.google.cloud.compute.v1.IInsertAddressRequest,
+      request: protos.google.cloud.compute.v1small.IInsertAddressRequest,
       options: CallOptions,
       callback: Callback<
-          protos.google.cloud.compute.v1.IOperation,
-          protos.google.cloud.compute.v1.IInsertAddressRequest|null|undefined,
+          protos.google.cloud.compute.v1small.IOperation,
+          protos.google.cloud.compute.v1small.IInsertAddressRequest|null|undefined,
           {}|null|undefined>): void;
   insert(
-      request: protos.google.cloud.compute.v1.IInsertAddressRequest,
+      request: protos.google.cloud.compute.v1small.IInsertAddressRequest,
       callback: Callback<
-          protos.google.cloud.compute.v1.IOperation,
-          protos.google.cloud.compute.v1.IInsertAddressRequest|null|undefined,
+          protos.google.cloud.compute.v1small.IOperation,
+          protos.google.cloud.compute.v1small.IInsertAddressRequest|null|undefined,
           {}|null|undefined>): void;
   insert(
-      request?: protos.google.cloud.compute.v1.IInsertAddressRequest,
+      request?: protos.google.cloud.compute.v1small.IInsertAddressRequest,
       optionsOrCallback?: CallOptions|Callback<
-          protos.google.cloud.compute.v1.IOperation,
-          protos.google.cloud.compute.v1.IInsertAddressRequest|null|undefined,
+          protos.google.cloud.compute.v1small.IOperation,
+          protos.google.cloud.compute.v1small.IInsertAddressRequest|null|undefined,
           {}|null|undefined>,
       callback?: Callback<
-          protos.google.cloud.compute.v1.IOperation,
-          protos.google.cloud.compute.v1.IInsertAddressRequest|null|undefined,
+          protos.google.cloud.compute.v1small.IOperation,
+          protos.google.cloud.compute.v1small.IInsertAddressRequest|null|undefined,
           {}|null|undefined>):
       Promise<[
-        LROperation<protos.google.cloud.compute.v1.IOperation, null>,
-        protos.google.cloud.compute.v1.IOperation|undefined, {}|undefined
+        LROperation<protos.google.cloud.compute.v1small.IOperation, null>,
+        protos.google.cloud.compute.v1small.IOperation|undefined, {}|undefined
       ]>|void {
     request = request || {};
     let options: CallOptions;
@@ -473,14 +481,7 @@ export class AddressesClient {
       'region': request.region || '',
     });
     this.initialize();
-    return this.innerApiCalls.insert(request, options, callback)
-    .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
-      return [
-          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
-          operation,
-          rawResponse
-        ];
-    });
+    return this.innerApiCalls.insert(request, options, callback);
   }
 
 
@@ -517,18 +518,18 @@ export class AddressesClient {
  * @returns {Object}
  *   An iterable Object that allows [async iteration](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols).
  *   When you iterate the returned iterable, each element will be an object representing
- *   as tuple [string, [AddressesScopedList]{@link google.cloud.compute.v1.AddressesScopedList}]. The API will be called under the hood as needed, once per the page,
+ *   as tuple [string, [AddressesScopedList]{@link google.cloud.compute.v1small.AddressesScopedList}]. The API will be called under the hood as needed, once per the page,
  *   so you can stop the iteration when you don't need more results.
  *   Please see the
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
  *   for more details and examples.
- * @example <caption>include:samples/generated/v1/addresses.aggregated_list.js</caption>
- * region_tag:compute_v1_generated_Addresses_AggregatedList_async
+ * @example <caption>include:samples/generated/v1small/addresses.aggregated_list.js</caption>
+ * region_tag:compute_v1small_generated_Addresses_AggregatedList_async
  */
   aggregatedListAsync(
-      request?: protos.google.cloud.compute.v1.IAggregatedListAddressesRequest,
+      request?: protos.google.cloud.compute.v1small.IAggregatedListAddressesRequest,
       options?: CallOptions):
-    AsyncIterable<[string, protos.google.cloud.compute.v1.IAddressesScopedList]>{
+    AsyncIterable<[string, protos.google.cloud.compute.v1small.IAddressesScopedList]>{
     request = request || {};
     options = options || {};
     options.otherArgs = options.otherArgs || {};
@@ -545,7 +546,7 @@ export class AddressesClient {
       this.innerApiCalls['aggregatedList'] as GaxCall,
       request as unknown as RequestType,
       callSettings
-    ) as AsyncIterable<[string, protos.google.cloud.compute.v1.IAddressesScopedList]>;
+    ) as AsyncIterable<[string, protos.google.cloud.compute.v1small.IAddressesScopedList]>;
   }
  /**
  * Retrieves a list of addresses contained within the specified region.
@@ -577,7 +578,7 @@ export class AddressesClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [Address]{@link google.cloud.compute.v1.Address}.
+ *   The first element of the array is Array of [Address]{@link google.cloud.compute.v1small.Address}.
  *   The client library will perform auto-pagination by default: it will call the API as many
  *   times as needed and will merge results from all the pages into this array.
  *   Note that it can affect your quota.
@@ -588,40 +589,40 @@ export class AddressesClient {
  *   for more details and examples.
  */
   list(
-      request?: protos.google.cloud.compute.v1.IListAddressesRequest,
+      request?: protos.google.cloud.compute.v1small.IListAddressesRequest,
       options?: CallOptions):
       Promise<[
-        protos.google.cloud.compute.v1.IAddress[],
-        protos.google.cloud.compute.v1.IListAddressesRequest|null,
-        protos.google.cloud.compute.v1.IAddressList
+        protos.google.cloud.compute.v1small.IAddress[],
+        protos.google.cloud.compute.v1small.IListAddressesRequest|null,
+        protos.google.cloud.compute.v1small.IAddressList
       ]>;
   list(
-      request: protos.google.cloud.compute.v1.IListAddressesRequest,
+      request: protos.google.cloud.compute.v1small.IListAddressesRequest,
       options: CallOptions,
       callback: PaginationCallback<
-          protos.google.cloud.compute.v1.IListAddressesRequest,
-          protos.google.cloud.compute.v1.IAddressList|null|undefined,
-          protos.google.cloud.compute.v1.IAddress>): void;
+          protos.google.cloud.compute.v1small.IListAddressesRequest,
+          protos.google.cloud.compute.v1small.IAddressList|null|undefined,
+          protos.google.cloud.compute.v1small.IAddress>): void;
   list(
-      request: protos.google.cloud.compute.v1.IListAddressesRequest,
+      request: protos.google.cloud.compute.v1small.IListAddressesRequest,
       callback: PaginationCallback<
-          protos.google.cloud.compute.v1.IListAddressesRequest,
-          protos.google.cloud.compute.v1.IAddressList|null|undefined,
-          protos.google.cloud.compute.v1.IAddress>): void;
+          protos.google.cloud.compute.v1small.IListAddressesRequest,
+          protos.google.cloud.compute.v1small.IAddressList|null|undefined,
+          protos.google.cloud.compute.v1small.IAddress>): void;
   list(
-      request?: protos.google.cloud.compute.v1.IListAddressesRequest,
+      request?: protos.google.cloud.compute.v1small.IListAddressesRequest,
       optionsOrCallback?: CallOptions|PaginationCallback<
-          protos.google.cloud.compute.v1.IListAddressesRequest,
-          protos.google.cloud.compute.v1.IAddressList|null|undefined,
-          protos.google.cloud.compute.v1.IAddress>,
+          protos.google.cloud.compute.v1small.IListAddressesRequest,
+          protos.google.cloud.compute.v1small.IAddressList|null|undefined,
+          protos.google.cloud.compute.v1small.IAddress>,
       callback?: PaginationCallback<
-          protos.google.cloud.compute.v1.IListAddressesRequest,
-          protos.google.cloud.compute.v1.IAddressList|null|undefined,
-          protos.google.cloud.compute.v1.IAddress>):
+          protos.google.cloud.compute.v1small.IListAddressesRequest,
+          protos.google.cloud.compute.v1small.IAddressList|null|undefined,
+          protos.google.cloud.compute.v1small.IAddress>):
       Promise<[
-        protos.google.cloud.compute.v1.IAddress[],
-        protos.google.cloud.compute.v1.IListAddressesRequest|null,
-        protos.google.cloud.compute.v1.IAddressList
+        protos.google.cloud.compute.v1small.IAddress[],
+        protos.google.cloud.compute.v1small.IListAddressesRequest|null,
+        protos.google.cloud.compute.v1small.IAddressList
       ]>|void {
     request = request || {};
     let options: CallOptions;
@@ -674,7 +675,7 @@ export class AddressesClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [Address]{@link google.cloud.compute.v1.Address} on 'data' event.
+ *   An object stream which emits an object representing [Address]{@link google.cloud.compute.v1small.Address} on 'data' event.
  *   The client library will perform auto-pagination by default: it will call the API as many
  *   times as needed. Note that it can affect your quota.
  *   We recommend using `listAsync()`
@@ -684,7 +685,7 @@ export class AddressesClient {
  *   for more details and examples.
  */
   listStream(
-      request?: protos.google.cloud.compute.v1.IListAddressesRequest,
+      request?: protos.google.cloud.compute.v1small.IListAddressesRequest,
       options?: CallOptions):
     Transform{
     request = request || {};
@@ -740,18 +741,18 @@ export class AddressesClient {
  * @returns {Object}
  *   An iterable Object that allows [async iteration](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols).
  *   When you iterate the returned iterable, each element will be an object representing
- *   [Address]{@link google.cloud.compute.v1.Address}. The API will be called under the hood as needed, once per the page,
+ *   [Address]{@link google.cloud.compute.v1small.Address}. The API will be called under the hood as needed, once per the page,
  *   so you can stop the iteration when you don't need more results.
  *   Please see the
  *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
  *   for more details and examples.
- * @example <caption>include:samples/generated/v1/addresses.list.js</caption>
- * region_tag:compute_v1_generated_Addresses_List_async
+ * @example <caption>include:samples/generated/v1small/addresses.list.js</caption>
+ * region_tag:compute_v1small_generated_Addresses_List_async
  */
   listAsync(
-      request?: protos.google.cloud.compute.v1.IListAddressesRequest,
+      request?: protos.google.cloud.compute.v1small.IListAddressesRequest,
       options?: CallOptions):
-    AsyncIterable<protos.google.cloud.compute.v1.IAddress>{
+    AsyncIterable<protos.google.cloud.compute.v1small.IAddress>{
     request = request || {};
     options = options || {};
     options.otherArgs = options.otherArgs || {};
@@ -769,7 +770,7 @@ export class AddressesClient {
       this.innerApiCalls['list'] as GaxCall,
       request as unknown as RequestType,
       callSettings
-    ) as AsyncIterable<protos.google.cloud.compute.v1.IAddress>;
+    ) as AsyncIterable<protos.google.cloud.compute.v1small.IAddress>;
   }
 
   /**
