@@ -38,7 +38,7 @@ import {GoogleAuth, protobuf
 {%- else %}
 import {protobuf
 {%- endif %}
-{%- if service.longRunning.length > 0 or service.LongRunningOperationsMixin > 0 -%}
+{%- if service.longRunning.length > 0 or service.LongRunningOperationsMixin > 0 or service.diregapicLRO.length > 0-%}
 , LROperation, operationsProtos
 {%- endif -%}
 {%- if service.IAMPolicyMixin > 0 %}, IamProtos{%- endif -%}
@@ -50,7 +50,7 @@ function generateSampleMessage<T extends object>(instance: T) {
         .toObject(instance as protobuf.Message<T>, {defaults: true});
     return (instance.constructor as typeof protobuf.Message).fromObject(filledObject) as T;
 }
-{%- if (service.simpleMethods.length + service.paging.length + service.longRunning.length > 0) %}
+{%- if (service.simpleMethods.length + service.paging.length + service.longRunning.length + service.diregapicLRO.length) %}
 
 function stubSimpleCall<ResponseType>(response?: ResponseType, error?: Error) {
     return error ? sinon.stub().rejects(error) : sinon.stub().resolves([response]);
@@ -101,7 +101,7 @@ function stubClientStreamingCall<ResponseType>(response?: ResponseType, error?: 
     return sinon.stub().returns(mockStream).callsArgWith(2, null, response);
 }
 {%- endif %}
-{%- if (service.longRunning.length > 0) %}
+{%- if (service.longRunning.length > 0) or (service.diregapicLRO.length > 0) %}
 
 function stubLongRunningCall<ResponseType>(response?: ResponseType, callError?: Error, lroError?: Error) {
     const innerStub = lroError ? sinon.stub().rejects(lroError) : sinon.stub().resolves([response]);
@@ -146,7 +146,7 @@ function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?:
     return sinon.stub().returns(mockStream);
 }
 {%- endif %}
-{%- if (service.paging.length > 0 or service.LongRunningOperationsMixin > 0 or service.LocationMixin > 0) %}
+{%- if (service.paging.length > 0 or service.LongRunningOperationsMixin > 0 or service.LocationMixin > 0 or service.diregapicLRO.length > 0) %}
 
 function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?: Error) {
     let counter = 0;
@@ -280,11 +280,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            {%- if method.isDiregapicLRO %}
-            assert.deepStrictEqual(response.latestResponse, expectedResponse);
-            {%- else %}
             assert.deepStrictEqual(response, expectedResponse);
-            {%- endif %}
             assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
@@ -490,6 +486,100 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 .getCall(0));
         });
     });
+{%- endfor %}
+{%- for method in service.diregapicLRO %}
+
+describe('{{ method.name.toCamelCase() }}', () => {
+    it('invokes {{ method.name.toCamelCase() }} without error', async () => {
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+        {%- if method.options and method.options.deprecated %}
+        const stub = sinon.stub(client, 'warn');
+        {%- endif %}
+        client.{{ id.get("initialize") }}();
+        {{ util.initRequestWithHeaderParam(method) -}}
+        {{ util.initRequestOptions(method) }}
+        {{ util.initResponse(method) }}
+        client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(expectedResponse);
+        const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+        const [response] = await operation.promise();
+        {%- if method.options and method.options.deprecated %}
+        assert(stub.calledOnce);
+        {%- endif %}
+        assert.deepStrictEqual(response, expectedResponse);
+        assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions, undefined));
+    });
+
+    it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+        {%- if method.options and method.options.deprecated %}
+        const stub = sinon.stub(client, 'warn');
+        {%- endif %}
+        client.{{ id.get("initialize") }}();
+        {{ util.initRequestWithHeaderParam(method) -}}
+        {{ util.initRequestOptions(method) }}
+        {{ util.initResponse(method) }}
+        client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCallWithCallback(expectedResponse);
+        const promise = new Promise((resolve, reject) => {
+             client.{{ method.name.toCamelCase() }}(
+                request,
+                (err?: Error|null,
+                 result?: {{ util.toInterface(method.outputInterface) }} | null,
+                ) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+        });
+        const operation = await promise as LROperation<{{ util.toInterface(method.outputInterface) }}, null>;
+        const [response] = await operation.promise();
+        {%- if method.options and method.options.deprecated %}
+        assert(stub.calledOnce);
+        {%- endif %}
+        assert.deepStrictEqual(response, expectedResponse);
+        assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+    });
+
+    it('invokes {{ method.name.toCamelCase() }} with call error', async () => {
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+        {%- if method.options and method.options.deprecated %}
+        const stub = sinon.stub(client, 'warn');
+        {%- endif %}
+        client.{{ id.get("initialize") }}();
+        {{ util.initRequestWithHeaderParam(method) -}}
+        {{ util.initRequestOptions(method) }}
+        const expectedError = new Error('expected');
+        client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(undefined, expectedError);
+        await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
+        {%- if method.options and method.options.deprecated %}
+        assert(stub.calledOnce);
+        {%- endif %}
+        assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions, undefined));
+    });
+
+    it('invokes {{ method.name.toCamelCase() }} with LRO error', async () => {
+        const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+        {%- if method.options and method.options.deprecated %}
+        const stub = sinon.stub(client, 'warn');
+        {%- endif %}
+        client.{{ id.get("initialize") }}();
+        {{ util.initRequestWithHeaderParam(method) -}}
+        {{ util.initRequestOptions(method) }}
+        const expectedError = new Error('expected');
+        client.innerApiCalls.{{ method.name.toCamelCase() }} = stubLongRunningCall(undefined, undefined, expectedError);
+        const [operation] = await client.{{ method.name.toCamelCase() }}(request);
+        await assert.rejects(operation.promise(), expectedError);
+        {%- if method.options and method.options.deprecated %}
+        assert(stub.calledOnce);
+        {%- endif %}
+        assert((client.innerApiCalls.{{ method.name.toCamelCase() }} as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions, undefined));
+    });
+});
 {%- endfor %}
 {%- for method in service.serverStreaming %}
 

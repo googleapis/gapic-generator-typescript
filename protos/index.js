@@ -10541,11 +10541,15 @@
                  * @property {boolean|null} [packed] FieldOptions packed
                  * @property {google.protobuf.FieldOptions.JSType|null} [jstype] FieldOptions jstype
                  * @property {boolean|null} [lazy] FieldOptions lazy
+                 * @property {boolean|null} [unverifiedLazy] FieldOptions unverifiedLazy
                  * @property {boolean|null} [deprecated] FieldOptions deprecated
                  * @property {boolean|null} [weak] FieldOptions weak
                  * @property {Array.<google.protobuf.IUninterpretedOption>|null} [uninterpretedOption] FieldOptions uninterpretedOption
                  * @property {Array.<google.api.FieldBehavior>|null} [".google.api.fieldBehavior"] FieldOptions .google.api.fieldBehavior
                  * @property {google.api.IResourceReference|null} [".google.api.resourceReference"] FieldOptions .google.api.resourceReference
+                 * @property {google.cloud.OperationResponseMapping|null} [".google.cloud.operationField"] FieldOptions .google.cloud.operationField
+                 * @property {string|null} [".google.cloud.operationRequestField"] FieldOptions .google.cloud.operationRequestField
+                 * @property {string|null} [".google.cloud.operationResponseField"] FieldOptions .google.cloud.operationResponseField
                  */
     
                 /**
@@ -10598,6 +10602,14 @@
                 FieldOptions.prototype.lazy = false;
     
                 /**
+                 * FieldOptions unverifiedLazy.
+                 * @member {boolean} unverifiedLazy
+                 * @memberof google.protobuf.FieldOptions
+                 * @instance
+                 */
+                FieldOptions.prototype.unverifiedLazy = false;
+    
+                /**
                  * FieldOptions deprecated.
                  * @member {boolean} deprecated
                  * @memberof google.protobuf.FieldOptions
@@ -10638,6 +10650,30 @@
                 FieldOptions.prototype[".google.api.resourceReference"] = null;
     
                 /**
+                 * FieldOptions .google.cloud.operationField.
+                 * @member {google.cloud.OperationResponseMapping} .google.cloud.operationField
+                 * @memberof google.protobuf.FieldOptions
+                 * @instance
+                 */
+                FieldOptions.prototype[".google.cloud.operationField"] = 0;
+    
+                /**
+                 * FieldOptions .google.cloud.operationRequestField.
+                 * @member {string} .google.cloud.operationRequestField
+                 * @memberof google.protobuf.FieldOptions
+                 * @instance
+                 */
+                FieldOptions.prototype[".google.cloud.operationRequestField"] = "";
+    
+                /**
+                 * FieldOptions .google.cloud.operationResponseField.
+                 * @member {string} .google.cloud.operationResponseField
+                 * @memberof google.protobuf.FieldOptions
+                 * @instance
+                 */
+                FieldOptions.prototype[".google.cloud.operationResponseField"] = "";
+    
+                /**
                  * Creates a new FieldOptions instance using the specified properties.
                  * @function create
                  * @memberof google.protobuf.FieldOptions
@@ -10673,6 +10709,8 @@
                         writer.uint32(/* id 6, wireType 0 =*/48).int32(message.jstype);
                     if (message.weak != null && Object.hasOwnProperty.call(message, "weak"))
                         writer.uint32(/* id 10, wireType 0 =*/80).bool(message.weak);
+                    if (message.unverifiedLazy != null && Object.hasOwnProperty.call(message, "unverifiedLazy"))
+                        writer.uint32(/* id 15, wireType 0 =*/120).bool(message.unverifiedLazy);
                     if (message.uninterpretedOption != null && message.uninterpretedOption.length)
                         for (var i = 0; i < message.uninterpretedOption.length; ++i)
                             $root.google.protobuf.UninterpretedOption.encode(message.uninterpretedOption[i], writer.uint32(/* id 999, wireType 2 =*/7994).fork()).ldelim();
@@ -10684,6 +10722,12 @@
                     }
                     if (message[".google.api.resourceReference"] != null && Object.hasOwnProperty.call(message, ".google.api.resourceReference"))
                         $root.google.api.ResourceReference.encode(message[".google.api.resourceReference"], writer.uint32(/* id 1055, wireType 2 =*/8442).fork()).ldelim();
+                    if (message[".google.cloud.operationField"] != null && Object.hasOwnProperty.call(message, ".google.cloud.operationField"))
+                        writer.uint32(/* id 1149, wireType 0 =*/9192).int32(message[".google.cloud.operationField"]);
+                    if (message[".google.cloud.operationRequestField"] != null && Object.hasOwnProperty.call(message, ".google.cloud.operationRequestField"))
+                        writer.uint32(/* id 1150, wireType 2 =*/9202).string(message[".google.cloud.operationRequestField"]);
+                    if (message[".google.cloud.operationResponseField"] != null && Object.hasOwnProperty.call(message, ".google.cloud.operationResponseField"))
+                        writer.uint32(/* id 1151, wireType 2 =*/9210).string(message[".google.cloud.operationResponseField"]);
                     return writer;
                 };
     
@@ -10730,6 +10774,9 @@
                         case 5:
                             message.lazy = reader.bool();
                             break;
+                        case 15:
+                            message.unverifiedLazy = reader.bool();
+                            break;
                         case 3:
                             message.deprecated = reader.bool();
                             break;
@@ -10753,6 +10800,15 @@
                             break;
                         case 1055:
                             message[".google.api.resourceReference"] = $root.google.api.ResourceReference.decode(reader, reader.uint32());
+                            break;
+                        case 1149:
+                            message[".google.cloud.operationField"] = reader.int32();
+                            break;
+                        case 1150:
+                            message[".google.cloud.operationRequestField"] = reader.string();
+                            break;
+                        case 1151:
+                            message[".google.cloud.operationResponseField"] = reader.string();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -10813,6 +10869,9 @@
                     if (message.lazy != null && message.hasOwnProperty("lazy"))
                         if (typeof message.lazy !== "boolean")
                             return "lazy: boolean expected";
+                    if (message.unverifiedLazy != null && message.hasOwnProperty("unverifiedLazy"))
+                        if (typeof message.unverifiedLazy !== "boolean")
+                            return "unverifiedLazy: boolean expected";
                     if (message.deprecated != null && message.hasOwnProperty("deprecated"))
                         if (typeof message.deprecated !== "boolean")
                             return "deprecated: boolean expected";
@@ -10851,6 +10910,23 @@
                         if (error)
                             return ".google.api.resourceReference." + error;
                     }
+                    if (message[".google.cloud.operationField"] != null && message.hasOwnProperty(".google.cloud.operationField"))
+                        switch (message[".google.cloud.operationField"]) {
+                        default:
+                            return ".google.cloud.operationField: enum value expected";
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                            break;
+                        }
+                    if (message[".google.cloud.operationRequestField"] != null && message.hasOwnProperty(".google.cloud.operationRequestField"))
+                        if (!$util.isString(message[".google.cloud.operationRequestField"]))
+                            return ".google.cloud.operationRequestField: string expected";
+                    if (message[".google.cloud.operationResponseField"] != null && message.hasOwnProperty(".google.cloud.operationResponseField"))
+                        if (!$util.isString(message[".google.cloud.operationResponseField"]))
+                            return ".google.cloud.operationResponseField: string expected";
                     return null;
                 };
     
@@ -10898,6 +10974,8 @@
                     }
                     if (object.lazy != null)
                         message.lazy = Boolean(object.lazy);
+                    if (object.unverifiedLazy != null)
+                        message.unverifiedLazy = Boolean(object.unverifiedLazy);
                     if (object.deprecated != null)
                         message.deprecated = Boolean(object.deprecated);
                     if (object.weak != null)
@@ -10958,6 +11036,32 @@
                             throw TypeError(".google.protobuf.FieldOptions..google.api.resourceReference: object expected");
                         message[".google.api.resourceReference"] = $root.google.api.ResourceReference.fromObject(object[".google.api.resourceReference"]);
                     }
+                    switch (object[".google.cloud.operationField"]) {
+                    case "UNDEFINED":
+                    case 0:
+                        message[".google.cloud.operationField"] = 0;
+                        break;
+                    case "NAME":
+                    case 1:
+                        message[".google.cloud.operationField"] = 1;
+                        break;
+                    case "STATUS":
+                    case 2:
+                        message[".google.cloud.operationField"] = 2;
+                        break;
+                    case "ERROR_CODE":
+                    case 3:
+                        message[".google.cloud.operationField"] = 3;
+                        break;
+                    case "ERROR_MESSAGE":
+                    case 4:
+                        message[".google.cloud.operationField"] = 4;
+                        break;
+                    }
+                    if (object[".google.cloud.operationRequestField"] != null)
+                        message[".google.cloud.operationRequestField"] = String(object[".google.cloud.operationRequestField"]);
+                    if (object[".google.cloud.operationResponseField"] != null)
+                        message[".google.cloud.operationResponseField"] = String(object[".google.cloud.operationResponseField"]);
                     return message;
                 };
     
@@ -10985,7 +11089,11 @@
                         object.lazy = false;
                         object.jstype = options.enums === String ? "JS_NORMAL" : 0;
                         object.weak = false;
+                        object.unverifiedLazy = false;
                         object[".google.api.resourceReference"] = null;
+                        object[".google.cloud.operationField"] = options.enums === String ? "UNDEFINED" : 0;
+                        object[".google.cloud.operationRequestField"] = "";
+                        object[".google.cloud.operationResponseField"] = "";
                     }
                     if (message.ctype != null && message.hasOwnProperty("ctype"))
                         object.ctype = options.enums === String ? $root.google.protobuf.FieldOptions.CType[message.ctype] : message.ctype;
@@ -10999,6 +11107,8 @@
                         object.jstype = options.enums === String ? $root.google.protobuf.FieldOptions.JSType[message.jstype] : message.jstype;
                     if (message.weak != null && message.hasOwnProperty("weak"))
                         object.weak = message.weak;
+                    if (message.unverifiedLazy != null && message.hasOwnProperty("unverifiedLazy"))
+                        object.unverifiedLazy = message.unverifiedLazy;
                     if (message.uninterpretedOption && message.uninterpretedOption.length) {
                         object.uninterpretedOption = [];
                         for (var j = 0; j < message.uninterpretedOption.length; ++j)
@@ -11011,6 +11121,12 @@
                     }
                     if (message[".google.api.resourceReference"] != null && message.hasOwnProperty(".google.api.resourceReference"))
                         object[".google.api.resourceReference"] = $root.google.api.ResourceReference.toObject(message[".google.api.resourceReference"], options);
+                    if (message[".google.cloud.operationField"] != null && message.hasOwnProperty(".google.cloud.operationField"))
+                        object[".google.cloud.operationField"] = options.enums === String ? $root.google.cloud.OperationResponseMapping[message[".google.cloud.operationField"]] : message[".google.cloud.operationField"];
+                    if (message[".google.cloud.operationRequestField"] != null && message.hasOwnProperty(".google.cloud.operationRequestField"))
+                        object[".google.cloud.operationRequestField"] = message[".google.cloud.operationRequestField"];
+                    if (message[".google.cloud.operationResponseField"] != null && message.hasOwnProperty(".google.cloud.operationResponseField"))
+                        object[".google.cloud.operationResponseField"] = message[".google.cloud.operationResponseField"];
                     return object;
                 };
     
@@ -12042,6 +12158,8 @@
                  * @property {google.api.IRoutingRule|null} [".google.api.routing"] MethodOptions .google.api.routing
                  * @property {Array.<string>|null} [".google.api.methodSignature"] MethodOptions .google.api.methodSignature
                  * @property {google.longrunning.IOperationInfo|null} [".google.longrunning.operationInfo"] MethodOptions .google.longrunning.operationInfo
+                 * @property {string|null} [".google.cloud.operationService"] MethodOptions .google.cloud.operationService
+                 * @property {boolean|null} [".google.cloud.operationPollingMethod"] MethodOptions .google.cloud.operationPollingMethod
                  */
     
                 /**
@@ -12118,6 +12236,22 @@
                 MethodOptions.prototype[".google.longrunning.operationInfo"] = null;
     
                 /**
+                 * MethodOptions .google.cloud.operationService.
+                 * @member {string} .google.cloud.operationService
+                 * @memberof google.protobuf.MethodOptions
+                 * @instance
+                 */
+                MethodOptions.prototype[".google.cloud.operationService"] = "";
+    
+                /**
+                 * MethodOptions .google.cloud.operationPollingMethod.
+                 * @member {boolean} .google.cloud.operationPollingMethod
+                 * @memberof google.protobuf.MethodOptions
+                 * @instance
+                 */
+                MethodOptions.prototype[".google.cloud.operationPollingMethod"] = false;
+    
+                /**
                  * Creates a new MethodOptions instance using the specified properties.
                  * @function create
                  * @memberof google.protobuf.MethodOptions
@@ -12153,6 +12287,10 @@
                     if (message[".google.api.methodSignature"] != null && message[".google.api.methodSignature"].length)
                         for (var i = 0; i < message[".google.api.methodSignature"].length; ++i)
                             writer.uint32(/* id 1051, wireType 2 =*/8410).string(message[".google.api.methodSignature"][i]);
+                    if (message[".google.cloud.operationService"] != null && Object.hasOwnProperty.call(message, ".google.cloud.operationService"))
+                        writer.uint32(/* id 1249, wireType 2 =*/9994).string(message[".google.cloud.operationService"]);
+                    if (message[".google.cloud.operationPollingMethod"] != null && Object.hasOwnProperty.call(message, ".google.cloud.operationPollingMethod"))
+                        writer.uint32(/* id 1250, wireType 0 =*/10000).bool(message[".google.cloud.operationPollingMethod"]);
                     if (message[".google.api.http"] != null && Object.hasOwnProperty.call(message, ".google.api.http"))
                         $root.google.api.HttpRule.encode(message[".google.api.http"], writer.uint32(/* id 72295728, wireType 2 =*/578365826).fork()).ldelim();
                     if (message[".google.api.routing"] != null && Object.hasOwnProperty.call(message, ".google.api.routing"))
@@ -12215,6 +12353,12 @@
                             break;
                         case 1049:
                             message[".google.longrunning.operationInfo"] = $root.google.longrunning.OperationInfo.decode(reader, reader.uint32());
+                            break;
+                        case 1249:
+                            message[".google.cloud.operationService"] = reader.string();
+                            break;
+                        case 1250:
+                            message[".google.cloud.operationPollingMethod"] = reader.bool();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -12294,6 +12438,12 @@
                         if (error)
                             return ".google.longrunning.operationInfo." + error;
                     }
+                    if (message[".google.cloud.operationService"] != null && message.hasOwnProperty(".google.cloud.operationService"))
+                        if (!$util.isString(message[".google.cloud.operationService"]))
+                            return ".google.cloud.operationService: string expected";
+                    if (message[".google.cloud.operationPollingMethod"] != null && message.hasOwnProperty(".google.cloud.operationPollingMethod"))
+                        if (typeof message[".google.cloud.operationPollingMethod"] !== "boolean")
+                            return ".google.cloud.operationPollingMethod: boolean expected";
                     return null;
                 };
     
@@ -12357,6 +12507,10 @@
                             throw TypeError(".google.protobuf.MethodOptions..google.longrunning.operationInfo: object expected");
                         message[".google.longrunning.operationInfo"] = $root.google.longrunning.OperationInfo.fromObject(object[".google.longrunning.operationInfo"]);
                     }
+                    if (object[".google.cloud.operationService"] != null)
+                        message[".google.cloud.operationService"] = String(object[".google.cloud.operationService"]);
+                    if (object[".google.cloud.operationPollingMethod"] != null)
+                        message[".google.cloud.operationPollingMethod"] = Boolean(object[".google.cloud.operationPollingMethod"]);
                     return message;
                 };
     
@@ -12381,6 +12535,8 @@
                         object.deprecated = false;
                         object.idempotencyLevel = options.enums === String ? "IDEMPOTENCY_UNKNOWN" : 0;
                         object[".google.longrunning.operationInfo"] = null;
+                        object[".google.cloud.operationService"] = "";
+                        object[".google.cloud.operationPollingMethod"] = false;
                         object[".google.api.http"] = null;
                         object[".google.api.routing"] = null;
                     }
@@ -12400,6 +12556,10 @@
                         for (var j = 0; j < message[".google.api.methodSignature"].length; ++j)
                             object[".google.api.methodSignature"][j] = message[".google.api.methodSignature"][j];
                     }
+                    if (message[".google.cloud.operationService"] != null && message.hasOwnProperty(".google.cloud.operationService"))
+                        object[".google.cloud.operationService"] = message[".google.cloud.operationService"];
+                    if (message[".google.cloud.operationPollingMethod"] != null && message.hasOwnProperty(".google.cloud.operationPollingMethod"))
+                        object[".google.cloud.operationPollingMethod"] = message[".google.cloud.operationPollingMethod"];
                     if (message[".google.api.http"] != null && message.hasOwnProperty(".google.api.http"))
                         object[".google.api.http"] = $root.google.api.HttpRule.toObject(message[".google.api.http"], options);
                     if (message[".google.api.routing"] != null && message.hasOwnProperty(".google.api.routing"))
@@ -22759,6 +22919,26 @@
                 })();
     
                 return tools;
+            })();
+    
+            /**
+             * OperationResponseMapping enum.
+             * @name google.cloud.OperationResponseMapping
+             * @enum {number}
+             * @property {number} UNDEFINED=0 UNDEFINED value
+             * @property {number} NAME=1 NAME value
+             * @property {number} STATUS=2 STATUS value
+             * @property {number} ERROR_CODE=3 ERROR_CODE value
+             * @property {number} ERROR_MESSAGE=4 ERROR_MESSAGE value
+             */
+            cloud.OperationResponseMapping = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "UNDEFINED"] = 0;
+                values[valuesById[1] = "NAME"] = 1;
+                values[valuesById[2] = "STATUS"] = 2;
+                values[valuesById[3] = "ERROR_CODE"] = 3;
+                values[valuesById[4] = "ERROR_MESSAGE"] = 4;
+                return values;
             })();
     
             return cloud;

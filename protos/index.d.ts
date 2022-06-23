@@ -3873,6 +3873,9 @@ export namespace google {
             /** FieldOptions lazy */
             lazy?: (boolean|null);
 
+            /** FieldOptions unverifiedLazy */
+            unverifiedLazy?: (boolean|null);
+
             /** FieldOptions deprecated */
             deprecated?: (boolean|null);
 
@@ -3887,6 +3890,15 @@ export namespace google {
 
             /** FieldOptions .google.api.resourceReference */
             ".google.api.resourceReference"?: (google.api.IResourceReference|null);
+
+            /** FieldOptions .google.cloud.operationField */
+            ".google.cloud.operationField"?: (google.cloud.OperationResponseMapping|null);
+
+            /** FieldOptions .google.cloud.operationRequestField */
+            ".google.cloud.operationRequestField"?: (string|null);
+
+            /** FieldOptions .google.cloud.operationResponseField */
+            ".google.cloud.operationResponseField"?: (string|null);
         }
 
         /** Represents a FieldOptions. */
@@ -3909,6 +3921,9 @@ export namespace google {
 
             /** FieldOptions lazy. */
             public lazy: boolean;
+
+            /** FieldOptions unverifiedLazy. */
+            public unverifiedLazy: boolean;
 
             /** FieldOptions deprecated. */
             public deprecated: boolean;
@@ -4420,6 +4435,12 @@ export namespace google {
 
             /** MethodOptions .google.longrunning.operationInfo */
             ".google.longrunning.operationInfo"?: (google.longrunning.IOperationInfo|null);
+
+            /** MethodOptions .google.cloud.operationService */
+            ".google.cloud.operationService"?: (string|null);
+
+            /** MethodOptions .google.cloud.operationPollingMethod */
+            ".google.cloud.operationPollingMethod"?: (boolean|null);
         }
 
         /** Represents a MethodOptions. */
@@ -8846,6 +8867,15 @@ export namespace google {
                     }
                 }
             }
+        }
+
+        /** OperationResponseMapping enum. */
+        enum OperationResponseMapping {
+            UNDEFINED = 0,
+            NAME = 1,
+            STATUS = 2,
+            ERROR_CODE = 3,
+            ERROR_MESSAGE = 4
         }
     }
 }
