@@ -809,7 +809,10 @@ function augmentService(parameters: AugmentServiceParameters) {
   );
   augmentedService.simpleMethods = augmentedService.method.filter(
     method =>
-      !method.longRunning && !method.streaming && !method.pagingFieldName
+      !method.longRunning &&
+      !method.streaming &&
+      !method.pagingFieldName &&
+      !method.isDiregapicLRO
   );
   augmentedService.longRunning = augmentedService.method.filter(
     method => method.longRunning

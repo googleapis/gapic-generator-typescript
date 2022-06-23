@@ -25,7 +25,7 @@ import * as addressesModule from '../src';
 
 import {PassThrough} from 'stream';
 
-import {GoogleAuth, protobuf} from 'google-gax';
+import {GoogleAuth, protobuf, LROperation, operationsProtos} from 'google-gax';
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -39,6 +39,22 @@ function stubSimpleCall<ResponseType>(response?: ResponseType, error?: Error) {
 
 function stubSimpleCallWithCallback<ResponseType>(response?: ResponseType, error?: Error) {
     return error ? sinon.stub().callsArgWith(2, error) : sinon.stub().callsArgWith(2, null, response);
+}
+
+function stubLongRunningCall<ResponseType>(response?: ResponseType, callError?: Error, lroError?: Error) {
+    const innerStub = lroError ? sinon.stub().rejects(lroError) : sinon.stub().resolves([response]);
+    const mockOperation = {
+        promise: innerStub,
+    };
+    return callError ? sinon.stub().rejects(callError) : sinon.stub().resolves([mockOperation]);
+}
+
+function stubLongRunningCallWithCallback<ResponseType>(response?: ResponseType, callError?: Error, lroError?: Error) {
+    const innerStub = lroError ? sinon.stub().rejects(lroError) : sinon.stub().resolves([response]);
+    const mockOperation = {
+        promise: innerStub,
+    };
+    return callError ? sinon.stub().callsArgWith(2, callError) : sinon.stub().callsArgWith(2, null, mockOperation);
 }
 
 function stubPageStreamingCall<ResponseType>(responses?: ResponseType[], error?: Error) {
@@ -191,14 +207,14 @@ describe('v1small.AddressesClient', () => {
         assert.strictEqual(result, fakeProjectId);
     });
 
-    describe('delete', () => {
-        it('invokes delete without error', async () => {
-            const client = new addressesModule.v1small.AddressesClient({
+describe('delete', () => {
+    it('invokes delete without error', async () => {
+        const client = new addressesModule.v1small.AddressesClient({
               auth: googleAuth,
               projectId: 'bogus',
         });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.compute.v1small.DeleteAddressRequest());
+        client.initialize();
+        const request = generateSampleMessage(new protos.google.cloud.compute.v1small.DeleteAddressRequest());
             request.project = '';
             request.region = '';
             request.address = '';
@@ -210,103 +226,26 @@ describe('v1small.AddressesClient', () => {
                     },
                 },
             };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1small.Operation());
-            client.innerApiCalls.delete = stubSimpleCall(expectedResponse);
-            const [response] = await client.delete(request);
-            assert.deepStrictEqual(response.latestResponse, expectedResponse);
-            assert((client.innerApiCalls.delete as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
-        });
-
-        it('invokes delete without error using callback', async () => {
-            const client = new addressesModule.v1small.AddressesClient({
-              auth: googleAuth,
-              projectId: 'bogus',
-        });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.compute.v1small.DeleteAddressRequest());
-            request.project = '';
-            request.region = '';
-            request.address = '';
-            const expectedHeaderRequestParams = "project=&region=&address=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1small.Operation());
-            client.innerApiCalls.delete = stubSimpleCallWithCallback(expectedResponse);
-            const promise = new Promise((resolve, reject) => {
-                 client.delete(
-                    request,
-                    (err?: Error|null, result?: protos.google.cloud.compute.v1small.IOperation|null) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(result);
-                        }
-                    });
-            });
-            const response = await promise;
-            assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.delete as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
-        });
-
-        it('invokes delete with error', async () => {
-            const client = new addressesModule.v1small.AddressesClient({
-              auth: googleAuth,
-              projectId: 'bogus',
-        });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.compute.v1small.DeleteAddressRequest());
-            request.project = '';
-            request.region = '';
-            request.address = '';
-            const expectedHeaderRequestParams = "project=&region=&address=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedError = new Error('expected');
-            client.innerApiCalls.delete = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(client.delete(request), expectedError);
-            assert((client.innerApiCalls.delete as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
-        });
-
-        it('invokes delete with closed client', async () => {
-            const client = new addressesModule.v1small.AddressesClient({
-              auth: googleAuth,
-              projectId: 'bogus',
-        });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.compute.v1small.DeleteAddressRequest());
-            request.project = '';
-            request.region = '';
-            request.address = '';
-            const expectedError = new Error('The client has already been closed.');
-            client.close();
-            await assert.rejects(client.delete(request), expectedError);
-        });
+        const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1small.Operation());
+        client.innerApiCalls.delete = stubLongRunningCall(expectedResponse);
+        const [operation] = await client.delete(request);
+        const [response] = await operation.promise();
+        assert.deepStrictEqual(response, expectedResponse);
+        assert((client.innerApiCalls.delete as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions, undefined));
     });
 
-    describe('insert', () => {
-        it('invokes insert without error', async () => {
-            const client = new addressesModule.v1small.AddressesClient({
+    it('invokes delete without error using callback', async () => {
+        const client = new addressesModule.v1small.AddressesClient({
               auth: googleAuth,
               projectId: 'bogus',
         });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.compute.v1small.InsertAddressRequest());
+        client.initialize();
+        const request = generateSampleMessage(new protos.google.cloud.compute.v1small.DeleteAddressRequest());
             request.project = '';
             request.region = '';
-            const expectedHeaderRequestParams = "project=&region=";
+            request.address = '';
+            const expectedHeaderRequestParams = "project=&region=&address=";
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -314,88 +253,195 @@ describe('v1small.AddressesClient', () => {
                     },
                 },
             };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1small.Operation());
-            client.innerApiCalls.insert = stubSimpleCall(expectedResponse);
-            const [response] = await client.insert(request);
-            assert.deepStrictEqual(response.latestResponse, expectedResponse);
-            assert((client.innerApiCalls.insert as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1small.Operation());
+        client.innerApiCalls.delete = stubLongRunningCallWithCallback(expectedResponse);
+        const promise = new Promise((resolve, reject) => {
+             client.delete(
+                request,
+                (err?: Error|null,
+                 result?: protos.google.cloud.compute.v1small.IOperation | null,
+                ) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
         });
-
-        it('invokes insert without error using callback', async () => {
-            const client = new addressesModule.v1small.AddressesClient({
-              auth: googleAuth,
-              projectId: 'bogus',
-        });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.compute.v1small.InsertAddressRequest());
-            request.project = '';
-            request.region = '';
-            const expectedHeaderRequestParams = "project=&region=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1small.Operation());
-            client.innerApiCalls.insert = stubSimpleCallWithCallback(expectedResponse);
-            const promise = new Promise((resolve, reject) => {
-                 client.insert(
-                    request,
-                    (err?: Error|null, result?: protos.google.cloud.compute.v1small.IOperation|null) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(result);
-                        }
-                    });
-            });
-            const response = await promise;
-            assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.insert as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
-        });
-
-        it('invokes insert with error', async () => {
-            const client = new addressesModule.v1small.AddressesClient({
-              auth: googleAuth,
-              projectId: 'bogus',
-        });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.compute.v1small.InsertAddressRequest());
-            request.project = '';
-            request.region = '';
-            const expectedHeaderRequestParams = "project=&region=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedError = new Error('expected');
-            client.innerApiCalls.insert = stubSimpleCall(undefined, expectedError);
-            await assert.rejects(client.insert(request), expectedError);
-            assert((client.innerApiCalls.insert as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
-        });
-
-        it('invokes insert with closed client', async () => {
-            const client = new addressesModule.v1small.AddressesClient({
-              auth: googleAuth,
-              projectId: 'bogus',
-        });
-            client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.compute.v1small.InsertAddressRequest());
-            request.project = '';
-            request.region = '';
-            const expectedError = new Error('The client has already been closed.');
-            client.close();
-            await assert.rejects(client.insert(request), expectedError);
-        });
+        const operation = await promise as LROperation<protos.google.cloud.compute.v1small.IOperation, null>;
+        const [response] = await operation.promise();
+        assert.deepStrictEqual(response, expectedResponse);
+        assert((client.innerApiCalls.delete as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
     });
+
+    it('invokes delete with call error', async () => {
+        const client = new addressesModule.v1small.AddressesClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+        client.initialize();
+        const request = generateSampleMessage(new protos.google.cloud.compute.v1small.DeleteAddressRequest());
+            request.project = '';
+            request.region = '';
+            request.address = '';
+            const expectedHeaderRequestParams = "project=&region=&address=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+        const expectedError = new Error('expected');
+        client.innerApiCalls.delete = stubLongRunningCall(undefined, expectedError);
+        await assert.rejects(client.delete(request), expectedError);
+        assert((client.innerApiCalls.delete as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions, undefined));
+    });
+
+    it('invokes delete with LRO error', async () => {
+        const client = new addressesModule.v1small.AddressesClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+        client.initialize();
+        const request = generateSampleMessage(new protos.google.cloud.compute.v1small.DeleteAddressRequest());
+            request.project = '';
+            request.region = '';
+            request.address = '';
+            const expectedHeaderRequestParams = "project=&region=&address=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+        const expectedError = new Error('expected');
+        client.innerApiCalls.delete = stubLongRunningCall(undefined, undefined, expectedError);
+        const [operation] = await client.delete(request);
+        await assert.rejects(operation.promise(), expectedError);
+        assert((client.innerApiCalls.delete as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions, undefined));
+    });
+});
+
+describe('insert', () => {
+    it('invokes insert without error', async () => {
+        const client = new addressesModule.v1small.AddressesClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+        client.initialize();
+        const request = generateSampleMessage(new protos.google.cloud.compute.v1small.InsertAddressRequest());
+            request.project = '';
+            request.region = '';
+            const expectedHeaderRequestParams = "project=&region=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+        const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1small.Operation());
+        client.innerApiCalls.insert = stubLongRunningCall(expectedResponse);
+        const [operation] = await client.insert(request);
+        const [response] = await operation.promise();
+        assert.deepStrictEqual(response, expectedResponse);
+        assert((client.innerApiCalls.insert as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions, undefined));
+    });
+
+    it('invokes insert without error using callback', async () => {
+        const client = new addressesModule.v1small.AddressesClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+        client.initialize();
+        const request = generateSampleMessage(new protos.google.cloud.compute.v1small.InsertAddressRequest());
+            request.project = '';
+            request.region = '';
+            const expectedHeaderRequestParams = "project=&region=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+        const expectedResponse = generateSampleMessage(new protos.google.cloud.compute.v1small.Operation());
+        client.innerApiCalls.insert = stubLongRunningCallWithCallback(expectedResponse);
+        const promise = new Promise((resolve, reject) => {
+             client.insert(
+                request,
+                (err?: Error|null,
+                 result?: protos.google.cloud.compute.v1small.IOperation | null,
+                ) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+        });
+        const operation = await promise as LROperation<protos.google.cloud.compute.v1small.IOperation, null>;
+        const [response] = await operation.promise();
+        assert.deepStrictEqual(response, expectedResponse);
+        assert((client.innerApiCalls.insert as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+    });
+
+    it('invokes insert with call error', async () => {
+        const client = new addressesModule.v1small.AddressesClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+        client.initialize();
+        const request = generateSampleMessage(new protos.google.cloud.compute.v1small.InsertAddressRequest());
+            request.project = '';
+            request.region = '';
+            const expectedHeaderRequestParams = "project=&region=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+        const expectedError = new Error('expected');
+        client.innerApiCalls.insert = stubLongRunningCall(undefined, expectedError);
+        await assert.rejects(client.insert(request), expectedError);
+        assert((client.innerApiCalls.insert as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions, undefined));
+    });
+
+    it('invokes insert with LRO error', async () => {
+        const client = new addressesModule.v1small.AddressesClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+        });
+        client.initialize();
+        const request = generateSampleMessage(new protos.google.cloud.compute.v1small.InsertAddressRequest());
+            request.project = '';
+            request.region = '';
+            const expectedHeaderRequestParams = "project=&region=";
+            const expectedOptions = {
+                otherArgs: {
+                    headers: {
+                        'x-goog-request-params': expectedHeaderRequestParams,
+                    },
+                },
+            };
+        const expectedError = new Error('expected');
+        client.innerApiCalls.insert = stubLongRunningCall(undefined, undefined, expectedError);
+        const [operation] = await client.insert(request);
+        await assert.rejects(operation.promise(), expectedError);
+        assert((client.innerApiCalls.insert as SinonStub)
+            .getCall(0).calledWith(request, expectedOptions, undefined));
+    });
+});
 
     describe('aggregatedList', () => {
 

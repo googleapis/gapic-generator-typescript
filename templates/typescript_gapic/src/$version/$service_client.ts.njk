@@ -616,6 +616,68 @@ export class {{ service.name }}Client {
     return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
   }
 {%- endfor %}
+{%- for method in service.diregapicLRO %}
+/**
+{{- util.printComments(method, service) }}
+ {%- if not api.handwrittenLayer %}
+ * @example <caption>include:samples/generated/{{api.naming.version}}/{{service.name.toSnakeCase()}}.{{method.name.toSnakeCase()}}.js</caption>
+ * region_tag:{{ api.hostName.split(".")[0] }}_{{ api.naming.version }}_generated_{{ service.name }}_{{ method.name }}_async
+ {%- endif %}
+ {%- if method.options and method.options.deprecated %}
+ * @deprecated {{method.name}} is deprecated and may be removed in a future version.
+ {%- endif %}
+ */
+  {{ method.name.toCamelCase() }}(
+      request?: {{ util.toInterface(method.inputInterface) }},
+      options?: CallOptions):
+      Promise<[
+        LROperation<{{ util.toInterface(method.outputInterface) }}, null>,
+        {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
+      ]>;
+  {{ method.name.toCamelCase() }}(
+      request: {{ util.toInterface(method.inputInterface) }},
+      options: CallOptions,
+      callback: Callback<
+          {{ util.toInterface(method.outputInterface) }},
+          {{ util.toInterface(method.inputInterface) }}|null|undefined,
+          {}|null|undefined>): void;
+  {{ method.name.toCamelCase() }}(
+      request: {{ util.toInterface(method.inputInterface) }},
+      callback: Callback<
+          {{ util.toInterface(method.outputInterface) }},
+          {{ util.toInterface(method.inputInterface) }}|null|undefined,
+          {}|null|undefined>): void;
+  {{ method.name.toCamelCase() }}(
+      request?: {{ util.toInterface(method.inputInterface) }},
+      optionsOrCallback?: CallOptions|Callback<
+          {{ util.toInterface(method.outputInterface) }},
+          {{ util.toInterface(method.inputInterface) }}|null|undefined,
+          {}|null|undefined>,
+      callback?: Callback<
+          {{ util.toInterface(method.outputInterface) }},
+          {{ util.toInterface(method.inputInterface) }}|null|undefined,
+          {}|null|undefined>):
+      Promise<[
+        LROperation<{{ util.toInterface(method.outputInterface) }}, null>,
+        {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as CallOptions;
+    }
+    {{ util.buildHeaderRequestParam(method) }}
+    this.{{ id.get("initialize") }}();
+    {%- if method.options and method.options.deprecated %}
+    this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
+    {%- endif %}
+    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+  }
+{%- endfor %}
 {% for method in service.streaming %}
 {%- if method.serverStreaming and method.clientStreaming %}
 /**
