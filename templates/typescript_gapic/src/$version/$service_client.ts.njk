@@ -555,17 +555,10 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}(
       request?: {{ util.toInterface(method.inputInterface) }},
       options?: CallOptions):
-{%- if method.isDiregapicLRO %}
-      Promise<[
-        LROperation<{{ util.toInterface(method.outputInterface) }}, null>,
-        {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
-      ]>;
-{%- else %}
       Promise<[
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
       ]>;
-{%- endif %}
   {{ method.name.toCamelCase() }}(
       request: {{ util.toInterface(method.inputInterface) }},
       options: CallOptions,
@@ -589,15 +582,9 @@ export class {{ service.name }}Client {
           {{ util.toInterface(method.outputInterface) }},
           {{ util.toInterface(method.inputInterface) }}|null|undefined,
           {}|null|undefined>):
-{%- if method.isDiregapicLRO %}
-      Promise<[
-        LROperation<{{ util.toInterface(method.outputInterface) }}, null>,
-        {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
-{%- else %}
       Promise<[
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
-{%- endif %}
       ]>|void {
     request = request || {};
     let options: CallOptions;
@@ -613,7 +600,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback);
   }
 {%- endfor %}
 {%- for method in service.diregapicLRO %}
@@ -675,7 +662,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    return this.innerApiCalls.{{ method.name.toCamelCase() }}(request, options, callback);
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback);
   }
 {%- endfor %}
 {% for method in service.streaming %}
