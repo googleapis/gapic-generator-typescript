@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.15.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.0...v2.15.1) (2022-06-23)
+
+
+### Bug Fixes
+
+* trigger release for [#1151](https://github.com/googleapis/gapic-generator-typescript/issues/1151) ([#1152](https://github.com/googleapis/gapic-generator-typescript/issues/1152)) ([3d658ac](https://github.com/googleapis/gapic-generator-typescript/commit/3d658acddaa1ac81ea583f492909ecef38bb43bd))
+
+## [2.15.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.6...v2.15.0) (2022-06-17)
+
+
+### Features
+
+* support regapic LRO ([#1143](https://github.com/googleapis/gapic-generator-typescript/issues/1143)) ([cb9f737](https://github.com/googleapis/gapic-generator-typescript/commit/cb9f737b2e7d458e859fb7900202489fe28912ba))
+
+
+### Bug Fixes
+
+* camel case for multiple capital letters ([#1149](https://github.com/googleapis/gapic-generator-typescript/issues/1149)) ([cdf4c71](https://github.com/googleapis/gapic-generator-typescript/commit/cdf4c71fe132f15d0661b8b3f9ce7a0aecbce395))
+
 ## [2.14.6](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.5...v2.14.6) (2022-06-10)
 
 
