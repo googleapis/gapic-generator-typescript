@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.15.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.1...v2.15.2) (2022-07-01)
+
+
+### Bug Fixes
+
+* **deps:** update all dependencies (major) ([#1135](https://github.com/googleapis/gapic-generator-typescript/issues/1135)) ([732d192](https://github.com/googleapis/gapic-generator-typescript/commit/732d192eee35ff4794df5ab62239f323bce7ca4a))
+* follow case convention [#1149](https://github.com/googleapis/gapic-generator-typescript/issues/1149) in generated tests ([#1157](https://github.com/googleapis/gapic-generator-typescript/issues/1157)) ([365a7cd](https://github.com/googleapis/gapic-generator-typescript/commit/365a7cd8135aadd133c53abd579e671851d4878f))
+
 ## [2.15.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.0...v2.15.1) (2022-06-23)
 
 
