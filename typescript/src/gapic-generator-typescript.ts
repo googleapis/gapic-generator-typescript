@@ -20,7 +20,7 @@ import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
-const googleGaxProtosDir = path.join(googleGaxPath, '..', '..', 'protos');
+const googleGaxProtosDir = path.join(googleGaxPath, '..', '..', 'build', 'protos');
 const allTemplates = fs.readdirSync(
   path.join(__dirname, '..', '..', 'templates')
 );
