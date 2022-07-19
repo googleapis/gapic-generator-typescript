@@ -221,6 +221,11 @@ export function getResourceNameByPattern(pattern: string): string {
   return name.join('_');
 }
 
+// For the given path template, extract the field name and prepare the regular
+// expression to extract the field value.
+// For example, for "/projects/{project=*}", the field name
+// is "project", and the regex will extract the part of the string that
+// corresponds to the curly brackets.
 export function processPathTemplate(
   pathTemplate: string
 ): {fieldSend: string; messageRegex: string} | null {
