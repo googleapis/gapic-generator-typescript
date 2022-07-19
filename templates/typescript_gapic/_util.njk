@@ -266,15 +266,23 @@ request.{{ oneComment.paramName.toCamelCase() }}
     let routingParameter = {};
 {%- for paramArray in method.dynamicRoutingRequestParams %}
   {%- for param in paramArray %}
-      if ((typeof request.{{ param.fieldRetrieve.join('?.') }} !== "undefined") && RegExp('{{ param.messageRegex | safe }}').test(request.{{ param.fieldRetrieve.join('?.') }}!)){
-        Object.assign(routingParameter, { {{ param.fieldSend }}: request.{{ param.fieldRetrieve.join('?.') }}!.match(RegExp('{{ param.namedSegment | safe }}'))![0]})}
+    {
+      const fieldValue = request.{{ param.fieldRetrieve.join('?.') }};
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('{{ param.messageRegex | safe }}'));
+        if (match) {
+          const parameterValue = match.groups?.['{{ param.fieldSend }}'] ?? fieldValue;
+          Object.assign(routingParameter, { {{ param.fieldSend }}: parameterValue });
+        }
+      }
+    }
 {% endfor -%}
 {%- endfor %}
-        options.otherArgs.headers[
-          'x-goog-request-params'
-          ] = gax.routingHeader.fromParams(
-            routingParameter
-          );
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams(
+      routingParameter
+    );
 {%- endif %}
 {%- if method.headerRequestParams.length > 0 %}
     options.otherArgs.headers[
