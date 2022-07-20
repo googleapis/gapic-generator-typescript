@@ -221,144 +221,40 @@ export function getResourceNameByPattern(pattern: string): string {
   return name.join('_');
 }
 
-export function isStar(pattern: string): boolean {
-  return pattern === '*';
-}
+// For the given path template, extract the field name and prepare the regular
+// expression to extract the field value.
+// For example, for "/projects/{project=*}", the field name
+// is "project", and the regex will extract the part of the string that
+// corresponds to the curly brackets.
+export function processPathTemplate(
+  pathTemplate: string
+): {fieldSend: string; messageRegex: string} | null {
+  // Find the template part
+  const patternMatch = pathTemplate.match(/{(\w+)[=}]/);
+  if (!patternMatch) {
+    return null;
+  }
+  const fieldSend = patternMatch[1];
 
-export function isDoubleStar(pattern: string): boolean {
-  return pattern === '**';
-}
-
-// This intakes an array of strings and checks if there is at least one and only one named segment.
-// Named segments can be resource names or wildcards.
-export function checkIfArrayContainsOnlyOneNamedSegment(
-  pattern: string[]
-): boolean {
-  let countOfNamedSegments = 0;
-  // Checks that resources are named
-  const regexNamed = new RegExp(/^.+=.+/);
-  const regexWildcard = new RegExp(/^{[a-zA-Z\d-]+}/);
-  pattern.forEach(element => {
-    if (regexNamed.test(element) || regexWildcard.test(element)) {
-      countOfNamedSegments++;
-    }
+  let messageRegex = pathTemplate;
+  messageRegex = messageRegex.replace(/{(\w+)}/, (_match, group) => {
+    return `{${group}=*}`;
   });
-  return countOfNamedSegments === 1;
-}
-
-// This takes in a path template segment and converts it into regex.
-export function convertSegmentToRegex(pattern: string): string {
-  const curlyBraceRegex = new RegExp(/{(.[^}]+)/);
-  const namedResourceRegex = new RegExp(/=/);
-  const getBeforeAfterEqualsSign = new RegExp(/([^=]*)=(.*)/);
-  if (isStar(pattern) || isStar(pattern.replaceAll('}', ''))) {
-    return '[^/]+';
-  }
-  // If segment is a double-wildcard, then it will 'eat' the precending '/'.
-  else if (isDoubleStar(pattern) || isDoubleStar(pattern.replaceAll('}', ''))) {
-    return '(?:/.*)?';
-  }
-  // If segment has a starting curly brace, and is not named, then it is a wildcard.
-  else if (curlyBraceRegex.test(pattern) && !namedResourceRegex.test(pattern)) {
-    // Strip any curly braces
-    const newPattern = pattern.replaceAll('}', '').replaceAll('{', '');
-    return '(?<' + newPattern + '>[^/]+)';
-  }
-  // If segment contains named resource, then the resource could be a wildcard or
-  // a collectionId
-  else if (curlyBraceRegex.test(pattern) && namedResourceRegex.test(pattern)) {
-    // Strip any curly braces
-    const newPattern = pattern.replaceAll('}', '').replaceAll('{', '');
-    const elements = newPattern.match(getBeforeAfterEqualsSign);
-    const name = '(?<' + elements![1] + '>';
-    const resource = elements![2];
-    if (isStar(resource)) {
-      return name + '[^/]+)';
-    } else if (isDoubleStar(resource)) {
-      return name + '(?:/.*)?' + ')';
-    } else {
-      return name + resource + ')';
+  messageRegex = messageRegex.replace(/(\/?)(\*+)/g, (_match, slash, stars) => {
+    if (stars === '*') {
+      return slash + '[^/]+';
     }
-  }
-  // If segment is just a CollectionId, then the regex equivalent is itself.
-  else if (pattern.match(/[a-zA-Z_-]+/)) {
-    return pattern;
-  } else {
-    return '';
-  }
-}
-
-// This takes in a full path template and converts it into regex.
-export function convertTemplateToRegex(pattern: string): string {
-  const splitStrings = pattern.split('/');
-  const regexStrings: string[] = [];
-  while (splitStrings.length > 0) {
-    const item = splitStrings.shift();
-    const itemToRegex = convertSegmentToRegex(item!);
-    // If item is a double-wildcard, then do not include a '/' separator as a double-wildcard may be empty.
-    const doubleWildcardRegex = new RegExp(/\*\*/);
-    if (!doubleWildcardRegex.test(item!)) {
-      regexStrings.push('/');
+    if (slash === '/') {
+      return '(?:/.*)?';
     }
-    regexStrings.push(itemToRegex);
-  }
-  let helperString = regexStrings.join('');
-  // Check if string begins with separator
-  const separatorRegex = new RegExp(/^\//);
-  if (separatorRegex.test(helperString)) {
-    helperString = helperString.substring(1);
-  }
-  return helperString;
-}
-
-// This intakes a path template and returns an array where the first element is the full named
-// segment, the second element is the name of the segment, the third element is the segment itself,
-// and the fourth element is the named capture regex of the named segement.
-// If the path template does not contain exactly one named segment, this function will return an empty array.
-export function getNamedSegment(pattern: string): string[] {
-  // Named segment in path template will always be contained within curly braces, e.g. '{}'
-  const curlyBraceRegex = new RegExp(/[^{}]+(?=})/);
-  // Named segment may just be a collection id
-  const collectionIdRegex = new RegExp(/{.*}/);
-  const namedSegmentWithoutCurlyBraces = pattern.match(curlyBraceRegex);
-  const namedSegmentWithCurlyBraces = pattern.match(collectionIdRegex);
-  if (
-    !namedSegmentWithoutCurlyBraces ||
-    !namedSegmentWithCurlyBraces ||
-    !checkIfArrayContainsOnlyOneNamedSegment(namedSegmentWithCurlyBraces)
-  ) {
-    return [];
-  }
-  const namedSegment = [];
-  // This contains the full named segment.
-  namedSegment.push(namedSegmentWithoutCurlyBraces[0]);
-  // This extracts the name from the named segment.
-  const nameOfSegmentRegex = new RegExp(/^(.*?)=/);
-  const nameOfSegment = namedSegmentWithoutCurlyBraces[0].match(
-    nameOfSegmentRegex
+    return '(?:.*)?';
+  });
+  messageRegex = messageRegex.replace(
+    /{(\w+)=([^}]+)}/,
+    (_match, before, after) => {
+      return `(?<${before}>${after})`;
+    }
   );
-  // // If the segment is just a collection id (e.g., {database}), then the name of the segment is itself, and the segment is a wildcard.
-  if (!nameOfSegmentRegex.test(namedSegmentWithoutCurlyBraces[0])) {
-    namedSegment.push(namedSegmentWithoutCurlyBraces[0]);
-    namedSegment.push('*');
-    namedSegment.push('[^/]+');
-  } else {
-    namedSegment.push(nameOfSegment![1]);
-    // This extracts the segment from the named segement.
-    const extractNameRegex = new RegExp(nameOfSegment![1] + '=(.*)');
-    const segment = namedSegmentWithoutCurlyBraces[0].match(
-      extractNameRegex
-    )![1];
-    namedSegment.push(segment);
-    // This converts the full named segment into regex.
-    // Special case for double wildcard in a named segment as we
-    // do want to capture it for a named segment.
-    let resourceRegex = convertTemplateToRegex(segment);
-    if (isDoubleStar(segment) || isDoubleStar(segment.replaceAll('}', ''))) {
-      resourceRegex = '.*';
-    }
-    const fullRegex = '(?<' + nameOfSegment![1] + '>' + resourceRegex + ')';
-    namedSegment.push(fullRegex);
-  }
-  return namedSegment;
+
+  return {fieldSend, messageRegex};
 }

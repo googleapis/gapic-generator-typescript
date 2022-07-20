@@ -14,7 +14,7 @@
 
 import * as protos from '../../../protos';
 import {CommentsMap, Comment} from './comments';
-import {convertTemplateToRegex, getNamedSegment, milliseconds} from '../util';
+import {processPathTemplate, milliseconds} from '../util';
 import {ResourceDescriptor, ResourceDatabase} from './resource-database';
 import {
   RetryableCodeMap,
@@ -661,15 +661,16 @@ export function getDynamicHeaderRequestParams(
   return params;
 }
 
-// This is what each routing annotation is translated into. fieldRetrive is the name of the
-// field the header should retrieve from the message. fieldSend is the name of the field the header should send.
-// messageRegex is the regex of the path template that the message field should match.
-// namedSegment is the regex capture of the named value of the field.
+// This is what each routing annotation is translated into.
 export interface DynamicRoutingParameters {
+  // The original path template, unchanged
+  pathTemplate: string;
+  // The name of request field to apply the rules to
   fieldRetrieve: string[];
+  // The name of the field to send in the header
   fieldSend: string;
+  // The regex to extract the value to send in the header
   messageRegex: string;
-  namedSegment: string;
 }
 
 // The field to be retrieved needs to be converted into camelCase
@@ -690,10 +691,10 @@ export function getSingleRoutingHeaderParam(
   rule: protos.google.api.IRoutingParameter
 ): DynamicRoutingParameters {
   let dynamicRoutingRule: DynamicRoutingParameters = {
+    pathTemplate: rule.pathTemplate ?? '',
     fieldRetrieve: [],
     fieldSend: '',
     messageRegex: '',
-    namedSegment: '',
   };
   // If routing parameters are empty, then return empty interface
   if (!rule.field) {
@@ -701,21 +702,24 @@ export function getSingleRoutingHeaderParam(
   } else if (!rule.pathTemplate) {
     // If there is no path template, then capture the full field from the message
     dynamicRoutingRule = {
+      pathTemplate: '',
       fieldRetrieve: convertFieldToCamelCase(rule.field),
       fieldSend: rule.field,
-      messageRegex: '[^/]+',
-      namedSegment: '[^/]+',
+      messageRegex: `(?<${rule.field}>.*)`,
     };
   }
   // If the annotation is malformed, then return empty interface
-  else if (getNamedSegment(rule.pathTemplate).length < 1) {
-    return dynamicRoutingRule;
-  } else {
+  else {
+    const processedPathTemplate = processPathTemplate(rule.pathTemplate);
+    if (!processedPathTemplate) {
+      return dynamicRoutingRule;
+    }
+    const {fieldSend, messageRegex} = processedPathTemplate;
     dynamicRoutingRule = {
+      pathTemplate: rule.pathTemplate,
       fieldRetrieve: convertFieldToCamelCase(rule.field),
-      fieldSend: getNamedSegment(rule.pathTemplate)[1],
-      messageRegex: convertTemplateToRegex(rule.pathTemplate),
-      namedSegment: getNamedSegment(rule.pathTemplate)[3],
+      fieldSend,
+      messageRegex,
     };
   }
   return dynamicRoutingRule;
