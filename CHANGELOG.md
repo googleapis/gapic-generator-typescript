@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.15.3](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.2...v2.15.3) (2022-07-20)
+
+
+### Bug Fixes
+
+* proper processing of routing headers ([#1160](https://github.com/googleapis/gapic-generator-typescript/issues/1160)) ([6e9f77f](https://github.com/googleapis/gapic-generator-typescript/commit/6e9f77f5f1251f539202b9ebf65ca9fff3f0d117))
+
 ## [2.15.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.1...v2.15.2) (2022-07-01)
 
 
