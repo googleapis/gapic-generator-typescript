@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as testserviceModule from '../src';
 
 import {protobuf} from 'google-gax';
@@ -40,97 +40,99 @@ function stubSimpleCallWithCallback<ResponseType>(response?: ResponseType, error
 }
 
 describe('v1.TestServiceClient', () => {
-    it('has servicePath', () => {
-        const servicePath = testserviceModule.v1.TestServiceClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = testserviceModule.v1.TestServiceClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = testserviceModule.v1.TestServiceClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new testserviceModule.v1.TestServiceClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new testserviceModule.v1.TestServiceClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = testserviceModule.v1.TestServiceClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new testserviceModule.v1.TestServiceClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = testserviceModule.v1.TestServiceClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = testserviceModule.v1.TestServiceClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new testserviceModule.v1.TestServiceClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.testServiceStub, undefined);
+            await client.initialize();
+            assert(client.testServiceStub);
         });
-        assert.strictEqual(client.testServiceStub, undefined);
-        await client.initialize();
-        assert(client.testServiceStub);
-    });
 
-    it('has close method for the initialized client', done => {
-        const client = new testserviceModule.v1.TestServiceClient({
+        it('has close method for the initialized client', done => {
+            const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.initialize();
-        assert(client.testServiceStub);
-        client.close().then(() => {
-            done();
-        });
-    });
-
-    it('has close method for the non-initialized client', done => {
-        const client = new testserviceModule.v1.TestServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        assert.strictEqual(client.testServiceStub, undefined);
-        client.close().then(() => {
-            done();
-        });
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new testserviceModule.v1.TestServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new testserviceModule.v1.TestServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.testServiceStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.testServiceStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('fastFibonacci', () => {
@@ -138,7 +140,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
@@ -165,7 +167,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
@@ -203,7 +205,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
@@ -229,7 +231,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             // path template: {database=projects/*/databases/*}/documents
@@ -245,7 +247,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
@@ -275,7 +277,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
@@ -316,7 +318,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
@@ -345,7 +347,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             // path template is empty
@@ -363,7 +365,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
@@ -398,7 +400,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
@@ -444,7 +446,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
@@ -478,7 +480,7 @@ describe('v1.TestServiceClient', () => {
             const client = new testserviceModule.v1.TestServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.routingtest.v1.FibonacciRequest());
             // path template: {database=projects/*}
