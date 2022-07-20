@@ -123,6 +123,7 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
+            pathTemplate: 'test/database',
             fieldRetrieve: [],
             fieldSend: '',
             messageRegex: '',
@@ -152,16 +153,19 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
+            pathTemplate: '{routing_id=projects/*}/**',
             fieldRetrieve: ['name'],
             fieldSend: 'routing_id',
             messageRegex: '(?<routing_id>projects/[^/]+)(?:/.*)?',
           },
           {
+            pathTemplate: '{routing_id=**}',
             fieldRetrieve: ['database'],
             fieldSend: 'routing_id',
             messageRegex: '(?<routing_id>(?:.*)?)',
           },
           {
+            pathTemplate: '{routing_id=projects/*/databases/*}/documents/*/**',
             fieldRetrieve: ['database'],
             fieldSend: 'routing_id',
             messageRegex:
@@ -188,6 +192,7 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
+            pathTemplate: '{routing_id=projects/*}/**',
             fieldRetrieve: ['name'],
             fieldSend: 'routing_id',
             messageRegex: '(?<routing_id>projects/[^/]+)(?:/.*)?',
@@ -195,6 +200,7 @@ describe('src/schema/proto.ts', () => {
         ],
         [
           {
+            pathTemplate: '{profile_id=projects/*}/**',
             fieldRetrieve: ['appProfileId'],
             fieldSend: 'profile_id',
             messageRegex: '(?<profile_id>projects/[^/]+)(?:/.*)?',
@@ -225,11 +231,14 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
+            pathTemplate: '{routing_id=projects/*}/**',
             fieldRetrieve: ['name'],
             fieldSend: 'routing_id',
             messageRegex: '(?<routing_id>projects/[^/]+)(?:/.*)?',
           },
           {
+            pathTemplate:
+              'test/{routing_id=projects/*/databases/*}/documents/*/**',
             fieldRetrieve: ['name'],
             fieldSend: 'routing_id',
             messageRegex:
@@ -238,6 +247,7 @@ describe('src/schema/proto.ts', () => {
         ],
         [
           {
+            pathTemplate: '{profile_id=projects/*}/**',
             fieldRetrieve: ['appProfileId'],
             fieldSend: 'profile_id',
             messageRegex: '(?<profile_id>projects/[^/]+)(?:/.*)?',
@@ -259,6 +269,7 @@ describe('src/schema/proto.ts', () => {
       const expectedRoutingParameters: DynamicRoutingParameters[][] = [
         [
           {
+            pathTemplate: 'projects/*/locations/{location=*}',
             fieldRetrieve: ['parent'],
             fieldSend: 'location',
             messageRegex: 'projects/[^/]+/locations/(?<location>[^/]+)',
@@ -300,6 +311,7 @@ describe('src/schema/proto.ts', () => {
         pathTemplate: 'test/database',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
+        pathTemplate: 'test/database',
         fieldRetrieve: [],
         fieldSend: '',
         messageRegex: '',
@@ -312,6 +324,7 @@ describe('src/schema/proto.ts', () => {
     it('works with no parameters', () => {
       const routingRule: protos.google.api.IRoutingParameter = {};
       const expectedRoutingParameters: DynamicRoutingParameters = {
+        pathTemplate: '',
         fieldRetrieve: [],
         fieldSend: '',
         messageRegex: '',
@@ -326,6 +339,7 @@ describe('src/schema/proto.ts', () => {
         field: 'name',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
+        pathTemplate: '',
         fieldRetrieve: ['name'],
         fieldSend: 'name',
         messageRegex: '(?<name>.*)',
@@ -341,6 +355,7 @@ describe('src/schema/proto.ts', () => {
         pathTemplate: '{routing_id=**}',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
+        pathTemplate: '{routing_id=**}',
         fieldRetrieve: ['appProfileId', 'parentId'],
         fieldSend: 'routing_id',
         messageRegex: '(?<routing_id>(?:.*)?)',
@@ -356,6 +371,7 @@ describe('src/schema/proto.ts', () => {
         pathTemplate: '{routing_id=projects/*}/**',
       };
       const expectedRoutingParameters: DynamicRoutingParameters = {
+        pathTemplate: '{routing_id=projects/*}/**',
         fieldRetrieve: ['appProfileId'],
         fieldSend: 'routing_id',
         messageRegex: '(?<routing_id>projects/[^/]+)(?:/.*)?',

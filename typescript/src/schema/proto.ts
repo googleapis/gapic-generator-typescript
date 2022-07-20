@@ -663,6 +663,8 @@ export function getDynamicHeaderRequestParams(
 
 // This is what each routing annotation is translated into.
 export interface DynamicRoutingParameters {
+  // The original path template, unchanged
+  pathTemplate: string;
   // The name of request field to apply the rules to
   fieldRetrieve: string[];
   // The name of the field to send in the header
@@ -689,6 +691,7 @@ export function getSingleRoutingHeaderParam(
   rule: protos.google.api.IRoutingParameter
 ): DynamicRoutingParameters {
   let dynamicRoutingRule: DynamicRoutingParameters = {
+    pathTemplate: rule.pathTemplate ?? '',
     fieldRetrieve: [],
     fieldSend: '',
     messageRegex: '',
@@ -699,6 +702,7 @@ export function getSingleRoutingHeaderParam(
   } else if (!rule.pathTemplate) {
     // If there is no path template, then capture the full field from the message
     dynamicRoutingRule = {
+      pathTemplate: '',
       fieldRetrieve: convertFieldToCamelCase(rule.field),
       fieldSend: rule.field,
       messageRegex: `(?<${rule.field}>.*)`,
@@ -712,6 +716,7 @@ export function getSingleRoutingHeaderParam(
     }
     const {fieldSend, messageRegex} = processedPathTemplate;
     dynamicRoutingRule = {
+      pathTemplate: rule.pathTemplate,
       fieldRetrieve: convertFieldToCamelCase(rule.field),
       fieldSend,
       messageRegex,
