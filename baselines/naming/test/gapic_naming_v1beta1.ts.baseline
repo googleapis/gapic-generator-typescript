@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as namingModule from '../src';
 
 import {PassThrough} from 'stream';
@@ -103,97 +103,99 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v1beta1.NamingClient', () => {
-    it('has servicePath', () => {
-        const servicePath = namingModule.v1beta1.NamingClient.servicePath1;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = namingModule.v1beta1.NamingClient.apiEndpoint1;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = namingModule.v1beta1.NamingClient.port1;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new namingModule.v1beta1.NamingClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new namingModule.v1beta1.NamingClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = namingModule.v1beta1.NamingClient.servicePath1;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new namingModule.v1beta1.NamingClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = namingModule.v1beta1.NamingClient.apiEndpoint1;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = namingModule.v1beta1.NamingClient.port1;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new namingModule.v1beta1.NamingClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new namingModule.v1beta1.NamingClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.namingStub, undefined);
+            await client.initialize1();
+            assert(client.namingStub);
         });
-        assert.strictEqual(client.namingStub, undefined);
-        await client.initialize1();
-        assert(client.namingStub);
-    });
 
-    it('has close method for the initialized client', done => {
-        const client = new namingModule.v1beta1.NamingClient({
+        it('has close method for the initialized client', done => {
+            const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.initialize1();
-        assert(client.namingStub);
-        client.close().then(() => {
-            done();
-        });
-    });
-
-    it('has close method for the non-initialized client', done => {
-        const client = new namingModule.v1beta1.NamingClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        assert.strictEqual(client.namingStub, undefined);
-        client.close().then(() => {
-            done();
-        });
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new namingModule.v1beta1.NamingClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId1();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new namingModule.v1beta1.NamingClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId1((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize1();
+            assert(client.namingStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.namingStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId1();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId1((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('paginatedMethodStream', () => {
@@ -201,7 +203,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -217,7 +219,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -244,7 +246,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -259,7 +261,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -273,7 +275,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -289,7 +291,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -316,7 +318,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -331,7 +333,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -345,7 +347,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -361,7 +363,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -388,7 +390,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -403,7 +405,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -417,7 +419,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -433,7 +435,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -460,7 +462,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -475,7 +477,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -489,7 +491,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -505,7 +507,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -532,7 +534,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -547,7 +549,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -561,7 +563,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -577,7 +579,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -604,7 +606,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -619,7 +621,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -633,7 +635,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -649,7 +651,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -676,7 +678,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -691,7 +693,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -705,7 +707,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -721,7 +723,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -748,7 +750,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -763,7 +765,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -777,7 +779,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -793,7 +795,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -820,7 +822,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -835,7 +837,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -849,7 +851,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.naming.v1beta1.GetReservedWordRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -865,7 +867,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.naming.v1beta1.GetReservedWordRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -892,7 +894,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.naming.v1beta1.GetReservedWordRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -907,7 +909,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.naming.v1beta1.GetReservedWordRequest());
             const expectedError = new Error('The client has already been closed.');
@@ -921,7 +923,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -937,7 +939,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -964,7 +966,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -979,7 +981,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedError = new Error('The client has already been closed.');
@@ -993,7 +995,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -1010,7 +1012,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -1040,7 +1042,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -1055,7 +1057,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.protobuf.Empty());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -1071,7 +1073,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
             expectedResponse.name = 'test';
@@ -1089,7 +1091,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const expectedError = new Error('expected');
 
@@ -1230,7 +1232,7 @@ describe('v1beta1.NamingClient', () => {
             const client = new namingModule.v1beta1.NamingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize1();
             const request = generateSampleMessage(new protos.google.naming.v1beta1.PaginatedMethodRequest());
             const expectedResponse = [
