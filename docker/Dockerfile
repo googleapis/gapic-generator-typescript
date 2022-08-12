@@ -12,15 +12,19 @@ RUN npm install -g /root/files/package.tgz
 
 # Download and install protoc
 RUN cd /root/files && \
-    wget https://github.com/protocolbuffers/protobuf/releases/download/v3.12.3/protoc-3.12.3-linux-x86_64.zip
-RUN cd /usr/local && unzip /root/files/protoc-3.12.3-linux-x86_64.zip
+    wget https://github.com/protocolbuffers/protobuf/releases/download/v21.5/protoc-21.5-linux-x86_64.zip
+RUN cd /usr/local && unzip /root/files/protoc-21.5-linux-x86_64.zip
 RUN chmod -R ugo+rX /usr/local
 RUN chmod ugo+rx /usr/local/bin/protoc
 
-# Download a copy of API common protos
+# Download googleapis common protos
 RUN cd /root/files && \
-    wget https://github.com/googleapis/api-common-protos/archive/master.zip
-RUN cd /protos && unzip /root/files/master.zip && chmod -R a+rx /protos
+    wget https://github.com/googleapis/googleapis/archive/refs/heads/master.zip
+RUN cd /root/files && unzip master.zip
+RUN cd /root/files && for dir in google/api google/longrunning google/rpc google/type google/iam/v1; do \
+        mkdir -p /protos/$dir; \
+        cp googleapis-master/$dir/*.proto /protos/$dir/; \
+    done
 
 # Add gapic-config-validator plugin
 COPY --from=gcr.io/gapic-images/gapic-config-validator /usr/local/bin/protoc-gen-gapic-validator /usr/local/bin/protoc-gen-gapic-validator
