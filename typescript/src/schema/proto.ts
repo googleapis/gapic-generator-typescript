@@ -14,7 +14,7 @@
 
 import * as protos from '../../../protos';
 import {CommentsMap, Comment} from './comments';
-import {convertTemplateToRegex, getNamedSegment, milliseconds} from '../util';
+import {processPathTemplate, milliseconds} from '../util';
 import {ResourceDescriptor, ResourceDatabase} from './resource-database';
 import {
   RetryableCodeMap,
@@ -25,6 +25,7 @@ import {
 import {BundleConfig} from '../bundle';
 import {Options} from './naming';
 import {ServiceYaml} from '../serviceyaml';
+import {google} from '../../../protos';
 
 const COMMON_PROTO_LIST = [
   'google.api',
@@ -98,6 +99,7 @@ export interface ServiceDescriptorProto
   LongRunningOperationsMixin: number;
   protoFile: string;
   diregapicLRO?: MethodDescriptorProto[];
+  httpRules?: google.api.IHttpRule[];
 }
 
 export interface ServicesMap {
@@ -586,12 +588,18 @@ function augmentMethod(
 
 export function getSingleHeaderParam(
   rule: protos.google.api.IHttpRule
-): string[] {
+): string[][] {
   const message =
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
   if (message) {
-    const res = message.match(/{(.*?)[=}]/);
-    return res?.[1] ? res[1].split('.') : [];
+    const result: string[][] = [];
+    const matches = message.matchAll(/{(.*?)[=}]/g);
+    for (const match of matches) {
+      if (match[1]) {
+        result.push(match[1].split('.'));
+      }
+    }
+    return result;
   }
   return [];
 }
@@ -602,14 +610,12 @@ export function getHeaderRequestParams(
   if (!httpRule) {
     return [];
   }
-  const params: string[][] = [];
-  params.push(getSingleHeaderParam(httpRule));
-
+  let params: string[][] = [];
+  params = params.concat(getSingleHeaderParam(httpRule));
   httpRule.additionalBindings = httpRule.additionalBindings ?? [];
-  params.push(
+  params = params.concat(
     ...httpRule.additionalBindings.map(binding => getSingleHeaderParam(binding))
   );
-
   // de-dup result array
   const used = new Set();
   const result: string[][] = [];
@@ -624,7 +630,6 @@ export function getHeaderRequestParams(
     used.add(joined);
     result.push(param);
   }
-
   return result;
 }
 
@@ -656,25 +661,29 @@ export function getDynamicHeaderRequestParams(
   return params;
 }
 
-// This is what each routing annotation is translated into. fieldRetrive is the name of the
-// field the header should retrieve from the message. fieldSend is the name of the field the header should send.
-// messageRegex is the regex of the path template that the message field should match.
-// namedSegment is the regex capture of the named value of the field.
+// This is what each routing annotation is translated into.
 export interface DynamicRoutingParameters {
-  fieldRetrieve: string;
+  // The original path template, unchanged
+  pathTemplate: string;
+  // The name of request field to apply the rules to
+  fieldRetrieve: string[];
+  // The name of the field to send in the header
   fieldSend: string;
+  // The regex to extract the value to send in the header
   messageRegex: string;
-  namedSegment: string;
 }
 
 // The field to be retrieved needs to be converted into camelCase
 export function convertFieldToCamelCase(field: string) {
   const camelCaseFields: string[] = [];
+  if (field === '') {
+    return camelCaseFields;
+  }
   const fieldsToRetrieve = field.split('.');
   fieldsToRetrieve.forEach(field => {
     camelCaseFields.push(field.toCamelCase());
   });
-  return camelCaseFields.join('.');
+  return camelCaseFields;
 }
 
 // This parses a single Routing Parameter and returns a MapRoutingParameters interface.
@@ -682,10 +691,10 @@ export function getSingleRoutingHeaderParam(
   rule: protos.google.api.IRoutingParameter
 ): DynamicRoutingParameters {
   let dynamicRoutingRule: DynamicRoutingParameters = {
-    fieldRetrieve: '',
+    pathTemplate: rule.pathTemplate ?? '',
+    fieldRetrieve: [],
     fieldSend: '',
     messageRegex: '',
-    namedSegment: '',
   };
   // If routing parameters are empty, then return empty interface
   if (!rule.field) {
@@ -693,21 +702,24 @@ export function getSingleRoutingHeaderParam(
   } else if (!rule.pathTemplate) {
     // If there is no path template, then capture the full field from the message
     dynamicRoutingRule = {
+      pathTemplate: '',
       fieldRetrieve: convertFieldToCamelCase(rule.field),
       fieldSend: rule.field,
-      messageRegex: '[^/]+',
-      namedSegment: '[^/]+',
+      messageRegex: `(?<${rule.field}>.*)`,
     };
   }
   // If the annotation is malformed, then return empty interface
-  else if (getNamedSegment(rule.pathTemplate).length < 1) {
-    return dynamicRoutingRule;
-  } else {
+  else {
+    const processedPathTemplate = processPathTemplate(rule.pathTemplate);
+    if (!processedPathTemplate) {
+      return dynamicRoutingRule;
+    }
+    const {fieldSend, messageRegex} = processedPathTemplate;
     dynamicRoutingRule = {
+      pathTemplate: rule.pathTemplate,
       fieldRetrieve: convertFieldToCamelCase(rule.field),
-      fieldSend: getNamedSegment(rule.pathTemplate)[1],
-      messageRegex: convertTemplateToRegex(rule.pathTemplate),
-      namedSegment: getNamedSegment(rule.pathTemplate)[3],
+      fieldSend,
+      messageRegex,
     };
   }
   return dynamicRoutingRule;
@@ -748,6 +760,9 @@ function augmentService(parameters: AugmentServiceParameters) {
     )
   ) {
     augmentedService.LongRunningOperationsMixin = 1;
+  }
+  if (parameters.options.serviceYaml?.http) {
+    augmentedService.httpRules = parameters.options.serviceYaml.http.rules;
   }
   augmentedService.comments = parameters.commentsMap.getServiceComment(
     parameters.service.name!

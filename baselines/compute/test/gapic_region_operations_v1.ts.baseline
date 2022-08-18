@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it, beforeEach, afterEach } from 'mocha';
+import {describe, it, beforeEach, afterEach} from 'mocha';
 import * as regionoperationsModule from '../src';
 
 import {GoogleAuth, protobuf} from 'google-gax';
@@ -51,82 +51,99 @@ describe('v1.RegionOperationsClient', () => {
   afterEach(() => {
     sinon.restore();
   });
-    it('has servicePath', () => {
-        const servicePath = regionoperationsModule.v1.RegionOperationsClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = regionoperationsModule.v1.RegionOperationsClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = regionoperationsModule.v1.RegionOperationsClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new regionoperationsModule.v1.RegionOperationsClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new regionoperationsModule.v1.RegionOperationsClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = regionoperationsModule.v1.RegionOperationsClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new regionoperationsModule.v1.RegionOperationsClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = regionoperationsModule.v1.RegionOperationsClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = regionoperationsModule.v1.RegionOperationsClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
               auth: googleAuth,
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.regionOperationsStub, undefined);
+            await client.initialize();
+            assert(client.regionOperationsStub);
         });
-        assert.strictEqual(client.regionOperationsStub, undefined);
-        await client.initialize();
-        assert(client.regionOperationsStub);
-    });
 
-    it('has close method', () => {
-        const client = new regionoperationsModule.v1.RegionOperationsClient({
+        it('has close method for the initialized client', done => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
               auth: googleAuth,
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new regionoperationsModule.v1.RegionOperationsClient({
-              auth: googleAuth,
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new regionoperationsModule.v1.RegionOperationsClient({
-              auth: googleAuth,
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.regionOperationsStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.regionOperationsStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('get', () => {
@@ -134,11 +151,13 @@ describe('v1.RegionOperationsClient', () => {
             const client = new regionoperationsModule.v1.RegionOperationsClient({
               auth: googleAuth,
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.compute.v1.GetRegionOperationRequest());
             request.project = '';
-            const expectedHeaderRequestParams = "project=";
+            request.region = '';
+            request.operation = '';
+            const expectedHeaderRequestParams = "project=&region=&operation=";
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -158,11 +177,13 @@ describe('v1.RegionOperationsClient', () => {
             const client = new regionoperationsModule.v1.RegionOperationsClient({
               auth: googleAuth,
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.compute.v1.GetRegionOperationRequest());
             request.project = '';
-            const expectedHeaderRequestParams = "project=";
+            request.region = '';
+            request.operation = '';
+            const expectedHeaderRequestParams = "project=&region=&operation=";
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -193,11 +214,13 @@ describe('v1.RegionOperationsClient', () => {
             const client = new regionoperationsModule.v1.RegionOperationsClient({
               auth: googleAuth,
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.compute.v1.GetRegionOperationRequest());
             request.project = '';
-            const expectedHeaderRequestParams = "project=";
+            request.region = '';
+            request.operation = '';
+            const expectedHeaderRequestParams = "project=&region=&operation=";
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -211,6 +234,21 @@ describe('v1.RegionOperationsClient', () => {
             assert((client.innerApiCalls.get as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes get with closed client', async () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.compute.v1.GetRegionOperationRequest());
+            request.project = '';
+            request.region = '';
+            request.operation = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.get(request), expectedError);
+        });
     });
 
     describe('wait', () => {
@@ -218,11 +256,13 @@ describe('v1.RegionOperationsClient', () => {
             const client = new regionoperationsModule.v1.RegionOperationsClient({
               auth: googleAuth,
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.compute.v1.WaitRegionOperationRequest());
             request.project = '';
-            const expectedHeaderRequestParams = "project=";
+            request.region = '';
+            request.operation = '';
+            const expectedHeaderRequestParams = "project=&region=&operation=";
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -242,11 +282,13 @@ describe('v1.RegionOperationsClient', () => {
             const client = new regionoperationsModule.v1.RegionOperationsClient({
               auth: googleAuth,
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.compute.v1.WaitRegionOperationRequest());
             request.project = '';
-            const expectedHeaderRequestParams = "project=";
+            request.region = '';
+            request.operation = '';
+            const expectedHeaderRequestParams = "project=&region=&operation=";
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -277,11 +319,13 @@ describe('v1.RegionOperationsClient', () => {
             const client = new regionoperationsModule.v1.RegionOperationsClient({
               auth: googleAuth,
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.compute.v1.WaitRegionOperationRequest());
             request.project = '';
-            const expectedHeaderRequestParams = "project=";
+            request.region = '';
+            request.operation = '';
+            const expectedHeaderRequestParams = "project=&region=&operation=";
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -294,6 +338,21 @@ describe('v1.RegionOperationsClient', () => {
             await assert.rejects(client.wait(request), expectedError);
             assert((client.innerApiCalls.wait as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes wait with closed client', async () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({
+              auth: googleAuth,
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.compute.v1.WaitRegionOperationRequest());
+            request.project = '';
+            request.region = '';
+            request.operation = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.wait(request), expectedError);
         });
     });
 });

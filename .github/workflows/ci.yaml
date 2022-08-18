@@ -9,18 +9,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: gcr.io/gapic-images/googleapis:20210423
+    container: gcr.io/gapic-images/googleapis:20220711
     # Dockerfile for this image: https://github.com/googleapis/googleapis-discovery/blob/master/Dockerfile
     # If you update its version, please also update it below in
     # 'Cache Bazel files' - unfortunately it cannot accept variables at this
     # time.
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Cache Bazel files
       id: cache-bazel
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/bazel
         key: ${{ runner.os }}-googleapis-20210423-${{ secrets.CACHE_VERSION }}
@@ -67,7 +67,7 @@ jobs:
         tar cfz ~/artifacts/node_modules.tar.gz node_modules
 
     - name: Save artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: artifacts
         path: ~/artifacts
@@ -78,19 +78,19 @@ jobs:
     strategy:
       matrix:
         # Test on the oldest and the newest supported version just in case
-        node-version: [10.x, 14.x]
+        node-version: [12.x, 14.x, 16.x]
         test: [js, ts]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
 
     - name: Download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: artifacts
         path: ~/artifacts
@@ -113,16 +113,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [12.x]
         lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech, showcase-legacy, compute]
     steps:
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
 
     - name: Download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: artifacts
         path: ~/artifacts

@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as identityModule from '../src';
 
 import {PassThrough} from 'stream';
@@ -87,82 +87,99 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v1beta1.IdentityClient', () => {
-    it('has servicePath', () => {
-        const servicePath = identityModule.v1beta1.IdentityClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = identityModule.v1beta1.IdentityClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = identityModule.v1beta1.IdentityClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new identityModule.v1beta1.IdentityClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new identityModule.v1beta1.IdentityClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = identityModule.v1beta1.IdentityClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new identityModule.v1beta1.IdentityClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = identityModule.v1beta1.IdentityClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = identityModule.v1beta1.IdentityClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new identityModule.v1beta1.IdentityClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new identityModule.v1beta1.IdentityClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.identityStub, undefined);
+            await client.initialize();
+            assert(client.identityStub);
         });
-        assert.strictEqual(client.identityStub, undefined);
-        await client.initialize();
-        assert(client.identityStub);
-    });
 
-    it('has close method', () => {
-        const client = new identityModule.v1beta1.IdentityClient({
+        it('has close method for the initialized client', done => {
+            const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new identityModule.v1beta1.IdentityClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new identityModule.v1beta1.IdentityClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.identityStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new identityModule.v1beta1.IdentityClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.identityStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new identityModule.v1beta1.IdentityClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new identityModule.v1beta1.IdentityClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('createUser', () => {
@@ -170,7 +187,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -186,7 +203,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -213,7 +230,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -223,6 +240,18 @@ describe('v1beta1.IdentityClient', () => {
             assert((client.innerApiCalls.createUser as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createUser with closed client', async () => {
+            const client = new identityModule.v1beta1.IdentityClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createUser(request), expectedError);
+        });
     });
 
     describe('getUser', () => {
@@ -230,7 +259,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
             request.name = '';
@@ -254,7 +283,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
             request.name = '';
@@ -289,7 +318,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
             request.name = '';
@@ -307,6 +336,19 @@ describe('v1beta1.IdentityClient', () => {
             assert((client.innerApiCalls.getUser as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getUser with closed client', async () => {
+            const client = new identityModule.v1beta1.IdentityClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getUser(request), expectedError);
+        });
     });
 
     describe('updateUser', () => {
@@ -314,7 +356,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
             request.user = {};
@@ -339,7 +381,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
             request.user = {};
@@ -375,7 +417,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
             request.user = {};
@@ -394,6 +436,20 @@ describe('v1beta1.IdentityClient', () => {
             assert((client.innerApiCalls.updateUser as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateUser with closed client', async () => {
+            const client = new identityModule.v1beta1.IdentityClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
+            request.user = {};
+            request.user.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateUser(request), expectedError);
+        });
     });
 
     describe('deleteUser', () => {
@@ -401,7 +457,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
             request.name = '';
@@ -425,7 +481,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
             request.name = '';
@@ -460,7 +516,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
             request.name = '';
@@ -477,6 +533,19 @@ describe('v1beta1.IdentityClient', () => {
             await assert.rejects(client.deleteUser(request), expectedError);
             assert((client.innerApiCalls.deleteUser as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes deleteUser with closed client', async () => {
+            const client = new identityModule.v1beta1.IdentityClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteUser(request), expectedError);
         });
     });
 
@@ -610,7 +679,7 @@ describe('v1beta1.IdentityClient', () => {
             const client = new identityModule.v1beta1.IdentityClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
             const expectedResponse = [

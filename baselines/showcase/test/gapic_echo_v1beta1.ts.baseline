@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as echoModule from '../src';
 
 import {PassThrough} from 'stream';
@@ -136,82 +136,99 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v1beta1.EchoClient', () => {
-    it('has servicePath', () => {
-        const servicePath = echoModule.v1beta1.EchoClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = echoModule.v1beta1.EchoClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = echoModule.v1beta1.EchoClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new echoModule.v1beta1.EchoClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new echoModule.v1beta1.EchoClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = echoModule.v1beta1.EchoClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new echoModule.v1beta1.EchoClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = echoModule.v1beta1.EchoClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = echoModule.v1beta1.EchoClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new echoModule.v1beta1.EchoClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new echoModule.v1beta1.EchoClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.echoStub, undefined);
+            await client.initialize();
+            assert(client.echoStub);
         });
-        assert.strictEqual(client.echoStub, undefined);
-        await client.initialize();
-        assert(client.echoStub);
-    });
 
-    it('has close method', () => {
-        const client = new echoModule.v1beta1.EchoClient({
+        it('has close method for the initialized client', done => {
+            const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new echoModule.v1beta1.EchoClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new echoModule.v1beta1.EchoClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.echoStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new echoModule.v1beta1.EchoClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.echoStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new echoModule.v1beta1.EchoClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new echoModule.v1beta1.EchoClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('echo', () => {
@@ -219,7 +236,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -235,7 +252,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -262,7 +279,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -272,6 +289,18 @@ describe('v1beta1.EchoClient', () => {
             assert((client.innerApiCalls.echo as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes echo with closed client', async () => {
+            const client = new echoModule.v1beta1.EchoClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.echo(request), expectedError);
+        });
     });
 
     describe('block', () => {
@@ -279,7 +308,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.BlockRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -295,7 +324,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.BlockRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -322,7 +351,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.BlockRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -332,6 +361,18 @@ describe('v1beta1.EchoClient', () => {
             assert((client.innerApiCalls.block as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes block with closed client', async () => {
+            const client = new echoModule.v1beta1.EchoClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.BlockRequest());
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.block(request), expectedError);
+        });
     });
 
     describe('wait', () => {
@@ -339,7 +380,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.WaitRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -356,7 +397,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.WaitRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -386,7 +427,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.WaitRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -401,7 +442,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.WaitRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -417,7 +458,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
             expectedResponse.name = 'test';
@@ -435,7 +476,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const expectedError = new Error('expected');
 
@@ -451,7 +492,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ExpandRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -476,7 +517,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ExpandRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -500,7 +541,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ExpandRequest());
             const expectedError = new Error('The client has already been closed.');
@@ -523,7 +564,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
             const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse());
@@ -551,7 +592,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
             const expectedError = new Error('expected');
@@ -580,7 +621,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
             const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse());
@@ -609,7 +650,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
             const expectedError = new Error('expected');
@@ -763,7 +804,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandRequest());
             const expectedResponse = [
@@ -808,7 +849,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.GetIamPolicyRequest()
@@ -835,7 +876,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.GetIamPolicyRequest()
@@ -874,7 +915,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.GetIamPolicyRequest()
@@ -900,7 +941,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.SetIamPolicyRequest()
@@ -927,7 +968,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.SetIamPolicyRequest()
@@ -966,7 +1007,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.SetIamPolicyRequest()
@@ -992,7 +1033,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.TestIamPermissionsRequest()
@@ -1019,7 +1060,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.TestIamPermissionsRequest()
@@ -1058,7 +1099,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new IamProtos.google.iam.v1.TestIamPermissionsRequest()
@@ -1084,7 +1125,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new LocationProtos.google.cloud.location.GetLocationRequest()
@@ -1111,7 +1152,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new LocationProtos.google.cloud.location.GetLocationRequest()
@@ -1153,7 +1194,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new LocationProtos.google.cloud.location.GetLocationRequest()
@@ -1179,7 +1220,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new LocationProtos.google.cloud.location.ListLocationsRequest()
@@ -1248,7 +1289,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.GetOperationRequest()
@@ -1267,7 +1308,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.GetOperationRequest()
             );
@@ -1299,7 +1340,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.GetOperationRequest()
             );
@@ -1315,7 +1356,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.CancelOperationRequest()
@@ -1334,7 +1375,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.CancelOperationRequest()
             );
@@ -1366,7 +1407,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.CancelOperationRequest()
             );
@@ -1382,7 +1423,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.DeleteOperationRequest()
@@ -1401,7 +1442,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
@@ -1433,7 +1474,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
@@ -1449,7 +1490,7 @@ describe('v1beta1.EchoClient', () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const request = generateSampleMessage(
                 new operationsProtos.google.longrunning.ListOperationsRequest()
             );

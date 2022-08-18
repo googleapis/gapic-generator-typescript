@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as configservicev2Module from '../src';
 
 import {PassThrough} from 'stream';
@@ -87,82 +87,99 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v2.ConfigServiceV2Client', () => {
-    it('has servicePath', () => {
-        const servicePath = configservicev2Module.v2.ConfigServiceV2Client.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = configservicev2Module.v2.ConfigServiceV2Client.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = configservicev2Module.v2.ConfigServiceV2Client.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new configservicev2Module.v2.ConfigServiceV2Client();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new configservicev2Module.v2.ConfigServiceV2Client({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = configservicev2Module.v2.ConfigServiceV2Client.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new configservicev2Module.v2.ConfigServiceV2Client({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = configservicev2Module.v2.ConfigServiceV2Client.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = configservicev2Module.v2.ConfigServiceV2Client.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.configServiceV2Stub, undefined);
+            await client.initialize();
+            assert(client.configServiceV2Stub);
         });
-        assert.strictEqual(client.configServiceV2Stub, undefined);
-        await client.initialize();
-        assert(client.configServiceV2Stub);
-    });
 
-    it('has close method', () => {
-        const client = new configservicev2Module.v2.ConfigServiceV2Client({
+        it('has close method for the initialized client', done => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new configservicev2Module.v2.ConfigServiceV2Client({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new configservicev2Module.v2.ConfigServiceV2Client({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.configServiceV2Stub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.configServiceV2Stub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('getBucket', () => {
@@ -170,7 +187,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetBucketRequest());
             request.name = '';
@@ -194,7 +211,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetBucketRequest());
             request.name = '';
@@ -229,7 +246,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetBucketRequest());
             request.name = '';
@@ -247,6 +264,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.getBucket as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getBucket with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.GetBucketRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getBucket(request), expectedError);
+        });
     });
 
     describe('updateBucket', () => {
@@ -254,7 +284,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateBucketRequest());
             request.name = '';
@@ -278,7 +308,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateBucketRequest());
             request.name = '';
@@ -313,7 +343,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateBucketRequest());
             request.name = '';
@@ -331,6 +361,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.updateBucket as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateBucket with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.UpdateBucketRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateBucket(request), expectedError);
+        });
     });
 
     describe('getSink', () => {
@@ -338,7 +381,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetSinkRequest());
             request.sinkName = '';
@@ -362,7 +405,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetSinkRequest());
             request.sinkName = '';
@@ -397,7 +440,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetSinkRequest());
             request.sinkName = '';
@@ -415,6 +458,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.getSink as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getSink with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.GetSinkRequest());
+            request.sinkName = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getSink(request), expectedError);
+        });
     });
 
     describe('createSink', () => {
@@ -422,7 +478,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.CreateSinkRequest());
             request.parent = '';
@@ -446,7 +502,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.CreateSinkRequest());
             request.parent = '';
@@ -481,7 +537,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.CreateSinkRequest());
             request.parent = '';
@@ -499,6 +555,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.createSink as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createSink with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.CreateSinkRequest());
+            request.parent = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createSink(request), expectedError);
+        });
     });
 
     describe('updateSink', () => {
@@ -506,7 +575,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateSinkRequest());
             request.sinkName = '';
@@ -530,7 +599,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateSinkRequest());
             request.sinkName = '';
@@ -565,7 +634,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateSinkRequest());
             request.sinkName = '';
@@ -583,6 +652,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.updateSink as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateSink with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.UpdateSinkRequest());
+            request.sinkName = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateSink(request), expectedError);
+        });
     });
 
     describe('deleteSink', () => {
@@ -590,7 +672,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteSinkRequest());
             request.sinkName = '';
@@ -614,7 +696,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteSinkRequest());
             request.sinkName = '';
@@ -649,7 +731,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteSinkRequest());
             request.sinkName = '';
@@ -667,6 +749,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.deleteSink as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes deleteSink with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.DeleteSinkRequest());
+            request.sinkName = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteSink(request), expectedError);
+        });
     });
 
     describe('getExclusion', () => {
@@ -674,7 +769,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetExclusionRequest());
             request.name = '';
@@ -698,7 +793,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetExclusionRequest());
             request.name = '';
@@ -733,7 +828,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetExclusionRequest());
             request.name = '';
@@ -751,6 +846,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.getExclusion as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getExclusion with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.GetExclusionRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getExclusion(request), expectedError);
+        });
     });
 
     describe('createExclusion', () => {
@@ -758,7 +866,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.CreateExclusionRequest());
             request.parent = '';
@@ -782,7 +890,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.CreateExclusionRequest());
             request.parent = '';
@@ -817,7 +925,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.CreateExclusionRequest());
             request.parent = '';
@@ -835,6 +943,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.createExclusion as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createExclusion with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.CreateExclusionRequest());
+            request.parent = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createExclusion(request), expectedError);
+        });
     });
 
     describe('updateExclusion', () => {
@@ -842,7 +963,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateExclusionRequest());
             request.name = '';
@@ -866,7 +987,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateExclusionRequest());
             request.name = '';
@@ -901,7 +1022,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateExclusionRequest());
             request.name = '';
@@ -919,6 +1040,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.updateExclusion as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateExclusion with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.UpdateExclusionRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateExclusion(request), expectedError);
+        });
     });
 
     describe('deleteExclusion', () => {
@@ -926,7 +1060,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteExclusionRequest());
             request.name = '';
@@ -950,7 +1084,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteExclusionRequest());
             request.name = '';
@@ -985,7 +1119,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteExclusionRequest());
             request.name = '';
@@ -1003,6 +1137,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.deleteExclusion as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes deleteExclusion with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.DeleteExclusionRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteExclusion(request), expectedError);
+        });
     });
 
     describe('getCmekSettings', () => {
@@ -1010,7 +1157,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetCmekSettingsRequest());
             request.name = '';
@@ -1034,7 +1181,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetCmekSettingsRequest());
             request.name = '';
@@ -1069,7 +1216,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.GetCmekSettingsRequest());
             request.name = '';
@@ -1087,6 +1234,19 @@ describe('v2.ConfigServiceV2Client', () => {
             assert((client.innerApiCalls.getCmekSettings as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getCmekSettings with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.GetCmekSettingsRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getCmekSettings(request), expectedError);
+        });
     });
 
     describe('updateCmekSettings', () => {
@@ -1094,7 +1254,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateCmekSettingsRequest());
             request.name = '';
@@ -1118,7 +1278,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateCmekSettingsRequest());
             request.name = '';
@@ -1153,7 +1313,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.UpdateCmekSettingsRequest());
             request.name = '';
@@ -1170,6 +1330,19 @@ describe('v2.ConfigServiceV2Client', () => {
             await assert.rejects(client.updateCmekSettings(request), expectedError);
             assert((client.innerApiCalls.updateCmekSettings as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes updateCmekSettings with closed client', async () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.logging.v2.UpdateCmekSettingsRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateCmekSettings(request), expectedError);
         });
     });
 
@@ -1341,7 +1514,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListBucketsRequest());
             request.parent = '';
@@ -1564,7 +1737,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListSinksRequest());
             request.parent = '';
@@ -1787,7 +1960,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const client = new configservicev2Module.v2.ConfigServiceV2Client({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListExclusionsRequest());
             request.parent = '';

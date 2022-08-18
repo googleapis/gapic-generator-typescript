@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as messagingModule from '../src';
 
 import {PassThrough} from 'stream';
@@ -136,82 +136,99 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v1beta1.MessagingClient', () => {
-    it('has servicePath', () => {
-        const servicePath = messagingModule.v1beta1.MessagingClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = messagingModule.v1beta1.MessagingClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = messagingModule.v1beta1.MessagingClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new messagingModule.v1beta1.MessagingClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new messagingModule.v1beta1.MessagingClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = messagingModule.v1beta1.MessagingClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new messagingModule.v1beta1.MessagingClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = messagingModule.v1beta1.MessagingClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = messagingModule.v1beta1.MessagingClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new messagingModule.v1beta1.MessagingClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.messagingStub, undefined);
+            await client.initialize();
+            assert(client.messagingStub);
         });
-        assert.strictEqual(client.messagingStub, undefined);
-        await client.initialize();
-        assert(client.messagingStub);
-    });
 
-    it('has close method', () => {
-        const client = new messagingModule.v1beta1.MessagingClient({
+        it('has close method for the initialized client', done => {
+            const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new messagingModule.v1beta1.MessagingClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new messagingModule.v1beta1.MessagingClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.messagingStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.messagingStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('createRoom', () => {
@@ -219,7 +236,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateRoomRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -235,7 +252,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateRoomRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -262,7 +279,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateRoomRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -272,6 +289,18 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.createRoom as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createRoom with closed client', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateRoomRequest());
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createRoom(request), expectedError);
+        });
     });
 
     describe('getRoom', () => {
@@ -279,7 +308,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
             request.name = '';
@@ -303,7 +332,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
             request.name = '';
@@ -338,7 +367,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
             request.name = '';
@@ -356,6 +385,19 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.getRoom as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getRoom with closed client', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getRoom(request), expectedError);
+        });
     });
 
     describe('updateRoom', () => {
@@ -363,7 +405,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
             request.room = {};
@@ -388,7 +430,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
             request.room = {};
@@ -424,7 +466,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
             request.room = {};
@@ -443,6 +485,20 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.updateRoom as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateRoom with closed client', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
+            request.room = {};
+            request.room.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateRoom(request), expectedError);
+        });
     });
 
     describe('deleteRoom', () => {
@@ -450,7 +506,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
             request.name = '';
@@ -474,7 +530,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
             request.name = '';
@@ -509,7 +565,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
             request.name = '';
@@ -527,6 +583,19 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.deleteRoom as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes deleteRoom with closed client', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteRoom(request), expectedError);
+        });
     });
 
     describe('createBlurb', () => {
@@ -534,7 +603,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
             request.parent = '';
@@ -558,7 +627,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
             request.parent = '';
@@ -593,7 +662,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
             request.parent = '';
@@ -611,6 +680,19 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.createBlurb as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createBlurb with closed client', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
+            request.parent = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createBlurb(request), expectedError);
+        });
     });
 
     describe('getBlurb', () => {
@@ -618,7 +700,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
             request.name = '';
@@ -642,7 +724,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
             request.name = '';
@@ -677,7 +759,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
             request.name = '';
@@ -695,6 +777,19 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.getBlurb as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getBlurb with closed client', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getBlurb(request), expectedError);
+        });
     });
 
     describe('updateBlurb', () => {
@@ -702,7 +797,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
             request.blurb = {};
@@ -727,7 +822,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
             request.blurb = {};
@@ -763,7 +858,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
             request.blurb = {};
@@ -782,6 +877,20 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.updateBlurb as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateBlurb with closed client', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
+            request.blurb = {};
+            request.blurb.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateBlurb(request), expectedError);
+        });
     });
 
     describe('deleteBlurb', () => {
@@ -789,7 +898,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
             request.name = '';
@@ -813,7 +922,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
             request.name = '';
@@ -848,7 +957,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
             request.name = '';
@@ -866,6 +975,19 @@ describe('v1beta1.MessagingClient', () => {
             assert((client.innerApiCalls.deleteBlurb as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes deleteBlurb with closed client', async () => {
+            const client = new messagingModule.v1beta1.MessagingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteBlurb(request), expectedError);
+        });
     });
 
     describe('searchBlurbs', () => {
@@ -873,7 +995,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
             request.parent = '';
@@ -898,7 +1020,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
             request.parent = '';
@@ -936,7 +1058,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
             request.parent = '';
@@ -959,7 +1081,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
             request.parent = '';
@@ -983,7 +1105,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
             expectedResponse.name = 'test';
@@ -1001,7 +1123,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const expectedError = new Error('expected');
 
@@ -1017,7 +1139,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
             request.name = '';
@@ -1050,7 +1172,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
             request.name = '';
@@ -1082,9 +1204,10 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
+            request.name = '';
             const expectedError = new Error('The client has already been closed.');
             client.close();
             const stream = client.streamBlurbs(request);
@@ -1105,7 +1228,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ConnectRequest());
             const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsResponse());
@@ -1133,7 +1256,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ConnectRequest());
             const expectedError = new Error('expected');
@@ -1162,7 +1285,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
             const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.SendBlurbsResponse());
@@ -1191,7 +1314,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
             const expectedError = new Error('expected');
@@ -1345,7 +1468,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListRoomsRequest());
             const expectedResponse = [
@@ -1554,7 +1677,7 @@ describe('v1beta1.MessagingClient', () => {
             const client = new messagingModule.v1beta1.MessagingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
             request.parent = '';

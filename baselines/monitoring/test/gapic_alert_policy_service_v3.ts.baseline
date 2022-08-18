@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as alertpolicyserviceModule from '../src';
 
 import {PassThrough} from 'stream';
@@ -87,82 +87,99 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v3.AlertPolicyServiceClient', () => {
-    it('has servicePath', () => {
-        const servicePath = alertpolicyserviceModule.v3.AlertPolicyServiceClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = alertpolicyserviceModule.v3.AlertPolicyServiceClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = alertpolicyserviceModule.v3.AlertPolicyServiceClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = alertpolicyserviceModule.v3.AlertPolicyServiceClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = alertpolicyserviceModule.v3.AlertPolicyServiceClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = alertpolicyserviceModule.v3.AlertPolicyServiceClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.alertPolicyServiceStub, undefined);
+            await client.initialize();
+            assert(client.alertPolicyServiceStub);
         });
-        assert.strictEqual(client.alertPolicyServiceStub, undefined);
-        await client.initialize();
-        assert(client.alertPolicyServiceStub);
-    });
 
-    it('has close method', () => {
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+        it('has close method for the initialized client', done => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.alertPolicyServiceStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.alertPolicyServiceStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('getAlertPolicy', () => {
@@ -170,7 +187,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
             request.name = '';
@@ -194,7 +211,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
             request.name = '';
@@ -229,7 +246,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
             request.name = '';
@@ -247,6 +264,19 @@ describe('v3.AlertPolicyServiceClient', () => {
             assert((client.innerApiCalls.getAlertPolicy as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getAlertPolicy with closed client', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getAlertPolicy(request), expectedError);
+        });
     });
 
     describe('createAlertPolicy', () => {
@@ -254,7 +284,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
             request.name = '';
@@ -278,7 +308,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
             request.name = '';
@@ -313,7 +343,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
             request.name = '';
@@ -331,6 +361,19 @@ describe('v3.AlertPolicyServiceClient', () => {
             assert((client.innerApiCalls.createAlertPolicy as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createAlertPolicy with closed client', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createAlertPolicy(request), expectedError);
+        });
     });
 
     describe('deleteAlertPolicy', () => {
@@ -338,7 +381,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
             request.name = '';
@@ -362,7 +405,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
             request.name = '';
@@ -397,7 +440,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
             request.name = '';
@@ -415,6 +458,19 @@ describe('v3.AlertPolicyServiceClient', () => {
             assert((client.innerApiCalls.deleteAlertPolicy as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes deleteAlertPolicy with closed client', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteAlertPolicy(request), expectedError);
+        });
     });
 
     describe('updateAlertPolicy', () => {
@@ -422,7 +478,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
             request.alertPolicy = {};
@@ -447,7 +503,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
             request.alertPolicy = {};
@@ -483,7 +539,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
             request.alertPolicy = {};
@@ -501,6 +557,20 @@ describe('v3.AlertPolicyServiceClient', () => {
             await assert.rejects(client.updateAlertPolicy(request), expectedError);
             assert((client.innerApiCalls.updateAlertPolicy as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes updateAlertPolicy with closed client', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
+            request.alertPolicy = {};
+            request.alertPolicy.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateAlertPolicy(request), expectedError);
         });
     });
 
@@ -672,7 +742,7 @@ describe('v3.AlertPolicyServiceClient', () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
             request.name = '';

@@ -74,8 +74,12 @@ limitations under the License.
 
 
 {%- macro printPageAsyncHeader(method) %}
+{%- if method.pagingMapResponseType -%}
+{{ printCommentsForMethod(method) }}
+{%- else %}
  * Equivalent to `{{ method.name.toCamelCase() }}`, but returns an iterable object.
  *
+{%- endif %}
  * `for`-`await`-`of` syntax is used with the iterable to get response elements on-demand.
 {%- endmacro -%}
 
@@ -257,22 +261,30 @@ request.{{ oneComment.paramName.toCamelCase() }}
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-{#-If dynamic routing annotation exists and is non empty, then send dynamic routing header-#}
-{%- if method.dynamicRoutingRequestParams.length > 0 -%}
+{#- if dynamic routing annotation exists and is non empty, then send dynamic routing header #}
+{%- if method.dynamicRoutingRequestParams.length > 0 %}
     let routingParameter = {};
 {%- for paramArray in method.dynamicRoutingRequestParams %}
   {%- for param in paramArray %}
-      if((typeof request.{{ param.fieldRetrieve }} !== "undefined") && RegExp('{{ param.messageRegex | safe }}').test(request.{{ param.fieldRetrieve }}!)){
-        Object.assign(routingParameter, { {{ param.fieldSend }}: request.{{ param.fieldRetrieve }}!.match(RegExp('{{ param.namedSegment | safe }}'))![0]})}
-{% endfor -%}
+    {
+      const fieldValue = request.{{ param.fieldRetrieve.join('?.') }};
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('{{ param.messageRegex | safe }}'));
+        if (match) {
+          const parameterValue = match.groups?.['{{ param.fieldSend }}'] ?? fieldValue;
+          Object.assign(routingParameter, { {{ param.fieldSend }}: parameterValue });
+        }
+      }
+    }
 {%- endfor %}
-        options.otherArgs.headers[
-          'x-goog-request-params'
-          ] = gax.routingHeader.fromParams(
-            routingParameter
-          );
-{%- endif %}
-{%- if method.headerRequestParams.length > 0 %}
+{%- endfor %}
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = gax.routingHeader.fromParams(
+      routingParameter
+    );
+{%- elif method.headerRequestParams.length > 0 %}
+{#- either dynamic routing parameters are set, or implicit parameters, but not both #}
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = gax.routingHeader.fromParams({
@@ -283,11 +295,13 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endif %}
 {%- endmacro -%}
 
-{%- macro initRequestWithHeaderParam(method) -%}
+{%- macro initRequestWithHeaderParam(method, skipExpectedVariable='') -%}
+{# initializing request object for generated unit tests -#}
             const request = generateSampleMessage(new protos{{ method.inputInterface }}());
-{%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
+{%- if method.headerRequestParams.length > 0 %}
+{#- generated request object for implicit routing headers -#}
 {%- set expectedRequestParamJoiner = joiner("&") -%}
-{%- set expectedRequestParams = "" %}
+{%- set expectedRequestParams = "" -%}
 {%- for requestParam in method.headerRequestParams %}
 {%- set chain = "request" -%}
 {%- set originalName = "" -%}
@@ -300,7 +314,40 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- set expectedRequestParams = expectedRequestParams + expectedRequestParamJoiner() +
                                 originalName + requestParam.slice(-1)[0] + "=" -%}
 {%- endfor %}
+{%- if not skipExpectedVariable %}
             const expectedHeaderRequestParams = "{{ expectedRequestParams | safe }}";
+{%- endif %}
+{%- elif method.dynamicRoutingRequestParams.length > 0 %}
+{#- generated request object for dynamic routing headers -#}
+{%- if not skipExpectedVariable %}
+            const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
+{%- endif %}
+{%- for paramArray in method.dynamicRoutingRequestParams %}
+{%- for param in paramArray %}
+{%- set chain = "request" -%}
+{%- for field in param.fieldRetrieve.slice(0, -1) %}
+            {{ chain }}.{{ field.toCamelCase() }} = {};
+{%- set chain = chain + "." + field.toCamelCase() -%}
+{%- endfor %}
+            {%- if param.pathTemplate %}
+            // path template: {{ param.pathTemplate }}
+            {#- generate real-looking value for the field that would match the path template -#}
+            {%- set fieldValue = param.pathTemplate.replace(r/{\w+}/, '{name=*}').replace(r/{\w+=/, '').replace('}', '').replace(r/\*+/g, 'value') -%}
+            {%- set parameterValue = param.pathTemplate.replace(r/{\w+}/, '{name=*}').replace(r/.*{\w+=/, '').replace(r/}.*/, '').replace(r/\*+/g, 'value').replace(r/\//g, '%2F') -%}
+            {%- else %}
+            // path template is empty
+            {%- set fieldValue = 'value' -%}
+            {%- set parameterValue = 'value' -%}
+            {%- endif %}
+            {{ chain }}.{{ param.fieldRetrieve.slice(-1)[0].toCamelCase() }} = '{{ fieldValue }}';
+{%- if not skipExpectedVariable %}
+            expectedHeaderRequestParamsObj['{{ param.fieldSend }}'] = '{{ parameterValue }}';
+{%- endif %}
+{%- endfor %}
+{%- endfor %}
+{%- if not skipExpectedVariable %}
+            const expectedHeaderRequestParams = Object.entries(expectedHeaderRequestParamsObj).map(([key, value]) => `${key}=${value}`).join('&');
+{%- endif %}
 {%- endif %}
 {%- endmacro -%}
 
@@ -392,12 +439,30 @@ protos{{ method.pagingResponseType }}
 {%- endmacro -%}
 
 {%- macro initClientOptions(rest) -%}
-        {
+            {
 {%- if rest %}
               auth: googleAuth,
 {%- else %}
               credentials: {client_email: 'bogus', private_key: 'bogus'},
 {%- endif %}
               projectId: 'bogus',
-        }
+            }
+{%- endmacro -%}
+
+{%- macro toHttpRules(httpRules) -%}
+[
+{%- set httpJoiner = joiner() -%}
+{%- for httpRule in httpRules -%}
+  {{ httpJoiner() -}}
+  {
+    {%- for key, value in httpRule -%}
+      {%- if key === 'additional_bindings' -%}
+      {{ key }}: {{ toHttpRules(value) }},
+      {% else -%}
+      {{ key }}: '{{ value }}',
+      {%- endif -%}
+    {% endfor -%}
+  }
+{%- endfor -%}
+]
 {%- endmacro -%}

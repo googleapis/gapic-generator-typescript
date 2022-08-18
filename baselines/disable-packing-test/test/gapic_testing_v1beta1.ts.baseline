@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as testingModule from '../src';
 
 import {PassThrough} from 'stream';
@@ -87,82 +87,99 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v1beta1.TestingClient', () => {
-    it('has servicePath', () => {
-        const servicePath = testingModule.v1beta1.TestingClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = testingModule.v1beta1.TestingClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = testingModule.v1beta1.TestingClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new testingModule.v1beta1.TestingClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new testingModule.v1beta1.TestingClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = testingModule.v1beta1.TestingClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new testingModule.v1beta1.TestingClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = testingModule.v1beta1.TestingClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = testingModule.v1beta1.TestingClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new testingModule.v1beta1.TestingClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new testingModule.v1beta1.TestingClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.testingStub, undefined);
+            await client.initialize();
+            assert(client.testingStub);
         });
-        assert.strictEqual(client.testingStub, undefined);
-        await client.initialize();
-        assert(client.testingStub);
-    });
 
-    it('has close method', () => {
-        const client = new testingModule.v1beta1.TestingClient({
+        it('has close method for the initialized client', done => {
+            const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new testingModule.v1beta1.TestingClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new testingModule.v1beta1.TestingClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.testingStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new testingModule.v1beta1.TestingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.testingStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new testingModule.v1beta1.TestingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new testingModule.v1beta1.TestingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('createSession', () => {
@@ -170,7 +187,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateSessionRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -186,7 +203,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateSessionRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -213,7 +230,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateSessionRequest());
             const expectedOptions = {otherArgs: {headers: {}}};;
@@ -223,6 +240,18 @@ describe('v1beta1.TestingClient', () => {
             assert((client.innerApiCalls.createSession as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createSession with closed client', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateSessionRequest());
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createSession(request), expectedError);
+        });
     });
 
     describe('getSession', () => {
@@ -230,7 +259,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetSessionRequest());
             request.name = '';
@@ -254,7 +283,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetSessionRequest());
             request.name = '';
@@ -289,7 +318,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetSessionRequest());
             request.name = '';
@@ -307,6 +336,19 @@ describe('v1beta1.TestingClient', () => {
             assert((client.innerApiCalls.getSession as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getSession with closed client', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetSessionRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getSession(request), expectedError);
+        });
     });
 
     describe('deleteSession', () => {
@@ -314,7 +356,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteSessionRequest());
             request.name = '';
@@ -338,7 +380,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteSessionRequest());
             request.name = '';
@@ -373,7 +415,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteSessionRequest());
             request.name = '';
@@ -391,6 +433,19 @@ describe('v1beta1.TestingClient', () => {
             assert((client.innerApiCalls.deleteSession as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes deleteSession with closed client', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteSessionRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteSession(request), expectedError);
+        });
     });
 
     describe('reportSession', () => {
@@ -398,7 +453,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ReportSessionRequest());
             request.name = '';
@@ -422,7 +477,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ReportSessionRequest());
             request.name = '';
@@ -457,7 +512,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ReportSessionRequest());
             request.name = '';
@@ -475,6 +530,19 @@ describe('v1beta1.TestingClient', () => {
             assert((client.innerApiCalls.reportSession as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes reportSession with closed client', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ReportSessionRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.reportSession(request), expectedError);
+        });
     });
 
     describe('deleteTest', () => {
@@ -482,7 +550,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteTestRequest());
             request.name = '';
@@ -506,7 +574,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteTestRequest());
             request.name = '';
@@ -541,7 +609,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteTestRequest());
             request.name = '';
@@ -559,6 +627,19 @@ describe('v1beta1.TestingClient', () => {
             assert((client.innerApiCalls.deleteTest as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes deleteTest with closed client', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteTestRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteTest(request), expectedError);
+        });
     });
 
     describe('verifyTest', () => {
@@ -566,7 +647,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.VerifyTestRequest());
             request.name = '';
@@ -590,7 +671,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.VerifyTestRequest());
             request.name = '';
@@ -625,7 +706,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.VerifyTestRequest());
             request.name = '';
@@ -642,6 +723,19 @@ describe('v1beta1.TestingClient', () => {
             await assert.rejects(client.verifyTest(request), expectedError);
             assert((client.innerApiCalls.verifyTest as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes verifyTest with closed client', async () => {
+            const client = new testingModule.v1beta1.TestingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.showcase.v1beta1.VerifyTestRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.verifyTest(request), expectedError);
         });
     });
 
@@ -775,7 +869,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListSessionsRequest());
             const expectedResponse = [
@@ -984,7 +1078,7 @@ describe('v1beta1.TestingClient', () => {
             const client = new testingModule.v1beta1.TestingClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListTestsRequest());
             request.parent = '';

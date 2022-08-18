@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as servicemonitoringserviceModule from '../src';
 
 import {PassThrough} from 'stream';
@@ -87,82 +87,99 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v3.ServiceMonitoringServiceClient', () => {
-    it('has servicePath', () => {
-        const servicePath = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.serviceMonitoringServiceStub, undefined);
+            await client.initialize();
+            assert(client.serviceMonitoringServiceStub);
         });
-        assert.strictEqual(client.serviceMonitoringServiceStub, undefined);
-        await client.initialize();
-        assert(client.serviceMonitoringServiceStub);
-    });
 
-    it('has close method', () => {
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+        it('has close method for the initialized client', done => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.serviceMonitoringServiceStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.serviceMonitoringServiceStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('createService', () => {
@@ -170,7 +187,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
             request.parent = '';
@@ -194,7 +211,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
             request.parent = '';
@@ -229,7 +246,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
             request.parent = '';
@@ -247,6 +264,19 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert((client.innerApiCalls.createService as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createService with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
+            request.parent = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createService(request), expectedError);
+        });
     });
 
     describe('getService', () => {
@@ -254,7 +284,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
             request.name = '';
@@ -278,7 +308,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
             request.name = '';
@@ -313,7 +343,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
             request.name = '';
@@ -331,6 +361,19 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert((client.innerApiCalls.getService as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getService with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getService(request), expectedError);
+        });
     });
 
     describe('updateService', () => {
@@ -338,7 +381,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
             request.service = {};
@@ -363,7 +406,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
             request.service = {};
@@ -399,7 +442,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
             request.service = {};
@@ -418,6 +461,20 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert((client.innerApiCalls.updateService as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateService with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
+            request.service = {};
+            request.service.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateService(request), expectedError);
+        });
     });
 
     describe('deleteService', () => {
@@ -425,7 +482,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
             request.name = '';
@@ -449,7 +506,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
             request.name = '';
@@ -484,7 +541,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
             request.name = '';
@@ -502,6 +559,19 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert((client.innerApiCalls.deleteService as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes deleteService with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteService(request), expectedError);
+        });
     });
 
     describe('createServiceLevelObjective', () => {
@@ -509,7 +579,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
             request.parent = '';
@@ -533,7 +603,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
             request.parent = '';
@@ -568,7 +638,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
             request.parent = '';
@@ -586,6 +656,19 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert((client.innerApiCalls.createServiceLevelObjective as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createServiceLevelObjective with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
+            request.parent = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createServiceLevelObjective(request), expectedError);
+        });
     });
 
     describe('getServiceLevelObjective', () => {
@@ -593,7 +676,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
             request.name = '';
@@ -617,7 +700,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
             request.name = '';
@@ -652,7 +735,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
             request.name = '';
@@ -670,6 +753,19 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert((client.innerApiCalls.getServiceLevelObjective as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getServiceLevelObjective with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getServiceLevelObjective(request), expectedError);
+        });
     });
 
     describe('updateServiceLevelObjective', () => {
@@ -677,7 +773,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
             request.serviceLevelObjective = {};
@@ -702,7 +798,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
             request.serviceLevelObjective = {};
@@ -738,7 +834,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
             request.serviceLevelObjective = {};
@@ -757,6 +853,20 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert((client.innerApiCalls.updateServiceLevelObjective as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateServiceLevelObjective with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
+            request.serviceLevelObjective = {};
+            request.serviceLevelObjective.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateServiceLevelObjective(request), expectedError);
+        });
     });
 
     describe('deleteServiceLevelObjective', () => {
@@ -764,7 +874,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
             request.name = '';
@@ -788,7 +898,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
             request.name = '';
@@ -823,7 +933,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
             request.name = '';
@@ -840,6 +950,19 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             await assert.rejects(client.deleteServiceLevelObjective(request), expectedError);
             assert((client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes deleteServiceLevelObjective with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteServiceLevelObjective(request), expectedError);
         });
     });
 
@@ -1011,7 +1134,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
             request.parent = '';
@@ -1234,7 +1357,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
             request.parent = '';

@@ -23,7 +23,7 @@ import {processTemplates} from './templater';
 import {BundleConfigClient, BundleConfig} from './bundle';
 import {ServiceYaml} from './serviceyaml';
 import {commonPrefix, duration} from './util';
-import * as Long from 'long';
+import Long = require('long');
 
 function getStdin() {
   return new Promise<Buffer>(resolve => {

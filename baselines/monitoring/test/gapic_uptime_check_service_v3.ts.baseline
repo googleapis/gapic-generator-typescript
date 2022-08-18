@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as uptimecheckserviceModule from '../src';
 
 import {PassThrough} from 'stream';
@@ -87,82 +87,99 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v3.UptimeCheckServiceClient', () => {
-    it('has servicePath', () => {
-        const servicePath = uptimecheckserviceModule.v3.UptimeCheckServiceClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = uptimecheckserviceModule.v3.UptimeCheckServiceClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = uptimecheckserviceModule.v3.UptimeCheckServiceClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = uptimecheckserviceModule.v3.UptimeCheckServiceClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = uptimecheckserviceModule.v3.UptimeCheckServiceClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = uptimecheckserviceModule.v3.UptimeCheckServiceClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.uptimeCheckServiceStub, undefined);
+            await client.initialize();
+            assert(client.uptimeCheckServiceStub);
         });
-        assert.strictEqual(client.uptimeCheckServiceStub, undefined);
-        await client.initialize();
-        assert(client.uptimeCheckServiceStub);
-    });
 
-    it('has close method', () => {
-        const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+        it('has close method for the initialized client', done => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.uptimeCheckServiceStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.uptimeCheckServiceStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('getUptimeCheckConfig', () => {
@@ -170,7 +187,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetUptimeCheckConfigRequest());
             request.name = '';
@@ -194,7 +211,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetUptimeCheckConfigRequest());
             request.name = '';
@@ -229,7 +246,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.GetUptimeCheckConfigRequest());
             request.name = '';
@@ -247,6 +264,19 @@ describe('v3.UptimeCheckServiceClient', () => {
             assert((client.innerApiCalls.getUptimeCheckConfig as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getUptimeCheckConfig with closed client', async () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.GetUptimeCheckConfigRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getUptimeCheckConfig(request), expectedError);
+        });
     });
 
     describe('createUptimeCheckConfig', () => {
@@ -254,7 +284,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateUptimeCheckConfigRequest());
             request.parent = '';
@@ -278,7 +308,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateUptimeCheckConfigRequest());
             request.parent = '';
@@ -313,7 +343,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.CreateUptimeCheckConfigRequest());
             request.parent = '';
@@ -331,6 +361,19 @@ describe('v3.UptimeCheckServiceClient', () => {
             assert((client.innerApiCalls.createUptimeCheckConfig as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createUptimeCheckConfig with closed client', async () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateUptimeCheckConfigRequest());
+            request.parent = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createUptimeCheckConfig(request), expectedError);
+        });
     });
 
     describe('updateUptimeCheckConfig', () => {
@@ -338,7 +381,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateUptimeCheckConfigRequest());
             request.uptimeCheckConfig = {};
@@ -363,7 +406,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateUptimeCheckConfigRequest());
             request.uptimeCheckConfig = {};
@@ -399,7 +442,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateUptimeCheckConfigRequest());
             request.uptimeCheckConfig = {};
@@ -418,6 +461,20 @@ describe('v3.UptimeCheckServiceClient', () => {
             assert((client.innerApiCalls.updateUptimeCheckConfig as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateUptimeCheckConfig with closed client', async () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateUptimeCheckConfigRequest());
+            request.uptimeCheckConfig = {};
+            request.uptimeCheckConfig.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateUptimeCheckConfig(request), expectedError);
+        });
     });
 
     describe('deleteUptimeCheckConfig', () => {
@@ -425,7 +482,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteUptimeCheckConfigRequest());
             request.name = '';
@@ -449,7 +506,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteUptimeCheckConfigRequest());
             request.name = '';
@@ -484,7 +541,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteUptimeCheckConfigRequest());
             request.name = '';
@@ -501,6 +558,19 @@ describe('v3.UptimeCheckServiceClient', () => {
             await assert.rejects(client.deleteUptimeCheckConfig(request), expectedError);
             assert((client.innerApiCalls.deleteUptimeCheckConfig as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes deleteUptimeCheckConfig with closed client', async () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteUptimeCheckConfigRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteUptimeCheckConfig(request), expectedError);
         });
     });
 
@@ -672,7 +742,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListUptimeCheckConfigsRequest());
             request.parent = '';
@@ -857,7 +927,7 @@ describe('v3.UptimeCheckServiceClient', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.monitoring.v3.ListUptimeCheckIpsRequest());
             const expectedResponse = [

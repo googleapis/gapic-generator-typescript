@@ -20,7 +20,7 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as assetserviceModule from '../src';
 
 import {protobuf, LROperation, operationsProtos} from 'google-gax';
@@ -56,82 +56,99 @@ function stubLongRunningCallWithCallback<ResponseType>(response?: ResponseType, 
 }
 
 describe('v1.AssetServiceClient', () => {
-    it('has servicePath', () => {
-        const servicePath = assetserviceModule.v1.AssetServiceClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = assetserviceModule.v1.AssetServiceClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = assetserviceModule.v1.AssetServiceClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new assetserviceModule.v1.AssetServiceClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new assetserviceModule.v1.AssetServiceClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = assetserviceModule.v1.AssetServiceClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new assetserviceModule.v1.AssetServiceClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = assetserviceModule.v1.AssetServiceClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = assetserviceModule.v1.AssetServiceClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new assetserviceModule.v1.AssetServiceClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.assetServiceStub, undefined);
+            await client.initialize();
+            assert(client.assetServiceStub);
         });
-        assert.strictEqual(client.assetServiceStub, undefined);
-        await client.initialize();
-        assert(client.assetServiceStub);
-    });
 
-    it('has close method', () => {
-        const client = new assetserviceModule.v1.AssetServiceClient({
+        it('has close method for the initialized client', done => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new assetserviceModule.v1.AssetServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new assetserviceModule.v1.AssetServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.assetServiceStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.assetServiceStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new assetserviceModule.v1.AssetServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new assetserviceModule.v1.AssetServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('batchGetAssetsHistory', () => {
@@ -139,7 +156,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.BatchGetAssetsHistoryRequest());
             request.parent = '';
@@ -163,7 +180,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.BatchGetAssetsHistoryRequest());
             request.parent = '';
@@ -198,7 +215,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.BatchGetAssetsHistoryRequest());
             request.parent = '';
@@ -216,6 +233,19 @@ describe('v1.AssetServiceClient', () => {
             assert((client.innerApiCalls.batchGetAssetsHistory as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes batchGetAssetsHistory with closed client', async () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.asset.v1.BatchGetAssetsHistoryRequest());
+            request.parent = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.batchGetAssetsHistory(request), expectedError);
+        });
     });
 
     describe('createFeed', () => {
@@ -223,7 +253,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.CreateFeedRequest());
             request.parent = '';
@@ -247,7 +277,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.CreateFeedRequest());
             request.parent = '';
@@ -282,7 +312,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.CreateFeedRequest());
             request.parent = '';
@@ -300,6 +330,19 @@ describe('v1.AssetServiceClient', () => {
             assert((client.innerApiCalls.createFeed as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes createFeed with closed client', async () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.asset.v1.CreateFeedRequest());
+            request.parent = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createFeed(request), expectedError);
+        });
     });
 
     describe('getFeed', () => {
@@ -307,7 +350,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.GetFeedRequest());
             request.name = '';
@@ -331,7 +374,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.GetFeedRequest());
             request.name = '';
@@ -366,7 +409,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.GetFeedRequest());
             request.name = '';
@@ -384,6 +427,19 @@ describe('v1.AssetServiceClient', () => {
             assert((client.innerApiCalls.getFeed as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes getFeed with closed client', async () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.asset.v1.GetFeedRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getFeed(request), expectedError);
+        });
     });
 
     describe('listFeeds', () => {
@@ -391,7 +447,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.ListFeedsRequest());
             request.parent = '';
@@ -415,7 +471,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.ListFeedsRequest());
             request.parent = '';
@@ -450,7 +506,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.ListFeedsRequest());
             request.parent = '';
@@ -468,6 +524,19 @@ describe('v1.AssetServiceClient', () => {
             assert((client.innerApiCalls.listFeeds as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes listFeeds with closed client', async () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.asset.v1.ListFeedsRequest());
+            request.parent = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.listFeeds(request), expectedError);
+        });
     });
 
     describe('updateFeed', () => {
@@ -475,7 +544,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.UpdateFeedRequest());
             request.feed = {};
@@ -500,7 +569,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.UpdateFeedRequest());
             request.feed = {};
@@ -536,7 +605,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.UpdateFeedRequest());
             request.feed = {};
@@ -555,6 +624,20 @@ describe('v1.AssetServiceClient', () => {
             assert((client.innerApiCalls.updateFeed as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes updateFeed with closed client', async () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.asset.v1.UpdateFeedRequest());
+            request.feed = {};
+            request.feed.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateFeed(request), expectedError);
+        });
     });
 
     describe('deleteFeed', () => {
@@ -562,7 +645,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.DeleteFeedRequest());
             request.name = '';
@@ -586,7 +669,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.DeleteFeedRequest());
             request.name = '';
@@ -621,7 +704,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.DeleteFeedRequest());
             request.name = '';
@@ -639,6 +722,19 @@ describe('v1.AssetServiceClient', () => {
             assert((client.innerApiCalls.deleteFeed as SinonStub)
                 .getCall(0).calledWith(request, expectedOptions, undefined));
         });
+
+        it('invokes deleteFeed with closed client', async () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(new protos.google.cloud.asset.v1.DeleteFeedRequest());
+            request.name = '';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteFeed(request), expectedError);
+        });
     });
 
     describe('exportAssets', () => {
@@ -646,7 +742,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.ExportAssetsRequest());
             request.parent = '';
@@ -671,7 +767,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.ExportAssetsRequest());
             request.parent = '';
@@ -709,7 +805,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.ExportAssetsRequest());
             request.parent = '';
@@ -732,7 +828,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const request = generateSampleMessage(new protos.google.cloud.asset.v1.ExportAssetsRequest());
             request.parent = '';
@@ -756,7 +852,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
             expectedResponse.name = 'test';
@@ -774,7 +870,7 @@ describe('v1.AssetServiceClient', () => {
             const client = new assetserviceModule.v1.AssetServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
             const expectedError = new Error('expected');
 
