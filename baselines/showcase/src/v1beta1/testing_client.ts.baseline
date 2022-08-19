@@ -21,7 +21,6 @@ import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, PaginationCallback, GaxCall, IamClient, IamProtos, LocationsClient, LocationProtos} from 'google-gax';
 
 import {Transform} from 'stream';
-import {RequestType} from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
 /**
@@ -214,7 +213,7 @@ export class TestingClient {
       lroOptions.httpRules = [{selector: 'google.cloud.location.Locations.ListLocations',get: '/v1beta1/{name=projects/*}/locations',},{selector: 'google.cloud.location.Locations.GetLocation',get: '/v1beta1/{name=projects/*/locations/*}',},{selector: 'google.iam.v1.IAMPolicy.SetIamPolicy',post: '/v1beta1/{resource=users/*}:setIamPolicy',body: '*',additional_bindings: [{post: '/v1beta1/{resource=rooms/*}:setIamPolicy',body: '*',},{post: '/v1beta1/{resource=rooms/*/blurbs/*}:setIamPolicy',body: '*',},{post: '/v1beta1/{resource=sequences/*}:setIamPolicy',body: '*',}],
       },{selector: 'google.iam.v1.IAMPolicy.GetIamPolicy',get: '/v1beta1/{resource=users/*}:getIamPolicy',additional_bindings: [{get: '/v1beta1/{resource=rooms/*}:getIamPolicy',},{get: '/v1beta1/{resource=rooms/*/blurbs/*}:getIamPolicy',},{get: '/v1beta1/{resource=sequences/*}:getIamPolicy',}],
       },{selector: 'google.iam.v1.IAMPolicy.TestIamPermissions',post: '/v1beta1/{resource=users/*}:testIamPermissions',body: '*',additional_bindings: [{post: '/v1beta1/{resource=rooms/*}:testIamPermissions',body: '*',},{post: '/v1beta1/{resource=rooms/*/blurbs/*}:testIamPermissions',body: '*',},{post: '/v1beta1/{resource=sequences/*}:testIamPermissions',body: '*',}],
-      },{selector: 'google.longrunning.Operations.ListOperations',get: '/v1beta1/operations',},{selector: 'google.longrunning.Operations.GetOperation',get: '/v1beta1/{name=/operations/*}',},{selector: 'google.longrunning.Operations.DeleteOperation',delete: '/v1beta1/{name=/operations/*}',},{selector: 'google.longrunning.Operations.CancelOperation',post: '/v1beta1/{name=/operations/*}:cancel',}];
+      },{selector: 'google.longrunning.Operations.ListOperations',get: '/v1beta1/operations',},{selector: 'google.longrunning.Operations.GetOperation',get: '/v1beta1/{name=operations/**}',},{selector: 'google.longrunning.Operations.DeleteOperation',delete: '/v1beta1/{name=operations/**}',},{selector: 'google.longrunning.Operations.CancelOperation',post: '/v1beta1/{name=operations/**}:cancel',}];
     }
     this.operationsClient = this._gaxModule.lro(lroOptions).operationsClient(opts);
 
@@ -284,7 +283,8 @@ export class TestingClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -889,7 +889,7 @@ export class TestingClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listSessions.createStream(
-      this.innerApiCalls.listSessions as gax.GaxCall,
+      this.innerApiCalls.listSessions as GaxCall,
       request,
       callSettings
     );
@@ -931,7 +931,7 @@ export class TestingClient {
     this.initialize();
     return this.descriptors.page.listSessions.asyncIterate(
       this.innerApiCalls['listSessions'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.ISession>;
   }
@@ -1055,7 +1055,7 @@ export class TestingClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listTests.createStream(
-      this.innerApiCalls.listTests as gax.GaxCall,
+      this.innerApiCalls.listTests as GaxCall,
       request,
       callSettings
     );
@@ -1104,7 +1104,7 @@ export class TestingClient {
     this.initialize();
     return this.descriptors.page.listTests.asyncIterate(
       this.innerApiCalls['listTests'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.ITest>;
   }

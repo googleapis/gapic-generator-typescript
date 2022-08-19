@@ -21,7 +21,6 @@ import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, LROperation, PaginationCallback, GaxCall} from 'google-gax';
 
 import {Transform} from 'stream';
-import {RequestType} from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
 /**
@@ -260,7 +259,8 @@ export class NamingClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -1098,7 +1098,7 @@ export class NamingClient {
   async checkLongRunningProgress1(name: string): Promise<LROperation<protos.google.protobuf.Empty, protos.google.protobuf.Empty>>{
     const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.longRunning, gax.createDefaultBackoffSettings());
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.longRunning, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.protobuf.Empty, protos.google.protobuf.Empty>;
   }
  /**
@@ -1206,7 +1206,7 @@ export class NamingClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize1();
     return this.descriptors.page.paginatedMethod.createStream(
-      this.innerApiCalls.paginatedMethod as gax.GaxCall,
+      this.innerApiCalls.paginatedMethod as GaxCall,
       request,
       callSettings
     );
@@ -1247,7 +1247,7 @@ export class NamingClient {
     this.initialize1();
     return this.descriptors.page.paginatedMethod.asyncIterate(
       this.innerApiCalls['paginatedMethod'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.protobuf.IEmpty>;
   }

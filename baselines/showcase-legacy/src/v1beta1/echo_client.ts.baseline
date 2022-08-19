@@ -20,7 +20,6 @@ import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, LROperation, PaginationCallback, GaxCall, GoogleError} from 'google-gax';
 
 import {Transform} from 'stream';
-import {RequestType} from 'google-gax/build/src/apitypes';
 import {PassThrough} from 'stream';
 import * as protos from '../../protos/protos';
 import * as path from 'path';
@@ -258,7 +257,8 @@ export class EchoClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -653,7 +653,7 @@ export class EchoClient {
   async checkWaitProgress(name: string): Promise<LROperation<protos.google.showcase.v1beta1.WaitResponse, protos.google.showcase.v1beta1.WaitMetadata>>{
     const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.wait, gax.createDefaultBackoffSettings());
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.wait, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.showcase.v1beta1.WaitResponse, protos.google.showcase.v1beta1.WaitMetadata>;
   }
  /**
@@ -767,7 +767,7 @@ export class EchoClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.pagedExpand.createStream(
-      this.innerApiCalls.pagedExpand as gax.GaxCall,
+      this.innerApiCalls.pagedExpand as GaxCall,
       request,
       callSettings
     );
@@ -811,7 +811,7 @@ export class EchoClient {
     this.initialize();
     return this.descriptors.page.pagedExpand.asyncIterate(
       this.innerApiCalls['pagedExpand'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.IEchoResponse>;
   }

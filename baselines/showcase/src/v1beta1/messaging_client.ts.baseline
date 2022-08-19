@@ -21,7 +21,6 @@ import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, LROperation, PaginationCallback, GaxCall, GoogleError, IamClient, IamProtos, LocationsClient, LocationProtos} from 'google-gax';
 
 import {Transform} from 'stream';
-import {RequestType} from 'google-gax/build/src/apitypes';
 import {PassThrough} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
@@ -225,7 +224,7 @@ export class MessagingClient {
       lroOptions.httpRules = [{selector: 'google.cloud.location.Locations.ListLocations',get: '/v1beta1/{name=projects/*}/locations',},{selector: 'google.cloud.location.Locations.GetLocation',get: '/v1beta1/{name=projects/*/locations/*}',},{selector: 'google.iam.v1.IAMPolicy.SetIamPolicy',post: '/v1beta1/{resource=users/*}:setIamPolicy',body: '*',additional_bindings: [{post: '/v1beta1/{resource=rooms/*}:setIamPolicy',body: '*',},{post: '/v1beta1/{resource=rooms/*/blurbs/*}:setIamPolicy',body: '*',},{post: '/v1beta1/{resource=sequences/*}:setIamPolicy',body: '*',}],
       },{selector: 'google.iam.v1.IAMPolicy.GetIamPolicy',get: '/v1beta1/{resource=users/*}:getIamPolicy',additional_bindings: [{get: '/v1beta1/{resource=rooms/*}:getIamPolicy',},{get: '/v1beta1/{resource=rooms/*/blurbs/*}:getIamPolicy',},{get: '/v1beta1/{resource=sequences/*}:getIamPolicy',}],
       },{selector: 'google.iam.v1.IAMPolicy.TestIamPermissions',post: '/v1beta1/{resource=users/*}:testIamPermissions',body: '*',additional_bindings: [{post: '/v1beta1/{resource=rooms/*}:testIamPermissions',body: '*',},{post: '/v1beta1/{resource=rooms/*/blurbs/*}:testIamPermissions',body: '*',},{post: '/v1beta1/{resource=sequences/*}:testIamPermissions',body: '*',}],
-      },{selector: 'google.longrunning.Operations.ListOperations',get: '/v1beta1/operations',},{selector: 'google.longrunning.Operations.GetOperation',get: '/v1beta1/{name=/operations/*}',},{selector: 'google.longrunning.Operations.DeleteOperation',delete: '/v1beta1/{name=/operations/*}',},{selector: 'google.longrunning.Operations.CancelOperation',post: '/v1beta1/{name=/operations/*}:cancel',}];
+      },{selector: 'google.longrunning.Operations.ListOperations',get: '/v1beta1/operations',},{selector: 'google.longrunning.Operations.GetOperation',get: '/v1beta1/{name=operations/**}',},{selector: 'google.longrunning.Operations.DeleteOperation',delete: '/v1beta1/{name=operations/**}',},{selector: 'google.longrunning.Operations.CancelOperation',post: '/v1beta1/{name=operations/**}:cancel',}];
     }
     this.operationsClient = this._gaxModule.lro(lroOptions).operationsClient(opts);
     const searchBlurbsResponse = protoFilesRoot.lookup(
@@ -312,7 +311,8 @@ export class MessagingClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -1159,7 +1159,7 @@ export class MessagingClient {
   async checkSearchBlurbsProgress(name: string): Promise<LROperation<protos.google.showcase.v1beta1.SearchBlurbsResponse, protos.google.showcase.v1beta1.SearchBlurbsMetadata>>{
     const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.searchBlurbs, gax.createDefaultBackoffSettings());
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.searchBlurbs, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.showcase.v1beta1.SearchBlurbsResponse, protos.google.showcase.v1beta1.SearchBlurbsMetadata>;
   }
  /**
@@ -1274,7 +1274,7 @@ export class MessagingClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listRooms.createStream(
-      this.innerApiCalls.listRooms as gax.GaxCall,
+      this.innerApiCalls.listRooms as GaxCall,
       request,
       callSettings
     );
@@ -1319,7 +1319,7 @@ export class MessagingClient {
     this.initialize();
     return this.descriptors.page.listRooms.asyncIterate(
       this.innerApiCalls['listRooms'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.IRoom>;
   }
@@ -1452,7 +1452,7 @@ export class MessagingClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listBlurbs.createStream(
-      this.innerApiCalls.listBlurbs as gax.GaxCall,
+      this.innerApiCalls.listBlurbs as GaxCall,
       request,
       callSettings
     );
@@ -1505,7 +1505,7 @@ export class MessagingClient {
     this.initialize();
     return this.descriptors.page.listBlurbs.asyncIterate(
       this.innerApiCalls['listBlurbs'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.IBlurb>;
   }

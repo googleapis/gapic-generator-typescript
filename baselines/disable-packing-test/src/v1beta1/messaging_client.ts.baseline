@@ -21,7 +21,6 @@ import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, LROperation, PaginationCallback, GaxCall, GoogleError} from 'google-gax';
 
 import {Transform} from 'stream';
-import {RequestType} from 'google-gax/build/src/apitypes';
 import {PassThrough} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
@@ -303,7 +302,8 @@ export class MessagingClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -1150,7 +1150,7 @@ export class MessagingClient {
   async checkSearchBlurbsProgress(name: string): Promise<LROperation<protos.google.showcase.v1beta1.SearchBlurbsResponse, protos.google.showcase.v1beta1.SearchBlurbsMetadata>>{
     const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.searchBlurbs, gax.createDefaultBackoffSettings());
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.searchBlurbs, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.showcase.v1beta1.SearchBlurbsResponse, protos.google.showcase.v1beta1.SearchBlurbsMetadata>;
   }
  /**
@@ -1265,7 +1265,7 @@ export class MessagingClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listRooms.createStream(
-      this.innerApiCalls.listRooms as gax.GaxCall,
+      this.innerApiCalls.listRooms as GaxCall,
       request,
       callSettings
     );
@@ -1310,7 +1310,7 @@ export class MessagingClient {
     this.initialize();
     return this.descriptors.page.listRooms.asyncIterate(
       this.innerApiCalls['listRooms'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.IRoom>;
   }
@@ -1443,7 +1443,7 @@ export class MessagingClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listBlurbs.createStream(
-      this.innerApiCalls.listBlurbs as gax.GaxCall,
+      this.innerApiCalls.listBlurbs as GaxCall,
       request,
       callSettings
     );
@@ -1496,7 +1496,7 @@ export class MessagingClient {
     this.initialize();
     return this.descriptors.page.listBlurbs.asyncIterate(
       this.innerApiCalls['listBlurbs'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.IBlurb>;
   }

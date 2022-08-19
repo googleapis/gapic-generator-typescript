@@ -37,7 +37,6 @@ import {Callback, CallOptions, Descriptors, ClientOptions
 } from 'google-gax';
 {% if service.paging.length > 0 %}
 import {Transform} from 'stream';
-import {RequestType} from 'google-gax/build/src/apitypes';
 {%- endif %}
 {%- if service.streaming.length > 0 %}
 import {PassThrough} from 'stream';
@@ -440,7 +439,8 @@ export class {{ service.name }}Client {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -770,7 +770,7 @@ export class {{ service.name }}Client {
     {%- endif %}
     const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, gax.createDefaultBackoffSettings());
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos{{ method.longRunningResponseType }}, protos{{ method.longRunningMetadataType }}>;
   }
 {%- endfor %}
@@ -855,7 +855,7 @@ export class {{ service.name }}Client {
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     return this.descriptors.page.{{ method.name.toCamelCase() }}.createStream(
-      this.innerApiCalls.{{ method.name.toCamelCase(true) }} as gax.GaxCall,
+      this.innerApiCalls.{{ method.name.toCamelCase(true) }} as GaxCall,
       request,
       callSettings
     );
@@ -890,7 +890,7 @@ export class {{ service.name }}Client {
     {%- endif %}
     return this.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate(
       this.innerApiCalls['{{ method.name.toCamelCase(true) }}'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     {%- if method.pagingMapResponseType %}
     ) as AsyncIterable<[string, {{ util.toInterface(method.pagingMapResponseType) }}]>;

@@ -252,7 +252,8 @@ export class AssetServiceClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -912,7 +913,7 @@ export class AssetServiceClient {
   async checkExportAssetsProgress(name: string): Promise<LROperation<protos.google.cloud.asset.v1.ExportAssetsResponse, protos.google.cloud.asset.v1.ExportAssetsRequest>>{
     const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.exportAssets, gax.createDefaultBackoffSettings());
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.exportAssets, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.cloud.asset.v1.ExportAssetsResponse, protos.google.cloud.asset.v1.ExportAssetsRequest>;
   }
   // --------------------

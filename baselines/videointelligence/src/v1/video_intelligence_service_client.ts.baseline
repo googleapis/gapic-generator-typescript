@@ -236,7 +236,8 @@ export class VideoIntelligenceServiceClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -414,7 +415,7 @@ export class VideoIntelligenceServiceClient {
   async checkAnnotateVideoProgress(name: string): Promise<LROperation<protos.google.cloud.videointelligence.v1.AnnotateVideoResponse, protos.google.cloud.videointelligence.v1.AnnotateVideoProgress>>{
     const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.annotateVideo, gax.createDefaultBackoffSettings());
+    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.annotateVideo, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.cloud.videointelligence.v1.AnnotateVideoResponse, protos.google.cloud.videointelligence.v1.AnnotateVideoProgress>;
   }
 
