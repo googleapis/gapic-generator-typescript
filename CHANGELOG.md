@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.15.4](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.3...v2.15.4) (2022-08-19)
+
+
+### Bug Fixes
+
+* bring Docker image back to work ([#1206](https://github.com/googleapis/gapic-generator-typescript/issues/1206)) ([37ebe6b](https://github.com/googleapis/gapic-generator-typescript/commit/37ebe6bfb203e55a04d0903aa2f71190986e09b4))
+* **deps:** rollback to use webpack 4 ([#1186](https://github.com/googleapis/gapic-generator-typescript/issues/1186)) ([b7dfa5a](https://github.com/googleapis/gapic-generator-typescript/commit/b7dfa5a40c8a5303525d95afb96e801eaf6834aa))
+* **deps:** update dependency fs-extra to ^10.1.0 ([#1188](https://github.com/googleapis/gapic-generator-typescript/issues/1188)) ([6b782dd](https://github.com/googleapis/gapic-generator-typescript/commit/6b782dd417b8b49059d12d75576339622030c050))
+* **deps:** update dependency google-gax to ^3.1.4 ([#1175](https://github.com/googleapis/gapic-generator-typescript/issues/1175)) ([2ed4cd5](https://github.com/googleapis/gapic-generator-typescript/commit/2ed4cd53788e74eb8ce9f5441ae52d64d7a25ddd))
+* **deps:** update dependency google-gax to ^3.2.0 ([#1212](https://github.com/googleapis/gapic-generator-typescript/issues/1212)) ([a8bbc85](https://github.com/googleapis/gapic-generator-typescript/commit/a8bbc855a409f796cd86a6a474365b780cb80def))
+* **deps:** update dependency long to ^5.2.0 ([#1176](https://github.com/googleapis/gapic-generator-typescript/issues/1176)) ([4a18cc2](https://github.com/googleapis/gapic-generator-typescript/commit/4a18cc2579be54f98ef58c3f1ecc66d7d08bc748))
+* **deps:** update dependency protobufjs to v7 ([#1166](https://github.com/googleapis/gapic-generator-typescript/issues/1166)) ([123b2ec](https://github.com/googleapis/gapic-generator-typescript/commit/123b2ece491a138cbd41bcbd8eb70ab2b9d87ef3))
+* **deps:** update dependency yargs to ^17.5.1 ([#1190](https://github.com/googleapis/gapic-generator-typescript/issues/1190)) ([13c1b02](https://github.com/googleapis/gapic-generator-typescript/commit/13c1b027907e2fb0ffa94a3ff743e3995dc7387e))
+* no unused var in tests, reformat ([#1162](https://github.com/googleapis/gapic-generator-typescript/issues/1162)) ([ae96e0b](https://github.com/googleapis/gapic-generator-typescript/commit/ae96e0bb0596ea7be6781395a574720fe7d7ae29))
+* pass fallback to createApiCall for browser ([#1216](https://github.com/googleapis/gapic-generator-typescript/issues/1216)) ([7bad386](https://github.com/googleapis/gapic-generator-typescript/commit/7bad3867dabc8132a47f755a6a81f970becabc3c))
+* **samples:** add disclaimer ([#1211](https://github.com/googleapis/gapic-generator-typescript/issues/1211)) ([c0fd282](https://github.com/googleapis/gapic-generator-typescript/commit/c0fd28210ff9f400350bfe9526e598f8e84d630d))
+
 ## [2.15.3](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.2...v2.15.3) (2022-07-20)
 
 
