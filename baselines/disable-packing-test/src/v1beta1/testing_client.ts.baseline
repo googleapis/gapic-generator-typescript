@@ -21,7 +21,6 @@ import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback, GaxCall} from 'google-gax';
 
 import {Transform} from 'stream';
-import {RequestType} from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
 /**
@@ -257,7 +256,8 @@ export class TestingClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -862,7 +862,7 @@ export class TestingClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listSessions.createStream(
-      this.innerApiCalls.listSessions as gax.GaxCall,
+      this.innerApiCalls.listSessions as GaxCall,
       request,
       callSettings
     );
@@ -904,7 +904,7 @@ export class TestingClient {
     this.initialize();
     return this.descriptors.page.listSessions.asyncIterate(
       this.innerApiCalls['listSessions'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.ISession>;
   }
@@ -1028,7 +1028,7 @@ export class TestingClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listTests.createStream(
-      this.innerApiCalls.listTests as gax.GaxCall,
+      this.innerApiCalls.listTests as GaxCall,
       request,
       callSettings
     );
@@ -1077,7 +1077,7 @@ export class TestingClient {
     this.initialize();
     return this.descriptors.page.listTests.asyncIterate(
       this.innerApiCalls['listTests'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.ITest>;
   }

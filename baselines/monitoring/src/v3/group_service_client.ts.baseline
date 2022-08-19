@@ -21,7 +21,6 @@ import * as gax from 'google-gax';
 import {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallback, GaxCall} from 'google-gax';
 
 import {Transform} from 'stream';
-import {RequestType} from 'google-gax/build/src/apitypes';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
 /**
@@ -312,7 +311,8 @@ export class GroupServiceClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -834,7 +834,7 @@ export class GroupServiceClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listGroups.createStream(
-      this.innerApiCalls.listGroups as gax.GaxCall,
+      this.innerApiCalls.listGroups as GaxCall,
       request,
       callSettings
     );
@@ -901,7 +901,7 @@ export class GroupServiceClient {
     this.initialize();
     return this.descriptors.page.listGroups.asyncIterate(
       this.innerApiCalls['listGroups'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.monitoring.v3.IGroup>;
   }
@@ -1057,7 +1057,7 @@ export class GroupServiceClient {
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listGroupMembers.createStream(
-      this.innerApiCalls.listGroupMembers as gax.GaxCall,
+      this.innerApiCalls.listGroupMembers as GaxCall,
       request,
       callSettings
     );
@@ -1122,7 +1122,7 @@ export class GroupServiceClient {
     this.initialize();
     return this.descriptors.page.listGroupMembers.asyncIterate(
       this.innerApiCalls['listGroupMembers'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.api.IMonitoredResource>;
   }
