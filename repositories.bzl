@@ -12,11 +12,11 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "rules_proto",
-      sha256 = "169e2974b08bece094ced3a28f3bf1d911aa5e23f5c024c36b1aad6e31567d47",
-      strip_prefix = "rules_proto-97bbeab9d2ba716ffdcaa5e6155b746e2c4a6857",
+      sha256 = "8477b618fe17d7fe870b4e0634cf3b698d02dee7b751c2758e2554c3021510cb",
+      strip_prefix = "rules_proto-6b5ba87b814e4eb556afd036cbccc06d84965fba",
       urls = [
-          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/97bbeab9d2ba716ffdcaa5e6155b746e2c4a6857.tar.gz",
-          "https://github.com/bazelbuild/rules_proto/archive/97bbeab9d2ba716ffdcaa5e6155b746e2c4a6857.tar.gz",
+          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/6b5ba87b814e4eb556afd036cbccc06d84965fba.tar.gz",
+          "https://github.com/bazelbuild/rules_proto/archive/6b5ba87b814e4eb556afd036cbccc06d84965fba.tar.gz",
       ],
   )
 
