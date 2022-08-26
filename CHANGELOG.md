@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.16.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.4...v2.16.0) (2022-08-26)
+
+
+### Features
+
+* allow passing gax instance ([#1224](https://github.com/googleapis/gapic-generator-typescript/issues/1224)) ([f0e6aeb](https://github.com/googleapis/gapic-generator-typescript/commit/f0e6aebab8fb61c106e5631b0220747ace04b825))
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-gax to ^3.2.1 ([#1218](https://github.com/googleapis/gapic-generator-typescript/issues/1218)) ([1e8af28](https://github.com/googleapis/gapic-generator-typescript/commit/1e8af2876c900208117b9af0eddd168d08d164a4))
+* **deps:** update dependency google-gax to ^3.2.2 ([#1223](https://github.com/googleapis/gapic-generator-typescript/issues/1223)) ([c2e5bb5](https://github.com/googleapis/gapic-generator-typescript/commit/c2e5bb53c49e926840cd311e58b88865fa7d261c))
+* **deps:** update dependency google-gax to ^3.3.0 ([#1227](https://github.com/googleapis/gapic-generator-typescript/issues/1227)) ([1d04855](https://github.com/googleapis/gapic-generator-typescript/commit/1d04855ca907dc83d367172ee65f4821c8725cf5))
+
 ## [2.15.4](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.3...v2.15.4) (2022-08-19)
 
 
