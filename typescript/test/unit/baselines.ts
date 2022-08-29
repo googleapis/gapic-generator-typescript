@@ -111,7 +111,7 @@ describe('Baseline tests', () => {
   runBaselineTest({
     baselineName: 'logging',
     outputDir: '.test-out-logging',
-    protoPath: 'google/logging/v2/*.proto',
+    protoPath: 'google/logging/v2/*.proto;google/logging/type/*.proto',
     useCommonProto: true,
     bundleConfig: 'google/logging/v2/logging_gapic.yaml',
     mainServiceName: 'LoggingService',
