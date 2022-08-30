@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.16.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.16.0...v2.16.1) (2022-08-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-gax to ^3.3.1 ([#1234](https://github.com/googleapis/gapic-generator-typescript/issues/1234)) ([9900e88](https://github.com/googleapis/gapic-generator-typescript/commit/9900e88b2756b8fe1b4f48736f3689098a6bfc84))
+* **deps:** update dependency protobufjs to ^7.1.0 ([#1228](https://github.com/googleapis/gapic-generator-typescript/issues/1228)) ([0066ceb](https://github.com/googleapis/gapic-generator-typescript/commit/0066ceba9d825a0408f5a024658288725c036225))
+* use _gaxModule when accessing gax for bundling ([#1232](https://github.com/googleapis/gapic-generator-typescript/issues/1232)) ([2e8611a](https://github.com/googleapis/gapic-generator-typescript/commit/2e8611aa880b4f3a99d3f10ac2864ab19af38321))
+
 ## [2.16.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.4...v2.16.0) (2022-08-26)
 
 
