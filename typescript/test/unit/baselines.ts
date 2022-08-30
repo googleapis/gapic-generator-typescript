@@ -115,6 +115,7 @@ describe('Baseline tests', () => {
     useCommonProto: true,
     bundleConfig: 'google/logging/v2/logging_gapic.yaml',
     mainServiceName: 'LoggingService',
+    grpcServiceConfig: 'google/logging/v2/logging_grpc_service_config.json',
   });
 
   runBaselineTest({
