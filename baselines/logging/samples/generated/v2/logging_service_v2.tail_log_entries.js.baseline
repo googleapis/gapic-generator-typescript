@@ -20,8 +20,8 @@
 
 'use strict';
 
-function main(parent) {
-  // [START logging_v2_generated_LoggingServiceV2_ListLogs_async]
+function main(resourceNames) {
+  // [START logging_v2_generated_LoggingServiceV2_TailLogEntries_async]
   /**
    * This snippet has been automatically generated and should be regarded as a code template only.
    * It will require modifications to work.
@@ -29,39 +29,35 @@ function main(parent) {
    * TODO(developer): Uncomment these variables before running the sample.
    */
   /**
-   *  Required. The resource name that owns the logs:
+   *  Required. Name of a parent resource from which to retrieve log entries:
    *  *  `projects/[PROJECT_ID]`
    *  *  `organizations/[ORGANIZATION_ID]`
    *  *  `billingAccounts/[BILLING_ACCOUNT_ID]`
    *  *  `folders/[FOLDER_ID]`
-   */
-  // const parent = 'abc123'
-  /**
-   *  Optional. The maximum number of results to return from this request.
-   *  Non-positive values are ignored.  The presence of `nextPageToken` in the
-   *  response indicates that more results might be available.
-   */
-  // const pageSize = 1234
-  /**
-   *  Optional. If present, then retrieve the next batch of results from the
-   *  preceding call to this method.  `pageToken` must be the value of
-   *  `nextPageToken` from the previous response.  The values of other method
-   *  parameters should be identical to those in the previous call.
-   */
-  // const pageToken = 'abc123'
-  /**
-   *  Optional. The resource name that owns the logs:
+   *  May alternatively be one or more views:
    *   * `projects/[PROJECT_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]/views/[VIEW_ID]`
    *   * `organizations/[ORGANIZATION_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]/views/[VIEW_ID]`
    *   * `billingAccounts/[BILLING_ACCOUNT_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]/views/[VIEW_ID]`
    *   * `folders/[FOLDER_ID]/locations/[LOCATION_ID]/buckets/[BUCKET_ID]/views/[VIEW_ID]`
-   *  To support legacy queries, it could also be:
-   *  *  `projects/[PROJECT_ID]`
-   *  *  `organizations/[ORGANIZATION_ID]`
-   *  *  `billingAccounts/[BILLING_ACCOUNT_ID]`
-   *  *  `folders/[FOLDER_ID]`
    */
   // const resourceNames = 'abc123'
+  /**
+   *  Optional. A filter that chooses which log entries to return.  See Advanced
+   *  Logs Filters (https://cloud.google.com/logging/docs/view/advanced_filters).
+   *  Only log entries that match the filter are returned.  An empty filter
+   *  matches all log entries in the resources listed in `resource_names`.
+   *  Referencing a parent resource that is not in `resource_names` will cause
+   *  the filter to return no results. The maximum length of the filter is 20000
+   *  characters.
+   */
+  // const filter = 'abc123'
+  /**
+   *  Optional. The amount of time to buffer log entries at the server before
+   *  being returned to prevent out of order results due to late arriving log
+   *  entries. Valid values are between 0-60000 milliseconds. Defaults to 2000
+   *  milliseconds.
+   */
+  // const bufferWindow = {}
 
   // Imports the Logging library
   const {LoggingServiceV2Client} = require('logging').v2;
@@ -69,21 +65,23 @@ function main(parent) {
   // Instantiates a client
   const loggingClient = new LoggingServiceV2Client();
 
-  async function callListLogs() {
+  async function callTailLogEntries() {
     // Construct request
     const request = {
-      parent,
+      resourceNames,
     };
 
     // Run request
-    const iterable = await loggingClient.listLogsAsync(request);
-    for await (const response of iterable) {
-        console.log(response);
-    }
+    const stream = await loggingClient.tailLogEntries();
+    stream.on('data', (response) => { console.log(response) });
+    stream.on('error', (err) => { throw(err) });
+    stream.on('end', () => { /* API call completed */ });
+    stream.write(request);
+    stream.end(); 
   }
 
-  callListLogs();
-  // [END logging_v2_generated_LoggingServiceV2_ListLogs_async]
+  callTailLogEntries();
+  // [END logging_v2_generated_LoggingServiceV2_TailLogEntries_async]
 }
 
 process.on('unhandledRejection', err => {
