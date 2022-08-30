@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,22 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 
 syntax = "proto3";
 
 package google.logging.v2;
 
+import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/distribution.proto";
 import "google/api/field_behavior.proto";
 import "google/api/metric.proto";
 import "google/api/resource.proto";
-import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
-import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
-import "google/api/annotations.proto";
 
 option cc_enable_arenas = true;
 option csharp_namespace = "Google.Cloud.Logging.V2";
@@ -35,6 +32,7 @@ option java_multiple_files = true;
 option java_outer_classname = "LoggingMetricsProto";
 option java_package = "com.google.logging.v2";
 option php_namespace = "Google\\Cloud\\Logging\\V2";
+option ruby_package = "Google::Cloud::Logging::V2";
 
 // Service for configuring logs-based metrics.
 service MetricsServiceV2 {
@@ -92,8 +90,8 @@ service MetricsServiceV2 {
 // Describes a logs-based metric. The value of the metric is the number of log
 // entries that match a logs filter in a given time interval.
 //
-// Logs-based metric can also be used to extract values from logs and create a
-// a distribution of the values. The distribution records the statistics of the
+// Logs-based metrics can also be used to extract values from logs and create a
+// distribution of the values. The distribution records the statistics of the
 // extracted values along with an optional histogram of the values as specified
 // by the bucket options.
 message LogMetric {
@@ -119,25 +117,29 @@ message LogMetric {
   // `_-.,+!*',()%/`. The forward-slash character (`/`) denotes a hierarchy of
   // name pieces, and it cannot be the first character of the name.
   //
-  // The metric identifier in this field must not be
-  // [URL-encoded](https://en.wikipedia.org/wiki/Percent-encoding).
-  // However, when the metric identifier appears as the `[METRIC_ID]` part of a
-  // `metric_name` API parameter, then the metric identifier must be
-  // URL-encoded. Example: `"projects/my-project/metrics/nginx%2Frequests"`.
+  // This field is the `[METRIC_ID]` part of a metric resource name in the
+  // format "projects/[PROJECT_ID]/metrics/[METRIC_ID]". Example: If the
+  // resource name of a metric is
+  // `"projects/my-project/metrics/nginx%2Frequests"`, this field's value is
+  // `"nginx/requests"`.
   string name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Optional. A description of this metric, which is used in documentation.
   // The maximum length of the description is 8000 characters.
   string description = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  // Required. An [advanced logs filter](/logging/docs/view/advanced_filters) which is
-  // used to match log entries.
-  // Example:
+  // Required. An [advanced logs
+  // filter](https://cloud.google.com/logging/docs/view/advanced_filters) which
+  // is used to match log entries. Example:
   //
   //     "resource.type=gae_app AND severity>=ERROR"
   //
   // The maximum length of the filter is 20000 characters.
   string filter = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. If set to True, then this metric is disabled and it does not
+  // generate any points.
+  bool disabled = 12 [(google.api.field_behavior) = OPTIONAL];
 
   // Optional. The metric descriptor associated with the logs-based metric.
   // If unspecified, it uses a default metric descriptor with a DELTA metric
