@@ -72,6 +72,7 @@ describe('Baseline tests', () => {
     serviceYaml: 'google/showcase/v1beta1/showcase_v1beta1.yaml',
     template: 'typescript_gapic;typescript_packing_test',
     metadata: true,
+    restNumericEnums: true,
   });
 
   runBaselineTest({
