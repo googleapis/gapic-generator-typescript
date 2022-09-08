@@ -103,6 +103,12 @@ yargs.describe(
 );
 yargs.boolean('legacy-proto-load');
 yargs.alias('legacy-proto-load', 'legacy_proto_load');
+yargs.describe(
+  'rest_numeric_enums',
+  'The generated library will pass and accept enum values as numbers when using the HTTP/1.1 REST transport.'
+);
+yargs.boolean('rest-numeric-enums');
+yargs.alias('rest-numeric-enums', 'rest_numeric_enums');
 yargs.describe('protoc', 'Path to protoc binary');
 yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');
@@ -128,6 +134,7 @@ export interface IArguments {
   diregapic?: boolean;
   handwrittenLayer?: boolean;
   legacyProtoLoad?: boolean;
+  restNumericEnums?: boolean;
   _: string[];
   $0: string;
 }
@@ -147,6 +154,7 @@ const transport = argv.transport as string | undefined;
 const diregapic = argv.diregapic as boolean | undefined;
 const handwrittenLayer = argv.handwrittenLayer as boolean | undefined;
 const legacyProtoLoad = argv.legacyProtoLoad as boolean | undefined;
+const restNumericEnums = argv.restNumericEnums as boolean | undefined;
 
 // --protoc can be passed from BUILD.bazel and overridden from the command line
 let protocParameter = argv.protoc as string | string[] | undefined;
@@ -214,6 +222,9 @@ if (transport && transport === 'rest') {
 }
 if (legacyProtoLoad) {
   protocCommand.push('--typescript_gapic_opt="legacy-proto-load"');
+}
+if (restNumericEnums) {
+  protocCommand.push('--typescript_gapic_opt="rest-numeric-enums"');
 }
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);

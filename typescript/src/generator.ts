@@ -78,6 +78,7 @@ export class Generator {
   rest?: boolean;
   diregapic?: boolean;
   legacyProtoLoad?: boolean;
+  restNumericEnums?: boolean;
 
   constructor() {
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.create();
@@ -214,6 +215,12 @@ export class Generator {
     }
   }
 
+  private readRestNumericEnums() {
+    if (this.paramMap['rest-numeric-enums'] === 'true') {
+      this.restNumericEnums = true;
+    }
+  }
+
   async initializeFromStdin() {
     const inputBuffer = await getStdin();
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.decode(
@@ -231,6 +238,7 @@ export class Generator {
       this.readDiregapic();
       this.readHandwrittenLayer();
       this.readLegacyProtoLoad();
+      this.readRestNumericEnums();
     }
   }
 
@@ -272,6 +280,7 @@ export class Generator {
       diregapic: this.diregapic,
       handwrittenLayer: this.handwrittenLayer,
       legacyProtoLoad: this.legacyProtoLoad,
+      restNumericEnums: this.restNumericEnums,
     });
     return api;
   }

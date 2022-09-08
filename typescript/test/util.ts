@@ -39,6 +39,7 @@ export interface BaselineOptions {
   legacyProtoLoad?: boolean;
   transport?: string;
   diregapic?: boolean;
+  restNumericEnums?: boolean;
 }
 
 const cwd = process.cwd();
@@ -85,6 +86,7 @@ export function runBaselineTest(options: BaselineOptions) {
     ? path.join(protosDirRoot, options.serviceYaml.split('/').join(path.sep))
     : undefined;
   const legacyProtoLoad = options.legacyProtoLoad ?? false;
+  const restNumericEnums = options.restNumericEnums ?? false;
   it(options.baselineName, async function () {
     this.timeout(60000);
     if (fs.existsSync(outputDir)) {
@@ -122,6 +124,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (legacyProtoLoad) {
       commandLine += ' --legacy-proto-load';
+    }
+    if (restNumericEnums) {
+      commandLine += ' --rest-numeric-enums';
     }
     if (options.transport && options.transport === 'rest') {
       commandLine += ' --transport=rest';
