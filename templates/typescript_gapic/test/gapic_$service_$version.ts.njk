@@ -47,17 +47,31 @@ import {protobuf
 {%- if service.IAMPolicyMixin > 0 %}, IamProtos{%- endif -%}
 {%- if service.LocationMixin > 0 %}, LocationProtos{%- endif -%}
 } from 'google-gax';
+{%- if not api.legacyProtoLoad %}
 
 // Dynamically loaded proto JSON is needed to get the type information
 // to fill in default values for request objects
 const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+{%- endif %}
 
 function getTypeDefaultValue(typeName: string, fields: string[]) {
+{%- if not api.legacyProtoLoad %}
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
         type = type.fields[field]?.resolvedType as protobuf.Type;
     }
     return type.fields[fields[fields.length - 1]]?.defaultValue;
+{%- else %}
+    // non-string x-goog-request-param values are not supported;
+    // we always assume that it's a string.
+    return '';
+{#- should this need to change, one would need to create an instance of
+   protobuf.js Root and call loadSync, setting a custom resolver as in
+   https://github.com/grpc/grpc-node/blob/1a3600e2ec6e3aae77e5e13e7c93efba0bba8d8c/packages/proto-loader/src/util.ts#L67-L82
+   At this moment, we don't need it since we don't have any non-string
+   fields in x-goog-request-params header for APIs that use legacy proto load.
+#}
+{%- endif %}
 }
 
 function generateSampleMessage<T extends object>(instance: T) {

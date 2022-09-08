@@ -27,16 +27,10 @@ import {PassThrough} from 'stream';
 
 import {protobuf, LROperation, operationsProtos} from 'google-gax';
 
-// Dynamically loaded proto JSON is needed to get the type information
-// to fill in default values for request objects
-const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
-
 function getTypeDefaultValue(typeName: string, fields: string[]) {
-    let type = root.lookupType(typeName) as protobuf.Type;
-    for (const field of fields.slice(0, -1)) {
-        type = type.fields[field]?.resolvedType as protobuf.Type;
-    }
-    return type.fields[fields[fields.length - 1]]?.defaultValue;
+    // non-string x-goog-request-param values are not supported;
+    // we always assume that it's a string.
+    return '';
 }
 
 function generateSampleMessage<T extends object>(instance: T) {
