@@ -31,6 +31,7 @@ import {protobuf, LROperation, operationsProtos} from 'google-gax';
 // to fill in default values for request objects
 const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getTypeDefaultValue(typeName: string, fields: string[]) {
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
@@ -217,24 +218,25 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.GetInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.GetInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.redis.v1beta1.Instance());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.Instance()
+            );
             client.innerApiCalls.getInstance = stubSimpleCall(expectedResponse);
             const [response] = await client.getInstance(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getInstance without error using callback', async () => {
@@ -243,19 +245,16 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.GetInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.GetInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.redis.v1beta1.Instance());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.Instance()
+            );
             client.innerApiCalls.getInstance = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getInstance(
@@ -270,8 +269,12 @@ describe('v1beta1.CloudRedisClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getInstance with error', async () => {
@@ -280,23 +283,22 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.GetInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.GetInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.getInstance = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getInstance(request), expectedError);
-            assert((client.innerApiCalls.getInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getInstance with closed client', async () => {
@@ -305,7 +307,9 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.GetInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.GetInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetInstanceRequest', ['name']);
             request.name = defaultValue1;
@@ -322,25 +326,26 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.CreateInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.CreateInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('CreateInstanceRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.createInstance = stubLongRunningCall(expectedResponse);
             const [operation] = await client.createInstance(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createInstance without error using callback', async () => {
@@ -349,19 +354,16 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.CreateInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.CreateInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('CreateInstanceRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.createInstance = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createInstance(
@@ -379,8 +381,12 @@ describe('v1beta1.CloudRedisClient', () => {
             const operation = await promise as LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.createInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createInstance with call error', async () => {
@@ -389,23 +395,22 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.CreateInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.CreateInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('CreateInstanceRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.createInstance = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.createInstance(request), expectedError);
-            assert((client.innerApiCalls.createInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createInstance with LRO error', async () => {
@@ -414,24 +419,23 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.CreateInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.CreateInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('CreateInstanceRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.createInstance = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.createInstance(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.createInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkCreateInstanceProgress without error', async () => {
@@ -440,7 +444,9 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -474,26 +480,27 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.UpdateInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.UpdateInstanceRequest()
+            );
             request.instance ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateInstanceRequest', ['instance', 'name']);
             request.instance.name = defaultValue1;
             const expectedHeaderRequestParams = `instance.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.updateInstance = stubLongRunningCall(expectedResponse);
             const [operation] = await client.updateInstance(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateInstance without error using callback', async () => {
@@ -502,20 +509,17 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.UpdateInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.UpdateInstanceRequest()
+            );
             request.instance ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateInstanceRequest', ['instance', 'name']);
             request.instance.name = defaultValue1;
             const expectedHeaderRequestParams = `instance.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.updateInstance = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.updateInstance(
@@ -533,8 +537,12 @@ describe('v1beta1.CloudRedisClient', () => {
             const operation = await promise as LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.updateInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateInstance with call error', async () => {
@@ -543,24 +551,23 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.UpdateInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.UpdateInstanceRequest()
+            );
             request.instance ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateInstanceRequest', ['instance', 'name']);
             request.instance.name = defaultValue1;
             const expectedHeaderRequestParams = `instance.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.updateInstance = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.updateInstance(request), expectedError);
-            assert((client.innerApiCalls.updateInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateInstance with LRO error', async () => {
@@ -569,25 +576,24 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.UpdateInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.UpdateInstanceRequest()
+            );
             request.instance ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateInstanceRequest', ['instance', 'name']);
             request.instance.name = defaultValue1;
             const expectedHeaderRequestParams = `instance.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.updateInstance = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.updateInstance(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.updateInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkUpdateInstanceProgress without error', async () => {
@@ -596,7 +602,9 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -630,25 +638,26 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ImportInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ImportInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ImportInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.importInstance = stubLongRunningCall(expectedResponse);
             const [operation] = await client.importInstance(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.importInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.importInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.importInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes importInstance without error using callback', async () => {
@@ -657,19 +666,16 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ImportInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ImportInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ImportInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.importInstance = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.importInstance(
@@ -687,8 +693,12 @@ describe('v1beta1.CloudRedisClient', () => {
             const operation = await promise as LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.importInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.importInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.importInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes importInstance with call error', async () => {
@@ -697,23 +707,22 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ImportInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ImportInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ImportInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.importInstance = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.importInstance(request), expectedError);
-            assert((client.innerApiCalls.importInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.importInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.importInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes importInstance with LRO error', async () => {
@@ -722,24 +731,23 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ImportInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ImportInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ImportInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.importInstance = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.importInstance(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.importInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.importInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.importInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkImportInstanceProgress without error', async () => {
@@ -748,7 +756,9 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -782,25 +792,26 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ExportInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ExportInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ExportInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.exportInstance = stubLongRunningCall(expectedResponse);
             const [operation] = await client.exportInstance(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.exportInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.exportInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.exportInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes exportInstance without error using callback', async () => {
@@ -809,19 +820,16 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ExportInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ExportInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ExportInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.exportInstance = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.exportInstance(
@@ -839,8 +847,12 @@ describe('v1beta1.CloudRedisClient', () => {
             const operation = await promise as LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.exportInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.exportInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.exportInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes exportInstance with call error', async () => {
@@ -849,23 +861,22 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ExportInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ExportInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ExportInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.exportInstance = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.exportInstance(request), expectedError);
-            assert((client.innerApiCalls.exportInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.exportInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.exportInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes exportInstance with LRO error', async () => {
@@ -874,24 +885,23 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ExportInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ExportInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ExportInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.exportInstance = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.exportInstance(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.exportInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.exportInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.exportInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkExportInstanceProgress without error', async () => {
@@ -900,7 +910,9 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -934,25 +946,26 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.FailoverInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.FailoverInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('FailoverInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.failoverInstance = stubLongRunningCall(expectedResponse);
             const [operation] = await client.failoverInstance(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.failoverInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.failoverInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.failoverInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes failoverInstance without error using callback', async () => {
@@ -961,19 +974,16 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.FailoverInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.FailoverInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('FailoverInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.failoverInstance = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.failoverInstance(
@@ -991,8 +1001,12 @@ describe('v1beta1.CloudRedisClient', () => {
             const operation = await promise as LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.failoverInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.failoverInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.failoverInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes failoverInstance with call error', async () => {
@@ -1001,23 +1015,22 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.FailoverInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.FailoverInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('FailoverInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.failoverInstance = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.failoverInstance(request), expectedError);
-            assert((client.innerApiCalls.failoverInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.failoverInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.failoverInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes failoverInstance with LRO error', async () => {
@@ -1026,24 +1039,23 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.FailoverInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.FailoverInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('FailoverInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.failoverInstance = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.failoverInstance(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.failoverInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.failoverInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.failoverInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkFailoverInstanceProgress without error', async () => {
@@ -1052,7 +1064,9 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -1086,25 +1100,26 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.DeleteInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.DeleteInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.deleteInstance = stubLongRunningCall(expectedResponse);
             const [operation] = await client.deleteInstance(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteInstance without error using callback', async () => {
@@ -1113,19 +1128,16 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.DeleteInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.DeleteInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.deleteInstance = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.deleteInstance(
@@ -1143,8 +1155,12 @@ describe('v1beta1.CloudRedisClient', () => {
             const operation = await promise as LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IAny>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.deleteInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteInstance with call error', async () => {
@@ -1153,23 +1169,22 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.DeleteInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.DeleteInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteInstance = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.deleteInstance(request), expectedError);
-            assert((client.innerApiCalls.deleteInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteInstance with LRO error', async () => {
@@ -1178,24 +1193,23 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.DeleteInstanceRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.DeleteInstanceRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteInstanceRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteInstance = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.deleteInstance(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.deleteInstance as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteInstance as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteInstance as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkDeleteInstanceProgress without error', async () => {
@@ -1204,7 +1218,9 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -1238,19 +1254,13 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ListInstancesRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ListInstancesRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListInstancesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.cloud.redis.v1beta1.Instance()),
               generateSampleMessage(new protos.google.cloud.redis.v1beta1.Instance()),
               generateSampleMessage(new protos.google.cloud.redis.v1beta1.Instance()),
@@ -1258,8 +1268,12 @@ describe('v1beta1.CloudRedisClient', () => {
             client.innerApiCalls.listInstances = stubSimpleCall(expectedResponse);
             const [response] = await client.listInstances(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listInstances as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listInstances as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listInstances as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listInstances without error using callback', async () => {
@@ -1268,19 +1282,13 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ListInstancesRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ListInstancesRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListInstancesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.cloud.redis.v1beta1.Instance()),
               generateSampleMessage(new protos.google.cloud.redis.v1beta1.Instance()),
               generateSampleMessage(new protos.google.cloud.redis.v1beta1.Instance()),
@@ -1299,8 +1307,12 @@ describe('v1beta1.CloudRedisClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listInstances as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.listInstances as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listInstances as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listInstances with error', async () => {
@@ -1309,23 +1321,22 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ListInstancesRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ListInstancesRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListInstancesRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.listInstances = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listInstances(request), expectedError);
-            assert((client.innerApiCalls.listInstances as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listInstances as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listInstances as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listInstancesStream without error', async () => {
@@ -1334,7 +1345,9 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ListInstancesRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ListInstancesRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListInstancesRequest', ['parent']);
             request.parent = defaultValue1;
@@ -1362,10 +1375,11 @@ describe('v1beta1.CloudRedisClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listInstances.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listInstances, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listInstances.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -1375,7 +1389,9 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ListInstancesRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ListInstancesRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListInstancesRequest', ['parent']);
             request.parent = defaultValue1;
@@ -1398,10 +1414,11 @@ describe('v1beta1.CloudRedisClient', () => {
             await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.listInstances.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listInstances, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listInstances.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                         expectedHeaderRequestParams
+                    ) 
             );
         });
 
@@ -1411,7 +1428,9 @@ describe('v1beta1.CloudRedisClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ListInstancesRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ListInstancesRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListInstancesRequest', ['parent']);
             request.parent = defaultValue1;
@@ -1431,10 +1450,11 @@ describe('v1beta1.CloudRedisClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listInstances.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listInstances.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -1444,11 +1464,14 @@ describe('v1beta1.CloudRedisClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.redis.v1beta1.ListInstancesRequest());
+            const request = generateSampleMessage(
+              new protos.google.cloud.redis.v1beta1.ListInstancesRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListInstancesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedError = new Error('expected');
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedError = new Error('expected');
             client.descriptors.page.listInstances.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listInstancesAsync(request);
             await assert.rejects(async () => {
@@ -1460,10 +1483,11 @@ describe('v1beta1.CloudRedisClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listInstances.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listInstances.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });

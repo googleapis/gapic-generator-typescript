@@ -31,6 +31,7 @@ import {protobuf, LROperation, operationsProtos, IamProtos, LocationProtos} from
 // to fill in default values for request objects
 const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getTypeDefaultValue(typeName: string, fields: string[]) {
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
@@ -250,14 +251,15 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateRoomRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Room());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateRoomRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Room()
+            );
             client.innerApiCalls.createRoom = stubSimpleCall(expectedResponse);
             const [response] = await client.createRoom(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes createRoom without error using callback', async () => {
@@ -266,9 +268,12 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateRoomRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Room());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateRoomRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Room()
+            );
             client.innerApiCalls.createRoom = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createRoom(
@@ -283,8 +288,6 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes createRoom with error', async () => {
@@ -293,13 +296,12 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateRoomRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateRoomRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.createRoom = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createRoom(request), expectedError);
-            assert((client.innerApiCalls.createRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes createRoom with closed client', async () => {
@@ -308,7 +310,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateRoomRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.createRoom(request), expectedError);
@@ -322,24 +326,25 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetRoomRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetRoomRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Room());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Room()
+            );
             client.innerApiCalls.getRoom = stubSimpleCall(expectedResponse);
             const [response] = await client.getRoom(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getRoom as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getRoom as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getRoom without error using callback', async () => {
@@ -348,19 +353,16 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetRoomRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetRoomRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Room());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Room()
+            );
             client.innerApiCalls.getRoom = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getRoom(
@@ -375,8 +377,12 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getRoom as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getRoom as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getRoom with error', async () => {
@@ -385,23 +391,22 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetRoomRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetRoomRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.getRoom = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getRoom(request), expectedError);
-            assert((client.innerApiCalls.getRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getRoom as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getRoom as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getRoom with closed client', async () => {
@@ -410,7 +415,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetRoomRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetRoomRequest', ['name']);
             request.name = defaultValue1;
@@ -427,25 +434,26 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateRoomRequest()
+            );
             request.room ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateRoomRequest', ['room', 'name']);
             request.room.name = defaultValue1;
             const expectedHeaderRequestParams = `room.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Room());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Room()
+            );
             client.innerApiCalls.updateRoom = stubSimpleCall(expectedResponse);
             const [response] = await client.updateRoom(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateRoom as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateRoom as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateRoom without error using callback', async () => {
@@ -454,20 +462,17 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateRoomRequest()
+            );
             request.room ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateRoomRequest', ['room', 'name']);
             request.room.name = defaultValue1;
             const expectedHeaderRequestParams = `room.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Room());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Room()
+            );
             client.innerApiCalls.updateRoom = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.updateRoom(
@@ -482,8 +487,12 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.updateRoom as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateRoom as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateRoom with error', async () => {
@@ -492,24 +501,23 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateRoomRequest()
+            );
             request.room ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateRoomRequest', ['room', 'name']);
             request.room.name = defaultValue1;
             const expectedHeaderRequestParams = `room.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.updateRoom = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateRoom(request), expectedError);
-            assert((client.innerApiCalls.updateRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateRoom as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateRoom as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateRoom with closed client', async () => {
@@ -518,7 +526,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateRoomRequest()
+            );
             request.room ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateRoomRequest', ['room', 'name']);
@@ -536,24 +546,25 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteRoomRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteRoomRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteRoom = stubSimpleCall(expectedResponse);
             const [response] = await client.deleteRoom(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteRoom as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteRoom as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteRoom without error using callback', async () => {
@@ -562,19 +573,16 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteRoomRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteRoomRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteRoom = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.deleteRoom(
@@ -589,8 +597,12 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.deleteRoom as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteRoom as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteRoom with error', async () => {
@@ -599,23 +611,22 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteRoomRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteRoomRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteRoom = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteRoom(request), expectedError);
-            assert((client.innerApiCalls.deleteRoom as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteRoom as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteRoom as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteRoom with closed client', async () => {
@@ -624,7 +635,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteRoomRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteRoomRequest', ['name']);
             request.name = defaultValue1;
@@ -641,24 +654,25 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('CreateBlurbRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Blurb());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Blurb()
+            );
             client.innerApiCalls.createBlurb = stubSimpleCall(expectedResponse);
             const [response] = await client.createBlurb(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createBlurb without error using callback', async () => {
@@ -667,19 +681,16 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('CreateBlurbRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Blurb());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Blurb()
+            );
             client.innerApiCalls.createBlurb = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createBlurb(
@@ -694,8 +705,12 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.createBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createBlurb with error', async () => {
@@ -704,23 +719,22 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('CreateBlurbRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.createBlurb = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createBlurb(request), expectedError);
-            assert((client.innerApiCalls.createBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createBlurb with closed client', async () => {
@@ -729,7 +743,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('CreateBlurbRequest', ['parent']);
             request.parent = defaultValue1;
@@ -746,24 +762,25 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetBlurbRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Blurb());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Blurb()
+            );
             client.innerApiCalls.getBlurb = stubSimpleCall(expectedResponse);
             const [response] = await client.getBlurb(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getBlurb without error using callback', async () => {
@@ -772,19 +789,16 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetBlurbRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Blurb());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Blurb()
+            );
             client.innerApiCalls.getBlurb = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getBlurb(
@@ -799,8 +813,12 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getBlurb with error', async () => {
@@ -809,23 +827,22 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetBlurbRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.getBlurb = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getBlurb(request), expectedError);
-            assert((client.innerApiCalls.getBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getBlurb with closed client', async () => {
@@ -834,7 +851,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('GetBlurbRequest', ['name']);
             request.name = defaultValue1;
@@ -851,25 +870,26 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateBlurbRequest()
+            );
             request.blurb ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateBlurbRequest', ['blurb', 'name']);
             request.blurb.name = defaultValue1;
             const expectedHeaderRequestParams = `blurb.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Blurb());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Blurb()
+            );
             client.innerApiCalls.updateBlurb = stubSimpleCall(expectedResponse);
             const [response] = await client.updateBlurb(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateBlurb without error using callback', async () => {
@@ -878,20 +898,17 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateBlurbRequest()
+            );
             request.blurb ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateBlurbRequest', ['blurb', 'name']);
             request.blurb.name = defaultValue1;
             const expectedHeaderRequestParams = `blurb.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.Blurb());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.Blurb()
+            );
             client.innerApiCalls.updateBlurb = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.updateBlurb(
@@ -906,8 +923,12 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.updateBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateBlurb with error', async () => {
@@ -916,24 +937,23 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateBlurbRequest()
+            );
             request.blurb ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateBlurbRequest', ['blurb', 'name']);
             request.blurb.name = defaultValue1;
             const expectedHeaderRequestParams = `blurb.name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.updateBlurb = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateBlurb(request), expectedError);
-            assert((client.innerApiCalls.updateBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateBlurb with closed client', async () => {
@@ -942,7 +962,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateBlurbRequest()
+            );
             request.blurb ??= {};
             const defaultValue1 =
               getTypeDefaultValue('UpdateBlurbRequest', ['blurb', 'name']);
@@ -960,24 +982,25 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteBlurbRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteBlurb = stubSimpleCall(expectedResponse);
             const [response] = await client.deleteBlurb(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteBlurb without error using callback', async () => {
@@ -986,19 +1009,16 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteBlurbRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteBlurb = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.deleteBlurb(
@@ -1013,8 +1033,12 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.deleteBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteBlurb with error', async () => {
@@ -1023,23 +1047,22 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteBlurbRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteBlurb = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteBlurb(request), expectedError);
-            assert((client.innerApiCalls.deleteBlurb as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteBlurb as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteBlurb as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteBlurb with closed client', async () => {
@@ -1048,7 +1071,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteBlurbRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('DeleteBlurbRequest', ['name']);
             request.name = defaultValue1;
@@ -1065,25 +1090,26 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.SearchBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('SearchBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.searchBlurbs = stubLongRunningCall(expectedResponse);
             const [operation] = await client.searchBlurbs(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.searchBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.searchBlurbs as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.searchBlurbs as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes searchBlurbs without error using callback', async () => {
@@ -1092,19 +1118,16 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.SearchBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('SearchBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.searchBlurbs = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.searchBlurbs(
@@ -1122,8 +1145,12 @@ describe('v1beta1.MessagingClient', () => {
             const operation = await promise as LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.searchBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.searchBlurbs as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.searchBlurbs as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes searchBlurbs with call error', async () => {
@@ -1132,23 +1159,22 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.SearchBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('SearchBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.searchBlurbs = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.searchBlurbs(request), expectedError);
-            assert((client.innerApiCalls.searchBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.searchBlurbs as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.searchBlurbs as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes searchBlurbs with LRO error', async () => {
@@ -1157,24 +1183,23 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.SearchBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('SearchBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.searchBlurbs = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.searchBlurbs(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.searchBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.searchBlurbs as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.searchBlurbs as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkSearchBlurbsProgress without error', async () => {
@@ -1183,7 +1208,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -1217,19 +1244,16 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.StreamBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('StreamBlurbsRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsResponse());
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.StreamBlurbsResponse()
+            );
             client.innerApiCalls.streamBlurbs = stubServerStreamingCall(expectedResponse);
             const stream = client.streamBlurbs(request);
             const promise = new Promise((resolve, reject) => {
@@ -1242,8 +1266,12 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.streamBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions));
+            const actualRequest = (client.innerApiCalls.streamBlurbs as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.streamBlurbs as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes streamBlurbs with error', async () => {
@@ -1252,18 +1280,13 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.StreamBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('StreamBlurbsRequest', ['name']);
             request.name = defaultValue1;
             const expectedHeaderRequestParams = `name=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.streamBlurbs = stubServerStreamingCall(undefined, expectedError);
             const stream = client.streamBlurbs(request);
@@ -1276,8 +1299,12 @@ describe('v1beta1.MessagingClient', () => {
                 });
             });
             await assert.rejects(promise, expectedError);
-            assert((client.innerApiCalls.streamBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions));
+            const actualRequest = (client.innerApiCalls.streamBlurbs as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.streamBlurbs as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes streamBlurbs with closed client', async () => {
@@ -1286,7 +1313,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.StreamBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('StreamBlurbsRequest', ['name']);
             request.name = defaultValue1;
@@ -1312,8 +1341,13 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ConnectRequest());
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ConnectRequest()
+            );
+            
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.StreamBlurbsResponse()
+            );
             client.innerApiCalls.connect = stubBidiStreamingCall(expectedResponse);
             const stream = client.connect();
             const promise = new Promise((resolve, reject) => {
@@ -1340,7 +1374,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ConnectRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ConnectRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.connect = stubBidiStreamingCall(undefined, expectedError);
             const stream = client.connect();
@@ -1369,8 +1405,13 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.SendBlurbsResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateBlurbRequest()
+            );
+            
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.SendBlurbsResponse()
+            );
             client.innerApiCalls.sendBlurbs = stubClientStreamingCall(expectedResponse);
             let stream: PassThrough;
             const promise = new Promise((resolve, reject) => {
@@ -1398,7 +1439,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateBlurbRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.sendBlurbs = stubClientStreamingCall(undefined, expectedError);
             let stream: PassThrough;
@@ -1427,9 +1470,9 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListRoomsRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListRoomsRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
@@ -1437,8 +1480,6 @@ describe('v1beta1.MessagingClient', () => {
             client.innerApiCalls.listRooms = stubSimpleCall(expectedResponse);
             const [response] = await client.listRooms(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listRooms as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes listRooms without error using callback', async () => {
@@ -1447,9 +1488,9 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListRoomsRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListRoomsRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
@@ -1468,8 +1509,6 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listRooms as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes listRooms with error', async () => {
@@ -1478,13 +1517,12 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListRoomsRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListRoomsRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.listRooms = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listRooms(request), expectedError);
-            assert((client.innerApiCalls.listRooms as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes listRoomsStream without error', async () => {
@@ -1493,7 +1531,9 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListRoomsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListRoomsRequest()
+            );
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
@@ -1525,7 +1565,9 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListRoomsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListRoomsRequest()
+            );
             const expectedError = new Error('expected');
             client.descriptors.page.listRooms.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listRoomsStream(request);
@@ -1552,7 +1594,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListRoomsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListRoomsRequest()
+            );
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Room()),
@@ -1576,7 +1620,10 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListRoomsRequest());const expectedError = new Error('expected');
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListRoomsRequest()
+            );
+            const expectedError = new Error('expected');
             client.descriptors.page.listRooms.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listRoomsAsync(request);
             await assert.rejects(async () => {
@@ -1598,19 +1645,13 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
@@ -1618,8 +1659,12 @@ describe('v1beta1.MessagingClient', () => {
             client.innerApiCalls.listBlurbs = stubSimpleCall(expectedResponse);
             const [response] = await client.listBlurbs(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listBlurbs as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listBlurbs as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listBlurbs without error using callback', async () => {
@@ -1628,19 +1673,13 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
@@ -1659,8 +1698,12 @@ describe('v1beta1.MessagingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.listBlurbs as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listBlurbs as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listBlurbs with error', async () => {
@@ -1669,23 +1712,22 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
             const expectedHeaderRequestParams = `parent=${defaultValue1}`;
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
             const expectedError = new Error('expected');
             client.innerApiCalls.listBlurbs = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listBlurbs(request), expectedError);
-            assert((client.innerApiCalls.listBlurbs as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listBlurbs as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listBlurbs as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listBlurbsStream without error', async () => {
@@ -1694,7 +1736,9 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
@@ -1722,10 +1766,11 @@ describe('v1beta1.MessagingClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listBlurbs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listBlurbs, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listBlurbs.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -1735,7 +1780,9 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
@@ -1758,10 +1805,11 @@ describe('v1beta1.MessagingClient', () => {
             await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.listBlurbs.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listBlurbs, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listBlurbs.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                         expectedHeaderRequestParams
+                    ) 
             );
         });
 
@@ -1771,7 +1819,9 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
@@ -1791,10 +1841,11 @@ describe('v1beta1.MessagingClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listBlurbs.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listBlurbs.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -1804,11 +1855,14 @@ describe('v1beta1.MessagingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListBlurbsRequest()
+            );
             const defaultValue1 =
               getTypeDefaultValue('ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedError = new Error('expected');
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedError = new Error('expected');
             client.descriptors.page.listBlurbs.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listBlurbsAsync(request);
             await assert.rejects(async () => {
@@ -1820,10 +1874,11 @@ describe('v1beta1.MessagingClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listBlurbs.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listBlurbs.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });
@@ -1835,7 +1890,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1847,7 +1902,7 @@ describe('v1beta1.MessagingClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.getIamPolicy = stubSimpleCall(expectedResponse);
             const response = await client.getIamPolicy(request, expectedOptions);
@@ -1862,7 +1917,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1874,7 +1929,7 @@ describe('v1beta1.MessagingClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.getIamPolicy = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -1901,7 +1956,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1927,7 +1982,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1939,7 +1994,7 @@ describe('v1beta1.MessagingClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.setIamPolicy = stubSimpleCall(expectedResponse);
             const response = await client.setIamPolicy(request, expectedOptions);
@@ -1954,7 +2009,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1966,7 +2021,7 @@ describe('v1beta1.MessagingClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.setIamPolicy = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -1993,7 +2048,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -2019,7 +2074,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -2031,7 +2086,7 @@ describe('v1beta1.MessagingClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
             );
             client.iamClient.testIamPermissions = stubSimpleCall(expectedResponse);
             const response = await client.testIamPermissions(request, expectedOptions);
@@ -2046,7 +2101,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -2058,7 +2113,7 @@ describe('v1beta1.MessagingClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
             );
             client.iamClient.testIamPermissions = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -2085,7 +2140,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -2111,7 +2166,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -2123,7 +2178,7 @@ describe('v1beta1.MessagingClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.getLocation = stubSimpleCall(expectedResponse);
             const response = await client.getLocation(request, expectedOptions);
@@ -2138,7 +2193,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -2150,7 +2205,7 @@ describe('v1beta1.MessagingClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.getLocation = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -2180,7 +2235,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -2231,10 +2286,11 @@ describe('v1beta1.MessagingClient', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
         it('uses async iteration with listLocations with error', async () => {
@@ -2244,7 +2300,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.ListLocationsRequest()
+              new LocationProtos.google.cloud.location.ListLocationsRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -2260,10 +2316,11 @@ describe('v1beta1.MessagingClient', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });
@@ -2275,7 +2332,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new operationsProtos.google.longrunning.Operation()
@@ -2293,7 +2350,7 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new operationsProtos.google.longrunning.Operation()
@@ -2325,7 +2382,7 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
@@ -2342,7 +2399,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -2360,7 +2417,7 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -2392,7 +2449,7 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.cancelOperation = stubSimpleCall(undefined, expectedError);
@@ -2409,7 +2466,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -2427,7 +2484,7 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -2459,7 +2516,7 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.deleteOperation = stubSimpleCall(undefined, expectedError);
@@ -2475,7 +2532,7 @@ describe('v1beta1.MessagingClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.ListOperationsRequest()
+              new operationsProtos.google.longrunning.ListOperationsRequest()
             );
             const expectedResponse = [
                 generateSampleMessage(
@@ -2506,7 +2563,7 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.ListOperationsRequest()
+              new operationsProtos.google.longrunning.ListOperationsRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.descriptor.listOperations.asyncIterate = stubAsyncIterationCall(undefined, expectedError);

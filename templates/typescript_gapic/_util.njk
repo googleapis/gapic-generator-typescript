@@ -297,7 +297,9 @@ request.{{ oneComment.paramName.toCamelCase() }}
 
 {%- macro initRequestWithHeaderParam(method, skipExpectedVariable='') -%}
 {# initializing request object for generated unit tests -#}
-            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const request = generateSampleMessage(
+              new protos{{ method.inputInterface }}()
+            );
 {%- if method.headerRequestParams.length > 0 %}
 {#- generated request object for implicit routing headers -#}
 {%- set requestType = method.inputInterface.replace(r/^.*\./, '') -%}
@@ -330,10 +332,10 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endif %}
 {%- elif method.dynamicRoutingRequestParams.length > 0 %}
 {#- generated request object for dynamic routing headers -#}
-{%- if not skipExpectedVariable %}
-            const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
-{%- endif %}
-{%- for paramArray in method.dynamicRoutingRequestParams %}
+{#- for unit tests, only take the last template.
+    TODO: figure out how to generate expected value for multiple, possibly overlapping, templates
+-#}
+{%- for paramArray in method.dynamicRoutingRequestParams.slice(-1) %}
 {%- for param in paramArray %}
 {%- set chain = "request" -%}
 {%- for field in param.fieldRetrieve.slice(0, -1) %}
@@ -351,33 +353,29 @@ request.{{ oneComment.paramName.toCamelCase() }}
             {%- set parameterValue = 'value' -%}
             {%- endif %}
             {{ chain }}.{{ param.fieldRetrieve.slice(-1)[0].toCamelCase() }} = '{{ fieldValue }}';
-{%- if not skipExpectedVariable %}
-            expectedHeaderRequestParamsObj['{{ param.fieldSend }}'] = '{{ parameterValue }}';
-{%- endif %}
 {%- endfor %}
 {%- endfor %}
 {%- if not skipExpectedVariable %}
-            const expectedHeaderRequestParams = Object.entries(expectedHeaderRequestParamsObj).map(([key, value]) => `${key}=${value}`).join('&');
+            const expectedHeaderRequestParams = '{{ param.fieldSend }}={{ parameterValue }}';
 {%- endif %}
 {%- endif %}
 {%- endmacro -%}
 
-{%- macro initRequestOptions(method) -%}
+{%- macro verifyHeaderRequestParams(method) -%}
 {%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-{%- else %}
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const actualRequest = (client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
 {%- endif %}
 {%- endmacro -%}
 
-{%- macro initResponse(method) -%}
-            const expectedResponse = generateSampleMessage(new protos{{ method.outputInterface }}());
+{%- macro initResponse(method) %}
+            const expectedResponse = generateSampleMessage(
+              new protos{{ method.outputInterface }}()
+            );
 {%- endmacro -%}
 
 {%- macro initPagingResponse(method) -%}

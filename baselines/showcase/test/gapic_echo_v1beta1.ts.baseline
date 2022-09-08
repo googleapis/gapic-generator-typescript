@@ -31,6 +31,7 @@ import {protobuf, LROperation, operationsProtos, IamProtos, LocationProtos} from
 // to fill in default values for request objects
 const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getTypeDefaultValue(typeName: string, fields: string[]) {
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
@@ -250,46 +251,24 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
-            const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
-            // path template is empty
-            request.header = 'value';
-            expectedHeaderRequestParamsObj['header'] = 'value';
-            // path template: {routing_id=**}
-            request.header = 'value';
-            expectedHeaderRequestParamsObj['routing_id'] = 'value';
-            // path template: {table_name=regions/*/zones/*/**}
-            request.header = 'regions/value/zones/value/value';
-            expectedHeaderRequestParamsObj['table_name'] = 'regions%2Fvalue%2Fzones%2Fvalue%2Fvalue';
-            // path template: {super_id=projects/*}/**
-            request.header = 'projects/value/value';
-            expectedHeaderRequestParamsObj['super_id'] = 'projects%2Fvalue';
-            // path template: {table_name=projects/*/instances/*/**}
-            request.header = 'projects/value/instances/value/value';
-            expectedHeaderRequestParamsObj['table_name'] = 'projects%2Fvalue%2Finstances%2Fvalue%2Fvalue';
-            // path template: projects/*/{instance_id=instances/*}/**
-            request.header = 'projects/value/instances/value/value';
-            expectedHeaderRequestParamsObj['instance_id'] = 'instances%2Fvalue';
-            // path template: {baz=**}
-            request.otherHeader = 'value';
-            expectedHeaderRequestParamsObj['baz'] = 'value';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoRequest()
+            );
             // path template: {qux=projects/*}/**
             request.otherHeader = 'projects/value/value';
-            expectedHeaderRequestParamsObj['qux'] = 'projects%2Fvalue';
-            const expectedHeaderRequestParams = Object.entries(expectedHeaderRequestParamsObj).map(([key, value]) => `${key}=${value}`).join('&');
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse());
+            const expectedHeaderRequestParams = '=';
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoResponse()
+            );
             client.innerApiCalls.echo = stubSimpleCall(expectedResponse);
             const [response] = await client.echo(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.echo as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.echo as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.echo as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes echo without error using callback', async () => {
@@ -298,41 +277,15 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
-            const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
-            // path template is empty
-            request.header = 'value';
-            expectedHeaderRequestParamsObj['header'] = 'value';
-            // path template: {routing_id=**}
-            request.header = 'value';
-            expectedHeaderRequestParamsObj['routing_id'] = 'value';
-            // path template: {table_name=regions/*/zones/*/**}
-            request.header = 'regions/value/zones/value/value';
-            expectedHeaderRequestParamsObj['table_name'] = 'regions%2Fvalue%2Fzones%2Fvalue%2Fvalue';
-            // path template: {super_id=projects/*}/**
-            request.header = 'projects/value/value';
-            expectedHeaderRequestParamsObj['super_id'] = 'projects%2Fvalue';
-            // path template: {table_name=projects/*/instances/*/**}
-            request.header = 'projects/value/instances/value/value';
-            expectedHeaderRequestParamsObj['table_name'] = 'projects%2Fvalue%2Finstances%2Fvalue%2Fvalue';
-            // path template: projects/*/{instance_id=instances/*}/**
-            request.header = 'projects/value/instances/value/value';
-            expectedHeaderRequestParamsObj['instance_id'] = 'instances%2Fvalue';
-            // path template: {baz=**}
-            request.otherHeader = 'value';
-            expectedHeaderRequestParamsObj['baz'] = 'value';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoRequest()
+            );
             // path template: {qux=projects/*}/**
             request.otherHeader = 'projects/value/value';
-            expectedHeaderRequestParamsObj['qux'] = 'projects%2Fvalue';
-            const expectedHeaderRequestParams = Object.entries(expectedHeaderRequestParamsObj).map(([key, value]) => `${key}=${value}`).join('&');
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse());
+            const expectedHeaderRequestParams = '=';
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoResponse()
+            );
             client.innerApiCalls.echo = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.echo(
@@ -347,8 +300,12 @@ describe('v1beta1.EchoClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.echo as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.echo as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.echo as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes echo with error', async () => {
@@ -357,45 +314,21 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
-            const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
-            // path template is empty
-            request.header = 'value';
-            expectedHeaderRequestParamsObj['header'] = 'value';
-            // path template: {routing_id=**}
-            request.header = 'value';
-            expectedHeaderRequestParamsObj['routing_id'] = 'value';
-            // path template: {table_name=regions/*/zones/*/**}
-            request.header = 'regions/value/zones/value/value';
-            expectedHeaderRequestParamsObj['table_name'] = 'regions%2Fvalue%2Fzones%2Fvalue%2Fvalue';
-            // path template: {super_id=projects/*}/**
-            request.header = 'projects/value/value';
-            expectedHeaderRequestParamsObj['super_id'] = 'projects%2Fvalue';
-            // path template: {table_name=projects/*/instances/*/**}
-            request.header = 'projects/value/instances/value/value';
-            expectedHeaderRequestParamsObj['table_name'] = 'projects%2Fvalue%2Finstances%2Fvalue%2Fvalue';
-            // path template: projects/*/{instance_id=instances/*}/**
-            request.header = 'projects/value/instances/value/value';
-            expectedHeaderRequestParamsObj['instance_id'] = 'instances%2Fvalue';
-            // path template: {baz=**}
-            request.otherHeader = 'value';
-            expectedHeaderRequestParamsObj['baz'] = 'value';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoRequest()
+            );
             // path template: {qux=projects/*}/**
             request.otherHeader = 'projects/value/value';
-            expectedHeaderRequestParamsObj['qux'] = 'projects%2Fvalue';
-            const expectedHeaderRequestParams = Object.entries(expectedHeaderRequestParamsObj).map(([key, value]) => `${key}=${value}`).join('&');
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const expectedHeaderRequestParams = '=';
             const expectedError = new Error('expected');
             client.innerApiCalls.echo = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.echo(request), expectedError);
-            assert((client.innerApiCalls.echo as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.echo as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.echo as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes echo with closed client', async () => {
@@ -404,21 +337,9 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
-            // path template is empty
-            request.header = 'value';
-            // path template: {routing_id=**}
-            request.header = 'value';
-            // path template: {table_name=regions/*/zones/*/**}
-            request.header = 'regions/value/zones/value/value';
-            // path template: {super_id=projects/*}/**
-            request.header = 'projects/value/value';
-            // path template: {table_name=projects/*/instances/*/**}
-            request.header = 'projects/value/instances/value/value';
-            // path template: projects/*/{instance_id=instances/*}/**
-            request.header = 'projects/value/instances/value/value';
-            // path template: {baz=**}
-            request.otherHeader = 'value';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoRequest()
+            );
             // path template: {qux=projects/*}/**
             request.otherHeader = 'projects/value/value';
             const expectedError = new Error('The client has already been closed.');
@@ -434,14 +355,15 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandLegacyRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandLegacyRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandResponse()
+            );
             client.innerApiCalls.pagedExpandLegacy = stubSimpleCall(expectedResponse);
             const [response] = await client.pagedExpandLegacy(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.pagedExpandLegacy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes pagedExpandLegacy without error using callback', async () => {
@@ -450,9 +372,12 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandLegacyRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandLegacyRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandResponse()
+            );
             client.innerApiCalls.pagedExpandLegacy = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.pagedExpandLegacy(
@@ -467,8 +392,6 @@ describe('v1beta1.EchoClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.pagedExpandLegacy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes pagedExpandLegacy with error', async () => {
@@ -477,13 +400,12 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandLegacyRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandLegacyRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.pagedExpandLegacy = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.pagedExpandLegacy(request), expectedError);
-            assert((client.innerApiCalls.pagedExpandLegacy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes pagedExpandLegacy with closed client', async () => {
@@ -492,7 +414,9 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandLegacyRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandLegacyRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.pagedExpandLegacy(request), expectedError);
@@ -506,14 +430,15 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.BlockRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.BlockResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.BlockRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.BlockResponse()
+            );
             client.innerApiCalls.block = stubSimpleCall(expectedResponse);
             const [response] = await client.block(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.block as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes block without error using callback', async () => {
@@ -522,9 +447,12 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.BlockRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.BlockResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.BlockRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.BlockResponse()
+            );
             client.innerApiCalls.block = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.block(
@@ -539,8 +467,6 @@ describe('v1beta1.EchoClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.block as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes block with error', async () => {
@@ -549,13 +475,12 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.BlockRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.BlockRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.block = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.block(request), expectedError);
-            assert((client.innerApiCalls.block as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes block with closed client', async () => {
@@ -564,7 +489,9 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.BlockRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.BlockRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.block(request), expectedError);
@@ -578,15 +505,16 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.WaitRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.WaitRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.wait = stubLongRunningCall(expectedResponse);
             const [operation] = await client.wait(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.wait as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes wait without error using callback', async () => {
@@ -595,9 +523,12 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.WaitRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.WaitRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.wait = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.wait(
@@ -615,8 +546,6 @@ describe('v1beta1.EchoClient', () => {
             const operation = await promise as LROperation<protos.google.showcase.v1beta1.IWaitResponse, protos.google.showcase.v1beta1.IWaitMetadata>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.wait as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes wait with call error', async () => {
@@ -625,13 +554,12 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.WaitRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.WaitRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.wait = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.wait(request), expectedError);
-            assert((client.innerApiCalls.wait as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes wait with LRO error', async () => {
@@ -640,14 +568,13 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.WaitRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.WaitRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.wait = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.wait(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.wait as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes checkWaitProgress without error', async () => {
@@ -656,7 +583,9 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -690,9 +619,12 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ExpandRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ExpandRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoResponse()
+            );
             client.innerApiCalls.expand = stubServerStreamingCall(expectedResponse);
             const stream = client.expand(request);
             const promise = new Promise((resolve, reject) => {
@@ -705,8 +637,6 @@ describe('v1beta1.EchoClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.expand as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions));
         });
 
         it('invokes expand with error', async () => {
@@ -715,8 +645,9 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ExpandRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ExpandRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.expand = stubServerStreamingCall(undefined, expectedError);
             const stream = client.expand(request);
@@ -729,8 +660,6 @@ describe('v1beta1.EchoClient', () => {
                 });
             });
             await assert.rejects(promise, expectedError);
-            assert((client.innerApiCalls.expand as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions));
         });
 
         it('invokes expand with closed client', async () => {
@@ -739,7 +668,9 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ExpandRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ExpandRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             const stream = client.expand(request);
@@ -762,8 +693,13 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoRequest()
+            );
+            
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoResponse()
+            );
             client.innerApiCalls.chat = stubBidiStreamingCall(expectedResponse);
             const stream = client.chat();
             const promise = new Promise((resolve, reject) => {
@@ -790,7 +726,9 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.chat = stubBidiStreamingCall(undefined, expectedError);
             const stream = client.chat();
@@ -819,8 +757,13 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoRequest()
+            );
+            
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoResponse()
+            );
             client.innerApiCalls.collect = stubClientStreamingCall(expectedResponse);
             let stream: PassThrough;
             const promise = new Promise((resolve, reject) => {
@@ -848,7 +791,9 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EchoRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.collect = stubClientStreamingCall(undefined, expectedError);
             let stream: PassThrough;
@@ -877,9 +822,9 @@ describe('v1beta1.EchoClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
@@ -887,8 +832,6 @@ describe('v1beta1.EchoClient', () => {
             client.innerApiCalls.pagedExpand = stubSimpleCall(expectedResponse);
             const [response] = await client.pagedExpand(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.pagedExpand as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes pagedExpand without error using callback', async () => {
@@ -897,9 +840,9 @@ describe('v1beta1.EchoClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
@@ -918,8 +861,6 @@ describe('v1beta1.EchoClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.pagedExpand as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes pagedExpand with error', async () => {
@@ -928,13 +869,12 @@ describe('v1beta1.EchoClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.pagedExpand = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.pagedExpand(request), expectedError);
-            assert((client.innerApiCalls.pagedExpand as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes pagedExpandStream without error', async () => {
@@ -943,7 +883,9 @@ describe('v1beta1.EchoClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandRequest()
+            );
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
@@ -975,7 +917,9 @@ describe('v1beta1.EchoClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandRequest()
+            );
             const expectedError = new Error('expected');
             client.descriptors.page.pagedExpand.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.pagedExpandStream(request);
@@ -1002,7 +946,9 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandRequest()
+            );
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
               generateSampleMessage(new protos.google.showcase.v1beta1.EchoResponse()),
@@ -1026,7 +972,10 @@ describe('v1beta1.EchoClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.PagedExpandRequest());const expectedError = new Error('expected');
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.PagedExpandRequest()
+            );
+            const expectedError = new Error('expected');
             client.descriptors.page.pagedExpand.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.pagedExpandAsync(request);
             await assert.rejects(async () => {
@@ -1049,7 +998,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1061,7 +1010,7 @@ describe('v1beta1.EchoClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.getIamPolicy = stubSimpleCall(expectedResponse);
             const response = await client.getIamPolicy(request, expectedOptions);
@@ -1076,7 +1025,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1088,7 +1037,7 @@ describe('v1beta1.EchoClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.getIamPolicy = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -1115,7 +1064,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1141,7 +1090,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1153,7 +1102,7 @@ describe('v1beta1.EchoClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.setIamPolicy = stubSimpleCall(expectedResponse);
             const response = await client.setIamPolicy(request, expectedOptions);
@@ -1168,7 +1117,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1180,7 +1129,7 @@ describe('v1beta1.EchoClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.setIamPolicy = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -1207,7 +1156,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1233,7 +1182,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1245,7 +1194,7 @@ describe('v1beta1.EchoClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
             );
             client.iamClient.testIamPermissions = stubSimpleCall(expectedResponse);
             const response = await client.testIamPermissions(request, expectedOptions);
@@ -1260,7 +1209,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1272,7 +1221,7 @@ describe('v1beta1.EchoClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
             );
             client.iamClient.testIamPermissions = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -1299,7 +1248,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1325,7 +1274,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1337,7 +1286,7 @@ describe('v1beta1.EchoClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.getLocation = stubSimpleCall(expectedResponse);
             const response = await client.getLocation(request, expectedOptions);
@@ -1352,7 +1301,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1364,7 +1313,7 @@ describe('v1beta1.EchoClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.getLocation = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -1394,7 +1343,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1445,10 +1394,11 @@ describe('v1beta1.EchoClient', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
         it('uses async iteration with listLocations with error', async () => {
@@ -1458,7 +1408,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.ListLocationsRequest()
+              new LocationProtos.google.cloud.location.ListLocationsRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1474,10 +1424,11 @@ describe('v1beta1.EchoClient', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });
@@ -1489,7 +1440,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new operationsProtos.google.longrunning.Operation()
@@ -1507,7 +1458,7 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new operationsProtos.google.longrunning.Operation()
@@ -1539,7 +1490,7 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
@@ -1556,7 +1507,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1574,7 +1525,7 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1606,7 +1557,7 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.cancelOperation = stubSimpleCall(undefined, expectedError);
@@ -1623,7 +1574,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1641,7 +1592,7 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1673,7 +1624,7 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.deleteOperation = stubSimpleCall(undefined, expectedError);
@@ -1689,7 +1640,7 @@ describe('v1beta1.EchoClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.ListOperationsRequest()
+              new operationsProtos.google.longrunning.ListOperationsRequest()
             );
             const expectedResponse = [
                 generateSampleMessage(
@@ -1720,7 +1671,7 @@ describe('v1beta1.EchoClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.ListOperationsRequest()
+              new operationsProtos.google.longrunning.ListOperationsRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.descriptor.listOperations.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
