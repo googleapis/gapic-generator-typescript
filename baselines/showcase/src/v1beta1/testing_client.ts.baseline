@@ -181,13 +181,19 @@ export class TestingClient {
         'sessions/{session}/tests/{test}/blueprints/{blueprint}'
       ),
       roomPathTemplate: new this._gaxModule.PathTemplate(
-        'rooms/{room_id}'
+        'rooms/{room}'
       ),
-      roomIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'rooms/{room_id}/blurbs/{blurb_id}'
+      roomBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'rooms/{room}/blurbs/{blurb}'
       ),
-      roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'rooms/{room_id}/blurbs/legacy/{legacy_room_id}.{blurb_id}'
+      roomBlurbsLegacyRoomBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'rooms/{room}/blurbs/legacy/{legacy_room}.{blurb}'
+      ),
+      sequencePathTemplate: new this._gaxModule.PathTemplate(
+        'sequences/{sequence}'
+      ),
+      sequenceReportPathTemplate: new this._gaxModule.PathTemplate(
+        'sequences/{sequence}/sequenceReport'
       ),
       sessionPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}'
@@ -196,13 +202,13 @@ export class TestingClient {
         'sessions/{session}/tests/{test}'
       ),
       userPathTemplate: new this._gaxModule.PathTemplate(
-        'users/{user_id}'
+        'users/{user}'
       ),
-      userIdProfileBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'user/{user_id}/profile/blurbs/{blurb_id}'
+      userProfileBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'users/{user}/profile/blurbs/{blurb}'
       ),
-      userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'user/{user_id}/profile/blurbs/legacy/{legacy_user_id}~{blurb_id}'
+      userProfileBlurbsLegacyUserBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'users/{user}/profile/blurbs/legacy/{legacy_user}~{blurb}'
       ),
     };
 
@@ -495,7 +501,7 @@ export class TestingClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = this._gaxModule.routingHeader.fromParams({
-      'name': request.name || '',
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.getSession(request, options, callback);
@@ -566,7 +572,7 @@ export class TestingClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = this._gaxModule.routingHeader.fromParams({
-      'name': request.name || '',
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.deleteSession(request, options, callback);
@@ -639,7 +645,7 @@ export class TestingClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = this._gaxModule.routingHeader.fromParams({
-      'name': request.name || '',
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.reportSession(request, options, callback);
@@ -715,7 +721,7 @@ export class TestingClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = this._gaxModule.routingHeader.fromParams({
-      'name': request.name || '',
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.deleteTest(request, options, callback);
@@ -793,7 +799,7 @@ export class TestingClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = this._gaxModule.routingHeader.fromParams({
-      'name': request.name || '',
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.verifyTest(request, options, callback);
@@ -1026,7 +1032,7 @@ export class TestingClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = this._gaxModule.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.listTests(request, options, callback);
@@ -1065,7 +1071,7 @@ export class TestingClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = this._gaxModule.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'parent': request.parent ?? '',
     });
     const defaultCallSettings = this._defaults['listTests'];
     const callSettings = defaultCallSettings.merge(options);
@@ -1113,7 +1119,7 @@ export class TestingClient {
     options.otherArgs.headers[
       'x-goog-request-params'
     ] = this._gaxModule.routingHeader.fromParams({
-      'parent': request.parent || '',
+      'parent': request.parent ?? '',
     });
     const defaultCallSettings = this._defaults['listTests'];
     const callSettings = defaultCallSettings.merge(options);
@@ -1577,109 +1583,155 @@ export class TestingClient {
   /**
    * Return a fully-qualified room resource name string.
    *
-   * @param {string} room_id
+   * @param {string} room
    * @returns {string} Resource name string.
    */
-  roomPath(roomId:string) {
+  roomPath(room:string) {
     return this.pathTemplates.roomPathTemplate.render({
-      room_id: roomId,
+      room: room,
     });
   }
 
   /**
-   * Parse the room_id from Room resource.
+   * Parse the room from Room resource.
    *
    * @param {string} roomName
    *   A fully-qualified path representing Room resource.
-   * @returns {string} A string representing the room_id.
+   * @returns {string} A string representing the room.
    */
-  matchRoomIdFromRoomName(roomName: string) {
-    return this.pathTemplates.roomPathTemplate.match(roomName).room_id;
+  matchRoomFromRoomName(roomName: string) {
+    return this.pathTemplates.roomPathTemplate.match(roomName).room;
   }
 
   /**
-   * Return a fully-qualified roomIdBlurbId resource name string.
+   * Return a fully-qualified roomBlurb resource name string.
    *
-   * @param {string} room_id
-   * @param {string} blurb_id
+   * @param {string} room
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  roomIdBlurbIdPath(roomId:string,blurbId:string) {
-    return this.pathTemplates.roomIdBlurbIdPathTemplate.render({
-      room_id: roomId,
-      blurb_id: blurbId,
+  roomBlurbPath(room:string,blurb:string) {
+    return this.pathTemplates.roomBlurbPathTemplate.render({
+      room: room,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the room_id from RoomIdBlurbId resource.
+   * Parse the room from RoomBlurb resource.
    *
-   * @param {string} roomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurb_id resource.
-   * @returns {string} A string representing the room_id.
+   * @param {string} roomBlurbName
+   *   A fully-qualified path representing room_blurb resource.
+   * @returns {string} A string representing the room.
    */
-  matchRoomIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).room_id;
+  matchRoomFromRoomBlurbName(roomBlurbName: string) {
+    return this.pathTemplates.roomBlurbPathTemplate.match(roomBlurbName).room;
   }
 
   /**
-   * Parse the blurb_id from RoomIdBlurbId resource.
+   * Parse the blurb from RoomBlurb resource.
    *
-   * @param {string} roomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} roomBlurbName
+   *   A fully-qualified path representing room_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).blurb_id;
+  matchBlurbFromRoomBlurbName(roomBlurbName: string) {
+    return this.pathTemplates.roomBlurbPathTemplate.match(roomBlurbName).blurb;
   }
 
   /**
-   * Return a fully-qualified roomIdBlurbsLegacyRoomIdBlurbId resource name string.
+   * Return a fully-qualified roomBlurbsLegacyRoomBlurb resource name string.
    *
-   * @param {string} room_id
-   * @param {string} legacy_room_id
-   * @param {string} blurb_id
+   * @param {string} room
+   * @param {string} legacy_room
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  roomIdBlurbsLegacyRoomIdBlurbIdPath(roomId:string,legacyRoomId:string,blurbId:string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.render({
-      room_id: roomId,
-      legacy_room_id: legacyRoomId,
-      blurb_id: blurbId,
+  roomBlurbsLegacyRoomBlurbPath(room:string,legacyRoom:string,blurb:string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.render({
+      room: room,
+      legacy_room: legacyRoom,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the room_id from RoomIdBlurbsLegacyRoomIdBlurbId resource.
+   * Parse the room from RoomBlurbsLegacyRoomBlurb resource.
    *
-   * @param {string} roomIdBlurbsLegacyRoomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurbs_legacy_room_id_blurb_id resource.
-   * @returns {string} A string representing the room_id.
+   * @param {string} roomBlurbsLegacyRoomBlurbName
+   *   A fully-qualified path representing room_blurbs_legacy_room_blurb resource.
+   * @returns {string} A string representing the room.
    */
-  matchRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(roomIdBlurbsLegacyRoomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match(roomIdBlurbsLegacyRoomIdBlurbIdName).room_id;
+  matchRoomFromRoomBlurbsLegacyRoomBlurbName(roomBlurbsLegacyRoomBlurbName: string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match(roomBlurbsLegacyRoomBlurbName).room;
   }
 
   /**
-   * Parse the legacy_room_id from RoomIdBlurbsLegacyRoomIdBlurbId resource.
+   * Parse the legacy_room from RoomBlurbsLegacyRoomBlurb resource.
    *
-   * @param {string} roomIdBlurbsLegacyRoomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurbs_legacy_room_id_blurb_id resource.
-   * @returns {string} A string representing the legacy_room_id.
+   * @param {string} roomBlurbsLegacyRoomBlurbName
+   *   A fully-qualified path representing room_blurbs_legacy_room_blurb resource.
+   * @returns {string} A string representing the legacy_room.
    */
-  matchLegacyRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(roomIdBlurbsLegacyRoomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match(roomIdBlurbsLegacyRoomIdBlurbIdName).legacy_room_id;
+  matchLegacyRoomFromRoomBlurbsLegacyRoomBlurbName(roomBlurbsLegacyRoomBlurbName: string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match(roomBlurbsLegacyRoomBlurbName).legacy_room;
   }
 
   /**
-   * Parse the blurb_id from RoomIdBlurbsLegacyRoomIdBlurbId resource.
+   * Parse the blurb from RoomBlurbsLegacyRoomBlurb resource.
    *
-   * @param {string} roomIdBlurbsLegacyRoomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurbs_legacy_room_id_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} roomBlurbsLegacyRoomBlurbName
+   *   A fully-qualified path representing room_blurbs_legacy_room_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(roomIdBlurbsLegacyRoomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match(roomIdBlurbsLegacyRoomIdBlurbIdName).blurb_id;
+  matchBlurbFromRoomBlurbsLegacyRoomBlurbName(roomBlurbsLegacyRoomBlurbName: string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match(roomBlurbsLegacyRoomBlurbName).blurb;
+  }
+
+  /**
+   * Return a fully-qualified sequence resource name string.
+   *
+   * @param {string} sequence
+   * @returns {string} Resource name string.
+   */
+  sequencePath(sequence:string) {
+    return this.pathTemplates.sequencePathTemplate.render({
+      sequence: sequence,
+    });
+  }
+
+  /**
+   * Parse the sequence from Sequence resource.
+   *
+   * @param {string} sequenceName
+   *   A fully-qualified path representing Sequence resource.
+   * @returns {string} A string representing the sequence.
+   */
+  matchSequenceFromSequenceName(sequenceName: string) {
+    return this.pathTemplates.sequencePathTemplate.match(sequenceName).sequence;
+  }
+
+  /**
+   * Return a fully-qualified sequenceReport resource name string.
+   *
+   * @param {string} sequence
+   * @returns {string} Resource name string.
+   */
+  sequenceReportPath(sequence:string) {
+    return this.pathTemplates.sequenceReportPathTemplate.render({
+      sequence: sequence,
+    });
+  }
+
+  /**
+   * Parse the sequence from SequenceReport resource.
+   *
+   * @param {string} sequenceReportName
+   *   A fully-qualified path representing SequenceReport resource.
+   * @returns {string} A string representing the sequence.
+   */
+  matchSequenceFromSequenceReportName(sequenceReportName: string) {
+    return this.pathTemplates.sequenceReportPathTemplate.match(sequenceReportName).sequence;
   }
 
   /**
@@ -1744,109 +1796,109 @@ export class TestingClient {
   /**
    * Return a fully-qualified user resource name string.
    *
-   * @param {string} user_id
+   * @param {string} user
    * @returns {string} Resource name string.
    */
-  userPath(userId:string) {
+  userPath(user:string) {
     return this.pathTemplates.userPathTemplate.render({
-      user_id: userId,
+      user: user,
     });
   }
 
   /**
-   * Parse the user_id from User resource.
+   * Parse the user from User resource.
    *
    * @param {string} userName
    *   A fully-qualified path representing User resource.
-   * @returns {string} A string representing the user_id.
+   * @returns {string} A string representing the user.
    */
-  matchUserIdFromUserName(userName: string) {
-    return this.pathTemplates.userPathTemplate.match(userName).user_id;
+  matchUserFromUserName(userName: string) {
+    return this.pathTemplates.userPathTemplate.match(userName).user;
   }
 
   /**
-   * Return a fully-qualified userIdProfileBlurbId resource name string.
+   * Return a fully-qualified userProfileBlurb resource name string.
    *
-   * @param {string} user_id
-   * @param {string} blurb_id
+   * @param {string} user
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  userIdProfileBlurbIdPath(userId:string,blurbId:string) {
-    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.render({
-      user_id: userId,
-      blurb_id: blurbId,
+  userProfileBlurbPath(user:string,blurb:string) {
+    return this.pathTemplates.userProfileBlurbPathTemplate.render({
+      user: user,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the user_id from UserIdProfileBlurbId resource.
+   * Parse the user from UserProfileBlurb resource.
    *
-   * @param {string} userIdProfileBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurb_id resource.
-   * @returns {string} A string representing the user_id.
+   * @param {string} userProfileBlurbName
+   *   A fully-qualified path representing user_profile_blurb resource.
+   * @returns {string} A string representing the user.
    */
-  matchUserIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).user_id;
+  matchUserFromUserProfileBlurbName(userProfileBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbPathTemplate.match(userProfileBlurbName).user;
   }
 
   /**
-   * Parse the blurb_id from UserIdProfileBlurbId resource.
+   * Parse the blurb from UserProfileBlurb resource.
    *
-   * @param {string} userIdProfileBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} userProfileBlurbName
+   *   A fully-qualified path representing user_profile_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).blurb_id;
+  matchBlurbFromUserProfileBlurbName(userProfileBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbPathTemplate.match(userProfileBlurbName).blurb;
   }
 
   /**
-   * Return a fully-qualified userIdProfileBlurbsLegacyUserIdBlurbId resource name string.
+   * Return a fully-qualified userProfileBlurbsLegacyUserBlurb resource name string.
    *
-   * @param {string} user_id
-   * @param {string} legacy_user_id
-   * @param {string} blurb_id
+   * @param {string} user
+   * @param {string} legacy_user
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  userIdProfileBlurbsLegacyUserIdBlurbIdPath(userId:string,legacyUserId:string,blurbId:string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.render({
-      user_id: userId,
-      legacy_user_id: legacyUserId,
-      blurb_id: blurbId,
+  userProfileBlurbsLegacyUserBlurbPath(user:string,legacyUser:string,blurb:string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.render({
+      user: user,
+      legacy_user: legacyUser,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the user_id from UserIdProfileBlurbsLegacyUserIdBlurbId resource.
+   * Parse the user from UserProfileBlurbsLegacyUserBlurb resource.
    *
-   * @param {string} userIdProfileBlurbsLegacyUserIdBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurbs_legacy_user_id_blurb_id resource.
-   * @returns {string} A string representing the user_id.
+   * @param {string} userProfileBlurbsLegacyUserBlurbName
+   *   A fully-qualified path representing user_profile_blurbs_legacy_user_blurb resource.
+   * @returns {string} A string representing the user.
    */
-  matchUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(userIdProfileBlurbsLegacyUserIdBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match(userIdProfileBlurbsLegacyUserIdBlurbIdName).user_id;
+  matchUserFromUserProfileBlurbsLegacyUserBlurbName(userProfileBlurbsLegacyUserBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match(userProfileBlurbsLegacyUserBlurbName).user;
   }
 
   /**
-   * Parse the legacy_user_id from UserIdProfileBlurbsLegacyUserIdBlurbId resource.
+   * Parse the legacy_user from UserProfileBlurbsLegacyUserBlurb resource.
    *
-   * @param {string} userIdProfileBlurbsLegacyUserIdBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurbs_legacy_user_id_blurb_id resource.
-   * @returns {string} A string representing the legacy_user_id.
+   * @param {string} userProfileBlurbsLegacyUserBlurbName
+   *   A fully-qualified path representing user_profile_blurbs_legacy_user_blurb resource.
+   * @returns {string} A string representing the legacy_user.
    */
-  matchLegacyUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(userIdProfileBlurbsLegacyUserIdBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match(userIdProfileBlurbsLegacyUserIdBlurbIdName).legacy_user_id;
+  matchLegacyUserFromUserProfileBlurbsLegacyUserBlurbName(userProfileBlurbsLegacyUserBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match(userProfileBlurbsLegacyUserBlurbName).legacy_user;
   }
 
   /**
-   * Parse the blurb_id from UserIdProfileBlurbsLegacyUserIdBlurbId resource.
+   * Parse the blurb from UserProfileBlurbsLegacyUserBlurb resource.
    *
-   * @param {string} userIdProfileBlurbsLegacyUserIdBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurbs_legacy_user_id_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} userProfileBlurbsLegacyUserBlurbName
+   *   A fully-qualified path representing user_profile_blurbs_legacy_user_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(userIdProfileBlurbsLegacyUserIdBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match(userIdProfileBlurbsLegacyUserIdBlurbIdName).blurb_id;
+  matchBlurbFromUserProfileBlurbsLegacyUserBlurbName(userProfileBlurbsLegacyUserBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match(userProfileBlurbsLegacyUserBlurbName).blurb;
   }
 
   /**

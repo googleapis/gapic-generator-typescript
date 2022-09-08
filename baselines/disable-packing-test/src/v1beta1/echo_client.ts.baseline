@@ -35,7 +35,9 @@ const version = require('../../../package.json').version;
  *  side streaming, client side streaming, and bidirectional streaming. This
  *  service also exposes methods that explicitly implement server delay, and
  *  paginated calls. Set the 'showcase-trailer' metadata key on any method
- *  to have the values echoed in the response trailers.
+ *  to have the values echoed in the response trailers. Set the
+ *  'x-goog-request-params' metadata key on any method to have the values
+ *  echoed in the response headers.
  * @class
  * @memberof v1beta1
  */
@@ -172,13 +174,19 @@ export class EchoClient {
         'sessions/{session}/tests/{test}/blueprints/{blueprint}'
       ),
       roomPathTemplate: new this._gaxModule.PathTemplate(
-        'rooms/{room_id}'
+        'rooms/{room}'
       ),
-      roomIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'rooms/{room_id}/blurbs/{blurb_id}'
+      roomBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'rooms/{room}/blurbs/{blurb}'
       ),
-      roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'rooms/{room_id}/blurbs/legacy/{legacy_room_id}.{blurb_id}'
+      roomBlurbsLegacyRoomBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'rooms/{room}/blurbs/legacy/{legacy_room}.{blurb}'
+      ),
+      sequencePathTemplate: new this._gaxModule.PathTemplate(
+        'sequences/{sequence}'
+      ),
+      sequenceReportPathTemplate: new this._gaxModule.PathTemplate(
+        'sequences/{sequence}/sequenceReport'
       ),
       sessionPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}'
@@ -187,13 +195,13 @@ export class EchoClient {
         'sessions/{session}/tests/{test}'
       ),
       userPathTemplate: new this._gaxModule.PathTemplate(
-        'users/{user_id}'
+        'users/{user}'
       ),
-      userIdProfileBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'user/{user_id}/profile/blurbs/{blurb_id}'
+      userProfileBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'users/{user}/profile/blurbs/{blurb}'
       ),
-      userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'user/{user_id}/profile/blurbs/legacy/{legacy_user_id}~{blurb_id}'
+      userProfileBlurbsLegacyUserBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'users/{user}/profile/blurbs/legacy/{legacy_user}~{blurb}'
       ),
     };
 
@@ -281,7 +289,7 @@ export class EchoClient {
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
     const echoStubMethods =
-        ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'wait', 'block'];
+        ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'pagedExpandLegacy', 'wait', 'block'];
     for (const methodName of echoStubMethods) {
       const callPromise = this.echoStub.then(
         stub => (...args: Array<{}>) => {
@@ -379,6 +387,12 @@ export class EchoClient {
  *   The content to be echoed by the server.
  * @param {google.rpc.Status} request.error
  *   The error to be thrown by the server.
+ * @param {google.showcase.v1beta1.Severity} request.severity
+ *   The severity to be echoed by the server.
+ * @param {string} request.header
+ *   Optional. This field can be set to test the routing annotation on the Echo method.
+ * @param {string} request.otherHeader
+ *   Optional. This field can be set to test the routing annotation on the Echo method.
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
@@ -435,8 +449,168 @@ export class EchoClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
+    let routingParameter = {};
+    {
+      const fieldValue = request.header;
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('(?<header>.*)'));
+        if (match) {
+          const parameterValue = match.groups?.['header'] ?? fieldValue;
+          Object.assign(routingParameter, { header: parameterValue });
+        }
+      }
+    }
+    {
+      const fieldValue = request.header;
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('(?<routing_id>(?:.*)?)'));
+        if (match) {
+          const parameterValue = match.groups?.['routing_id'] ?? fieldValue;
+          Object.assign(routingParameter, { routing_id: parameterValue });
+        }
+      }
+    }
+    {
+      const fieldValue = request.header;
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('(?<table_name>regions/[^/]+/zones/[^/]+(?:/.*)?)'));
+        if (match) {
+          const parameterValue = match.groups?.['table_name'] ?? fieldValue;
+          Object.assign(routingParameter, { table_name: parameterValue });
+        }
+      }
+    }
+    {
+      const fieldValue = request.header;
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('(?<super_id>projects/[^/]+)(?:/.*)?'));
+        if (match) {
+          const parameterValue = match.groups?.['super_id'] ?? fieldValue;
+          Object.assign(routingParameter, { super_id: parameterValue });
+        }
+      }
+    }
+    {
+      const fieldValue = request.header;
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('(?<table_name>projects/[^/]+/instances/[^/]+(?:/.*)?)'));
+        if (match) {
+          const parameterValue = match.groups?.['table_name'] ?? fieldValue;
+          Object.assign(routingParameter, { table_name: parameterValue });
+        }
+      }
+    }
+    {
+      const fieldValue = request.header;
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('projects/[^/]+/(?<instance_id>instances/[^/]+)(?:/.*)?'));
+        if (match) {
+          const parameterValue = match.groups?.['instance_id'] ?? fieldValue;
+          Object.assign(routingParameter, { instance_id: parameterValue });
+        }
+      }
+    }
+    {
+      const fieldValue = request.otherHeader;
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('(?<baz>(?:.*)?)'));
+        if (match) {
+          const parameterValue = match.groups?.['baz'] ?? fieldValue;
+          Object.assign(routingParameter, { baz: parameterValue });
+        }
+      }
+    }
+    {
+      const fieldValue = request.otherHeader;
+      if (fieldValue !== undefined && fieldValue !== null) {
+        const match = fieldValue.toString().match(RegExp('(?<qux>projects/[^/]+)(?:/.*)?'));
+        if (match) {
+          const parameterValue = match.groups?.['qux'] ?? fieldValue;
+          Object.assign(routingParameter, { qux: parameterValue });
+        }
+      }
+    }
+    options.otherArgs.headers[
+      'x-goog-request-params'
+    ] = this._gaxModule.routingHeader.fromParams(
+      routingParameter
+    );
     this.initialize();
     return this.innerApiCalls.echo(request, options, callback);
+  }
+/**
+ * This is similar to the PagedExpand except that it uses
+ * max_results instead of page_size, as some legacy APIs still
+ * do. New APIs should NOT use this pattern.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.content
+ *   The string to expand.
+ * @param {number} request.maxResults
+ *   The number of words to returned in each page.
+ *   (-- aip.dev/not-precedent: This is a legacy, non-standard pattern that
+ *       violates aip.dev/158. Ordinarily, this should be page_size. --)
+ * @param {string} request.pageToken
+ *   The position of the page to be returned.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing [PagedExpandResponse]{@link google.showcase.v1beta1.PagedExpandResponse}.
+ *   Please see the
+ *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1beta1/echo.paged_expand_legacy.js</caption>
+ * region_tag:localhost_v1beta1_generated_Echo_PagedExpandLegacy_async
+ */
+  pagedExpandLegacy(
+      request?: protos.google.showcase.v1beta1.IPagedExpandLegacyRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.showcase.v1beta1.IPagedExpandResponse,
+        protos.google.showcase.v1beta1.IPagedExpandLegacyRequest|undefined, {}|undefined
+      ]>;
+  pagedExpandLegacy(
+      request: protos.google.showcase.v1beta1.IPagedExpandLegacyRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IPagedExpandResponse,
+          protos.google.showcase.v1beta1.IPagedExpandLegacyRequest|null|undefined,
+          {}|null|undefined>): void;
+  pagedExpandLegacy(
+      request: protos.google.showcase.v1beta1.IPagedExpandLegacyRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IPagedExpandResponse,
+          protos.google.showcase.v1beta1.IPagedExpandLegacyRequest|null|undefined,
+          {}|null|undefined>): void;
+  pagedExpandLegacy(
+      request?: protos.google.showcase.v1beta1.IPagedExpandLegacyRequest,
+      optionsOrCallback?: CallOptions|Callback<
+          protos.google.showcase.v1beta1.IPagedExpandResponse,
+          protos.google.showcase.v1beta1.IPagedExpandLegacyRequest|null|undefined,
+          {}|null|undefined>,
+      callback?: Callback<
+          protos.google.showcase.v1beta1.IPagedExpandResponse,
+          protos.google.showcase.v1beta1.IPagedExpandLegacyRequest|null|undefined,
+          {}|null|undefined>):
+      Promise<[
+        protos.google.showcase.v1beta1.IPagedExpandResponse,
+        protos.google.showcase.v1beta1.IPagedExpandLegacyRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    this.initialize();
+    return this.innerApiCalls.pagedExpandLegacy(request, options, callback);
   }
 /**
  * This method will block (wait) for the requested amount of time
@@ -513,8 +687,8 @@ export class EchoClient {
   }
 
 /**
- * This method split the given content into words and will pass each word back
- * through the stream. This method showcases server-side streaming rpcs.
+ * This method splits the given content into words and will pass each word back
+ * through the stream. This method showcases server-side streaming RPCs.
  *
  * @param {Object} request
  *   The request object that will be sent.
@@ -547,7 +721,7 @@ export class EchoClient {
 /**
  * This method will collect the words given to it. When the stream is closed
  * by the client, this method will return the a concatenation of the strings
- * passed to it. This method showcases client-side streaming rpcs.
+ * passed to it. This method showcases client-side streaming RPCs.
  *
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -592,9 +766,9 @@ export class EchoClient {
   }
 
 /**
- * This method, upon receiving a request on the stream, the same content will
- * be passed  back on the stream. This method showcases bidirectional
- * streaming rpcs.
+ * This method, upon receiving a request on the stream, will pass the same
+ * content back on the stream. This method showcases bidirectional
+ * streaming RPCs.
  *
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
@@ -616,8 +790,8 @@ export class EchoClient {
   }
 
 /**
- * This method will wait the requested amount of and then return.
- * This method showcases how a client handles a request timing out.
+ * This method will wait for the requested amount of time and then return.
+ * This method showcases how a client handles a request timeout.
  *
  * @param {Object} request
  *   The request object that will be sent.
@@ -718,7 +892,7 @@ export class EchoClient {
  * @param {string} request.content
  *   The string to expand.
  * @param {number} request.pageSize
- *   The amount of words to returned in each page.
+ *   The number of words to returned in each page.
  * @param {string} request.pageToken
  *   The position of the page to be returned.
  * @param {object} [options]
@@ -793,7 +967,7 @@ export class EchoClient {
  * @param {string} request.content
  *   The string to expand.
  * @param {number} request.pageSize
- *   The amount of words to returned in each page.
+ *   The number of words to returned in each page.
  * @param {string} request.pageToken
  *   The position of the page to be returned.
  * @param {object} [options]
@@ -835,7 +1009,7 @@ export class EchoClient {
  * @param {string} request.content
  *   The string to expand.
  * @param {number} request.pageSize
- *   The amount of words to returned in each page.
+ *   The number of words to returned in each page.
  * @param {string} request.pageToken
  *   The position of the page to be returned.
  * @param {object} [options]
@@ -924,109 +1098,155 @@ export class EchoClient {
   /**
    * Return a fully-qualified room resource name string.
    *
-   * @param {string} room_id
+   * @param {string} room
    * @returns {string} Resource name string.
    */
-  roomPath(roomId:string) {
+  roomPath(room:string) {
     return this.pathTemplates.roomPathTemplate.render({
-      room_id: roomId,
+      room: room,
     });
   }
 
   /**
-   * Parse the room_id from Room resource.
+   * Parse the room from Room resource.
    *
    * @param {string} roomName
    *   A fully-qualified path representing Room resource.
-   * @returns {string} A string representing the room_id.
+   * @returns {string} A string representing the room.
    */
-  matchRoomIdFromRoomName(roomName: string) {
-    return this.pathTemplates.roomPathTemplate.match(roomName).room_id;
+  matchRoomFromRoomName(roomName: string) {
+    return this.pathTemplates.roomPathTemplate.match(roomName).room;
   }
 
   /**
-   * Return a fully-qualified roomIdBlurbId resource name string.
+   * Return a fully-qualified roomBlurb resource name string.
    *
-   * @param {string} room_id
-   * @param {string} blurb_id
+   * @param {string} room
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  roomIdBlurbIdPath(roomId:string,blurbId:string) {
-    return this.pathTemplates.roomIdBlurbIdPathTemplate.render({
-      room_id: roomId,
-      blurb_id: blurbId,
+  roomBlurbPath(room:string,blurb:string) {
+    return this.pathTemplates.roomBlurbPathTemplate.render({
+      room: room,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the room_id from RoomIdBlurbId resource.
+   * Parse the room from RoomBlurb resource.
    *
-   * @param {string} roomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurb_id resource.
-   * @returns {string} A string representing the room_id.
+   * @param {string} roomBlurbName
+   *   A fully-qualified path representing room_blurb resource.
+   * @returns {string} A string representing the room.
    */
-  matchRoomIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).room_id;
+  matchRoomFromRoomBlurbName(roomBlurbName: string) {
+    return this.pathTemplates.roomBlurbPathTemplate.match(roomBlurbName).room;
   }
 
   /**
-   * Parse the blurb_id from RoomIdBlurbId resource.
+   * Parse the blurb from RoomBlurb resource.
    *
-   * @param {string} roomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} roomBlurbName
+   *   A fully-qualified path representing room_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).blurb_id;
+  matchBlurbFromRoomBlurbName(roomBlurbName: string) {
+    return this.pathTemplates.roomBlurbPathTemplate.match(roomBlurbName).blurb;
   }
 
   /**
-   * Return a fully-qualified roomIdBlurbsLegacyRoomIdBlurbId resource name string.
+   * Return a fully-qualified roomBlurbsLegacyRoomBlurb resource name string.
    *
-   * @param {string} room_id
-   * @param {string} legacy_room_id
-   * @param {string} blurb_id
+   * @param {string} room
+   * @param {string} legacy_room
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  roomIdBlurbsLegacyRoomIdBlurbIdPath(roomId:string,legacyRoomId:string,blurbId:string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.render({
-      room_id: roomId,
-      legacy_room_id: legacyRoomId,
-      blurb_id: blurbId,
+  roomBlurbsLegacyRoomBlurbPath(room:string,legacyRoom:string,blurb:string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.render({
+      room: room,
+      legacy_room: legacyRoom,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the room_id from RoomIdBlurbsLegacyRoomIdBlurbId resource.
+   * Parse the room from RoomBlurbsLegacyRoomBlurb resource.
    *
-   * @param {string} roomIdBlurbsLegacyRoomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurbs_legacy_room_id_blurb_id resource.
-   * @returns {string} A string representing the room_id.
+   * @param {string} roomBlurbsLegacyRoomBlurbName
+   *   A fully-qualified path representing room_blurbs_legacy_room_blurb resource.
+   * @returns {string} A string representing the room.
    */
-  matchRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(roomIdBlurbsLegacyRoomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match(roomIdBlurbsLegacyRoomIdBlurbIdName).room_id;
+  matchRoomFromRoomBlurbsLegacyRoomBlurbName(roomBlurbsLegacyRoomBlurbName: string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match(roomBlurbsLegacyRoomBlurbName).room;
   }
 
   /**
-   * Parse the legacy_room_id from RoomIdBlurbsLegacyRoomIdBlurbId resource.
+   * Parse the legacy_room from RoomBlurbsLegacyRoomBlurb resource.
    *
-   * @param {string} roomIdBlurbsLegacyRoomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurbs_legacy_room_id_blurb_id resource.
-   * @returns {string} A string representing the legacy_room_id.
+   * @param {string} roomBlurbsLegacyRoomBlurbName
+   *   A fully-qualified path representing room_blurbs_legacy_room_blurb resource.
+   * @returns {string} A string representing the legacy_room.
    */
-  matchLegacyRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(roomIdBlurbsLegacyRoomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match(roomIdBlurbsLegacyRoomIdBlurbIdName).legacy_room_id;
+  matchLegacyRoomFromRoomBlurbsLegacyRoomBlurbName(roomBlurbsLegacyRoomBlurbName: string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match(roomBlurbsLegacyRoomBlurbName).legacy_room;
   }
 
   /**
-   * Parse the blurb_id from RoomIdBlurbsLegacyRoomIdBlurbId resource.
+   * Parse the blurb from RoomBlurbsLegacyRoomBlurb resource.
    *
-   * @param {string} roomIdBlurbsLegacyRoomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurbs_legacy_room_id_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} roomBlurbsLegacyRoomBlurbName
+   *   A fully-qualified path representing room_blurbs_legacy_room_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(roomIdBlurbsLegacyRoomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match(roomIdBlurbsLegacyRoomIdBlurbIdName).blurb_id;
+  matchBlurbFromRoomBlurbsLegacyRoomBlurbName(roomBlurbsLegacyRoomBlurbName: string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match(roomBlurbsLegacyRoomBlurbName).blurb;
+  }
+
+  /**
+   * Return a fully-qualified sequence resource name string.
+   *
+   * @param {string} sequence
+   * @returns {string} Resource name string.
+   */
+  sequencePath(sequence:string) {
+    return this.pathTemplates.sequencePathTemplate.render({
+      sequence: sequence,
+    });
+  }
+
+  /**
+   * Parse the sequence from Sequence resource.
+   *
+   * @param {string} sequenceName
+   *   A fully-qualified path representing Sequence resource.
+   * @returns {string} A string representing the sequence.
+   */
+  matchSequenceFromSequenceName(sequenceName: string) {
+    return this.pathTemplates.sequencePathTemplate.match(sequenceName).sequence;
+  }
+
+  /**
+   * Return a fully-qualified sequenceReport resource name string.
+   *
+   * @param {string} sequence
+   * @returns {string} Resource name string.
+   */
+  sequenceReportPath(sequence:string) {
+    return this.pathTemplates.sequenceReportPathTemplate.render({
+      sequence: sequence,
+    });
+  }
+
+  /**
+   * Parse the sequence from SequenceReport resource.
+   *
+   * @param {string} sequenceReportName
+   *   A fully-qualified path representing SequenceReport resource.
+   * @returns {string} A string representing the sequence.
+   */
+  matchSequenceFromSequenceReportName(sequenceReportName: string) {
+    return this.pathTemplates.sequenceReportPathTemplate.match(sequenceReportName).sequence;
   }
 
   /**
@@ -1091,109 +1311,109 @@ export class EchoClient {
   /**
    * Return a fully-qualified user resource name string.
    *
-   * @param {string} user_id
+   * @param {string} user
    * @returns {string} Resource name string.
    */
-  userPath(userId:string) {
+  userPath(user:string) {
     return this.pathTemplates.userPathTemplate.render({
-      user_id: userId,
+      user: user,
     });
   }
 
   /**
-   * Parse the user_id from User resource.
+   * Parse the user from User resource.
    *
    * @param {string} userName
    *   A fully-qualified path representing User resource.
-   * @returns {string} A string representing the user_id.
+   * @returns {string} A string representing the user.
    */
-  matchUserIdFromUserName(userName: string) {
-    return this.pathTemplates.userPathTemplate.match(userName).user_id;
+  matchUserFromUserName(userName: string) {
+    return this.pathTemplates.userPathTemplate.match(userName).user;
   }
 
   /**
-   * Return a fully-qualified userIdProfileBlurbId resource name string.
+   * Return a fully-qualified userProfileBlurb resource name string.
    *
-   * @param {string} user_id
-   * @param {string} blurb_id
+   * @param {string} user
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  userIdProfileBlurbIdPath(userId:string,blurbId:string) {
-    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.render({
-      user_id: userId,
-      blurb_id: blurbId,
+  userProfileBlurbPath(user:string,blurb:string) {
+    return this.pathTemplates.userProfileBlurbPathTemplate.render({
+      user: user,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the user_id from UserIdProfileBlurbId resource.
+   * Parse the user from UserProfileBlurb resource.
    *
-   * @param {string} userIdProfileBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurb_id resource.
-   * @returns {string} A string representing the user_id.
+   * @param {string} userProfileBlurbName
+   *   A fully-qualified path representing user_profile_blurb resource.
+   * @returns {string} A string representing the user.
    */
-  matchUserIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).user_id;
+  matchUserFromUserProfileBlurbName(userProfileBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbPathTemplate.match(userProfileBlurbName).user;
   }
 
   /**
-   * Parse the blurb_id from UserIdProfileBlurbId resource.
+   * Parse the blurb from UserProfileBlurb resource.
    *
-   * @param {string} userIdProfileBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} userProfileBlurbName
+   *   A fully-qualified path representing user_profile_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).blurb_id;
+  matchBlurbFromUserProfileBlurbName(userProfileBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbPathTemplate.match(userProfileBlurbName).blurb;
   }
 
   /**
-   * Return a fully-qualified userIdProfileBlurbsLegacyUserIdBlurbId resource name string.
+   * Return a fully-qualified userProfileBlurbsLegacyUserBlurb resource name string.
    *
-   * @param {string} user_id
-   * @param {string} legacy_user_id
-   * @param {string} blurb_id
+   * @param {string} user
+   * @param {string} legacy_user
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  userIdProfileBlurbsLegacyUserIdBlurbIdPath(userId:string,legacyUserId:string,blurbId:string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.render({
-      user_id: userId,
-      legacy_user_id: legacyUserId,
-      blurb_id: blurbId,
+  userProfileBlurbsLegacyUserBlurbPath(user:string,legacyUser:string,blurb:string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.render({
+      user: user,
+      legacy_user: legacyUser,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the user_id from UserIdProfileBlurbsLegacyUserIdBlurbId resource.
+   * Parse the user from UserProfileBlurbsLegacyUserBlurb resource.
    *
-   * @param {string} userIdProfileBlurbsLegacyUserIdBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurbs_legacy_user_id_blurb_id resource.
-   * @returns {string} A string representing the user_id.
+   * @param {string} userProfileBlurbsLegacyUserBlurbName
+   *   A fully-qualified path representing user_profile_blurbs_legacy_user_blurb resource.
+   * @returns {string} A string representing the user.
    */
-  matchUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(userIdProfileBlurbsLegacyUserIdBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match(userIdProfileBlurbsLegacyUserIdBlurbIdName).user_id;
+  matchUserFromUserProfileBlurbsLegacyUserBlurbName(userProfileBlurbsLegacyUserBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match(userProfileBlurbsLegacyUserBlurbName).user;
   }
 
   /**
-   * Parse the legacy_user_id from UserIdProfileBlurbsLegacyUserIdBlurbId resource.
+   * Parse the legacy_user from UserProfileBlurbsLegacyUserBlurb resource.
    *
-   * @param {string} userIdProfileBlurbsLegacyUserIdBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurbs_legacy_user_id_blurb_id resource.
-   * @returns {string} A string representing the legacy_user_id.
+   * @param {string} userProfileBlurbsLegacyUserBlurbName
+   *   A fully-qualified path representing user_profile_blurbs_legacy_user_blurb resource.
+   * @returns {string} A string representing the legacy_user.
    */
-  matchLegacyUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(userIdProfileBlurbsLegacyUserIdBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match(userIdProfileBlurbsLegacyUserIdBlurbIdName).legacy_user_id;
+  matchLegacyUserFromUserProfileBlurbsLegacyUserBlurbName(userProfileBlurbsLegacyUserBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match(userProfileBlurbsLegacyUserBlurbName).legacy_user;
   }
 
   /**
-   * Parse the blurb_id from UserIdProfileBlurbsLegacyUserIdBlurbId resource.
+   * Parse the blurb from UserProfileBlurbsLegacyUserBlurb resource.
    *
-   * @param {string} userIdProfileBlurbsLegacyUserIdBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurbs_legacy_user_id_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} userProfileBlurbsLegacyUserBlurbName
+   *   A fully-qualified path representing user_profile_blurbs_legacy_user_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(userIdProfileBlurbsLegacyUserIdBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match(userIdProfileBlurbsLegacyUserIdBlurbIdName).blurb_id;
+  matchBlurbFromUserProfileBlurbsLegacyUserBlurbName(userProfileBlurbsLegacyUserBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match(userProfileBlurbsLegacyUserBlurbName).blurb;
   }
 
   /**

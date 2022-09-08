@@ -27,6 +27,19 @@ import {PassThrough} from 'stream';
 
 import {protobuf, operationsProtos, IamProtos, LocationProtos} from 'google-gax';
 
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
+
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -189,14 +202,15 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateUserRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.createUser = stubSimpleCall(expectedResponse);
             const [response] = await client.createUser(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes createUser without error using callback', async () => {
@@ -205,9 +219,12 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateUserRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.createUser = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createUser(
@@ -222,8 +239,6 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes createUser with error', async () => {
@@ -232,13 +247,12 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateUserRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.createUser = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createUser(request), expectedError);
-            assert((client.innerApiCalls.createUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes createUser with closed client', async () => {
@@ -247,7 +261,9 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateUserRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.createUser(request), expectedError);
@@ -261,22 +277,25 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.getUser = stubSimpleCall(expectedResponse);
             const [response] = await client.getUser(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getUser without error using callback', async () => {
@@ -285,17 +304,16 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.getUser = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getUser(
@@ -310,8 +328,12 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getUser with error', async () => {
@@ -320,21 +342,22 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getUser = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getUser(request), expectedError);
-            assert((client.innerApiCalls.getUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getUser with closed client', async () => {
@@ -343,8 +366,12 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.getUser(request), expectedError);
@@ -358,23 +385,26 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
-            const expectedHeaderRequestParams = "user.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateUserRequest()
+            );
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
+            const expectedHeaderRequestParams = `user.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.updateUser = stubSimpleCall(expectedResponse);
             const [response] = await client.updateUser(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateUser without error using callback', async () => {
@@ -383,18 +413,17 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
-            const expectedHeaderRequestParams = "user.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateUserRequest()
+            );
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
+            const expectedHeaderRequestParams = `user.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.updateUser = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.updateUser(
@@ -409,8 +438,12 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateUser with error', async () => {
@@ -419,22 +452,23 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
-            const expectedHeaderRequestParams = "user.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateUserRequest()
+            );
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
+            const expectedHeaderRequestParams = `user.name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateUser = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateUser(request), expectedError);
-            assert((client.innerApiCalls.updateUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateUser with closed client', async () => {
@@ -443,9 +477,13 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateUserRequest()
+            );
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.updateUser(request), expectedError);
@@ -459,22 +497,25 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteUser = stubSimpleCall(expectedResponse);
             const [response] = await client.deleteUser(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteUser without error using callback', async () => {
@@ -483,17 +524,16 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteUser = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.deleteUser(
@@ -508,8 +548,12 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteUser with error', async () => {
@@ -518,21 +562,22 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteUser = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteUser(request), expectedError);
-            assert((client.innerApiCalls.deleteUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteUser with closed client', async () => {
@@ -541,8 +586,12 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.deleteUser(request), expectedError);
@@ -556,9 +605,9 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
@@ -566,8 +615,6 @@ describe('v1beta1.IdentityClient', () => {
             client.innerApiCalls.listUsers = stubSimpleCall(expectedResponse);
             const [response] = await client.listUsers(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listUsers as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes listUsers without error using callback', async () => {
@@ -576,9 +623,9 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
@@ -597,8 +644,6 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listUsers as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes listUsers with error', async () => {
@@ -607,13 +652,12 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.listUsers = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listUsers(request), expectedError);
-            assert((client.innerApiCalls.listUsers as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes listUsersStream without error', async () => {
@@ -622,7 +666,9 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
@@ -654,7 +700,9 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
             const expectedError = new Error('expected');
             client.descriptors.page.listUsers.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listUsersStream(request);
@@ -681,7 +729,9 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
@@ -705,7 +755,10 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());const expectedError = new Error('expected');
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
+            const expectedError = new Error('expected');
             client.descriptors.page.listUsers.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listUsersAsync(request);
             await assert.rejects(async () => {
@@ -727,7 +780,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -739,7 +792,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.getIamPolicy = stubSimpleCall(expectedResponse);
             const response = await client.getIamPolicy(request, expectedOptions);
@@ -754,7 +807,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -766,7 +819,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.getIamPolicy = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -793,7 +846,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -819,7 +872,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -831,7 +884,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.setIamPolicy = stubSimpleCall(expectedResponse);
             const response = await client.setIamPolicy(request, expectedOptions);
@@ -846,7 +899,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -858,7 +911,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.setIamPolicy = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -885,7 +938,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -911,7 +964,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -923,7 +976,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
             );
             client.iamClient.testIamPermissions = stubSimpleCall(expectedResponse);
             const response = await client.testIamPermissions(request, expectedOptions);
@@ -938,7 +991,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -950,7 +1003,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
             );
             client.iamClient.testIamPermissions = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -977,7 +1030,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1003,7 +1056,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1015,7 +1068,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.getLocation = stubSimpleCall(expectedResponse);
             const response = await client.getLocation(request, expectedOptions);
@@ -1030,7 +1083,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1042,7 +1095,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.getLocation = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -1072,7 +1125,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1123,10 +1176,11 @@ describe('v1beta1.IdentityClient', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
         it('uses async iteration with listLocations with error', async () => {
@@ -1136,7 +1190,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.ListLocationsRequest()
+              new LocationProtos.google.cloud.location.ListLocationsRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1152,10 +1206,11 @@ describe('v1beta1.IdentityClient', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });
@@ -1167,7 +1222,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new operationsProtos.google.longrunning.Operation()
@@ -1185,7 +1240,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new operationsProtos.google.longrunning.Operation()
@@ -1217,7 +1272,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
@@ -1234,7 +1289,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1252,7 +1307,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1284,7 +1339,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.cancelOperation = stubSimpleCall(undefined, expectedError);
@@ -1301,7 +1356,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1319,7 +1374,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1351,7 +1406,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.deleteOperation = stubSimpleCall(undefined, expectedError);
@@ -1367,7 +1422,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.ListOperationsRequest()
+              new operationsProtos.google.longrunning.ListOperationsRequest()
             );
             const expectedResponse = [
                 generateSampleMessage(
@@ -1398,7 +1453,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.ListOperationsRequest()
+              new operationsProtos.google.longrunning.ListOperationsRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.descriptor.listOperations.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
@@ -1466,7 +1521,7 @@ describe('v1beta1.IdentityClient', () => {
         describe('room', () => {
             const fakePath = "/rendered/path/room";
             const expectedParameters = {
-                room_id: "roomIdValue",
+                room: "roomValue",
             };
             const client = new identityModule.v1beta1.IdentityClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
@@ -1479,100 +1534,160 @@ describe('v1beta1.IdentityClient', () => {
                 sinon.stub().returns(expectedParameters);
 
             it('roomPath', () => {
-                const result = client.roomPath("roomIdValue");
+                const result = client.roomPath("roomValue");
                 assert.strictEqual(result, fakePath);
                 assert((client.pathTemplates.roomPathTemplate.render as SinonStub)
                     .getCall(-1).calledWith(expectedParameters));
             });
 
-            it('matchRoomIdFromRoomName', () => {
-                const result = client.matchRoomIdFromRoomName(fakePath);
-                assert.strictEqual(result, "roomIdValue");
+            it('matchRoomFromRoomName', () => {
+                const result = client.matchRoomFromRoomName(fakePath);
+                assert.strictEqual(result, "roomValue");
                 assert((client.pathTemplates.roomPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
         });
 
-        describe('roomIdBlurbId', () => {
-            const fakePath = "/rendered/path/roomIdBlurbId";
+        describe('roomBlurb', () => {
+            const fakePath = "/rendered/path/roomBlurb";
             const expectedParameters = {
-                room_id: "roomIdValue",
-                blurb_id: "blurbIdValue",
+                room: "roomValue",
+                blurb: "blurbValue",
             };
             const client = new identityModule.v1beta1.IdentityClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
             client.initialize();
-            client.pathTemplates.roomIdBlurbIdPathTemplate.render =
+            client.pathTemplates.roomBlurbPathTemplate.render =
                 sinon.stub().returns(fakePath);
-            client.pathTemplates.roomIdBlurbIdPathTemplate.match =
+            client.pathTemplates.roomBlurbPathTemplate.match =
                 sinon.stub().returns(expectedParameters);
 
-            it('roomIdBlurbIdPath', () => {
-                const result = client.roomIdBlurbIdPath("roomIdValue", "blurbIdValue");
+            it('roomBlurbPath', () => {
+                const result = client.roomBlurbPath("roomValue", "blurbValue");
                 assert.strictEqual(result, fakePath);
-                assert((client.pathTemplates.roomIdBlurbIdPathTemplate.render as SinonStub)
+                assert((client.pathTemplates.roomBlurbPathTemplate.render as SinonStub)
                     .getCall(-1).calledWith(expectedParameters));
             });
 
-            it('matchRoomIdFromRoomIdBlurbIdName', () => {
-                const result = client.matchRoomIdFromRoomIdBlurbIdName(fakePath);
-                assert.strictEqual(result, "roomIdValue");
-                assert((client.pathTemplates.roomIdBlurbIdPathTemplate.match as SinonStub)
+            it('matchRoomFromRoomBlurbName', () => {
+                const result = client.matchRoomFromRoomBlurbName(fakePath);
+                assert.strictEqual(result, "roomValue");
+                assert((client.pathTemplates.roomBlurbPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
 
-            it('matchBlurbIdFromRoomIdBlurbIdName', () => {
-                const result = client.matchBlurbIdFromRoomIdBlurbIdName(fakePath);
-                assert.strictEqual(result, "blurbIdValue");
-                assert((client.pathTemplates.roomIdBlurbIdPathTemplate.match as SinonStub)
+            it('matchBlurbFromRoomBlurbName', () => {
+                const result = client.matchBlurbFromRoomBlurbName(fakePath);
+                assert.strictEqual(result, "blurbValue");
+                assert((client.pathTemplates.roomBlurbPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
         });
 
-        describe('roomIdBlurbsLegacyRoomIdBlurbId', () => {
-            const fakePath = "/rendered/path/roomIdBlurbsLegacyRoomIdBlurbId";
+        describe('roomBlurbsLegacyRoomBlurb', () => {
+            const fakePath = "/rendered/path/roomBlurbsLegacyRoomBlurb";
             const expectedParameters = {
-                room_id: "roomIdValue",
-                legacy_room_id: "legacyRoomIdValue",
-                blurb_id: "blurbIdValue",
+                room: "roomValue",
+                legacy_room: "legacyRoomValue",
+                blurb: "blurbValue",
             };
             const client = new identityModule.v1beta1.IdentityClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
             client.initialize();
-            client.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.render =
+            client.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.render =
                 sinon.stub().returns(fakePath);
-            client.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match =
+            client.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match =
                 sinon.stub().returns(expectedParameters);
 
-            it('roomIdBlurbsLegacyRoomIdBlurbIdPath', () => {
-                const result = client.roomIdBlurbsLegacyRoomIdBlurbIdPath("roomIdValue", "legacyRoomIdValue", "blurbIdValue");
+            it('roomBlurbsLegacyRoomBlurbPath', () => {
+                const result = client.roomBlurbsLegacyRoomBlurbPath("roomValue", "legacyRoomValue", "blurbValue");
                 assert.strictEqual(result, fakePath);
-                assert((client.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.render as SinonStub)
+                assert((client.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.render as SinonStub)
                     .getCall(-1).calledWith(expectedParameters));
             });
 
-            it('matchRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName', () => {
-                const result = client.matchRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(fakePath);
-                assert.strictEqual(result, "roomIdValue");
-                assert((client.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match as SinonStub)
+            it('matchRoomFromRoomBlurbsLegacyRoomBlurbName', () => {
+                const result = client.matchRoomFromRoomBlurbsLegacyRoomBlurbName(fakePath);
+                assert.strictEqual(result, "roomValue");
+                assert((client.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
 
-            it('matchLegacyRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName', () => {
-                const result = client.matchLegacyRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(fakePath);
-                assert.strictEqual(result, "legacyRoomIdValue");
-                assert((client.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match as SinonStub)
+            it('matchLegacyRoomFromRoomBlurbsLegacyRoomBlurbName', () => {
+                const result = client.matchLegacyRoomFromRoomBlurbsLegacyRoomBlurbName(fakePath);
+                assert.strictEqual(result, "legacyRoomValue");
+                assert((client.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
 
-            it('matchBlurbIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName', () => {
-                const result = client.matchBlurbIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(fakePath);
-                assert.strictEqual(result, "blurbIdValue");
-                assert((client.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match as SinonStub)
+            it('matchBlurbFromRoomBlurbsLegacyRoomBlurbName', () => {
+                const result = client.matchBlurbFromRoomBlurbsLegacyRoomBlurbName(fakePath);
+                assert.strictEqual(result, "blurbValue");
+                assert((client.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
+        });
+
+        describe('sequence', () => {
+            const fakePath = "/rendered/path/sequence";
+            const expectedParameters = {
+                sequence: "sequenceValue",
+            };
+            const client = new identityModule.v1beta1.IdentityClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            client.pathTemplates.sequencePathTemplate.render =
+                sinon.stub().returns(fakePath);
+            client.pathTemplates.sequencePathTemplate.match =
+                sinon.stub().returns(expectedParameters);
+
+            it('sequencePath', () => {
+                const result = client.sequencePath("sequenceValue");
+                assert.strictEqual(result, fakePath);
+                assert((client.pathTemplates.sequencePathTemplate.render as SinonStub)
+                    .getCall(-1).calledWith(expectedParameters));
+            });
+
+            it('matchSequenceFromSequenceName', () => {
+                const result = client.matchSequenceFromSequenceName(fakePath);
+                assert.strictEqual(result, "sequenceValue");
+                assert((client.pathTemplates.sequencePathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
+        });
+
+        describe('sequenceReport', () => {
+            const fakePath = "/rendered/path/sequenceReport";
+            const expectedParameters = {
+                sequence: "sequenceValue",
+            };
+            const client = new identityModule.v1beta1.IdentityClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize();
+            client.pathTemplates.sequenceReportPathTemplate.render =
+                sinon.stub().returns(fakePath);
+            client.pathTemplates.sequenceReportPathTemplate.match =
+                sinon.stub().returns(expectedParameters);
+
+            it('sequenceReportPath', () => {
+                const result = client.sequenceReportPath("sequenceValue");
+                assert.strictEqual(result, fakePath);
+                assert((client.pathTemplates.sequenceReportPathTemplate.render as SinonStub)
+                    .getCall(-1).calledWith(expectedParameters));
+            });
+
+            it('matchSequenceFromSequenceReportName', () => {
+                const result = client.matchSequenceFromSequenceReportName(fakePath);
+                assert.strictEqual(result, "sequenceValue");
+                assert((client.pathTemplates.sequenceReportPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
         });
@@ -1648,7 +1763,7 @@ describe('v1beta1.IdentityClient', () => {
         describe('user', () => {
             const fakePath = "/rendered/path/user";
             const expectedParameters = {
-                user_id: "userIdValue",
+                user: "userValue",
             };
             const client = new identityModule.v1beta1.IdentityClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
@@ -1661,100 +1776,100 @@ describe('v1beta1.IdentityClient', () => {
                 sinon.stub().returns(expectedParameters);
 
             it('userPath', () => {
-                const result = client.userPath("userIdValue");
+                const result = client.userPath("userValue");
                 assert.strictEqual(result, fakePath);
                 assert((client.pathTemplates.userPathTemplate.render as SinonStub)
                     .getCall(-1).calledWith(expectedParameters));
             });
 
-            it('matchUserIdFromUserName', () => {
-                const result = client.matchUserIdFromUserName(fakePath);
-                assert.strictEqual(result, "userIdValue");
+            it('matchUserFromUserName', () => {
+                const result = client.matchUserFromUserName(fakePath);
+                assert.strictEqual(result, "userValue");
                 assert((client.pathTemplates.userPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
         });
 
-        describe('userIdProfileBlurbId', () => {
-            const fakePath = "/rendered/path/userIdProfileBlurbId";
+        describe('userProfileBlurb', () => {
+            const fakePath = "/rendered/path/userProfileBlurb";
             const expectedParameters = {
-                user_id: "userIdValue",
-                blurb_id: "blurbIdValue",
+                user: "userValue",
+                blurb: "blurbValue",
             };
             const client = new identityModule.v1beta1.IdentityClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
             client.initialize();
-            client.pathTemplates.userIdProfileBlurbIdPathTemplate.render =
+            client.pathTemplates.userProfileBlurbPathTemplate.render =
                 sinon.stub().returns(fakePath);
-            client.pathTemplates.userIdProfileBlurbIdPathTemplate.match =
+            client.pathTemplates.userProfileBlurbPathTemplate.match =
                 sinon.stub().returns(expectedParameters);
 
-            it('userIdProfileBlurbIdPath', () => {
-                const result = client.userIdProfileBlurbIdPath("userIdValue", "blurbIdValue");
+            it('userProfileBlurbPath', () => {
+                const result = client.userProfileBlurbPath("userValue", "blurbValue");
                 assert.strictEqual(result, fakePath);
-                assert((client.pathTemplates.userIdProfileBlurbIdPathTemplate.render as SinonStub)
+                assert((client.pathTemplates.userProfileBlurbPathTemplate.render as SinonStub)
                     .getCall(-1).calledWith(expectedParameters));
             });
 
-            it('matchUserIdFromUserIdProfileBlurbIdName', () => {
-                const result = client.matchUserIdFromUserIdProfileBlurbIdName(fakePath);
-                assert.strictEqual(result, "userIdValue");
-                assert((client.pathTemplates.userIdProfileBlurbIdPathTemplate.match as SinonStub)
+            it('matchUserFromUserProfileBlurbName', () => {
+                const result = client.matchUserFromUserProfileBlurbName(fakePath);
+                assert.strictEqual(result, "userValue");
+                assert((client.pathTemplates.userProfileBlurbPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
 
-            it('matchBlurbIdFromUserIdProfileBlurbIdName', () => {
-                const result = client.matchBlurbIdFromUserIdProfileBlurbIdName(fakePath);
-                assert.strictEqual(result, "blurbIdValue");
-                assert((client.pathTemplates.userIdProfileBlurbIdPathTemplate.match as SinonStub)
+            it('matchBlurbFromUserProfileBlurbName', () => {
+                const result = client.matchBlurbFromUserProfileBlurbName(fakePath);
+                assert.strictEqual(result, "blurbValue");
+                assert((client.pathTemplates.userProfileBlurbPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
         });
 
-        describe('userIdProfileBlurbsLegacyUserIdBlurbId', () => {
-            const fakePath = "/rendered/path/userIdProfileBlurbsLegacyUserIdBlurbId";
+        describe('userProfileBlurbsLegacyUserBlurb', () => {
+            const fakePath = "/rendered/path/userProfileBlurbsLegacyUserBlurb";
             const expectedParameters = {
-                user_id: "userIdValue",
-                legacy_user_id: "legacyUserIdValue",
-                blurb_id: "blurbIdValue",
+                user: "userValue",
+                legacy_user: "legacyUserValue",
+                blurb: "blurbValue",
             };
             const client = new identityModule.v1beta1.IdentityClient({
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
             client.initialize();
-            client.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.render =
+            client.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.render =
                 sinon.stub().returns(fakePath);
-            client.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match =
+            client.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match =
                 sinon.stub().returns(expectedParameters);
 
-            it('userIdProfileBlurbsLegacyUserIdBlurbIdPath', () => {
-                const result = client.userIdProfileBlurbsLegacyUserIdBlurbIdPath("userIdValue", "legacyUserIdValue", "blurbIdValue");
+            it('userProfileBlurbsLegacyUserBlurbPath', () => {
+                const result = client.userProfileBlurbsLegacyUserBlurbPath("userValue", "legacyUserValue", "blurbValue");
                 assert.strictEqual(result, fakePath);
-                assert((client.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.render as SinonStub)
+                assert((client.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.render as SinonStub)
                     .getCall(-1).calledWith(expectedParameters));
             });
 
-            it('matchUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName', () => {
-                const result = client.matchUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(fakePath);
-                assert.strictEqual(result, "userIdValue");
-                assert((client.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match as SinonStub)
+            it('matchUserFromUserProfileBlurbsLegacyUserBlurbName', () => {
+                const result = client.matchUserFromUserProfileBlurbsLegacyUserBlurbName(fakePath);
+                assert.strictEqual(result, "userValue");
+                assert((client.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
 
-            it('matchLegacyUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName', () => {
-                const result = client.matchLegacyUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(fakePath);
-                assert.strictEqual(result, "legacyUserIdValue");
-                assert((client.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match as SinonStub)
+            it('matchLegacyUserFromUserProfileBlurbsLegacyUserBlurbName', () => {
+                const result = client.matchLegacyUserFromUserProfileBlurbsLegacyUserBlurbName(fakePath);
+                assert.strictEqual(result, "legacyUserValue");
+                assert((client.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
 
-            it('matchBlurbIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName', () => {
-                const result = client.matchBlurbIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(fakePath);
-                assert.strictEqual(result, "blurbIdValue");
-                assert((client.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match as SinonStub)
+            it('matchBlurbFromUserProfileBlurbsLegacyUserBlurbName', () => {
+                const result = client.matchBlurbFromUserProfileBlurbsLegacyUserBlurbName(fakePath);
+                assert.strictEqual(result, "blurbValue");
+                assert((client.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match as SinonStub)
                     .getCall(-1).calledWith(fakePath));
             });
         });
