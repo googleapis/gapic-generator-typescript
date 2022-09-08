@@ -27,6 +27,19 @@ import {PassThrough} from 'stream';
 
 import {protobuf} from 'google-gax';
 
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
+
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -156,25 +169,30 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest());
-            request.tableReference = {};
-            request.tableReference.projectId = '';
-            request.tableReference = {};
-            request.tableReference.datasetId = '';
-            const expectedHeaderRequestParams = "table_reference.project_id=&table_reference.dataset_id=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.ReadSession());
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest()
+            );
+            request.tableReference ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'projectId']);
+            request.tableReference.projectId = defaultValue1;
+            request.tableReference ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'datasetId']);
+            request.tableReference.datasetId = defaultValue2;
+            const expectedHeaderRequestParams = `table_reference.project_id=${defaultValue1}&table_reference.dataset_id=${defaultValue2}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.ReadSession()
+            );
             client.innerApiCalls.createReadSession = stubSimpleCall(expectedResponse);
             const [response] = await client.createReadSession(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createReadSession as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createReadSession as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createReadSession as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createReadSession without error using callback', async () => {
@@ -183,20 +201,21 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest());
-            request.tableReference = {};
-            request.tableReference.projectId = '';
-            request.tableReference = {};
-            request.tableReference.datasetId = '';
-            const expectedHeaderRequestParams = "table_reference.project_id=&table_reference.dataset_id=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.ReadSession());
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest()
+            );
+            request.tableReference ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'projectId']);
+            request.tableReference.projectId = defaultValue1;
+            request.tableReference ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'datasetId']);
+            request.tableReference.datasetId = defaultValue2;
+            const expectedHeaderRequestParams = `table_reference.project_id=${defaultValue1}&table_reference.dataset_id=${defaultValue2}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.ReadSession()
+            );
             client.innerApiCalls.createReadSession = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createReadSession(
@@ -211,8 +230,12 @@ describe('v1beta1.BigQueryStorageClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createReadSession as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.createReadSession as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createReadSession as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createReadSession with error', async () => {
@@ -221,24 +244,27 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest());
-            request.tableReference = {};
-            request.tableReference.projectId = '';
-            request.tableReference = {};
-            request.tableReference.datasetId = '';
-            const expectedHeaderRequestParams = "table_reference.project_id=&table_reference.dataset_id=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest()
+            );
+            request.tableReference ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'projectId']);
+            request.tableReference.projectId = defaultValue1;
+            request.tableReference ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'datasetId']);
+            request.tableReference.datasetId = defaultValue2;
+            const expectedHeaderRequestParams = `table_reference.project_id=${defaultValue1}&table_reference.dataset_id=${defaultValue2}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createReadSession = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createReadSession(request), expectedError);
-            assert((client.innerApiCalls.createReadSession as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createReadSession as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createReadSession as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createReadSession with closed client', async () => {
@@ -247,11 +273,17 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest());
-            request.tableReference = {};
-            request.tableReference.projectId = '';
-            request.tableReference = {};
-            request.tableReference.datasetId = '';
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest()
+            );
+            request.tableReference ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'projectId']);
+            request.tableReference.projectId = defaultValue1;
+            request.tableReference ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'datasetId']);
+            request.tableReference.datasetId = defaultValue2;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.createReadSession(request), expectedError);
@@ -265,23 +297,26 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest());
-            request.session = {};
-            request.session.name = '';
-            const expectedHeaderRequestParams = "session.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsResponse());
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest()
+            );
+            request.session ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('BatchCreateReadSessionStreamsRequest', ['session', 'name']);
+            request.session.name = defaultValue1;
+            const expectedHeaderRequestParams = `session.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsResponse()
+            );
             client.innerApiCalls.batchCreateReadSessionStreams = stubSimpleCall(expectedResponse);
             const [response] = await client.batchCreateReadSessionStreams(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.batchCreateReadSessionStreams as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.batchCreateReadSessionStreams as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.batchCreateReadSessionStreams as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes batchCreateReadSessionStreams without error using callback', async () => {
@@ -290,18 +325,17 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest());
-            request.session = {};
-            request.session.name = '';
-            const expectedHeaderRequestParams = "session.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsResponse());
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest()
+            );
+            request.session ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('BatchCreateReadSessionStreamsRequest', ['session', 'name']);
+            request.session.name = defaultValue1;
+            const expectedHeaderRequestParams = `session.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsResponse()
+            );
             client.innerApiCalls.batchCreateReadSessionStreams = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.batchCreateReadSessionStreams(
@@ -316,8 +350,12 @@ describe('v1beta1.BigQueryStorageClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.batchCreateReadSessionStreams as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.batchCreateReadSessionStreams as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.batchCreateReadSessionStreams as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes batchCreateReadSessionStreams with error', async () => {
@@ -326,22 +364,23 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest());
-            request.session = {};
-            request.session.name = '';
-            const expectedHeaderRequestParams = "session.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest()
+            );
+            request.session ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('BatchCreateReadSessionStreamsRequest', ['session', 'name']);
+            request.session.name = defaultValue1;
+            const expectedHeaderRequestParams = `session.name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.batchCreateReadSessionStreams = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.batchCreateReadSessionStreams(request), expectedError);
-            assert((client.innerApiCalls.batchCreateReadSessionStreams as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.batchCreateReadSessionStreams as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.batchCreateReadSessionStreams as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes batchCreateReadSessionStreams with closed client', async () => {
@@ -350,9 +389,13 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest());
-            request.session = {};
-            request.session.name = '';
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest()
+            );
+            request.session ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('BatchCreateReadSessionStreamsRequest', ['session', 'name']);
+            request.session.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.batchCreateReadSessionStreams(request), expectedError);
@@ -366,23 +409,26 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest());
-            request.stream = {};
-            request.stream.name = '';
-            const expectedHeaderRequestParams = "stream.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest()
+            );
+            request.stream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('FinalizeStreamRequest', ['stream', 'name']);
+            request.stream.name = defaultValue1;
+            const expectedHeaderRequestParams = `stream.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.finalizeStream = stubSimpleCall(expectedResponse);
             const [response] = await client.finalizeStream(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.finalizeStream as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.finalizeStream as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.finalizeStream as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes finalizeStream without error using callback', async () => {
@@ -391,18 +437,17 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest());
-            request.stream = {};
-            request.stream.name = '';
-            const expectedHeaderRequestParams = "stream.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest()
+            );
+            request.stream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('FinalizeStreamRequest', ['stream', 'name']);
+            request.stream.name = defaultValue1;
+            const expectedHeaderRequestParams = `stream.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.finalizeStream = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.finalizeStream(
@@ -417,8 +462,12 @@ describe('v1beta1.BigQueryStorageClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.finalizeStream as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.finalizeStream as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.finalizeStream as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes finalizeStream with error', async () => {
@@ -427,22 +476,23 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest());
-            request.stream = {};
-            request.stream.name = '';
-            const expectedHeaderRequestParams = "stream.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest()
+            );
+            request.stream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('FinalizeStreamRequest', ['stream', 'name']);
+            request.stream.name = defaultValue1;
+            const expectedHeaderRequestParams = `stream.name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.finalizeStream = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.finalizeStream(request), expectedError);
-            assert((client.innerApiCalls.finalizeStream as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.finalizeStream as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.finalizeStream as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes finalizeStream with closed client', async () => {
@@ -451,9 +501,13 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest());
-            request.stream = {};
-            request.stream.name = '';
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest()
+            );
+            request.stream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('FinalizeStreamRequest', ['stream', 'name']);
+            request.stream.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.finalizeStream(request), expectedError);
@@ -467,23 +521,26 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest());
-            request.originalStream = {};
-            request.originalStream.name = '';
-            const expectedHeaderRequestParams = "original_stream.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamResponse());
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest()
+            );
+            request.originalStream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('SplitReadStreamRequest', ['originalStream', 'name']);
+            request.originalStream.name = defaultValue1;
+            const expectedHeaderRequestParams = `original_stream.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamResponse()
+            );
             client.innerApiCalls.splitReadStream = stubSimpleCall(expectedResponse);
             const [response] = await client.splitReadStream(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.splitReadStream as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.splitReadStream as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.splitReadStream as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes splitReadStream without error using callback', async () => {
@@ -492,18 +549,17 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest());
-            request.originalStream = {};
-            request.originalStream.name = '';
-            const expectedHeaderRequestParams = "original_stream.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamResponse());
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest()
+            );
+            request.originalStream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('SplitReadStreamRequest', ['originalStream', 'name']);
+            request.originalStream.name = defaultValue1;
+            const expectedHeaderRequestParams = `original_stream.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamResponse()
+            );
             client.innerApiCalls.splitReadStream = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.splitReadStream(
@@ -518,8 +574,12 @@ describe('v1beta1.BigQueryStorageClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.splitReadStream as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.splitReadStream as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.splitReadStream as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes splitReadStream with error', async () => {
@@ -528,22 +588,23 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest());
-            request.originalStream = {};
-            request.originalStream.name = '';
-            const expectedHeaderRequestParams = "original_stream.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest()
+            );
+            request.originalStream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('SplitReadStreamRequest', ['originalStream', 'name']);
+            request.originalStream.name = defaultValue1;
+            const expectedHeaderRequestParams = `original_stream.name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.splitReadStream = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.splitReadStream(request), expectedError);
-            assert((client.innerApiCalls.splitReadStream as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.splitReadStream as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.splitReadStream as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes splitReadStream with closed client', async () => {
@@ -552,9 +613,13 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest());
-            request.originalStream = {};
-            request.originalStream.name = '';
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest()
+            );
+            request.originalStream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('SplitReadStreamRequest', ['originalStream', 'name']);
+            request.originalStream.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.splitReadStream(request), expectedError);
@@ -568,19 +633,18 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest());
-            request.readPosition = {};
-            request.readPosition.stream = {};
-            request.readPosition.stream.name = '';
-            const expectedHeaderRequestParams = "read_position.stream.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsResponse());
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest()
+            );
+            request.readPosition ??= {};
+            request.readPosition.stream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('ReadRowsRequest', ['readPosition', 'stream', 'name']);
+            request.readPosition.stream.name = defaultValue1;
+            const expectedHeaderRequestParams = `read_position.stream.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsResponse()
+            );
             client.innerApiCalls.readRows = stubServerStreamingCall(expectedResponse);
             const stream = client.readRows(request);
             const promise = new Promise((resolve, reject) => {
@@ -593,8 +657,12 @@ describe('v1beta1.BigQueryStorageClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.readRows as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions));
+            const actualRequest = (client.innerApiCalls.readRows as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.readRows as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes readRows with error', async () => {
@@ -603,18 +671,15 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest());
-            request.readPosition = {};
-            request.readPosition.stream = {};
-            request.readPosition.stream.name = '';
-            const expectedHeaderRequestParams = "read_position.stream.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest()
+            );
+            request.readPosition ??= {};
+            request.readPosition.stream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('ReadRowsRequest', ['readPosition', 'stream', 'name']);
+            request.readPosition.stream.name = defaultValue1;
+            const expectedHeaderRequestParams = `read_position.stream.name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.readRows = stubServerStreamingCall(undefined, expectedError);
             const stream = client.readRows(request);
@@ -627,8 +692,12 @@ describe('v1beta1.BigQueryStorageClient', () => {
                 });
             });
             await assert.rejects(promise, expectedError);
-            assert((client.innerApiCalls.readRows as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions));
+            const actualRequest = (client.innerApiCalls.readRows as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.readRows as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes readRows with closed client', async () => {
@@ -637,10 +706,14 @@ describe('v1beta1.BigQueryStorageClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest());
-            request.readPosition = {};
-            request.readPosition.stream = {};
-            request.readPosition.stream.name = '';
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest()
+            );
+            request.readPosition ??= {};
+            request.readPosition.stream ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('ReadRowsRequest', ['readPosition', 'stream', 'name']);
+            request.readPosition.stream.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             const stream = client.readRows(request);

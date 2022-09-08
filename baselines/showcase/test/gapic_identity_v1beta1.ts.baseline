@@ -27,6 +27,19 @@ import {PassThrough} from 'stream';
 
 import {protobuf, operationsProtos, IamProtos, LocationProtos} from 'google-gax';
 
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
+
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -189,14 +202,15 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateUserRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.createUser = stubSimpleCall(expectedResponse);
             const [response] = await client.createUser(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes createUser without error using callback', async () => {
@@ -205,9 +219,12 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateUserRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.createUser = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createUser(
@@ -222,8 +239,6 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes createUser with error', async () => {
@@ -232,13 +247,12 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateUserRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.createUser = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createUser(request), expectedError);
-            assert((client.innerApiCalls.createUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes createUser with closed client', async () => {
@@ -247,7 +261,9 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateUserRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.CreateUserRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.createUser(request), expectedError);
@@ -261,22 +277,25 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.getUser = stubSimpleCall(expectedResponse);
             const [response] = await client.getUser(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getUser without error using callback', async () => {
@@ -285,17 +304,16 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.getUser = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getUser(
@@ -310,8 +328,12 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getUser with error', async () => {
@@ -320,21 +342,22 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getUser = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getUser(request), expectedError);
-            assert((client.innerApiCalls.getUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getUser with closed client', async () => {
@@ -343,8 +366,12 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.GetUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.getUser(request), expectedError);
@@ -358,23 +385,26 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
-            const expectedHeaderRequestParams = "user.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateUserRequest()
+            );
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
+            const expectedHeaderRequestParams = `user.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.updateUser = stubSimpleCall(expectedResponse);
             const [response] = await client.updateUser(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateUser without error using callback', async () => {
@@ -383,18 +413,17 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
-            const expectedHeaderRequestParams = "user.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.User());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateUserRequest()
+            );
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
+            const expectedHeaderRequestParams = `user.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.User()
+            );
             client.innerApiCalls.updateUser = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.updateUser(
@@ -409,8 +438,12 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateUser with error', async () => {
@@ -419,22 +452,23 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
-            const expectedHeaderRequestParams = "user.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateUserRequest()
+            );
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
+            const expectedHeaderRequestParams = `user.name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateUser = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateUser(request), expectedError);
-            assert((client.innerApiCalls.updateUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateUser with closed client', async () => {
@@ -443,9 +477,13 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.UpdateUserRequest()
+            );
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.updateUser(request), expectedError);
@@ -459,22 +497,25 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteUser = stubSimpleCall(expectedResponse);
             const [response] = await client.deleteUser(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteUser without error using callback', async () => {
@@ -483,17 +524,16 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteUser = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.deleteUser(
@@ -508,8 +548,12 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteUser with error', async () => {
@@ -518,21 +562,22 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteUser = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteUser(request), expectedError);
-            assert((client.innerApiCalls.deleteUser as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteUser as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteUser with closed client', async () => {
@@ -541,8 +586,12 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.DeleteUserRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.deleteUser(request), expectedError);
@@ -556,9 +605,9 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
@@ -566,8 +615,6 @@ describe('v1beta1.IdentityClient', () => {
             client.innerApiCalls.listUsers = stubSimpleCall(expectedResponse);
             const [response] = await client.listUsers(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listUsers as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes listUsers without error using callback', async () => {
@@ -576,9 +623,9 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
@@ -597,8 +644,6 @@ describe('v1beta1.IdentityClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listUsers as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes listUsers with error', async () => {
@@ -607,13 +652,12 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.listUsers = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listUsers(request), expectedError);
-            assert((client.innerApiCalls.listUsers as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes listUsersStream without error', async () => {
@@ -622,7 +666,9 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
@@ -654,7 +700,9 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
             const expectedError = new Error('expected');
             client.descriptors.page.listUsers.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listUsersStream(request);
@@ -681,7 +729,9 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
               generateSampleMessage(new protos.google.showcase.v1beta1.User()),
@@ -705,7 +755,10 @@ describe('v1beta1.IdentityClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListUsersRequest());const expectedError = new Error('expected');
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ListUsersRequest()
+            );
+            const expectedError = new Error('expected');
             client.descriptors.page.listUsers.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listUsersAsync(request);
             await assert.rejects(async () => {
@@ -727,7 +780,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -739,7 +792,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.getIamPolicy = stubSimpleCall(expectedResponse);
             const response = await client.getIamPolicy(request, expectedOptions);
@@ -754,7 +807,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -766,7 +819,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.getIamPolicy = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -793,7 +846,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.GetIamPolicyRequest()
+              new IamProtos.google.iam.v1.GetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -819,7 +872,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -831,7 +884,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.setIamPolicy = stubSimpleCall(expectedResponse);
             const response = await client.setIamPolicy(request, expectedOptions);
@@ -846,7 +899,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -858,7 +911,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
             );
             client.iamClient.setIamPolicy = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -885,7 +938,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.SetIamPolicyRequest()
+              new IamProtos.google.iam.v1.SetIamPolicyRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -911,7 +964,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -923,7 +976,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
             );
             client.iamClient.testIamPermissions = stubSimpleCall(expectedResponse);
             const response = await client.testIamPermissions(request, expectedOptions);
@@ -938,7 +991,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -950,7 +1003,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
             );
             client.iamClient.testIamPermissions = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -977,7 +1030,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.TestIamPermissionsRequest()
+              new IamProtos.google.iam.v1.TestIamPermissionsRequest()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1003,7 +1056,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1015,7 +1068,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.getLocation = stubSimpleCall(expectedResponse);
             const response = await client.getLocation(request, expectedOptions);
@@ -1030,7 +1083,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1042,7 +1095,7 @@ describe('v1beta1.IdentityClient', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.getLocation = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -1072,7 +1125,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.GetLocationRequest()
+              new LocationProtos.google.cloud.location.GetLocationRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1123,10 +1176,11 @@ describe('v1beta1.IdentityClient', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
         it('uses async iteration with listLocations with error', async () => {
@@ -1136,7 +1190,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.ListLocationsRequest()
+              new LocationProtos.google.cloud.location.ListLocationsRequest()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1152,10 +1206,11 @@ describe('v1beta1.IdentityClient', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.listLocations.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });
@@ -1167,7 +1222,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new operationsProtos.google.longrunning.Operation()
@@ -1185,7 +1240,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new operationsProtos.google.longrunning.Operation()
@@ -1217,7 +1272,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.GetOperationRequest()
+              new operationsProtos.google.longrunning.GetOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
@@ -1234,7 +1289,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1252,7 +1307,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1284,7 +1339,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.CancelOperationRequest()
+              new operationsProtos.google.longrunning.CancelOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.cancelOperation = stubSimpleCall(undefined, expectedError);
@@ -1301,7 +1356,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1319,7 +1374,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedResponse = generateSampleMessage(
                 new protos.google.protobuf.Empty()
@@ -1351,7 +1406,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.DeleteOperationRequest()
+              new operationsProtos.google.longrunning.DeleteOperationRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.deleteOperation = stubSimpleCall(undefined, expectedError);
@@ -1367,7 +1422,7 @@ describe('v1beta1.IdentityClient', () => {
               projectId: 'bogus',
             });
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.ListOperationsRequest()
+              new operationsProtos.google.longrunning.ListOperationsRequest()
             );
             const expectedResponse = [
                 generateSampleMessage(
@@ -1398,7 +1453,7 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.ListOperationsRequest()
+              new operationsProtos.google.longrunning.ListOperationsRequest()
             );
             const expectedError = new Error('expected');
             client.operationsClient.descriptor.listOperations.asyncIterate = stubAsyncIterationCall(undefined, expectedError);

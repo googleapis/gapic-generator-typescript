@@ -47,6 +47,33 @@ import {protobuf
 {%- if service.IAMPolicyMixin > 0 %}, IamProtos{%- endif -%}
 {%- if service.LocationMixin > 0 %}, LocationProtos{%- endif -%}
 } from 'google-gax';
+{%- if not api.legacyProtoLoad %}
+
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+{%- endif %}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+{%- if not api.legacyProtoLoad %}
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+{%- else %}
+    // non-string x-goog-request-param values are not supported;
+    // we always assume that it's a string.
+    return '';
+{#- should this need to change, one would need to create an instance of
+   protobuf.js Root and call loadSync, setting a custom resolver as in
+   https://github.com/grpc/grpc-node/blob/1a3600e2ec6e3aae77e5e13e7c93efba0bba8d8c/packages/proto-loader/src/util.ts#L67-L82
+   At this moment, we don't need it since we don't have any non-string
+   fields in x-goog-request-params header for APIs that use legacy proto load.
+#}
+{%- endif %}
+}
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -277,7 +304,6 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(expectedResponse);
             const [response] = await client.{{ method.name.toCamelCase() }}(request);
@@ -289,8 +315,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- else %}
             assert.deepStrictEqual(response, expectedResponse);
             {%- endif %}
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
@@ -302,7 +327,6 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -321,8 +345,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
@@ -333,16 +356,14 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
+            {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with closed client', async () => {
@@ -373,7 +394,6 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubLongRunningCall(expectedResponse);
             const [operation] = await client.{{ method.name.toCamelCase() }}(request);
@@ -382,8 +402,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
@@ -393,7 +412,6 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -415,8 +433,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with call error', async () => {
@@ -425,16 +442,14 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
+            {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with LRO error', async () => {
@@ -443,8 +458,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
+            {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.{{ method.name.toCamelCase() }}(request);
@@ -452,8 +466,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} without error', async () => {
@@ -462,7 +475,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -505,7 +520,6 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubServerStreamingCall(expectedResponse);
             const stream = client.{{ method.name.toCamelCase() }}(request);
@@ -522,8 +536,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
@@ -532,8 +545,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
+            {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubServerStreamingCall(undefined, expectedError);
             const stream = client.{{ method.name.toCamelCase() }}(request);
@@ -549,8 +561,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with closed client', async () => {
@@ -587,7 +598,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const request = generateSampleMessage(
+              new protos{{ method.inputInterface }}()
+            );
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubBidiStreamingCall(expectedResponse);
             const stream = client.{{ method.name.toCamelCase() }}();
@@ -618,7 +631,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const request = generateSampleMessage(
+              new protos{{ method.inputInterface }}()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubBidiStreamingCall(undefined, expectedError);
             const stream = client.{{ method.name.toCamelCase() }}();
@@ -652,7 +667,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const request = generateSampleMessage(
+              new protos{{ method.inputInterface }}()
+            );
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubClientStreamingCall(expectedResponse);
             let stream: PassThrough;
@@ -684,7 +701,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const request = generateSampleMessage(
+              new protos{{ method.inputInterface }}()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubClientStreamingCall(undefined, expectedError);
             let stream: PassThrough;
@@ -723,7 +742,6 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
             {{ util.initPagingResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(expectedResponse);
             const [response] = await client.{{ method.name.toCamelCase() }}(request);
@@ -731,8 +749,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
@@ -745,7 +762,6 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
             {{ util.initPagingResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -764,8 +780,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
@@ -777,16 +792,14 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initRequestOptions(method) }}
+            {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            assert((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            {{- util.verifyHeaderRequestParams(method) }}
         });
 
         it('invokes {{ id.get(method.name.toCamelCase() + "Stream") }} without error', async () => {
@@ -822,10 +835,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert((client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.{{ method.name.toCamelCase(true) }}, request));
 {%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
 {%- endif %}
         });
@@ -862,10 +876,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert((client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.{{ method.name.toCamelCase(true) }}, request));
 {%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                         expectedHeaderRequestParams
+                    ) 
             );
 {%- endif %}
         });
@@ -901,10 +916,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
 {%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
 {%- endif %}
         });
@@ -918,7 +934,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             client.{{ id.get("initialize") }}();
-            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.{{ id.get(method.name.toCamelCase() + "Async") }}(request);
@@ -939,10 +955,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
 {%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
 {%- endif %}
         });
@@ -962,7 +979,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
+              new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -975,9 +992,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             };
             const expectedResponse = generateSampleMessage(
 {%- if method === 'testIamPermissions' %}
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
 {%- else %}
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
 {%- endif %}
             );
             client.iamClient.{{ method }} = stubSimpleCall(expectedResponse);
@@ -996,7 +1013,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
+              new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1009,9 +1026,9 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             };
             const expectedResponse = generateSampleMessage(
 {%- if method === 'testIamPermissions' %}
-                new IamProtos.google.iam.v1.TestIamPermissionsResponse()
+              new IamProtos.google.iam.v1.TestIamPermissionsResponse()
 {%- else %}
-                new IamProtos.google.iam.v1.Policy()
+              new IamProtos.google.iam.v1.Policy()
 {%- endif %}
             );
             client.iamClient.{{ method }} = sinon.stub().callsArgWith(2, null, expectedResponse);
@@ -1046,7 +1063,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
-                new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
+              new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
             );
             request.resource = '';
             const expectedHeaderRequestParams = 'resource=';
@@ -1081,7 +1098,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
+              new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1093,7 +1110,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.{{ method }} = stubSimpleCall(expectedResponse);
             const response = await client.{{ method }}(request, expectedOptions);
@@ -1111,7 +1128,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
+              new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1123,7 +1140,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 },
             };
             const expectedResponse = generateSampleMessage(
-                new LocationProtos.google.cloud.location.Location()
+              new LocationProtos.google.cloud.location.Location()
             );
             client.locationsClient.{{ method }} = sinon.stub().callsArgWith(2, null, expectedResponse);
             const promise = new Promise((resolve, reject) => {
@@ -1156,7 +1173,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
+              new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1214,10 +1231,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.{{ method }}.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.{{ method }}.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
         it('uses async iteration with {{ method }} with error', async () => {
@@ -1230,7 +1248,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.initialize();
             const request = generateSampleMessage(
-                new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
+              new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
             );
             request.name = '';
             const expectedHeaderRequestParams = 'name=';
@@ -1249,10 +1267,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert.deepStrictEqual(
                 (client.locationsClient.descriptors.page.{{method}}.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.locationsClient.descriptors.page.{{method}}.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });
@@ -1270,7 +1289,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+              new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
             );
             const expectedResponse = generateSampleMessage(
             {%- if method === 'getOperation' %}
@@ -1295,7 +1314,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+              new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
             );
             const expectedResponse = generateSampleMessage(
             {%- if method === 'getOperation' %}
@@ -1338,7 +1357,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+              new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
             );
             const expectedError = new Error('expected');
             client.operationsClient.{{ method }} = stubSimpleCall(undefined, expectedError);
@@ -1359,7 +1378,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+              new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
             );
             const expectedResponse = [
                 generateSampleMessage(
@@ -1396,7 +1415,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             client.initialize();
             const request = generateSampleMessage(
-                new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
+              new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
             );
             const expectedError = new Error('expected');
             client.operationsClient.descriptor.{{ method }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);

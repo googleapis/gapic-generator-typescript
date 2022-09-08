@@ -25,6 +25,19 @@ import * as complianceModule from '../src';
 
 import {protobuf} from 'google-gax';
 
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
+
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -142,14 +155,15 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataBody = stubSimpleCall(expectedResponse);
             const [response] = await client.repeatDataBody(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataBody as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataBody without error using callback', async () => {
@@ -158,9 +172,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataBody = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.repeatDataBody(
@@ -175,8 +192,6 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataBody as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes repeatDataBody with error', async () => {
@@ -185,13 +200,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.repeatDataBody = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.repeatDataBody(request), expectedError);
-            assert((client.innerApiCalls.repeatDataBody as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataBody with closed client', async () => {
@@ -200,7 +214,9 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.repeatDataBody(request), expectedError);
@@ -214,14 +230,15 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataBodyInfo = stubSimpleCall(expectedResponse);
             const [response] = await client.repeatDataBodyInfo(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataBodyInfo as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataBodyInfo without error using callback', async () => {
@@ -230,9 +247,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataBodyInfo = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.repeatDataBodyInfo(
@@ -247,8 +267,6 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataBodyInfo as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes repeatDataBodyInfo with error', async () => {
@@ -257,13 +275,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.repeatDataBodyInfo = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.repeatDataBodyInfo(request), expectedError);
-            assert((client.innerApiCalls.repeatDataBodyInfo as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataBodyInfo with closed client', async () => {
@@ -272,7 +289,9 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.repeatDataBodyInfo(request), expectedError);
@@ -286,14 +305,15 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataQuery = stubSimpleCall(expectedResponse);
             const [response] = await client.repeatDataQuery(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataQuery as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataQuery without error using callback', async () => {
@@ -302,9 +322,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataQuery = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.repeatDataQuery(
@@ -319,8 +342,6 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataQuery as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes repeatDataQuery with error', async () => {
@@ -329,13 +350,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.repeatDataQuery = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.repeatDataQuery(request), expectedError);
-            assert((client.innerApiCalls.repeatDataQuery as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataQuery with closed client', async () => {
@@ -344,7 +364,9 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.repeatDataQuery(request), expectedError);
@@ -358,31 +380,42 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fInt32 = '';
-            request.info = {};
-            request.info.fDouble = '';
-            request.info = {};
-            request.info.fBool = '';
-            request.info = {};
-            request.info.fKingdom = '';
-            const expectedHeaderRequestParams = "info.f_string=&info.f_int32=&info.f_double=&info.f_bool=&info.f_kingdom=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fInt32']);
+            request.info.fInt32 = defaultValue2;
+            request.info ??= {};
+            const defaultValue3 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fDouble']);
+            request.info.fDouble = defaultValue3;
+            request.info ??= {};
+            const defaultValue4 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fBool']);
+            request.info.fBool = defaultValue4;
+            request.info ??= {};
+            const defaultValue5 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fKingdom']);
+            request.info.fKingdom = defaultValue5;
+            const expectedHeaderRequestParams = `info.f_string=${defaultValue1}&info.f_int32=${defaultValue2}&info.f_double=${defaultValue3}&info.f_bool=${defaultValue4}&info.f_kingdom=${defaultValue5}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataSimplePath = stubSimpleCall(expectedResponse);
             const [response] = await client.repeatDataSimplePath(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataSimplePath as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.repeatDataSimplePath as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.repeatDataSimplePath as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes repeatDataSimplePath without error using callback', async () => {
@@ -391,26 +424,33 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fInt32 = '';
-            request.info = {};
-            request.info.fDouble = '';
-            request.info = {};
-            request.info.fBool = '';
-            request.info = {};
-            request.info.fKingdom = '';
-            const expectedHeaderRequestParams = "info.f_string=&info.f_int32=&info.f_double=&info.f_bool=&info.f_kingdom=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fInt32']);
+            request.info.fInt32 = defaultValue2;
+            request.info ??= {};
+            const defaultValue3 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fDouble']);
+            request.info.fDouble = defaultValue3;
+            request.info ??= {};
+            const defaultValue4 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fBool']);
+            request.info.fBool = defaultValue4;
+            request.info ??= {};
+            const defaultValue5 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fKingdom']);
+            request.info.fKingdom = defaultValue5;
+            const expectedHeaderRequestParams = `info.f_string=${defaultValue1}&info.f_int32=${defaultValue2}&info.f_double=${defaultValue3}&info.f_bool=${defaultValue4}&info.f_kingdom=${defaultValue5}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataSimplePath = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.repeatDataSimplePath(
@@ -425,8 +465,12 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataSimplePath as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.repeatDataSimplePath as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.repeatDataSimplePath as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes repeatDataSimplePath with error', async () => {
@@ -435,30 +479,39 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fInt32 = '';
-            request.info = {};
-            request.info.fDouble = '';
-            request.info = {};
-            request.info.fBool = '';
-            request.info = {};
-            request.info.fKingdom = '';
-            const expectedHeaderRequestParams = "info.f_string=&info.f_int32=&info.f_double=&info.f_bool=&info.f_kingdom=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fInt32']);
+            request.info.fInt32 = defaultValue2;
+            request.info ??= {};
+            const defaultValue3 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fDouble']);
+            request.info.fDouble = defaultValue3;
+            request.info ??= {};
+            const defaultValue4 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fBool']);
+            request.info.fBool = defaultValue4;
+            request.info ??= {};
+            const defaultValue5 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fKingdom']);
+            request.info.fKingdom = defaultValue5;
+            const expectedHeaderRequestParams = `info.f_string=${defaultValue1}&info.f_int32=${defaultValue2}&info.f_double=${defaultValue3}&info.f_bool=${defaultValue4}&info.f_kingdom=${defaultValue5}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.repeatDataSimplePath = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.repeatDataSimplePath(request), expectedError);
-            assert((client.innerApiCalls.repeatDataSimplePath as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.repeatDataSimplePath as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.repeatDataSimplePath as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes repeatDataSimplePath with closed client', async () => {
@@ -467,17 +520,29 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fInt32 = '';
-            request.info = {};
-            request.info.fDouble = '';
-            request.info = {};
-            request.info.fBool = '';
-            request.info = {};
-            request.info.fKingdom = '';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fInt32']);
+            request.info.fInt32 = defaultValue2;
+            request.info ??= {};
+            const defaultValue3 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fDouble']);
+            request.info.fDouble = defaultValue3;
+            request.info ??= {};
+            const defaultValue4 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fBool']);
+            request.info.fBool = defaultValue4;
+            request.info ??= {};
+            const defaultValue5 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fKingdom']);
+            request.info.fKingdom = defaultValue5;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.repeatDataSimplePath(request), expectedError);
@@ -491,28 +556,35 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fChild = {};
-            request.info.fChild.fString = '';
-            request.info = {};
-            request.info.fBool = '';
-            const expectedHeaderRequestParams = "info.f_string=&info.f_child.f_string=&info.f_bool=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            request.info.fChild ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fChild', 'fString']);
+            request.info.fChild.fString = defaultValue2;
+            request.info ??= {};
+            const defaultValue3 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fBool']);
+            request.info.fBool = defaultValue3;
+            const expectedHeaderRequestParams = `info.f_string=${defaultValue1}&info.f_child.f_string=${defaultValue2}&info.f_bool=${defaultValue3}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataPathResource = stubSimpleCall(expectedResponse);
             const [response] = await client.repeatDataPathResource(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataPathResource as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.repeatDataPathResource as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.repeatDataPathResource as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes repeatDataPathResource without error using callback', async () => {
@@ -521,23 +593,26 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fChild = {};
-            request.info.fChild.fString = '';
-            request.info = {};
-            request.info.fBool = '';
-            const expectedHeaderRequestParams = "info.f_string=&info.f_child.f_string=&info.f_bool=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            request.info.fChild ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fChild', 'fString']);
+            request.info.fChild.fString = defaultValue2;
+            request.info ??= {};
+            const defaultValue3 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fBool']);
+            request.info.fBool = defaultValue3;
+            const expectedHeaderRequestParams = `info.f_string=${defaultValue1}&info.f_child.f_string=${defaultValue2}&info.f_bool=${defaultValue3}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataPathResource = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.repeatDataPathResource(
@@ -552,8 +627,12 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataPathResource as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.repeatDataPathResource as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.repeatDataPathResource as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes repeatDataPathResource with error', async () => {
@@ -562,27 +641,32 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fChild = {};
-            request.info.fChild.fString = '';
-            request.info = {};
-            request.info.fBool = '';
-            const expectedHeaderRequestParams = "info.f_string=&info.f_child.f_string=&info.f_bool=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            request.info.fChild ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fChild', 'fString']);
+            request.info.fChild.fString = defaultValue2;
+            request.info ??= {};
+            const defaultValue3 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fBool']);
+            request.info.fBool = defaultValue3;
+            const expectedHeaderRequestParams = `info.f_string=${defaultValue1}&info.f_child.f_string=${defaultValue2}&info.f_bool=${defaultValue3}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.repeatDataPathResource = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.repeatDataPathResource(request), expectedError);
-            assert((client.innerApiCalls.repeatDataPathResource as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.repeatDataPathResource as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.repeatDataPathResource as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes repeatDataPathResource with closed client', async () => {
@@ -591,14 +675,22 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fChild = {};
-            request.info.fChild.fString = '';
-            request.info = {};
-            request.info.fBool = '';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            request.info.fChild ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fChild', 'fString']);
+            request.info.fChild.fString = defaultValue2;
+            request.info ??= {};
+            const defaultValue3 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fBool']);
+            request.info.fBool = defaultValue3;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.repeatDataPathResource(request), expectedError);
@@ -612,26 +704,31 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fChild = {};
-            request.info.fChild.fString = '';
-            const expectedHeaderRequestParams = "info.f_string=&info.f_child.f_string=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            request.info.fChild ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fChild', 'fString']);
+            request.info.fChild.fString = defaultValue2;
+            const expectedHeaderRequestParams = `info.f_string=${defaultValue1}&info.f_child.f_string=${defaultValue2}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataPathTrailingResource = stubSimpleCall(expectedResponse);
             const [response] = await client.repeatDataPathTrailingResource(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataPathTrailingResource as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.repeatDataPathTrailingResource as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.repeatDataPathTrailingResource as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes repeatDataPathTrailingResource without error using callback', async () => {
@@ -640,21 +737,22 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fChild = {};
-            request.info.fChild.fString = '';
-            const expectedHeaderRequestParams = "info.f_string=&info.f_child.f_string=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            request.info.fChild ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fChild', 'fString']);
+            request.info.fChild.fString = defaultValue2;
+            const expectedHeaderRequestParams = `info.f_string=${defaultValue1}&info.f_child.f_string=${defaultValue2}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataPathTrailingResource = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.repeatDataPathTrailingResource(
@@ -669,8 +767,12 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataPathTrailingResource as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.repeatDataPathTrailingResource as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.repeatDataPathTrailingResource as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes repeatDataPathTrailingResource with error', async () => {
@@ -679,25 +781,28 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fChild = {};
-            request.info.fChild.fString = '';
-            const expectedHeaderRequestParams = "info.f_string=&info.f_child.f_string=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            request.info.fChild ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fChild', 'fString']);
+            request.info.fChild.fString = defaultValue2;
+            const expectedHeaderRequestParams = `info.f_string=${defaultValue1}&info.f_child.f_string=${defaultValue2}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.repeatDataPathTrailingResource = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.repeatDataPathTrailingResource(request), expectedError);
-            assert((client.innerApiCalls.repeatDataPathTrailingResource as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.repeatDataPathTrailingResource as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.repeatDataPathTrailingResource as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes repeatDataPathTrailingResource with closed client', async () => {
@@ -706,12 +811,18 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            request.info = {};
-            request.info.fString = '';
-            request.info = {};
-            request.info.fChild = {};
-            request.info.fChild.fString = '';
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            request.info ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fString']);
+            request.info.fString = defaultValue1;
+            request.info ??= {};
+            request.info.fChild ??= {};
+            const defaultValue2 =
+              getTypeDefaultValue('RepeatRequest', ['info', 'fChild', 'fString']);
+            request.info.fChild.fString = defaultValue2;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.repeatDataPathTrailingResource(request), expectedError);
@@ -725,14 +836,15 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataBodyPut = stubSimpleCall(expectedResponse);
             const [response] = await client.repeatDataBodyPut(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataBodyPut as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataBodyPut without error using callback', async () => {
@@ -741,9 +853,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataBodyPut = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.repeatDataBodyPut(
@@ -758,8 +873,6 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataBodyPut as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes repeatDataBodyPut with error', async () => {
@@ -768,13 +881,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.repeatDataBodyPut = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.repeatDataBodyPut(request), expectedError);
-            assert((client.innerApiCalls.repeatDataBodyPut as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataBodyPut with closed client', async () => {
@@ -783,7 +895,9 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.repeatDataBodyPut(request), expectedError);
@@ -797,14 +911,15 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataBodyPatch = stubSimpleCall(expectedResponse);
             const [response] = await client.repeatDataBodyPatch(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataBodyPatch as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataBodyPatch without error using callback', async () => {
@@ -813,9 +928,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatResponse()
+            );
             client.innerApiCalls.repeatDataBodyPatch = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.repeatDataBodyPatch(
@@ -830,8 +948,6 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.repeatDataBodyPatch as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes repeatDataBodyPatch with error', async () => {
@@ -840,13 +956,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.repeatDataBodyPatch = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.repeatDataBodyPatch(request), expectedError);
-            assert((client.innerApiCalls.repeatDataBodyPatch as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes repeatDataBodyPatch with closed client', async () => {
@@ -855,7 +970,9 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.RepeatRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.RepeatRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.repeatDataBodyPatch(request), expectedError);
@@ -869,14 +986,15 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EnumRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EnumResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumResponse()
+            );
             client.innerApiCalls.getEnum = stubSimpleCall(expectedResponse);
             const [response] = await client.getEnum(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getEnum as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes getEnum without error using callback', async () => {
@@ -885,9 +1003,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EnumRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EnumResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumResponse()
+            );
             client.innerApiCalls.getEnum = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getEnum(
@@ -902,8 +1023,6 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getEnum as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes getEnum with error', async () => {
@@ -912,13 +1031,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EnumRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.getEnum = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getEnum(request), expectedError);
-            assert((client.innerApiCalls.getEnum as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes getEnum with closed client', async () => {
@@ -927,7 +1045,9 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EnumRequest());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumRequest()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.getEnum(request), expectedError);
@@ -941,14 +1061,15 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EnumResponse());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EnumResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumResponse()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumResponse()
+            );
             client.innerApiCalls.verifyEnum = stubSimpleCall(expectedResponse);
             const [response] = await client.verifyEnum(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.verifyEnum as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes verifyEnum without error using callback', async () => {
@@ -957,9 +1078,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EnumResponse());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.showcase.v1beta1.EnumResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumResponse()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumResponse()
+            );
             client.innerApiCalls.verifyEnum = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.verifyEnum(
@@ -974,8 +1098,6 @@ describe('v1beta1.ComplianceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.verifyEnum as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes verifyEnum with error', async () => {
@@ -984,13 +1106,12 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EnumResponse());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumResponse()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.verifyEnum = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.verifyEnum(request), expectedError);
-            assert((client.innerApiCalls.verifyEnum as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes verifyEnum with closed client', async () => {
@@ -999,7 +1120,9 @@ describe('v1beta1.ComplianceClient', () => {
               projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.showcase.v1beta1.EnumResponse());
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EnumResponse()
+            );
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.verifyEnum(request), expectedError);

@@ -289,7 +289,7 @@ request.{{ oneComment.paramName.toCamelCase() }}
       'x-goog-request-params'
     ] = this._gaxModule.routingHeader.fromParams({
 {%- for requestParam in method.headerRequestParams %}
-      '{{ requestParam.toSnakeCaseString(".") }}': request.{{ requestParam.toCamelCaseString("!.") }} || '',
+      '{{ requestParam.toSnakeCaseString(".") }}': request.{{ requestParam.toCamelCaseString("!.") }} ?? '',
 {%- endfor %}
     });
 {%- endif %}
@@ -297,38 +297,54 @@ request.{{ oneComment.paramName.toCamelCase() }}
 
 {%- macro initRequestWithHeaderParam(method, skipExpectedVariable='') -%}
 {# initializing request object for generated unit tests -#}
-            const request = generateSampleMessage(new protos{{ method.inputInterface }}());
+            const request = generateSampleMessage(
+              new protos{{ method.inputInterface }}()
+            );
 {%- if method.headerRequestParams.length > 0 %}
 {#- generated request object for implicit routing headers -#}
+{%- set requestType = method.inputInterface.replace(r/^.*\./, '') -%}
 {%- set expectedRequestParamJoiner = joiner("&") -%}
 {%- set expectedRequestParams = "" -%}
+{%- set valueCounter = 0 -%}
 {%- for requestParam in method.headerRequestParams %}
+{%- set valueCounter = valueCounter + 1 -%}
 {%- set chain = "request" -%}
 {%- set originalName = "" -%}
+{%- set fieldsJoiner = joiner(", ") -%}
+{%- set fields = "" -%}
 {%- for field in requestParam.slice(0, -1) %}
-            {{ chain }}.{{ field.toCamelCase() }} = {};
+            {{ chain }}.{{ field.toCamelCase() }} ??= {};
 {%- set chain = chain + "." + field.toCamelCase() -%}
 {%- set originalName = originalName + field + "." -%}
-{%- endfor %}
-            {{ chain }}.{{ requestParam.slice(-1)[0].toCamelCase() }} = '';
+{%- set fields = fields + fieldsJoiner() + "'" + field.toCamelCase() + "'" -%}
+{%- endfor -%}
+{%- set lastFieldName = requestParam.slice(-1)[0].toCamelCase() -%}
+{%- set fields = fields + fieldsJoiner() + "'" + lastFieldName + "'" %}
+            const defaultValue{{ valueCounter }} =
+              getTypeDefaultValue('{{ requestType }}', [{{ fields | safe }}]);
+            {{ chain }}.{{ lastFieldName }} = defaultValue{{ valueCounter }};
 {%- set expectedRequestParams = expectedRequestParams + expectedRequestParamJoiner() +
-                                originalName + requestParam.slice(-1)[0] + "=" -%}
+                                originalName + requestParam.slice(-1)[0] + "=" +
+                                  "${defaultValue" + valueCounter + "}" -%}
 {%- endfor %}
 {%- if not skipExpectedVariable %}
-            const expectedHeaderRequestParams = "{{ expectedRequestParams | safe }}";
+            const expectedHeaderRequestParams = `{{ expectedRequestParams | safe }}`;
 {%- endif %}
 {%- elif method.dynamicRoutingRequestParams.length > 0 %}
 {#- generated request object for dynamic routing headers -#}
-{%- if not skipExpectedVariable %}
-            const expectedHeaderRequestParamsObj: {[key: string]: string} = {};
-{%- endif %}
-{%- for paramArray in method.dynamicRoutingRequestParams %}
+{#- for unit tests, only take the last template.
+    TODO: figure out how to generate expected value for multiple, possibly overlapping, templates
+-#}
+{%- set expectedKey = "" -%}
+{%- set expectedValue = "" -%}
+{%- for paramArray in method.dynamicRoutingRequestParams.slice(-1) %}
 {%- for param in paramArray %}
 {%- set chain = "request" -%}
 {%- for field in param.fieldRetrieve.slice(0, -1) %}
             {{ chain }}.{{ field.toCamelCase() }} = {};
 {%- set chain = chain + "." + field.toCamelCase() -%}
 {%- endfor %}
+            {%- set expectedKey = param.fieldSend -%}
             {%- if param.pathTemplate %}
             // path template: {{ param.pathTemplate }}
             {#- generate real-looking value for the field that would match the path template -#}
@@ -338,35 +354,32 @@ request.{{ oneComment.paramName.toCamelCase() }}
             // path template is empty
             {%- set fieldValue = 'value' -%}
             {%- set parameterValue = 'value' -%}
-            {%- endif %}
+            {%- endif -%}
+            {%- set expectedValue = parameterValue %}
             {{ chain }}.{{ param.fieldRetrieve.slice(-1)[0].toCamelCase() }} = '{{ fieldValue }}';
-{%- if not skipExpectedVariable %}
-            expectedHeaderRequestParamsObj['{{ param.fieldSend }}'] = '{{ parameterValue }}';
-{%- endif %}
 {%- endfor %}
 {%- endfor %}
 {%- if not skipExpectedVariable %}
-            const expectedHeaderRequestParams = Object.entries(expectedHeaderRequestParamsObj).map(([key, value]) => `${key}=${value}`).join('&');
+            const expectedHeaderRequestParams = '{{ expectedKey }}={{ expectedValue }}';
 {%- endif %}
 {%- endif %}
 {%- endmacro -%}
 
-{%- macro initRequestOptions(method) -%}
+{%- macro verifyHeaderRequestParams(method) -%}
 {%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-{%- else %}
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const actualRequest = (client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
 {%- endif %}
 {%- endmacro -%}
 
-{%- macro initResponse(method) -%}
-            const expectedResponse = generateSampleMessage(new protos{{ method.outputInterface }}());
+{%- macro initResponse(method) %}
+            const expectedResponse = generateSampleMessage(
+              new protos{{ method.outputInterface }}()
+            );
 {%- endmacro -%}
 
 {%- macro initPagingResponse(method) -%}
