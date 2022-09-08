@@ -335,6 +335,8 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {#- for unit tests, only take the last template.
     TODO: figure out how to generate expected value for multiple, possibly overlapping, templates
 -#}
+{%- set expectedKey = "" -%}
+{%- set expectedValue = "" -%}
 {%- for paramArray in method.dynamicRoutingRequestParams.slice(-1) %}
 {%- for param in paramArray %}
 {%- set chain = "request" -%}
@@ -342,6 +344,7 @@ request.{{ oneComment.paramName.toCamelCase() }}
             {{ chain }}.{{ field.toCamelCase() }} = {};
 {%- set chain = chain + "." + field.toCamelCase() -%}
 {%- endfor %}
+            {%- set expectedKey = param.fieldSend -%}
             {%- if param.pathTemplate %}
             // path template: {{ param.pathTemplate }}
             {#- generate real-looking value for the field that would match the path template -#}
@@ -351,12 +354,13 @@ request.{{ oneComment.paramName.toCamelCase() }}
             // path template is empty
             {%- set fieldValue = 'value' -%}
             {%- set parameterValue = 'value' -%}
-            {%- endif %}
+            {%- endif -%}
+            {%- set expectedValue = parameterValue %}
             {{ chain }}.{{ param.fieldRetrieve.slice(-1)[0].toCamelCase() }} = '{{ fieldValue }}';
 {%- endfor %}
 {%- endfor %}
 {%- if not skipExpectedVariable %}
-            const expectedHeaderRequestParams = '{{ param.fieldSend }}={{ parameterValue }}';
+            const expectedHeaderRequestParams = '{{ expectedKey }}={{ expectedValue }}';
 {%- endif %}
 {%- endif %}
 {%- endmacro -%}
