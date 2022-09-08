@@ -27,6 +27,18 @@ import {PassThrough} from 'stream';
 
 import {protobuf} from 'google-gax';
 
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
+
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -262,8 +274,10 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -286,8 +300,10 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -321,8 +337,10 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -344,7 +362,9 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetUserRequest());
-            request.name = '';
+            const defaultValue1 =
+              getTypeDefaultValue('GetUserRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.getUser(request), expectedError);
@@ -359,9 +379,11 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
-            const expectedHeaderRequestParams = "user.name=";
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
+            const expectedHeaderRequestParams = `user.name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -384,9 +406,11 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
-            const expectedHeaderRequestParams = "user.name=";
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
+            const expectedHeaderRequestParams = `user.name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -420,9 +444,11 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
-            const expectedHeaderRequestParams = "user.name=";
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
+            const expectedHeaderRequestParams = `user.name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -444,8 +470,10 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateUserRequest());
-            request.user = {};
-            request.user.name = '';
+            request.user ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateUserRequest', ['user', 'name']);
+            request.user.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.updateUser(request), expectedError);
@@ -460,8 +488,10 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -484,8 +514,10 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -519,8 +551,10 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -542,7 +576,9 @@ describe('v1beta1.IdentityClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteUserRequest());
-            request.name = '';
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteUserRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.deleteUser(request), expectedError);

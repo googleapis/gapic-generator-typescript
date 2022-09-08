@@ -27,6 +27,18 @@ import {PassThrough} from 'stream';
 
 import {protobuf, LROperation, operationsProtos, IamProtos, LocationProtos} from 'google-gax';
 
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
+
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -311,8 +323,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetRoomRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -335,8 +349,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetRoomRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -370,8 +386,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetRoomRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -393,7 +411,9 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetRoomRequest());
-            request.name = '';
+            const defaultValue1 =
+              getTypeDefaultValue('GetRoomRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.getRoom(request), expectedError);
@@ -408,9 +428,11 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
-            request.room = {};
-            request.room.name = '';
-            const expectedHeaderRequestParams = "room.name=";
+            request.room ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateRoomRequest', ['room', 'name']);
+            request.room.name = defaultValue1;
+            const expectedHeaderRequestParams = `room.name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -433,9 +455,11 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
-            request.room = {};
-            request.room.name = '';
-            const expectedHeaderRequestParams = "room.name=";
+            request.room ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateRoomRequest', ['room', 'name']);
+            request.room.name = defaultValue1;
+            const expectedHeaderRequestParams = `room.name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -469,9 +493,11 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
-            request.room = {};
-            request.room.name = '';
-            const expectedHeaderRequestParams = "room.name=";
+            request.room ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateRoomRequest', ['room', 'name']);
+            request.room.name = defaultValue1;
+            const expectedHeaderRequestParams = `room.name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -493,8 +519,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateRoomRequest());
-            request.room = {};
-            request.room.name = '';
+            request.room ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateRoomRequest', ['room', 'name']);
+            request.room.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.updateRoom(request), expectedError);
@@ -509,8 +537,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteRoomRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -533,8 +563,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteRoomRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -568,8 +600,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteRoomRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -591,7 +625,9 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteRoomRequest());
-            request.name = '';
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteRoomRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.deleteRoom(request), expectedError);
@@ -606,8 +642,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('CreateBlurbRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -630,8 +668,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('CreateBlurbRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -665,8 +705,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('CreateBlurbRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -688,7 +730,9 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.CreateBlurbRequest());
-            request.parent = '';
+            const defaultValue1 =
+              getTypeDefaultValue('CreateBlurbRequest', ['parent']);
+            request.parent = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.createBlurb(request), expectedError);
@@ -703,8 +747,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetBlurbRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -727,8 +773,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetBlurbRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -762,8 +810,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetBlurbRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -785,7 +835,9 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetBlurbRequest());
-            request.name = '';
+            const defaultValue1 =
+              getTypeDefaultValue('GetBlurbRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.getBlurb(request), expectedError);
@@ -800,9 +852,11 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
-            request.blurb = {};
-            request.blurb.name = '';
-            const expectedHeaderRequestParams = "blurb.name=";
+            request.blurb ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateBlurbRequest', ['blurb', 'name']);
+            request.blurb.name = defaultValue1;
+            const expectedHeaderRequestParams = `blurb.name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -825,9 +879,11 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
-            request.blurb = {};
-            request.blurb.name = '';
-            const expectedHeaderRequestParams = "blurb.name=";
+            request.blurb ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateBlurbRequest', ['blurb', 'name']);
+            request.blurb.name = defaultValue1;
+            const expectedHeaderRequestParams = `blurb.name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -861,9 +917,11 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
-            request.blurb = {};
-            request.blurb.name = '';
-            const expectedHeaderRequestParams = "blurb.name=";
+            request.blurb ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateBlurbRequest', ['blurb', 'name']);
+            request.blurb.name = defaultValue1;
+            const expectedHeaderRequestParams = `blurb.name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -885,8 +943,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.UpdateBlurbRequest());
-            request.blurb = {};
-            request.blurb.name = '';
+            request.blurb ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('UpdateBlurbRequest', ['blurb', 'name']);
+            request.blurb.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.updateBlurb(request), expectedError);
@@ -901,8 +961,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteBlurbRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -925,8 +987,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteBlurbRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -960,8 +1024,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteBlurbRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -983,7 +1049,9 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.DeleteBlurbRequest());
-            request.name = '';
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteBlurbRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.deleteBlurb(request), expectedError);
@@ -998,8 +1066,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('SearchBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -1023,8 +1093,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('SearchBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -1061,8 +1133,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('SearchBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -1084,8 +1158,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.SearchBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('SearchBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -1142,8 +1218,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('StreamBlurbsRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -1175,8 +1253,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('StreamBlurbsRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -1207,7 +1287,9 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.StreamBlurbsRequest());
-            request.name = '';
+            const defaultValue1 =
+              getTypeDefaultValue('StreamBlurbsRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             const stream = client.streamBlurbs(request);
@@ -1517,8 +1599,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -1545,8 +1629,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -1584,8 +1670,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -1607,8 +1695,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
@@ -1646,8 +1736,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.descriptors.page.listBlurbs.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listBlurbsStream(request);
@@ -1680,8 +1772,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
@@ -1711,8 +1805,10 @@ describe('v1beta1.MessagingClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.ListBlurbsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            const defaultValue1 =
+              getTypeDefaultValue('ListBlurbsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedError = new Error('expected');
             client.descriptors.page.listBlurbs.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listBlurbsAsync(request);
             await assert.rejects(async () => {

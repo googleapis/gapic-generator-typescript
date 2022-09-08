@@ -27,6 +27,18 @@ import {PassThrough} from 'stream';
 
 import {protobuf} from 'google-gax';
 
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
+
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -199,8 +211,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteLogRequest());
-            request.logName = '';
-            const expectedHeaderRequestParams = "log_name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteLogRequest', ['logName']);
+            request.logName = defaultValue1;
+            const expectedHeaderRequestParams = `log_name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -223,8 +237,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteLogRequest());
-            request.logName = '';
-            const expectedHeaderRequestParams = "log_name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteLogRequest', ['logName']);
+            request.logName = defaultValue1;
+            const expectedHeaderRequestParams = `log_name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -258,8 +274,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteLogRequest());
-            request.logName = '';
-            const expectedHeaderRequestParams = "log_name=";
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteLogRequest', ['logName']);
+            request.logName = defaultValue1;
+            const expectedHeaderRequestParams = `log_name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -281,7 +299,9 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.DeleteLogRequest());
-            request.logName = '';
+            const defaultValue1 =
+              getTypeDefaultValue('DeleteLogRequest', ['logName']);
+            request.logName = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.deleteLog(request), expectedError);
@@ -767,8 +787,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListLogsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListLogsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -791,8 +813,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListLogsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListLogsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -826,8 +850,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListLogsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListLogsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -849,8 +875,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListLogsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListLogsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedResponse = [new String(), new String(), new String()];
             client.descriptors.page.listLogs.createStream = stubPageStreamingCall(expectedResponse);
             const stream = client.listLogsStream(request);
@@ -884,8 +912,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListLogsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListLogsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.descriptors.page.listLogs.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listLogsStream(request);
@@ -918,8 +948,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListLogsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const defaultValue1 =
+              getTypeDefaultValue('ListLogsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedResponse = [new String(), new String(), new String()];
             client.descriptors.page.listLogs.asyncIterate = stubAsyncIterationCall(expectedResponse);
             const responses: string[] = [];
@@ -945,8 +977,10 @@ describe('v2.LoggingServiceV2Client', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.logging.v2.ListLogsRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            const defaultValue1 =
+              getTypeDefaultValue('ListLogsRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedError = new Error('expected');
             client.descriptors.page.listLogs.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listLogsAsync(request);
             await assert.rejects(async () => {

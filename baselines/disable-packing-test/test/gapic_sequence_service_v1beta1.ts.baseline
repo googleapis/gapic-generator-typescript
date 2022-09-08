@@ -25,6 +25,18 @@ import * as sequenceserviceModule from '../src';
 
 import {protobuf} from 'google-gax';
 
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
+
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
         .toObject(instance as protobuf.Message<T>, {defaults: true});
@@ -215,8 +227,10 @@ describe('v1beta1.SequenceServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetSequenceReportRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetSequenceReportRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -239,8 +253,10 @@ describe('v1beta1.SequenceServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetSequenceReportRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetSequenceReportRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -274,8 +290,10 @@ describe('v1beta1.SequenceServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetSequenceReportRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('GetSequenceReportRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -297,7 +315,9 @@ describe('v1beta1.SequenceServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.GetSequenceReportRequest());
-            request.name = '';
+            const defaultValue1 =
+              getTypeDefaultValue('GetSequenceReportRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.getSequenceReport(request), expectedError);
@@ -312,8 +332,10 @@ describe('v1beta1.SequenceServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.AttemptSequenceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('AttemptSequenceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -336,8 +358,10 @@ describe('v1beta1.SequenceServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.AttemptSequenceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('AttemptSequenceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -371,8 +395,10 @@ describe('v1beta1.SequenceServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.AttemptSequenceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const defaultValue1 =
+              getTypeDefaultValue('AttemptSequenceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedOptions = {
                 otherArgs: {
                     headers: {
@@ -394,7 +420,9 @@ describe('v1beta1.SequenceServiceClient', () => {
             });
             client.initialize();
             const request = generateSampleMessage(new protos.google.showcase.v1beta1.AttemptSequenceRequest());
-            request.name = '';
+            const defaultValue1 =
+              getTypeDefaultValue('AttemptSequenceRequest', ['name']);
+            request.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
             await assert.rejects(client.attemptSequence(request), expectedError);
