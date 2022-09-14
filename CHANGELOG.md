@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.17.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.16.1...v2.17.0) (2022-09-14)
+
+
+### Features
+
+* Option to request REST numeric enum values ([#1251](https://github.com/googleapis/gapic-generator-typescript/issues/1251)) ([38427db](https://github.com/googleapis/gapic-generator-typescript/commit/38427db4f4e6131ce1013073ab22afc593ef891b))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^3.4.0 ([#1240](https://github.com/googleapis/gapic-generator-typescript/issues/1240)) ([e1307ad](https://github.com/googleapis/gapic-generator-typescript/commit/e1307ad18b86442491a48ef3e4b999bde17573d9))
+* **deps:** Update dependency google-gax to ^3.5.0 ([#1247](https://github.com/googleapis/gapic-generator-typescript/issues/1247)) ([d62fea1](https://github.com/googleapis/gapic-generator-typescript/commit/d62fea15263f3008484c18828ecbc082323e3c12))
+* **deps:** Update dependency google-gax to ^3.5.1 ([#1257](https://github.com/googleapis/gapic-generator-typescript/issues/1257)) ([52a84fe](https://github.com/googleapis/gapic-generator-typescript/commit/52a84fead40fa4d28b0be8694eaca8da169dc23f))
+* **deps:** Update dependency protobufjs to ^7.1.1 ([#1256](https://github.com/googleapis/gapic-generator-typescript/issues/1256)) ([d903269](https://github.com/googleapis/gapic-generator-typescript/commit/d903269a1de54d597530e1b97ea2fe778a468b06))
+* Minify proto JSONs in the build folder of the generated library ([#1258](https://github.com/googleapis/gapic-generator-typescript/issues/1258)) ([b0c2325](https://github.com/googleapis/gapic-generator-typescript/commit/b0c232510ad25f0580e12f80e118e0c38a4db353))
+* Preserve default values in x-goog-request-params ([#1250](https://github.com/googleapis/gapic-generator-typescript/issues/1250)) ([#1248](https://github.com/googleapis/gapic-generator-typescript/issues/1248)) ([f91b28a](https://github.com/googleapis/gapic-generator-typescript/commit/f91b28aead45de514859e5bda2758b37b794c101))
+
 ## [2.16.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.16.0...v2.16.1) (2022-08-30)
 
 
