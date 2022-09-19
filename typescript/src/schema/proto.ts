@@ -754,13 +754,7 @@ function augmentService(parameters: AugmentServiceParameters) {
   ) {
     augmentedService.LocationMixin = 1;
   }
-  if (
-    parameters.options.serviceYaml?.apis.includes(
-      'google.longrunning.Operations'
-    )
-  ) {
-    augmentedService.LongRunningOperationsMixin = 1;
-  }
+
   if (parameters.options.serviceYaml?.http) {
     augmentedService.httpRules = parameters.options.serviceYaml.http.rules;
   }
@@ -812,6 +806,16 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.paging = augmentedService.method.filter(
     method => method.pagingFieldName
   );
+
+  const hasLroMethods = augmentedService.longRunning.length > 0;
+  if (
+    parameters.options.serviceYaml?.apis.includes(
+      'google.longrunning.Operations'
+    ) &&
+    hasLroMethods
+  ) {
+    augmentedService.LongRunningOperationsMixin = 1;
+  }
 
   augmentedService.hostname = '';
   augmentedService.port = 0;
