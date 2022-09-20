@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.18.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.17.0...v2.18.0) (2022-09-20)
+
+
+### Features
+
+* An option to override mixins ([#1266](https://github.com/googleapis/gapic-generator-typescript/issues/1266)) ([2546855](https://github.com/googleapis/gapic-generator-typescript/commit/2546855c516ca93417db1f0ad993604ebb85f43f))
+
+
+### Bug Fixes
+
+* Remove LRO mixin if there are no LRO methods ([#1262](https://github.com/googleapis/gapic-generator-typescript/issues/1262)) ([2d28ae4](https://github.com/googleapis/gapic-generator-typescript/commit/2d28ae41121e298e9078f2ef190c4224e39273ab))
+* Use fully qualified request type name in tests ([#1267](https://github.com/googleapis/gapic-generator-typescript/issues/1267)) ([238156e](https://github.com/googleapis/gapic-generator-typescript/commit/238156ed0352e7d9729ab2eca24ef274b7436419))
+
 ## [2.17.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.16.1...v2.17.0) (2022-09-14)
 
 
