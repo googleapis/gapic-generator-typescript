@@ -174,11 +174,11 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.tableReference ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'projectId']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest', ['tableReference', 'projectId']);
             request.tableReference.projectId = defaultValue1;
             request.tableReference ??= {};
             const defaultValue2 =
-              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'datasetId']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest', ['tableReference', 'datasetId']);
             request.tableReference.datasetId = defaultValue2;
             const expectedHeaderRequestParams = `table_reference.project_id=${defaultValue1}&table_reference.dataset_id=${defaultValue2}`;
             const expectedResponse = generateSampleMessage(
@@ -206,11 +206,11 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.tableReference ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'projectId']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest', ['tableReference', 'projectId']);
             request.tableReference.projectId = defaultValue1;
             request.tableReference ??= {};
             const defaultValue2 =
-              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'datasetId']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest', ['tableReference', 'datasetId']);
             request.tableReference.datasetId = defaultValue2;
             const expectedHeaderRequestParams = `table_reference.project_id=${defaultValue1}&table_reference.dataset_id=${defaultValue2}`;
             const expectedResponse = generateSampleMessage(
@@ -249,11 +249,11 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.tableReference ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'projectId']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest', ['tableReference', 'projectId']);
             request.tableReference.projectId = defaultValue1;
             request.tableReference ??= {};
             const defaultValue2 =
-              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'datasetId']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest', ['tableReference', 'datasetId']);
             request.tableReference.datasetId = defaultValue2;
             const expectedHeaderRequestParams = `table_reference.project_id=${defaultValue1}&table_reference.dataset_id=${defaultValue2}`;
             const expectedError = new Error('expected');
@@ -278,11 +278,11 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.tableReference ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'projectId']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest', ['tableReference', 'projectId']);
             request.tableReference.projectId = defaultValue1;
             request.tableReference ??= {};
             const defaultValue2 =
-              getTypeDefaultValue('CreateReadSessionRequest', ['tableReference', 'datasetId']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.CreateReadSessionRequest', ['tableReference', 'datasetId']);
             request.tableReference.datasetId = defaultValue2;
             const expectedError = new Error('The client has already been closed.');
             client.close();
@@ -302,7 +302,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.session ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('BatchCreateReadSessionStreamsRequest', ['session', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest', ['session', 'name']);
             request.session.name = defaultValue1;
             const expectedHeaderRequestParams = `session.name=${defaultValue1}`;
             const expectedResponse = generateSampleMessage(
@@ -330,7 +330,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.session ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('BatchCreateReadSessionStreamsRequest', ['session', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest', ['session', 'name']);
             request.session.name = defaultValue1;
             const expectedHeaderRequestParams = `session.name=${defaultValue1}`;
             const expectedResponse = generateSampleMessage(
@@ -369,7 +369,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.session ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('BatchCreateReadSessionStreamsRequest', ['session', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest', ['session', 'name']);
             request.session.name = defaultValue1;
             const expectedHeaderRequestParams = `session.name=${defaultValue1}`;
             const expectedError = new Error('expected');
@@ -394,7 +394,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.session ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('BatchCreateReadSessionStreamsRequest', ['session', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.BatchCreateReadSessionStreamsRequest', ['session', 'name']);
             request.session.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
@@ -414,7 +414,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.stream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('FinalizeStreamRequest', ['stream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest', ['stream', 'name']);
             request.stream.name = defaultValue1;
             const expectedHeaderRequestParams = `stream.name=${defaultValue1}`;
             const expectedResponse = generateSampleMessage(
@@ -442,7 +442,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.stream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('FinalizeStreamRequest', ['stream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest', ['stream', 'name']);
             request.stream.name = defaultValue1;
             const expectedHeaderRequestParams = `stream.name=${defaultValue1}`;
             const expectedResponse = generateSampleMessage(
@@ -481,7 +481,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.stream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('FinalizeStreamRequest', ['stream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest', ['stream', 'name']);
             request.stream.name = defaultValue1;
             const expectedHeaderRequestParams = `stream.name=${defaultValue1}`;
             const expectedError = new Error('expected');
@@ -506,7 +506,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.stream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('FinalizeStreamRequest', ['stream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.FinalizeStreamRequest', ['stream', 'name']);
             request.stream.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
@@ -526,7 +526,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.originalStream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('SplitReadStreamRequest', ['originalStream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest', ['originalStream', 'name']);
             request.originalStream.name = defaultValue1;
             const expectedHeaderRequestParams = `original_stream.name=${defaultValue1}`;
             const expectedResponse = generateSampleMessage(
@@ -554,7 +554,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.originalStream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('SplitReadStreamRequest', ['originalStream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest', ['originalStream', 'name']);
             request.originalStream.name = defaultValue1;
             const expectedHeaderRequestParams = `original_stream.name=${defaultValue1}`;
             const expectedResponse = generateSampleMessage(
@@ -593,7 +593,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.originalStream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('SplitReadStreamRequest', ['originalStream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest', ['originalStream', 'name']);
             request.originalStream.name = defaultValue1;
             const expectedHeaderRequestParams = `original_stream.name=${defaultValue1}`;
             const expectedError = new Error('expected');
@@ -618,7 +618,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             );
             request.originalStream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('SplitReadStreamRequest', ['originalStream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.SplitReadStreamRequest', ['originalStream', 'name']);
             request.originalStream.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
@@ -639,7 +639,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             request.readPosition ??= {};
             request.readPosition.stream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('ReadRowsRequest', ['readPosition', 'stream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest', ['readPosition', 'stream', 'name']);
             request.readPosition.stream.name = defaultValue1;
             const expectedHeaderRequestParams = `read_position.stream.name=${defaultValue1}`;
             const expectedResponse = generateSampleMessage(
@@ -677,7 +677,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             request.readPosition ??= {};
             request.readPosition.stream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('ReadRowsRequest', ['readPosition', 'stream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest', ['readPosition', 'stream', 'name']);
             request.readPosition.stream.name = defaultValue1;
             const expectedHeaderRequestParams = `read_position.stream.name=${defaultValue1}`;
             const expectedError = new Error('expected');
@@ -712,7 +712,7 @@ describe('v1beta1.BigQueryStorageClient', () => {
             request.readPosition ??= {};
             request.readPosition.stream ??= {};
             const defaultValue1 =
-              getTypeDefaultValue('ReadRowsRequest', ['readPosition', 'stream', 'name']);
+              getTypeDefaultValue('.google.cloud.bigquery.storage.v1beta1.ReadRowsRequest', ['readPosition', 'stream', 'name']);
             request.readPosition.stream.name = defaultValue1;
             const expectedError = new Error('The client has already been closed.');
             client.close();
