@@ -79,6 +79,7 @@ export class Generator {
   diregapic?: boolean;
   legacyProtoLoad?: boolean;
   restNumericEnums?: boolean;
+  mixinsOverride?: string[];
 
   constructor() {
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.create();
@@ -170,6 +171,16 @@ export class Generator {
       }
       this.serviceYaml.apis = serviceMixins;
     }
+    // override if needed
+    if (this.mixinsOverride) {
+      if (!this.serviceYaml) {
+        this.serviceYaml = {title: '', apis: [], http: {rules: []}};
+      }
+      this.serviceYaml.apis =
+        this.mixinsOverride.length === 1 && this.mixinsOverride[0] === 'none'
+          ? []
+          : this.mixinsOverride.filter(m => m !== 'none');
+    }
   }
 
   private readPublishPackageName() {
@@ -221,6 +232,12 @@ export class Generator {
     }
   }
 
+  private readMixins() {
+    if (this.paramMap['mixins']) {
+      this.mixinsOverride = this.paramMap['mixins'].split(',');
+    }
+  }
+
   async initializeFromStdin() {
     const inputBuffer = await getStdin();
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.decode(
@@ -230,6 +247,7 @@ export class Generator {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig();
       this.readBundleConfig();
+      this.readMixins();
       this.readServiceYaml();
       this.readPublishPackageName();
       this.readMainServiceName();

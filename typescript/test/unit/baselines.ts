@@ -61,6 +61,7 @@ describe('Baseline tests', () => {
     outputDir: '.test-out-redis',
     protoPath: 'google/cloud/redis/v1beta1/*.proto',
     useCommonProto: true,
+    mixins: 'google.longrunning.Operations',
   });
 
   runBaselineTest({
@@ -73,6 +74,7 @@ describe('Baseline tests', () => {
     template: 'typescript_gapic;typescript_packing_test',
     metadata: true,
     restNumericEnums: true,
+    mixins: 'none',
   });
 
   runBaselineTest({
