@@ -40,6 +40,7 @@ export interface BaselineOptions {
   transport?: string;
   diregapic?: boolean;
   restNumericEnums?: boolean;
+  mixins?: string;
 }
 
 const cwd = process.cwd();
@@ -133,6 +134,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (options.diregapic) {
       commandLine += ' --diregapic';
+    }
+    if (options.mixins) {
+      commandLine += ` --mixins="${options.mixins}"`;
     }
     execSync(commandLine);
     assert(equalToBaseline(outputDir, baselineDir));
