@@ -812,7 +812,8 @@ function augmentService(parameters: AugmentServiceParameters) {
     parameters.options.serviceYaml?.apis.includes(
       'google.longrunning.Operations'
     ) &&
-    hasLroMethods
+    // enable LRO mixin if either LRO methods exist, or overridden by an option
+    (hasLroMethods || parameters.options.mixinsOverridden)
   ) {
     augmentedService.LongRunningOperationsMixin = 1;
   }

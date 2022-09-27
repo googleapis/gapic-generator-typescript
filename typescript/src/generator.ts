@@ -172,7 +172,7 @@ export class Generator {
       this.serviceYaml.apis = serviceMixins;
     }
     // override if needed
-    if (this.mixinsOverride) {
+    if (this.mixinsOverride !== undefined) {
       if (!this.serviceYaml) {
         this.serviceYaml = {title: '', apis: [], http: {rules: []}};
       }
@@ -234,7 +234,7 @@ export class Generator {
 
   private readMixins() {
     if (this.paramMap['mixins']) {
-      this.mixinsOverride = this.paramMap['mixins'].split(',');
+      this.mixinsOverride = this.paramMap['mixins'].split(';');
     }
   }
 
@@ -299,6 +299,7 @@ export class Generator {
       handwrittenLayer: this.handwrittenLayer,
       legacyProtoLoad: this.legacyProtoLoad,
       restNumericEnums: this.restNumericEnums,
+      mixinsOverridden: this.mixinsOverride !== undefined,
     });
     return api;
   }

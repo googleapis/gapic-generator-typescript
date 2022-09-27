@@ -111,8 +111,9 @@ yargs.boolean('rest-numeric-enums');
 yargs.alias('rest-numeric-enums', 'rest_numeric_enums');
 yargs.describe(
   'mixins',
-  'Override the list of mixins to use. Comma-separated list of API names to mixin, e.g. google.longrunning.Operations. Use "none" to disable all mixins.'
+  'Override the list of mixins to use. Semicolon-separated list of API names to mixin, e.g. google.longrunning.Operations. Use "none" to disable all mixins.'
 );
+yargs.string('mixins');
 yargs.describe('protoc', 'Path to protoc binary');
 yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');
@@ -139,6 +140,7 @@ export interface IArguments {
   handwrittenLayer?: boolean;
   legacyProtoLoad?: boolean;
   restNumericEnums?: boolean;
+  mixins?: string;
   _: string[];
   $0: string;
 }
