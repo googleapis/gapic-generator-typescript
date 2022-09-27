@@ -29,6 +29,7 @@ export interface Options {
   handwrittenLayer?: boolean;
   legacyProtoLoad?: boolean;
   restNumericEnums?: boolean;
+  mixinsOverridden?: boolean;
 }
 
 export class Naming {
