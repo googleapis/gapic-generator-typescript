@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.18.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.18.1...v2.18.2) (2022-09-27)
+
+
+### Bug Fixes
+
+* Mixins override command line processing ([#1277](https://github.com/googleapis/gapic-generator-typescript/issues/1277)) ([03bf5a7](https://github.com/googleapis/gapic-generator-typescript/commit/03bf5a73cf09abf2a394a13d7ceb4a05adf6912d))
+
 ## [2.18.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.18.0...v2.18.1) (2022-09-23)
 
 
