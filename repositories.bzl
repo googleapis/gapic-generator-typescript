@@ -31,7 +31,7 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "com_google_protobuf",
-      sha256 = "73c95c7b0c13f597a6a1fec7121b07e90fd12b4ed7ff5a781253b3afe07fc077",
-      strip_prefix = "protobuf-3.21.6",
-      urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.21.6.tar.gz"],
+      sha256 = "543395bc2ae58e72f7be674221db08b8f14e3bd7e3a19158f76105b3b61570a0",
+      strip_prefix = "protobuf-3.21.8",
+      urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.21.8.tar.gz"],
   )
