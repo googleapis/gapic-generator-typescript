@@ -5,18 +5,18 @@ def gapic_generator_typescript_repositories():
   maybe(
     http_archive,
     name = "build_bazel_rules_nodejs",
-    sha256 = "d63ecec7192394f5cc4ad95a115f8a6c9de55c60d56c1f08da79c306355e4654",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.6.1/rules_nodejs-4.6.1.tar.gz"],
+    sha256 = "c911b5bd8aee8b0498cc387cacdb5f917098ce477fb4182db07b0ef8a9e045c0",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.7.1/rules_nodejs-4.7.1.tar.gz"],
   )
 
   maybe(
       http_archive,
       name = "rules_proto",
-      sha256 = "602e7161d9195e50246177e7c55b2f39950a9cf7366f74ed5f22fd45750cd208",
-      strip_prefix = "rules_proto-97d8af4dc474595af3900dd85cb3a29ad28cc313",
+      sha256 = "f0827d1bbb4abd97f5ce73baed0bd774a86c6103aff2104caf70ba3b2218ec0a",
+      strip_prefix = "rules_proto-ea52a32ecd862c5317572cadecaa525c52124f9d",
       urls = [
-          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/97d8af4dc474595af3900dd85cb3a29ad28cc313.tar.gz",
-          "https://github.com/bazelbuild/rules_proto/archive/97d8af4dc474595af3900dd85cb3a29ad28cc313.tar.gz",
+          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/ea52a32ecd862c5317572cadecaa525c52124f9d.tar.gz",
+          "https://github.com/bazelbuild/rules_proto/archive/ea52a32ecd862c5317572cadecaa525c52124f9d.tar.gz",
       ],
   )
 
@@ -27,11 +27,11 @@ def gapic_generator_typescript_repositories():
       strip_prefix = "rules_gapic-%s" % _rules_gapic_version,
       urls = ["https://github.com/googleapis/rules_gapic/archive/v%s.tar.gz" % _rules_gapic_version],
   )
- 
+
   maybe(
       http_archive,
       name = "com_google_protobuf",
-      sha256 = "07f8a02afc14a657f727ed89a8ec5627b9ecc47116d60acaabaa1da233bd2e8f",
-      strip_prefix = "protobuf-3.15.4",
-      urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.15.4.tar.gz"],
+      sha256 = "543395bc2ae58e72f7be674221db08b8f14e3bd7e3a19158f76105b3b61570a0",
+      strip_prefix = "protobuf-3.21.8",
+      urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.21.8.tar.gz"],
   )

@@ -61,6 +61,7 @@ describe('Baseline tests', () => {
     outputDir: '.test-out-redis',
     protoPath: 'google/cloud/redis/v1beta1/*.proto',
     useCommonProto: true,
+    mixins: 'google.longrunning.Operations',
   });
 
   runBaselineTest({
@@ -72,6 +73,8 @@ describe('Baseline tests', () => {
     serviceYaml: 'google/showcase/v1beta1/showcase_v1beta1.yaml',
     template: 'typescript_gapic;typescript_packing_test',
     metadata: true,
+    restNumericEnums: true,
+    mixins: 'none',
   });
 
   runBaselineTest({
@@ -111,10 +114,11 @@ describe('Baseline tests', () => {
   runBaselineTest({
     baselineName: 'logging',
     outputDir: '.test-out-logging',
-    protoPath: 'google/logging/v2/*.proto',
+    protoPath: 'google/logging/v2/*.proto;google/logging/type/*.proto',
     useCommonProto: true,
     bundleConfig: 'google/logging/v2/logging_gapic.yaml',
     mainServiceName: 'LoggingService',
+    grpcServiceConfig: 'google/logging/v2/logging_grpc_service_config.json',
   });
 
   runBaselineTest({

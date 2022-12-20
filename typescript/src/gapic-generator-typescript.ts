@@ -20,7 +20,13 @@ import * as yargs from 'yargs';
 import * as fs from 'fs-extra';
 
 const googleGaxPath = path.dirname(require.resolve('google-gax')); // ...../google-gax/build/src
-const googleGaxProtosDir = path.join(googleGaxPath, '..', '..', 'protos');
+const googleGaxProtosDir = path.join(
+  googleGaxPath,
+  '..',
+  '..',
+  'build',
+  'protos'
+);
 const allTemplates = fs.readdirSync(
   path.join(__dirname, '..', '..', 'templates')
 );
@@ -97,6 +103,17 @@ yargs.describe(
 );
 yargs.boolean('legacy-proto-load');
 yargs.alias('legacy-proto-load', 'legacy_proto_load');
+yargs.describe(
+  'rest_numeric_enums',
+  'The generated library will pass and accept enum values as numbers when using the HTTP/1.1 REST transport.'
+);
+yargs.boolean('rest-numeric-enums');
+yargs.alias('rest-numeric-enums', 'rest_numeric_enums');
+yargs.describe(
+  'mixins',
+  'Override the list of mixins to use. Semicolon-separated list of API names to mixin, e.g. google.longrunning.Operations. Use "none" to disable all mixins.'
+);
+yargs.string('mixins');
 yargs.describe('protoc', 'Path to protoc binary');
 yargs.usage('Usage: $0 -I /path/to/googleapis');
 yargs.usage('  --output_dir /path/to/output_directory');
@@ -122,6 +139,8 @@ export interface IArguments {
   diregapic?: boolean;
   handwrittenLayer?: boolean;
   legacyProtoLoad?: boolean;
+  restNumericEnums?: boolean;
+  mixins?: string;
   _: string[];
   $0: string;
 }
@@ -141,6 +160,8 @@ const transport = argv.transport as string | undefined;
 const diregapic = argv.diregapic as boolean | undefined;
 const handwrittenLayer = argv.handwrittenLayer as boolean | undefined;
 const legacyProtoLoad = argv.legacyProtoLoad as boolean | undefined;
+const restNumericEnums = argv.restNumericEnums as boolean | undefined;
+const mixins = argv.mixins as string | undefined;
 
 // --protoc can be passed from BUILD.bazel and overridden from the command line
 let protocParameter = argv.protoc as string | string[] | undefined;
@@ -208,6 +229,12 @@ if (transport && transport === 'rest') {
 }
 if (legacyProtoLoad) {
   protocCommand.push('--typescript_gapic_opt="legacy-proto-load"');
+}
+if (restNumericEnums) {
+  protocCommand.push('--typescript_gapic_opt="rest-numeric-enums"');
+}
+if (mixins) {
+  protocCommand.push(`--typescript_gapic_opt="mixins=${mixins}"`);
 }
 protocCommand.push(...protoDirsArg);
 protocCommand.push(...protoFiles);

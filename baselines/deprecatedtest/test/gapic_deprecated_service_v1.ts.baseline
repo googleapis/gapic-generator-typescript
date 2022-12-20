@@ -20,10 +20,23 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as deprecatedserviceModule from '../src';
 
 import {protobuf} from 'google-gax';
+
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -40,82 +53,99 @@ function stubSimpleCallWithCallback<ResponseType>(response?: ResponseType, error
 }
 
 describe('v1.DeprecatedServiceClient', () => {
-    it('has servicePath', () => {
-        const servicePath = deprecatedserviceModule.v1.DeprecatedServiceClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = deprecatedserviceModule.v1.DeprecatedServiceClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = deprecatedserviceModule.v1.DeprecatedServiceClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new deprecatedserviceModule.v1.DeprecatedServiceClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = deprecatedserviceModule.v1.DeprecatedServiceClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+        it('has apiEndpoint', () => {
+            const apiEndpoint = deprecatedserviceModule.v1.DeprecatedServiceClient.apiEndpoint;
+            assert(apiEndpoint);
+        });
+
+        it('has port', () => {
+            const port = deprecatedserviceModule.v1.DeprecatedServiceClient.port;
+            assert(port);
+            assert(typeof port === 'number');
+        });
+
+        it('should create a client with no option', () => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient();
+            assert(client);
+        });
+
+        it('should create a client with gRPC fallback', () => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+                fallback: true,
+            });
+            assert(client);
+        });
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
+            });
+            assert.strictEqual(client.deprecatedServiceStub, undefined);
+            await client.initialize();
+            assert(client.deprecatedServiceStub);
         });
-        assert.strictEqual(client.deprecatedServiceStub, undefined);
-        await client.initialize();
-        assert(client.deprecatedServiceStub);
-    });
 
-    it('has close method', () => {
-        const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+        it('has close method for the initialized client', done => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
-        client.close();
-    });
-
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
-
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
-              credentials: {client_email: 'bogus', private_key: 'bogus'},
-              projectId: 'bogus',
-        });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+            });
+            client.initialize();
+            assert(client.deprecatedServiceStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.deprecatedServiceStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('fastFibonacci', () => {
@@ -123,27 +153,31 @@ describe('v1.DeprecatedServiceClient', () => {
             const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.deprecatedtest.v1.FibonacciRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.fastFibonacci = stubSimpleCall(expectedResponse);
             const [response] = await client.fastFibonacci(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.fastFibonacci as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes fastFibonacci without error using callback', async () => {
             const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.deprecatedtest.v1.FibonacciRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.fastFibonacci = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.fastFibonacci(
@@ -158,23 +192,34 @@ describe('v1.DeprecatedServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.fastFibonacci as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes fastFibonacci with error', async () => {
             const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.deprecatedtest.v1.FibonacciRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.fastFibonacci = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.fastFibonacci(request), expectedError);
-            assert((client.innerApiCalls.fastFibonacci as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes fastFibonacci with closed client', async () => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.deprecatedtest.v1.FibonacciRequest()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.fastFibonacci(request), expectedError);
         });
     });
 
@@ -183,30 +228,34 @@ describe('v1.DeprecatedServiceClient', () => {
             const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const stub = sinon.stub(client, 'warn');
             client.initialize();
-            const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.deprecatedtest.v1.FibonacciRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.slowFibonacci = stubSimpleCall(expectedResponse);
             const [response] = await client.slowFibonacci(request);
             assert(stub.calledOnce);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.slowFibonacci as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes slowFibonacci without error using callback', async () => {
             const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const stub = sinon.stub(client, 'warn');
             client.initialize();
-            const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.deprecatedtest.v1.FibonacciRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.slowFibonacci = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.slowFibonacci(
@@ -222,25 +271,38 @@ describe('v1.DeprecatedServiceClient', () => {
             const response = await promise;
             assert(stub.calledOnce);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.slowFibonacci as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes slowFibonacci with error', async () => {
             const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
               projectId: 'bogus',
-        });
+            });
             const stub = sinon.stub(client, 'warn');
             client.initialize();
-            const request = generateSampleMessage(new protos.google.deprecatedtest.v1.FibonacciRequest());
-            const expectedOptions = {otherArgs: {headers: {}}};;
+            const request = generateSampleMessage(
+              new protos.google.deprecatedtest.v1.FibonacciRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.slowFibonacci = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.slowFibonacci(request), expectedError);
             assert(stub.calledOnce);
-            assert((client.innerApiCalls.slowFibonacci as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes slowFibonacci with closed client', async () => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            const stub = sinon.stub(client, 'warn');
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.deprecatedtest.v1.FibonacciRequest()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.slowFibonacci(request), expectedError);
+            assert(stub.calledOnce);
         });
     });
 });

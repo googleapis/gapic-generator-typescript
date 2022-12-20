@@ -39,6 +39,7 @@ export class API {
   diregapic?: boolean;
   handwrittenLayer?: boolean;
   legacyProtoLoad: boolean;
+  restNumericEnums: boolean;
 
   static isIgnoredService(
     fd: protos.google.protobuf.IFileDescriptorProto
@@ -52,6 +53,7 @@ export class API {
       fd.package === 'google.protobuf' ||
       fd.package === 'google.type' ||
       fd.package === 'google.rpc' ||
+      fd.package === 'google.rpc.context' ||
       fd.package === 'google.api'
     );
   }
@@ -93,6 +95,7 @@ export class API {
     this.rest = options.rest;
     this.diregapic = options.diregapic ?? false;
     this.legacyProtoLoad = options.legacyProtoLoad ?? false;
+    this.restNumericEnums = options.restNumericEnums ?? false;
 
     const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
       fileDescriptors

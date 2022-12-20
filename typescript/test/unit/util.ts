@@ -20,10 +20,7 @@ import {
   seconds,
   milliseconds,
   isDigit,
-  checkIfArrayContainsOnlyOneNamedSegment,
-  convertSegmentToRegex,
-  convertTemplateToRegex,
-  getNamedSegment,
+  processPathTemplate,
 } from '../../src/util';
 import * as protos from '../../../protos';
 
@@ -140,11 +137,35 @@ describe('src/util.ts', () => {
         'case',
         'string',
       ]);
+      assert.deepStrictEqual('camelCaseABCString'.words(), [
+        'camel',
+        'case',
+        'a',
+        'b',
+        'c',
+        'string',
+      ]);
+      assert.deepStrictEqual(
+        'camelCaseABCString'.words(/*protobufJsStyle:*/ true),
+        ['camel', 'case', 'abc', 'string']
+      );
       assert.deepStrictEqual('PascalCaseString'.words(), [
         'pascal',
         'case',
         'string',
       ]);
+      assert.deepStrictEqual('PascalCaseABCString'.words(), [
+        'pascal',
+        'case',
+        'a',
+        'b',
+        'c',
+        'string',
+      ]);
+      assert.deepStrictEqual(
+        'PascalCaseABCString'.words(/*protobufJsStyle:*/ true),
+        ['pascal', 'case', 'abc', 'string']
+      );
       assert.deepStrictEqual('snake_case_string'.words(), [
         'snake',
         'case',
@@ -208,6 +229,14 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(
         'display_video_360_advertiser_link'.toCamelCase(),
         'displayVideo_360AdvertiserLink'
+      );
+      assert.deepStrictEqual(
+        'CreateOSSomething'.toCamelCase(),
+        'createOSSomething'
+      );
+      assert.deepStrictEqual(
+        'CreateOSSomething'.toCamelCase(/*protobufJsStyle:*/ true),
+        'createOsSomething'
       );
     });
 
@@ -423,167 +452,63 @@ describe('src/util.ts', () => {
     });
   });
 
-  describe('Array check', () => {
-    it('should get return true if an array of strings contains exactly one named segment', () => {
-      assert.deepStrictEqual(
-        checkIfArrayContainsOnlyOneNamedSegment(['database=projects', 'foo']),
-        true
-      );
-      assert.deepStrictEqual(
-        checkIfArrayContainsOnlyOneNamedSegment([
-          'database',
-          '123',
-          'pho123=yummy234',
-        ]),
-        true
-      );
-      assert.deepStrictEqual(
-        checkIfArrayContainsOnlyOneNamedSegment(['=projects', 'foo']),
-        false
-      );
-      assert.deepStrictEqual(
-        checkIfArrayContainsOnlyOneNamedSegment(['projects', 'foo=']),
-        false
-      );
-      assert.deepStrictEqual(
-        checkIfArrayContainsOnlyOneNamedSegment(['projects', 'foo=*']),
-        true
-      );
-      assert.deepStrictEqual(
-        checkIfArrayContainsOnlyOneNamedSegment([
-          'database=projects',
-          'foo=bar',
-          'cat',
-        ]),
-        false
-      );
-      assert.deepStrictEqual(
-        checkIfArrayContainsOnlyOneNamedSegment([
-          'database=projects',
-          'foo=*',
-          'cat',
-        ]),
-        false
-      );
-      assert.deepStrictEqual(
-        checkIfArrayContainsOnlyOneNamedSegment([
-          'database=projects',
-          'foo=**',
-          'cat',
-        ]),
-        false
-      );
-      assert.deepStrictEqual(
-        checkIfArrayContainsOnlyOneNamedSegment(['{database}', 'cat']),
-        true
-      );
-    });
-  });
-  describe('Strings to regex', () => {
-    it('should get convert a path template segment into regex', () => {
-      assert.deepStrictEqual(convertSegmentToRegex('{foo}'), '(?<foo>[^/]+)');
-      assert.deepStrictEqual(convertSegmentToRegex('{foo=*}'), '(?<foo>[^/]+)');
-      assert.deepStrictEqual(
-        convertSegmentToRegex('{foo=**}'),
-        '(?<foo>(?:/.*)?)'
-      );
-      assert.deepStrictEqual(convertSegmentToRegex('{foo=bar}'), '(?<foo>bar)');
-      assert.deepStrictEqual(convertSegmentToRegex('{foo=bar'), '(?<foo>bar)');
-      assert.deepStrictEqual(convertSegmentToRegex('*'), '[^/]+');
-      assert.deepStrictEqual(convertSegmentToRegex('*}'), '[^/]+');
-      assert.deepStrictEqual(convertSegmentToRegex('**'), '(?:/.*)?');
-      assert.deepStrictEqual(convertSegmentToRegex('foo'), 'foo');
-    });
-  });
-
   describe('Path template to regex', () => {
     it('should get convert a full path template into regex', () => {
-      assert.deepStrictEqual(convertTemplateToRegex('{foo}'), '(?<foo>[^/]+)');
+      assert.deepStrictEqual(processPathTemplate('{foo}'), {
+        fieldSend: 'foo',
+        messageRegex: '(?<foo>[^/]+)',
+      });
+      assert.deepStrictEqual(processPathTemplate('{foo=*}'), {
+        fieldSend: 'foo',
+        messageRegex: '(?<foo>[^/]+)',
+      });
+      assert.deepStrictEqual(processPathTemplate('{foo=**}'), {
+        fieldSend: 'foo',
+        messageRegex: '(?<foo>(?:.*)?)',
+      });
+      assert.deepStrictEqual(processPathTemplate('{foo=bar}'), {
+        fieldSend: 'foo',
+        messageRegex: '(?<foo>bar)',
+      });
+      assert.deepStrictEqual(processPathTemplate('*'), null);
+      assert.deepStrictEqual(processPathTemplate('*}'), null);
+      assert.deepStrictEqual(processPathTemplate('**'), null);
       assert.deepStrictEqual(
-        convertTemplateToRegex('{foo=*}'),
-        '(?<foo>[^/]+)'
-      );
-      assert.deepStrictEqual(
-        convertTemplateToRegex('{foo=**}'),
-        '(?<foo>(?:/.*)?)'
-      );
-      assert.deepStrictEqual(
-        convertTemplateToRegex('{foo=bar}'),
-        '(?<foo>bar)'
-      );
-      assert.deepStrictEqual(convertTemplateToRegex('{foo=bar'), '(?<foo>bar)');
-      assert.deepStrictEqual(convertTemplateToRegex('*'), '[^/]+');
-      assert.deepStrictEqual(convertTemplateToRegex('*}'), '[^/]+');
-      assert.deepStrictEqual(convertTemplateToRegex('**'), '(?:/.*)?');
-      assert.deepStrictEqual(
-        convertTemplateToRegex(
+        processPathTemplate(
           'test/{database=projects/*/databases/*}/documents/*/**'
         ),
-        'test/(?<database>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?'
+        {
+          fieldSend: 'database',
+          messageRegex:
+            'test/(?<database>projects/[^/]+/databases/[^/]+)/documents/[^/]+(?:/.*)?',
+        }
       );
       assert.deepStrictEqual(
-        convertTemplateToRegex(
-          '{database=projects/*/databases/*}/documents/*/**'
-        ),
-        '(?<database>projects)/[^/]+/databases/[^/]+/documents/[^/]+(?:/.*)?'
+        processPathTemplate('{database=projects/*/databases/*}/documents/*/**'),
+        {
+          fieldSend: 'database',
+          messageRegex:
+            '(?<database>projects/[^/]+/databases/[^/]+)/documents/[^/]+(?:/.*)?',
+        }
       );
       assert.deepStrictEqual(
-        convertTemplateToRegex(
-          '{new_name_match=projects/*/instances/*/tables/*}'
-        ),
-        '(?<new_name_match>projects)/[^/]+/instances/[^/]+/tables/[^/]+'
+        processPathTemplate('{new_name_match=projects/*/instances/*/tables/*}'),
+        {
+          fieldSend: 'new_name_match',
+          messageRegex:
+            '(?<new_name_match>projects/[^/]+/instances/[^/]+/tables/[^/]+)',
+        }
       );
       assert.deepStrictEqual(
-        convertTemplateToRegex('{routing_id=projects/*}/**'),
-        '(?<routing_id>projects)/[^/]+(?:/.*)?'
+        processPathTemplate('{routing_id=projects/*}/**'),
+        {
+          fieldSend: 'routing_id',
+          messageRegex: '(?<routing_id>projects/[^/]+)(?:/.*)?',
+        }
       );
-      assert.deepStrictEqual(
-        convertTemplateToRegex('profiles/{routing_id=*}'),
-        'profiles/(?<routing_id>[^/]+)'
-      );
-    });
-  });
-
-  describe('Path template matching', () => {
-    it('should get the named segment information from a full path template', () => {
-      assert.deepStrictEqual(
-        getNamedSegment('{database=projects/*/databases/*}/documents/*/**'),
-        [
-          'database=projects/*/databases/*',
-          'database',
-          'projects/*/databases/*',
-          '(?<database>projects/[^/]+/databases/[^/]+)',
-        ]
-      );
-      assert.deepStrictEqual(
-        getNamedSegment('test/{table=projects/*/databases/*}/documents/*/**'),
-        [
-          'table=projects/*/databases/*',
-          'table',
-          'projects/*/databases/*',
-          '(?<table>projects/[^/]+/databases/[^/]+)',
-        ]
-      );
-      assert.deepStrictEqual(getNamedSegment('{routing_id=**}'), [
-        'routing_id=**',
-        'routing_id',
-        '**',
-        '(?<routing_id>.*)',
-      ]);
-      assert.deepStrictEqual(getNamedSegment('{database}'), [
-        'database',
-        'database',
-        '*',
-        '[^/]+',
-      ]);
-      it('should return an empty array if the path template does not contain exactly one named segment', () => {
-        assert.deepStrictEqual(getNamedSegment('test/database'), []);
-        assert.deepStrictEqual(
-          getNamedSegment(
-            'test/{database=projects/*/databases/*}/documents/*/**/{hello=world}'
-          ),
-          []
-        );
+      assert.deepStrictEqual(processPathTemplate('profiles/{routing_id=*}'), {
+        fieldSend: 'routing_id',
+        messageRegex: 'profiles/(?<routing_id>[^/]+)',
       });
     });
   });

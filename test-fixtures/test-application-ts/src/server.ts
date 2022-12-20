@@ -23,7 +23,7 @@ const SHOWCASE_SERVER = path.join(
 );
 
 export class Server {
-  pid: number = -1;
+  pid: number | undefined = -1;
   constrcutor() {}
   run() {
     if (!fs.existsSync(SHOWCASE_SERVER)) {
@@ -34,6 +34,10 @@ export class Server {
     this.pid = child_process.spawn(`${SHOWCASE_SERVER}`, ['run']).pid;
   }
   kill() {
-    process.kill(this.pid);
+    if (this.pid) {
+      process.kill(this.pid);
+    } else {
+      process.kill(-1);
+    }
   }
 }

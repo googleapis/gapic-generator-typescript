@@ -23,7 +23,7 @@ import {processTemplates} from './templater';
 import {BundleConfigClient, BundleConfig} from './bundle';
 import {ServiceYaml} from './serviceyaml';
 import {commonPrefix, duration} from './util';
-import * as Long from 'long';
+import Long = require('long');
 
 function getStdin() {
   return new Promise<Buffer>(resolve => {
@@ -78,6 +78,8 @@ export class Generator {
   rest?: boolean;
   diregapic?: boolean;
   legacyProtoLoad?: boolean;
+  restNumericEnums?: boolean;
+  mixinsOverride?: string[];
 
   constructor() {
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.create();
@@ -169,6 +171,16 @@ export class Generator {
       }
       this.serviceYaml.apis = serviceMixins;
     }
+    // override if needed
+    if (this.mixinsOverride !== undefined) {
+      if (!this.serviceYaml) {
+        this.serviceYaml = {title: '', apis: [], http: {rules: []}};
+      }
+      this.serviceYaml.apis =
+        this.mixinsOverride.length === 1 && this.mixinsOverride[0] === 'none'
+          ? []
+          : this.mixinsOverride.filter(m => m !== 'none');
+    }
   }
 
   private readPublishPackageName() {
@@ -214,6 +226,18 @@ export class Generator {
     }
   }
 
+  private readRestNumericEnums() {
+    if (this.paramMap['rest-numeric-enums'] === 'true') {
+      this.restNumericEnums = true;
+    }
+  }
+
+  private readMixins() {
+    if (this.paramMap['mixins']) {
+      this.mixinsOverride = this.paramMap['mixins'].split(';');
+    }
+  }
+
   async initializeFromStdin() {
     const inputBuffer = await getStdin();
     this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.decode(
@@ -223,6 +247,7 @@ export class Generator {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig();
       this.readBundleConfig();
+      this.readMixins();
       this.readServiceYaml();
       this.readPublishPackageName();
       this.readMainServiceName();
@@ -231,6 +256,7 @@ export class Generator {
       this.readDiregapic();
       this.readHandwrittenLayer();
       this.readLegacyProtoLoad();
+      this.readRestNumericEnums();
     }
   }
 
@@ -272,6 +298,8 @@ export class Generator {
       diregapic: this.diregapic,
       handwrittenLayer: this.handwrittenLayer,
       legacyProtoLoad: this.legacyProtoLoad,
+      restNumericEnums: this.restNumericEnums,
+      mixinsOverridden: this.mixinsOverride !== undefined,
     });
     return api;
   }

@@ -28,6 +28,8 @@ export interface Options {
   diregapic?: boolean;
   handwrittenLayer?: boolean;
   legacyProtoLoad?: boolean;
+  restNumericEnums?: boolean;
+  mixinsOverridden?: boolean;
 }
 
 export class Naming {
