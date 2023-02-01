@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import * as child_process from 'child_process';
-import * as fs from 'fs-extra';
 import * as path from 'path';
 import {describe, it} from 'mocha';
+import {copy} from 'typescript/src/util.js';
 
 const root = process.cwd();
 const baselineZip = path.join(
@@ -66,15 +66,15 @@ describe('Test application for JavaScript users', () => {
   it('npm install showcase', async function () {
     this.timeout(240000);
     // copy protos to generated client library and copy test application to local.
-    fs.copySync(protos, path.join(showcaseLib, 'protos'));
-    fs.copySync(jsTestApplication, localJsApplication);
+    await copy(protos, path.join(showcaseLib, 'protos'));
+    await copy(jsTestApplication, localJsApplication);
     process.chdir(showcaseLib);
     await spawn('npm', ['install']);
   });
   it('npm pack showcase library and copy it to test application', async function () {
     this.timeout(240000);
     await spawn('npm', ['pack']);
-    fs.copySync(packedLibPath, path.join(localJsApplication, packedLib));
+    await copy(packedLibPath, path.join(localJsApplication, packedLib));
   });
   it('npm install showcase library in test application', async function () {
     this.timeout(500000);

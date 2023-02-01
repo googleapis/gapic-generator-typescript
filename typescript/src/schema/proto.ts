@@ -12,20 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../../protos';
-import {CommentsMap, Comment} from './comments';
-import {processPathTemplate, milliseconds} from '../util';
-import {ResourceDescriptor, ResourceDatabase} from './resource-database';
+import type * as protos from '../../../protos/index.js';
+import {CommentsMap, Comment, Type} from './comments.js';
+import {processPathTemplate, milliseconds} from '../util.js';
+import {ResourceDescriptor, ResourceDatabase} from './resource-database.js';
 import {
   RetryableCodeMap,
   defaultParametersName,
   defaultNonIdempotentRetryCodesName,
   defaultParameters,
-} from './retryable-code-map';
-import {BundleConfig} from '../bundle';
-import {Options} from './naming';
-import {ServiceYaml} from '../serviceyaml';
-import {google} from '../../../protos';
+} from './retryable-code-map.js';
+import {BundleConfig} from '../bundle.js';
+import {Options} from './naming.js';
+import {ServiceYaml} from '../serviceyaml.js';
+import {protobuf} from 'google-gax';
+import protoJson from '../../../protos/protos.json' assert { type: 'json' };
 
 const COMMON_PROTO_LIST = [
   'google.api',
@@ -99,7 +100,7 @@ export interface ServiceDescriptorProto
   LongRunningOperationsMixin: number;
   protoFile: string;
   diregapicLRO?: MethodDescriptorProto[];
-  httpRules?: google.api.IHttpRule[];
+  httpRules?: protos.google.api.IHttpRule[];
 }
 
 export interface ServicesMap {
@@ -235,27 +236,26 @@ function pagingField(
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
-    inputType && inputType.field!.some(field => field.name === 'page_token');
+    inputType && inputType.field && inputType.field.some(field => field.name === 'page_token');
   // Support paginated methods defined in Discovery-based APIs,
   // where it uses "max_results" to define the maximum number of
   // paginated resources to return.
   const hasPageSize =
-    inputType &&
-    inputType.field!.some(
+    inputType && inputType.field &&
+    inputType.field.some(
       field =>
         field.name === 'page_size' ||
         (diregapic && field.name === 'max_results')
     );
   const hasNextPageToken =
-    outputType &&
-    outputType.field!.some(field => field.name === 'next_page_token');
+    outputType && outputType.field &&
+    outputType.field.some(field => field.name === 'next_page_token');
   if (!hasPageToken || !hasPageSize || !hasNextPageToken) {
     return undefined;
   }
   const repeatedFields = outputType.field!.filter(
     field =>
-      field.label ===
-      protos.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED
+      field.label === 3 // LABEL_REPEATED
   );
   if (repeatedFields.length === 0) {
     return undefined;
@@ -310,16 +310,16 @@ function pagingResponseType(
     return undefined;
   }
   if (
-    field.type === protos.google.protobuf.FieldDescriptorProto.Type.TYPE_MESSAGE
+    field.type === 11 // TYPE_MESSAGE
   ) {
     return field.typeName; //.google.showcase.v1beta1.EchoResponse
   }
-  const type = protos.google.protobuf.FieldDescriptorProto.Type[field.type];
+  const type = Type[field.type];
   // .google.protobuf.FieldDescriptorProto.Type.TYPE_STRING
   return '.google.protobuf.FieldDescriptorProto.Type.' + type;
 }
 
-// Ignore non-diregapic pagation method where its response type contains a map.
+// Ignore non-diregapic pagination method where its response type contains a map.
 function ignoreMapPagingMethod(
   messages: MessagesMap,
   method: MethodDescriptorProto,
@@ -373,9 +373,8 @@ function pagingMapResponseType(
   if (pagingMapResponse.field) {
     if (
       pagingMapResponse.field.length === 2 &&
-      pagingMapResponse.field[0] === 'key' &&
-      pagingMapResponse.field[0].type !==
-        protos.google.protobuf.FieldDescriptorProto.Type.TYPE_STRING
+      pagingMapResponse.field[0].name === 'key' &&
+      pagingMapResponse.field[0].type !== 9 // TYPE_STRING
     ) {
       throw new Error(
         `Paginated "${method.name}" method map response field key's type should be string`
@@ -393,22 +392,26 @@ function getMethodConfig(
 ): protos.grpc.service_config.MethodConfig {
   let exactMatch: protos.grpc.service_config.IMethodConfig | undefined;
   let serviceMatch: protos.grpc.service_config.IMethodConfig | undefined;
-  for (const config of grpcServiceConfig.methodConfig) {
-    if (!config.name) {
-      continue;
-    }
-    for (const name of config.name) {
-      if (name.service === serviceName && !name.method) {
-        serviceMatch = config;
+  if (Array.isArray(grpcServiceConfig.methodConfig)) {
+    for (const config of grpcServiceConfig.methodConfig) {
+      if (!config.name) {
+        continue;
       }
-      if (name.service === serviceName && name.method === methodName) {
-        exactMatch = config;
+      for (const name of config.name) {
+        if (name.service === serviceName && !name.method) {
+          serviceMatch = config;
+        }
+        if (name.service === serviceName && name.method === methodName) {
+          exactMatch = config;
+        }
       }
     }
   }
-  const result = protos.grpc.service_config.MethodConfig.fromObject(
+  const root = protobuf.Root.fromJSON(protoJson);
+  const MethodConfig = root.lookupType('MethodConfig');
+  const result = MethodConfig.toObject(MethodConfig.fromObject(
     exactMatch || serviceMatch || {}
-  );
+  )) as protos.grpc.service_config.MethodConfig;
   return result;
 }
 
@@ -495,10 +498,8 @@ function augmentMethod(
         const inputType = parameters.allMessages[method.inputType!];
         const repeatedFields = inputType.field!.filter(
           field =>
-            field.label ===
-              protos.google.protobuf.FieldDescriptorProto.Label
-                .LABEL_REPEATED &&
-            field.name === bc.batchDescriptor.batched_field
+            field.label === 3 // LABEL_REPEATED
+            && field.name === bc.batchDescriptor.batched_field
         );
         if (!repeatedFields[0].typeName) {
           throw new Error(
@@ -767,7 +768,7 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.bundleConfigs = parameters.options.bundleConfigs?.filter(
     bc => bc.serviceName === parameters.service.name
   );
-  augmentedService.method = augmentedService.method.map(method =>
+  augmentedService.method = augmentedService.method?.map(method =>
     augmentMethod(
       {
         allMessages: parameters.allMessages,
@@ -777,7 +778,7 @@ function augmentService(parameters: AugmentServiceParameters) {
       },
       method
     )
-  );
+  ) ?? [];
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
     method => method.bundleConfig
   );
@@ -914,6 +915,14 @@ interface ProtoParameters {
 }
 
 export class Proto {
+  // instrumentation for unit tests
+  static constructorCallCount = 0;
+  static constructorCallArgs: ProtoParameters[] = [];
+  static resetInstrumentation() {
+    Proto.constructorCallCount = 0;
+    Proto.constructorCallArgs = [];
+  }
+
   filePB2: protos.google.protobuf.IFileDescriptorProto;
   services: ServicesMap = {};
   allMessages: MessagesMap = {};
@@ -925,6 +934,9 @@ export class Proto {
   // allResourceDatabase: resources that defined by `google.api.resource`
   // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
   constructor(parameters: ProtoParameters) {
+    ++Proto.constructorCallCount;
+    Proto.constructorCallArgs.push(parameters);
+
     parameters.fd.service = parameters.fd.service || [];
     parameters.fd.messageType = parameters.fd.messageType || [];
 

@@ -12,15 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as objectHash from 'object-hash';
-import * as protos from '../../../protos';
+import objectHash from 'object-hash';
+import type * as protos from '../../../protos/index.js';
+
+// copied from google.rpc.Code to simplify build
+export enum Code {
+  OK = 0,
+  CANCELLED = 1,
+  UNKNOWN = 2,
+  INVALID_ARGUMENT = 3,
+  DEADLINE_EXCEEDED = 4,
+  NOT_FOUND = 5,
+  ALREADY_EXISTS = 6,
+  PERMISSION_DENIED = 7,
+  UNAUTHENTICATED = 16,
+  RESOURCE_EXHAUSTED = 8,
+  FAILED_PRECONDITION = 9,
+  ABORTED = 10,
+  OUT_OF_RANGE = 11,
+  UNIMPLEMENTED = 12,
+  INTERNAL = 13,
+  UNAVAILABLE = 14,
+  DATA_LOSS = 15,
+}
 
 export const defaultNonIdempotentRetryCodesName = 'non_idempotent';
 export const defaultNonIdempotentCodes: protos.google.rpc.Code[] = [];
 export const defaultIdempotentRetryCodesName = 'idempotent';
 export const defaultIdempotentCodes = [
-  protos.google.rpc.Code.DEADLINE_EXCEEDED,
-  protos.google.rpc.Code.UNAVAILABLE,
+  Code.DEADLINE_EXCEEDED,
+  Code.UNAVAILABLE,
 ];
 export const defaultParametersName = 'default';
 export const defaultParameters = {
@@ -58,10 +79,10 @@ export class RetryableCodeMap {
     this.prettyParamNamesMap = {};
     // build reverse mapping for enum: 0 => OK, 1 => CANCELLED, etc.
     this.codeEnumMapping = {};
-    const allCodes = Object.keys(protos.google.rpc.Code);
+    const allCodes = Object.keys(Code);
     for (const code of allCodes) {
       this.codeEnumMapping[
-        ((protos.google.rpc.Code as unknown) as {
+        ((Code as unknown) as {
           [key: string]: protos.google.rpc.Code;
         })[code].toString()
       ] = code;

@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {RetryableCodeMap} from '../../src/schema/retryable-code-map';
-import * as protos from '../../../protos';
-import * as assert from 'assert';
+import {RetryableCodeMap, Code} from '../../src/schema/retryable-code-map.js';
+import assert from 'assert';
 import {describe, it} from 'mocha';
-
-const Code = protos.google.rpc.Code;
 
 describe('src/schema/retryable-code-map.ts', () => {
   describe('Retry codes', () => {

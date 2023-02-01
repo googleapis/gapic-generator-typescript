@@ -12,17 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as assert from 'assert';
+import assert from 'assert';
 import {describe, it} from 'mocha';
 import {
   commonPrefix,
-  duration,
   seconds,
   milliseconds,
   isDigit,
   processPathTemplate,
-} from '../../src/util';
-import * as protos from '../../../protos';
+} from '../../src/util.js';
+import {protobuf} from 'google-gax';
+import protoJson from '../../../protos/protos.json' assert { type: 'json' };
+import type * as protos from '../../../protos/index.js';
 
 describe('src/util.ts', () => {
   describe('CommonPrefix', () => {
@@ -41,80 +42,41 @@ describe('src/util.ts', () => {
   });
 
   describe('Duration', () => {
-    it('should support fractional seconds', () => {
-      const input = '0.1s';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 0);
-      assert.strictEqual(Number(dur.nanos), 0.1 * 1e9);
-    });
-
-    it('should support fractional minutes', () => {
-      const input = '0.5m';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 30);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
-
-    it('should build correct Duration object for seconds', () => {
-      const input = '5s';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 5);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
-
-    it('should build correct Duration object for minutes', () => {
-      const input = '10m';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 10 * 60);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
-
-    it('should build correct Duration object for hours', () => {
-      const input = '2h';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 2 * 60 * 60);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
-
-    it('should build correct Duration object for days', () => {
-      const input = '3d';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 3 * 60 * 60 * 24);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
+    const root = protobuf.Root.fromJSON(protoJson);
+    const Duration = root.lookupType('google.protobuf.Duration');
 
     it('should convert Duration to whole seconds', () => {
-      const duration = protos.google.protobuf.Duration.fromObject({
+      const duration = Duration.toObject(Duration.fromObject({
         seconds: 10,
         nanos: 0,
-      });
+      })) as protos.google.protobuf.Duration;
       const result = seconds(duration);
       assert.strictEqual(result, 10);
     });
 
     it('should convert Duration to fractional seconds', () => {
-      const duration = protos.google.protobuf.Duration.fromObject({
+      const duration = Duration.toObject(Duration.fromObject({
         seconds: 5,
         nanos: 500000000,
-      });
+      })) as protos.google.protobuf.Duration;
       const result = seconds(duration);
       assert.strictEqual(result, 5.5);
     });
 
     it('should convert Duration to whole milliseconds', () => {
-      const duration = protos.google.protobuf.Duration.fromObject({
+      const duration = Duration.toObject(Duration.fromObject({
         seconds: 10,
         nanos: 0,
-      });
+      })) as protos.google.protobuf.Duration;
       const result = milliseconds(duration);
       assert.strictEqual(result, 10000);
     });
 
     it('should convert Duration to fractional milliseconds', () => {
-      const duration = protos.google.protobuf.Duration.fromObject({
+      const duration = Duration.toObject(Duration.fromObject({
         seconds: 5,
         nanos: 500000000,
-      });
+      })) as protos.google.protobuf.Duration;
       const result = milliseconds(duration);
       assert.strictEqual(result, 5500);
     });
@@ -336,19 +298,6 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(
         'productName.v1p1beta1'.toSnakeCase(),
         'product_name_v1p1beta1'
-      );
-    });
-
-    it('should replace all search item with replacement', () => {
-      assert.deepStrictEqual(''.replaceAll('', 'success'), '');
-      assert.deepStrictEqual('Read me'.replaceAll('me', 'this'), 'Read this');
-      assert.deepStrictEqual(
-        'This is a Test'.replaceAll('T', 't'),
-        'this is a test'
-      );
-      assert.deepStrictEqual(
-        'location*/address*/room/*'.replaceAll('*/', '* /'),
-        'location* /address* /room/*'
       );
     });
   });

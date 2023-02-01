@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../protos';
+import * as fs from 'fs';
+import * as fsp from 'fs/promises';
+import * as path from 'path';
+import type * as protos from '../../protos/index.js';
 
 export function commonPrefix(strings: string[]): string {
   if (strings.length === 0) {
@@ -28,32 +31,6 @@ export function commonPrefix(strings: string[]): string {
       break;
     }
   }
-  return result;
-}
-
-// Convert a string Duration, e.g. "600s", to a proper protobuf type since
-// protobufjs does not support it at this moment.
-export function duration(text: string): protos.google.protobuf.Duration {
-  const multipliers: {[suffix: string]: number} = {
-    s: 1,
-    m: 60,
-    h: 60 * 60,
-    d: 60 * 60 * 24,
-  };
-  const match = text.match(/^([\d.]+)([smhd])$/);
-  if (!match) {
-    throw new Error(`Cannot parse "${text}" into google.protobuf.Duration.`);
-  }
-  const float = Number(match[1]);
-  const suffix = match[2];
-  const multiplier = multipliers[suffix];
-  const seconds = float * multiplier;
-  const floor = Math.floor(seconds);
-  const frac = seconds - floor;
-  const result = protos.google.protobuf.Duration.fromObject({
-    seconds: floor,
-    nanos: frac * 1e9,
-  });
   return result;
 }
 
@@ -161,14 +138,6 @@ String.prototype.toSnakeCase = function (
   return words.join('_');
 };
 
-String.prototype.replaceAll = function (
-  this: string,
-  search: string,
-  replacement: string
-) {
-  return this.split(search).join(replacement);
-};
-
 Array.prototype.toCamelCaseString = function (
   this: string[],
   joiner: string
@@ -257,4 +226,44 @@ export function processPathTemplate(
   );
 
   return {fieldSend, messageRegex};
+}
+
+// Quick'n'dirty implementation of mkdirp to avoid pulling a dependency
+export async function mkdirp(directory: string) {
+  const components = directory.split(path.sep);
+  let parent = '';
+  for (const component of components) {
+    parent += `/${component}`;
+    if (!fs.existsSync(parent)) {
+      await fsp.mkdir(parent);
+    }
+  }
+}
+
+// Quick'n'dirty implementation of cp -r to avoid pulling a dependency
+export async function copy(from: string, to: string) {
+  const stat = await fsp.stat(from);
+  if (stat.isDirectory()) {
+    const contents = await fsp.readdir(from);
+    for (const entry of contents) {
+      await copy(path.join(from, entry), path.join(to, entry));
+    }
+  } else {
+    const dirname = path.dirname(to);
+    await mkdirp(dirname);
+    await fsp.copyFile(from, to);
+  }
+}
+
+// Quick'n'dirty implementation of rm -rf to avoid pulling a dependency
+export async function remove(fileOrDirectory: string) {
+  const stat = await fsp.stat(fileOrDirectory);
+  if (stat.isDirectory()) {
+    const contents = await fsp.readdir(fileOrDirectory);
+    for (const entry of contents) {
+      await remove(path.join(fileOrDirectory, entry));
+    }
+  } else {
+    await fsp.unlink(fileOrDirectory);
+  }
 }

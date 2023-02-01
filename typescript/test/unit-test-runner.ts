@@ -20,14 +20,16 @@ const testDirectory = path.join('.', 'typescript', 'test', 'unit');
 
 async function main() {
   const mocha = new Mocha();
-  
+
   const files = await fsp.readdir(testDirectory);
   const tests = files.filter(file => file.endsWith('.js'));
   for (const test of tests) {
     mocha.addFile(path.join(process.cwd(), testDirectory, test));
   }
   await mocha.loadFilesAsync();
-  mocha.run((failures: number) => { process.exitCode = failures; });
+  mocha.run((failures: number) => {
+    process.exitCode = failures;
+  });
 }
 
 main();

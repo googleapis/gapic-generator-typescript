@@ -21,15 +21,9 @@
 import {exec} from 'child_process';
 import * as path from 'path';
 import {promisify} from 'util';
-import {
-  readdir,
-  mkdirp,
-  existsSync,
-  stat,
-  symlink,
-  copy,
-  remove,
-} from 'fs-extra';
+import {existsSync} from 'fs';
+import {readdir, stat, symlink} from 'fs/promises';
+import {copy, mkdirp, remove} from '../src/util.js';
 
 const execp = promisify(exec);
 
@@ -40,7 +34,7 @@ const baselineZip = path.join(
   'bazel-testlogs',
   'unit_tests',
   'test.outputs',
-  'outputs.zip'
+  'outputs.zip',
 );
 
 function getBaselineDirectory(library: string): string {
