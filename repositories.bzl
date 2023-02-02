@@ -14,7 +14,7 @@ def gapic_generator_typescript_repositories():
     http_archive,
     name = "aspect_rules_ts",
 # TODO(alexander-fenster): point to the official release when the paths problem is fixed
-# see the diff: https://github.com/alexander-fenster/rules_ts/commit/f6413a356a814c9ed3f7cc7e1ca7a915b4104683
+# https://github.com/aspect-build/rules_ts/pull/304
 #    sha256 = "acb20a4e41295d07441fa940c8da9fd02f8637391fd74a14300586a3ee244d59",
 #    strip_prefix = "rules_ts-1.2.0",
 #    url = "https://github.com/aspect-build/rules_ts/archive/refs/tags/v1.2.0.tar.gz",
