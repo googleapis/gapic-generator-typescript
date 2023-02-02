@@ -22,7 +22,6 @@ import * as fs from 'fs';
 import * as fsp from 'fs/promises';
 import * as url from 'url';
 import {promisify} from 'util';
-import {copy} from './util.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -261,7 +260,7 @@ async function main(processArgv: string[]) {
         fs.existsSync(protoFile)
       ) {
         const destination = path.join(copyProtoDir, proto);
-        await copy(protoFile, destination);
+        await fsp.cp(protoFile, destination, {recursive: true});
       }
     }
   }

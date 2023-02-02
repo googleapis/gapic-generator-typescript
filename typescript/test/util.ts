@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import * as fs from 'fs';
+import * as fsp from 'fs/promises';
 import * as path from 'path';
 import * as url from 'url';
 import {it} from 'mocha';
 import {execSync} from 'child_process';
 import assert from 'assert';
-import {remove} from '../src/util.js';
 
 // https://blog.logrocket.com/alternatives-dirname-node-js-es-modules/#help-im-missing-dirname
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
@@ -96,7 +96,7 @@ export function runBaselineTest(options: BaselineOptions) {
   it(options.baselineName, async function () {
     this.timeout(60000);
     if (fs.existsSync(outputDir)) {
-      await remove(outputDir);
+      await fsp.rm(outputDir, {recursive: true});
     }
     fs.mkdirSync(outputDir);
 
