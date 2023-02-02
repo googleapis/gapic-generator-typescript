@@ -400,12 +400,13 @@ function getMethodConfig(
       for (const name of config.name) {
         if (name.service === serviceName && !name.method) {
           serviceMatch = config;
-        }
-        if (name.service === serviceName && name.method === methodName) {
+        } else if (name.service === serviceName && name.method === methodName) {
           exactMatch = config;
         }
       }
     }
+  } else {
+    console.warn("Warning: cannot parse gRPC service config: methodConfig is not an array.");
   }
   const root = protobuf.Root.fromJSON(protoJson);
   const MethodConfig = root.lookupType('MethodConfig');
