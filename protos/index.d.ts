@@ -1,4 +1,5 @@
-import * as $protobuf from "protobufjs";
+// Note: the import line below was manually edited to import protobuf.js from google-gax, but not directly.
+import {protobuf as $protobuf} from "google-gax";
 
 // Note: this file was manually edited to remove references to Long which are not needed in this project.
 
