@@ -16,14 +16,20 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as util from 'util';
 import * as yaml from 'js-yaml';
-import * as protos from '../../protos';
+import * as serializer from 'proto3-json-serializer';
+import {protobuf} from 'google-gax';
+import type * as protos from '../../protos/index.js';
+import protoJson from '../../protos/protos.json' assert { type: 'json' };
+import * as url from 'url';
 
-import {API} from './schema/api';
-import {processTemplates} from './templater';
-import {BundleConfigClient, BundleConfig} from './bundle';
-import {ServiceYaml} from './serviceyaml';
-import {commonPrefix, duration} from './util';
-import Long = require('long');
+import {API} from './schema/api.js';
+import {processTemplates} from './templater.js';
+import {BundleConfigClient, BundleConfig} from './bundle.js';
+import {ServiceYaml} from './serviceyaml.js';
+import {commonPrefix} from './util.js';
+
+// https://blog.logrocket.com/alternatives-dirname-node-js-es-modules/#help-im-missing-dirname
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 function getStdin() {
   return new Promise<Buffer>(resolve => {
@@ -81,31 +87,15 @@ export class Generator {
   restNumericEnums?: boolean;
   mixinsOverride?: string[];
 
+  private root: protobuf.Root;
+
   constructor() {
-    this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.create();
-    this.response = protos.google.protobuf.compiler.CodeGeneratorResponse.create();
-    this.grpcServiceConfig = protos.grpc.service_config.ServiceConfig.create();
+    this.root = protobuf.Root.fromJSON(protoJson);
+    this.request = {} as protos.google.protobuf.compiler.CodeGeneratorRequest;
+    this.response = {} as protos.google.protobuf.compiler.CodeGeneratorResponse;
+    this.grpcServiceConfig = {} as protos.grpc.service_config.ServiceConfig;
     this.paramMap = {};
     this.templates = defaultTemplates;
-  }
-
-  // Fixes gRPC service config to replace string google.protobuf.Duration
-  // to a proper Duration message, since protobufjs does not support
-  // string Durations such as "30s".
-  private static updateDuration(obj: {[key: string]: {}}) {
-    const fieldNames = [
-      'timeout',
-      'initialBackoff',
-      'maxBackoff',
-      'hedgingDelay',
-    ];
-    for (const key of Object.keys(obj)) {
-      if (fieldNames.includes(key) && typeof obj[key] === 'string') {
-        obj[key] = duration((obj[key] as unknown) as string);
-      } else if (typeof obj[key] === 'object') {
-        this.updateDuration(obj[key]);
-      }
-    }
   }
 
   private getParamMap(parameter: string) {
@@ -132,10 +122,15 @@ export class Generator {
       }
       const content = await readFile(filename);
       const json = JSON.parse(content.toString());
-      Generator.updateDuration(json);
-      this.grpcServiceConfig = protos.grpc.service_config.ServiceConfig.fromObject(
-        json
-      );
+      const ServiceConfig = this.root.lookupType('ServiceConfig');
+      if (!ServiceConfig) {
+        throw new Error('Cannot find ServiceConfig type in proto JSON');
+      }
+      const deserialized = serializer.fromProto3JSON(ServiceConfig, json);
+      if (!deserialized) {
+        throw new Error('Cannot parse the content of gRPC service config');
+      }
+      this.grpcServiceConfig = ServiceConfig.toObject(deserialized) as protos.grpc.service_config.ServiceConfig;
     }
   }
 
@@ -240,9 +235,14 @@ export class Generator {
 
   async initializeFromStdin() {
     const inputBuffer = await getStdin();
-    this.request = protos.google.protobuf.compiler.CodeGeneratorRequest.decode(
-      inputBuffer
-    );
+    const CodeGeneratorRequest = this.root.lookupType('CodeGeneratorRequest');
+    if (!CodeGeneratorRequest) {
+      throw new Error('Cannot find CodeGeneratorRequest type in proto JSON');
+    }
+    this.request = CodeGeneratorRequest.toObject(CodeGeneratorRequest.decode(inputBuffer)) as protos.google.protobuf.compiler.CodeGeneratorRequest;
+    if (!this.request.protoFile) {
+      throw new Error('No input files given to the protoc plugin.');
+    }
     if (this.request.parameter) {
       this.getParamMap(this.request.parameter);
       await this.readGrpcServiceConfig();
@@ -267,7 +267,11 @@ export class Generator {
         protoFilenames.push(proto.name);
       }
     }
-    const protoList = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+    const File = this.root.lookupType('File');
+    if (!File) {
+      throw new Error('Cannot find File type in proto JSON');
+    }
+    const protoList = {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
     protoList.name = 'proto.list';
     protoList.content = protoFilenames.join('\n') + '\n';
     this.response.file.push(protoList);
@@ -316,10 +320,13 @@ export class Generator {
   }
 
   async generate() {
-    this.response = protos.google.protobuf.compiler.CodeGeneratorResponse.create();
-    this.response.supportedFeatures = new Long(
-      protos.google.protobuf.compiler.CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL
-    );
+    const CodeGeneratorResponse = this.root.lookupType('CodeGeneratorResponse');
+    if (!CodeGeneratorResponse) {
+      throw new Error('Cannot find CodeGeneratorResponse type in proto JSON');
+    }
+    this.response = {} as protos.google.protobuf.compiler.CodeGeneratorResponse;
+    this.response.supportedFeatures = 1; // FEATURE_PROTO3_OPTIONAL
+    this.response.file = [];
 
     try {
       this.addProtosToResponse();
@@ -334,8 +341,8 @@ export class Generator {
       }
     }
 
-    const outputBuffer = protos.google.protobuf.compiler.CodeGeneratorResponse.encode(
-      this.response
+    const outputBuffer = CodeGeneratorResponse.encode(
+      CodeGeneratorResponse.fromObject(this.response)
     ).finish();
     process.stdout.write(outputBuffer);
   }

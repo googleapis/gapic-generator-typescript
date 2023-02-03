@@ -18,11 +18,13 @@ export interface Thresholds {
   delay_threshold_millis: number;
   element_count_limit?: number;
 }
+
 export interface BatchDescriptor {
   batched_field: string;
   discriminator_fields: string[];
   subresponse_field: string;
 }
+
 export interface BundleConfig {
   serviceName: string;
   methodName: string;

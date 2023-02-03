@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import * as fs from 'fs';
-import * as nunjucks from 'nunjucks';
+import nunjucks from 'nunjucks';
 import * as path from 'path';
 import * as util from 'util';
 
-import * as protos from '../../protos';
+import type * as protos from '../../protos/index.js';
 
-import {API} from './schema/api';
-import {MethodDescriptorProto, ServiceDescriptorProto} from './schema/proto';
+import {API} from './schema/api.js';
+import {MethodDescriptorProto, ServiceDescriptorProto} from './schema/proto.js';
 
 interface Namer {
   register: (name: string, serviceName?: string) => string;
@@ -56,10 +56,10 @@ async function recursiveFileList(
   return result;
 }
 
-function createSnippetIndexMetadata(
+async function createSnippetIndexMetadata(
   api: API,
   basePath: string
-): protos.google.cloud.tools.snippetgen.snippetindex.v1.IIndex {
+): Promise<protos.google.cloud.tools.snippetgen.snippetindex.v1.IIndex> {
   const clientLibrary: protos.google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary = {
     name: `nodejs-${api.naming.productName.toKebabCase()}`,
     version: '0.1.0',
@@ -67,14 +67,14 @@ function createSnippetIndexMetadata(
     apis: [{id: api.naming.protoPackage, version: api.naming.version}],
   };
 
-  const snippets = createSnippetMetadata(api, basePath);
+  const snippets = await createSnippetMetadata(api, basePath);
   return {clientLibrary, snippets};
 }
 
-function createSnippetMetadata(
+async function createSnippetMetadata(
   api: API,
   basePath: string
-): protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] {
+): Promise<protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[]> {
   const snippets: protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] = [];
 
   for (const service of api.services) {
@@ -85,7 +85,7 @@ function createSnippetMetadata(
         paramNameAndTypes.push({name: x.paramName, type: x.paramType})
       );
 
-      const startRegionTag = countRegionTagLines(
+      const startRegionTag = await countRegionTagLines(
         'samples/generated/$version/$service.$method.js.njk',
         basePath,
         api,
@@ -146,14 +146,14 @@ function createSnippetMetadata(
   return snippets;
 }
 
-function countRegionTagLines(
+async function countRegionTagLines(
   templateName: string,
   basePath: string,
   api: API,
   service: ServiceDescriptorProto,
   method: MethodDescriptorProto
 ) {
-  const id = loadNamerPlugin(basePath);
+  const id = await loadNamerPlugin(basePath);
   const processed = nunjucks.render(templateName, {api, service, method, id});
 
   const processedArray = processed.split(/\r?\n/);
@@ -197,13 +197,13 @@ function renderFile(
       }
     }
   }
-  const output = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+  const output = {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
   output.name = targetFilename;
   output.content = processed;
   return output;
 }
 
-function processOneTemplate(
+async function processOneTemplate(
   basePath: string,
   templateFilename: string,
   api: API,
@@ -227,8 +227,8 @@ function processOneTemplate(
       .replace(/\.njk$/, '')
       .replace(/\$apiNamingProtoPackage/, api.naming.protoPackage);
 
-    const jsonMetadata = createSnippetIndexMetadata(api, basePath);
-    const output = protos.google.protobuf.compiler.CodeGeneratorResponse.File.create();
+    const jsonMetadata = await createSnippetIndexMetadata(api, basePath);
+    const output = {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
     output.name = pushFilename;
     output.content = JSON.stringify(jsonMetadata, null, '  ') + '\n';
 
@@ -275,7 +275,7 @@ function processOneTemplate(
   return result;
 }
 
-function loadNamerPlugin(basePath: string) {
+async function loadNamerPlugin(basePath: string) {
   const namerLocation = path.join(basePath, 'namer.js');
   const id: Namer = {
     register: () => {
@@ -287,13 +287,7 @@ function loadNamerPlugin(basePath: string) {
   };
   if (fs.existsSync(namerLocation)) {
     let namer: Namer;
-    // different location when running from Bazel, hence try {}
-    // (because Bazel alters behavior of `require`)
-    try {
-      namer = require(namerLocation) as Namer;
-    } catch (err) {
-      namer = require(namerLocation.replace(/^..\//, '')) as Namer;
-    }
+    namer = (await import(namerLocation)).default as Namer;
     const {register, get} = namer;
     id.register = register;
     id.get = get;
@@ -307,12 +301,12 @@ export async function processTemplates(basePath: string, api: API) {
   basePath = basePath.replace(/\/*$/, '');
 
   // If this template provides a namer plugin, load it
-  const id = loadNamerPlugin(basePath);
+  const id = await loadNamerPlugin(basePath);
 
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
   const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
   for (const templateFilename of templateFiles) {
-    const generatedFiles = processOneTemplate(
+    const generatedFiles = await processOneTemplate(
       basePath,
       templateFilename,
       api,

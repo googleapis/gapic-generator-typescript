@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../../protos';
-import {commonPrefix} from '../util';
-import {API} from './api';
-import {BundleConfig} from '../bundle';
-import {ServiceYaml} from '../serviceyaml';
+import type * as protos from '../../../protos/index.js';
+import {commonPrefix} from '../util.js';
+import {API} from './api.js';
+import {BundleConfig} from '../bundle.js';
+import {ServiceYaml} from '../serviceyaml.js';
 
 export interface Options {
   grpcServiceConfig: protos.grpc.service_config.ServiceConfig;
