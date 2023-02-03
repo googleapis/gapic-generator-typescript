@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {describe} from 'mocha';
-import {runBaselineTest} from '../util';
+import {runBaselineTest} from '../util.js';
 
 describe('Baseline tests', () => {
   runBaselineTest({

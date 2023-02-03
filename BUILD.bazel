@@ -1,9 +1,10 @@
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_test")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
+
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["tsconfig.json"], visibility = ["//visibility:public"])
-
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary", "nodejs_test", "copy_to_bin")
-load("@npm//@bazel/typescript:index.bzl", "ts_project", "ts_config")
+npm_link_all_packages(name = "node_modules")
 
 filegroup(
     name = "templates",
@@ -26,95 +27,108 @@ filegroup(
 )
 
 npm_runtime_dependencies = [
-    "@npm//fs-extra",
-    "@npm//google-gax",
-    "@npm//js-yaml",
-    "@npm//long",
-    "@npm//nunjucks",
-    "@npm//object-hash",
-    "@npm//protobufjs",
-    "@npm//yargs",
+    "//:node_modules/google-gax",
+    "//:node_modules/js-yaml",
+    "//:node_modules/long",
+    "//:node_modules/nunjucks",
+    "//:node_modules/object-hash",
+    "//:node_modules/proto3-json-serializer",
+    "//:node_modules/protobufjs",
+    "//:node_modules/yargs",
 ]
 
 npm_test_dependencies = npm_runtime_dependencies + [
-    "@npm//espower-typescript",
-    "@npm//sinon",
-    "@npm//mocha",
+    "//:node_modules/espower-typescript",
+    "//:node_modules/mocha",
 ]
 
 npm_compile_dependencies = npm_test_dependencies + [
-    "@npm//@types/js-yaml",
-    "@npm//@types/fs-extra",
-    "@npm//@types/long",
-    "@npm//@types/mocha",
-    "@npm//@types/module-alias",
-    "@npm//@types/node",
-    "@npm//@types/nunjucks",
-    "@npm//@types/object-hash",
-    "@npm//@types/sinon",
-    "@npm//@types/yargs",
+    "//:node_modules/@types/js-yaml",
+    "//:node_modules/@types/fs-extra",
+    "//:node_modules/@types/mocha",
+    "//:node_modules/@types/module-alias",
+    "//:node_modules/@types/node",
+    "//:node_modules/@types/nunjucks",
+    "//:node_modules/@types/object-hash",
+    "//:node_modules/@types/yargs",
 ]
 
 ts_project(
     name = "compile",
     srcs = glob([
             "typescript/**/*.ts",
+        ]) + [
             "index.d.ts",
             "protos/index.d.ts",
-        ]),
+            "protos/protos.json",
+        ],
     tsconfig = "//:tsconfig.json",
-    source_map = True,
-    declaration = True,
+    source_map = False,
+    declaration = False,
     allow_js = True,
+    validate = False,
     deps = npm_compile_dependencies,
+    resolve_json_module = True,
+    args = [
+        "--module",
+        "esnext",
+        "--moduleResolution",
+        "node",
+    ],
+    supports_workers = False,
 )
 
-copy_to_bin(
-    name = "copy_deps",
+js_library(
+    name = "library",
     srcs = [
-        ":protos",
-        ":templates",
+        "package.json",
+        ":compile",
     ],
 )
 
-nodejs_binary(
+js_binary(
     name = "protoc_plugin",
-    entry_point = "//:typescript/src/protoc-plugin.ts",
-    link_workspace_root = True,
+    entry_point = "typescript/src/protoc-plugin.js",
     data = [
-        ":compile",
+        ":library",
         ":templates",
         ":protos",
-    ] + npm_runtime_dependencies,
-    templated_args = ["--bazel_patch_module_resolver"],
-)
-
-nodejs_binary(
-    name = "gapic_generator_typescript",
-    entry_point = "//:typescript/src/gapic-generator-typescript.ts",
-    link_workspace_root = True,
-    data = [
-        ":protoc_plugin",
-        ":compile",
-        ":templates",
-        "@com_google_protobuf//:protoc",
-        ":protos",
-    ] + npm_runtime_dependencies,
-    templated_args = [
-        "--bazel_patch_module_resolver",
-        "--protoc=\"$(rootpath @com_google_protobuf//:protoc)\"",
     ],
+    env = {
+        "BAZEL_BINDIR": ".", # required by the JS rules if we need to use them in the build process
+        "NODE_OPTIONS": "--no-warnings", # disable ExperimentalWarning about loading JSON modules
+    },
 )
 
-nodejs_test(
-    name = "unit_tests",
-    entry_point = "@npm//:node_modules/mocha/bin/mocha.js",
-    args = ["typescript/test/unit/"],
+js_binary(
+    name = "gapic_generator_typescript",
+    entry_point = "typescript/src/gapic-generator-typescript.js",
     data = [
+        ":library",
+        ":protoc_plugin",
+        ":templates",
+        ":protos",
+        "@com_google_protobuf//:protoc",
+    ],
+    env = {
+        "PROTOC_PATH": "$(rootpath @com_google_protobuf//:protoc)",
+        "NODE_OPTIONS": "--no-warnings", # disable ExperimentalWarning about loading JSON modules
+    },
+)
+
+js_test(
+    name = "unit_tests",
+    entry_point = "typescript/test/unit-test-runner.js",
+    data = [
+        "package.json",
         ":gapic_generator_typescript",
+        ":compile",
         ":test_fixtures",
         ":baselines",
         "@com_google_protobuf//:protoc",
     ] + npm_test_dependencies,
-    templated_args = ["--bazel_patch_module_resolver"],
+    env = {
+        "PROTOC_PATH": "$(rootpath @com_google_protobuf//:protoc)",
+        "NODE_OPTIONS": "--no-warnings", # disable ExperimentalWarning about loading JSON modules
+    },
 )

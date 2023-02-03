@@ -4,9 +4,22 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 def gapic_generator_typescript_repositories():
   maybe(
     http_archive,
-    name = "build_bazel_rules_nodejs",
-    sha256 = "c911b5bd8aee8b0498cc387cacdb5f917098ce477fb4182db07b0ef8a9e045c0",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.7.1/rules_nodejs-4.7.1.tar.gz"],
+    name = "aspect_rules_js",
+    sha256 = "9f51475dd2f99abb015939b1cf57ab5f15ef36ca6d2a67104450893fd0aa5c8b",
+    strip_prefix = "rules_js-1.16.0",
+    url = "https://github.com/aspect-build/rules_js/archive/refs/tags/v1.16.0.tar.gz",
+  )
+
+  maybe(
+    http_archive,
+    name = "aspect_rules_ts",
+# TODO(alexander-fenster): point to the official release when the paths problem is fixed
+# https://github.com/aspect-build/rules_ts/pull/304
+#    sha256 = "acb20a4e41295d07441fa940c8da9fd02f8637391fd74a14300586a3ee244d59",
+#    strip_prefix = "rules_ts-1.2.0",
+#    url = "https://github.com/aspect-build/rules_ts/archive/refs/tags/v1.2.0.tar.gz",
+    strip_prefix = "rules_ts-f6413a356a814c9ed3f7cc7e1ca7a915b4104683",
+    url = "https://github.com/alexander-fenster/rules_ts/archive/f6413a356a814c9ed3f7cc7e1ca7a915b4104683.tar.gz",
   )
 
   maybe(
@@ -35,3 +48,6 @@ def gapic_generator_typescript_repositories():
       strip_prefix = "protobuf-3.21.8",
       urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.21.8.tar.gz"],
   )
+
+# This is the version of Node.js that would run the generator, it's unrelated to the versions supported by the generated libraries
+NODE_VERSION = "18.12.1" # https://github.com/bazelbuild/rules_nodejs/blob/stable/nodejs/private/node_versions.bzl

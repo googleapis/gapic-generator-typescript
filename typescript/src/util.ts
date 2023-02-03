@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../protos';
+import * as fs from 'fs';
+import * as fsp from 'fs/promises';
+import * as path from 'path';
+import type * as protos from '../../protos/index.js';
 
 export function commonPrefix(strings: string[]): string {
   if (strings.length === 0) {
@@ -28,32 +31,6 @@ export function commonPrefix(strings: string[]): string {
       break;
     }
   }
-  return result;
-}
-
-// Convert a string Duration, e.g. "600s", to a proper protobuf type since
-// protobufjs does not support it at this moment.
-export function duration(text: string): protos.google.protobuf.Duration {
-  const multipliers: {[suffix: string]: number} = {
-    s: 1,
-    m: 60,
-    h: 60 * 60,
-    d: 60 * 60 * 24,
-  };
-  const match = text.match(/^([\d.]+)([smhd])$/);
-  if (!match) {
-    throw new Error(`Cannot parse "${text}" into google.protobuf.Duration.`);
-  }
-  const float = Number(match[1]);
-  const suffix = match[2];
-  const multiplier = multipliers[suffix];
-  const seconds = float * multiplier;
-  const floor = Math.floor(seconds);
-  const frac = seconds - floor;
-  const result = protos.google.protobuf.Duration.fromObject({
-    seconds: floor,
-    nanos: frac * 1e9,
-  });
   return result;
 }
 
@@ -159,14 +136,6 @@ String.prototype.toSnakeCase = function (
     return this;
   }
   return words.join('_');
-};
-
-String.prototype.replaceAll = function (
-  this: string,
-  search: string,
-  replacement: string
-) {
-  return this.split(search).join(replacement);
 };
 
 Array.prototype.toCamelCaseString = function (

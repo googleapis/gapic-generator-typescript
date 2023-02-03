@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../../protos';
+import type * as protos from '../../../protos/index.js';
 
-import {Naming, Options as namingOptions} from './naming';
-import {Proto, MessagesMap, ServiceDescriptorProto} from './proto';
-import {ResourceDatabase, ResourceDescriptor} from './resource-database';
-import {CommentsMap} from './comments';
+import {Naming, Options as namingOptions} from './naming.js';
+import {Proto, MessagesMap, ServiceDescriptorProto} from './proto.js';
+import {ResourceDatabase, ResourceDescriptor} from './resource-database.js';
+import {CommentsMap} from './comments.js';
 
 export interface ProtosMap {
   [filename: string]: Proto;
@@ -109,11 +109,13 @@ export class API {
           allMessages['.' + fd.package! + '.' + message.name!] = message;
         });
     }
+
     const commentsMap = new CommentsMap(fileDescriptors);
 
     const filteredProtos = API.filterOutIgnoredServices(
       fileDescriptors.filter(fd => fd.name)
     );
+
     this.protos = filteredProtos.reduce((map, fd) => {
       map[fd.name!] = new Proto({
         fd,
@@ -128,6 +130,7 @@ export class API {
     }, {} as ProtosMap);
 
     const serviceNamesList: string[] = [];
+
     filteredProtos
       .filter(fd => fd.service)
       .reduce((servicesList, fd) => {
@@ -163,11 +166,13 @@ export class API {
         this.port = port ?? this.port ?? '443';
         serviceNamesList.push(service.name || this.naming.name);
       });
+
     if (serviceNamesList.length === 0) {
       throw new Error(
         `Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
       );
     }
+
     this.mainServiceName = options.mainServiceName || serviceNamesList[0];
     // For generating keywords in package.json
     this.uniqKeywords = [

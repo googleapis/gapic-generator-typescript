@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../../protos';
-import {getResourceNameByPattern} from '../util';
+import type * as protos from '../../../protos/index.js';
+import {getResourceNameByPattern} from '../util.js';
 
 export interface ResourceDescriptor
   extends protos.google.api.IResourceDescriptor {
@@ -181,9 +181,9 @@ export class ResourceDatabase {
   }
 
   private getParams(pattern: string): string[] {
-    let params = pattern.match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
-    params = params.map(p => p.replace(/{([a-zA-Z_]+).*/, '$1'));
-    return params;
+    const params = pattern.match(/{[a-zA-Z_]+(?:=.*?)?}/g) || [];
+    const result = params.map(p => p.replace(/{([a-zA-Z_]+).*/, '$1'));
+    return result;
   }
 
   private getResourceDescriptor(
