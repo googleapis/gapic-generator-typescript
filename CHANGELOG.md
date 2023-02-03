@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.0.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.18.2...v3.0.0) (2023-02-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* convert to ESM, use Aspect build rules ([#1307](https://github.com/googleapis/gapic-generator-typescript/issues/1307))
+
+### Features
+
+* Convert to ESM, use Aspect build rules ([#1307](https://github.com/googleapis/gapic-generator-typescript/issues/1307)) ([1653bb0](https://github.com/googleapis/gapic-generator-typescript/commit/1653bb0352c0ee4b53a9c005e97cc19e79aa067c))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^3.5.6 ([#1310](https://github.com/googleapis/gapic-generator-typescript/issues/1310)) ([dbebd2a](https://github.com/googleapis/gapic-generator-typescript/commit/dbebd2a12e02f72d9859f7b3cfcb294493f11c67))
+* **deps:** Update dependency yargs to ^17.6.0 ([#1282](https://github.com/googleapis/gapic-generator-typescript/issues/1282)) ([5291da0](https://github.com/googleapis/gapic-generator-typescript/commit/5291da08e9db0bc7e694f7ce5142a98a5e3cf682))
+* Update .gitignore file to include everything in the proto folder ([#1304](https://github.com/googleapis/gapic-generator-typescript/issues/1304)) ([d1d7399](https://github.com/googleapis/gapic-generator-typescript/commit/d1d7399c613535efbe0f93bc29faa413ba5f264a))
+
 ## [2.18.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.18.1...v2.18.2) (2022-09-27)
 
 
