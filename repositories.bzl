@@ -48,3 +48,6 @@ def gapic_generator_typescript_repositories():
       strip_prefix = "protobuf-3.21.8",
       urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.21.8.tar.gz"],
   )
+
+# This is the version of Node.js that would run the generator, it's unrelated to the versions supported by the generated libraries
+NODE_VERSION = "18.12.1" # https://github.com/bazelbuild/rules_nodejs/blob/stable/nodejs/private/node_versions.bzl
