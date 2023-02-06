@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.0...v3.0.1) (2023-02-06)
+
+
+### Bug Fixes
+
+* Only ignore folders in the top level ([#1318](https://github.com/googleapis/gapic-generator-typescript/issues/1318)) ([c6b0bfe](https://github.com/googleapis/gapic-generator-typescript/commit/c6b0bfea43b1269a937a53b1e0cce7189a60766b))
+
 ## [3.0.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.18.2...v3.0.0) (2023-02-03)
 
 
