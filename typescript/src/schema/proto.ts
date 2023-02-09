@@ -748,6 +748,8 @@ function augmentService(parameters: AugmentServiceParameters) {
     parameters.options.serviceYaml?.apis.includes('google.iam.v1.IAMPolicy')
   ) {
     augmentedService.IAMPolicyMixin = 1;
+  } else {
+    augmentedService.IAMPolicyMixin = 0;
   }
   if (
     parameters.options.serviceYaml?.apis.includes(
@@ -755,6 +757,8 @@ function augmentService(parameters: AugmentServiceParameters) {
     )
   ) {
     augmentedService.LocationMixin = 1;
+  } else {
+    augmentedService.LocationMixin = 0;
   }
 
   if (parameters.options.serviceYaml?.http) {
