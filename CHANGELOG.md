@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.1...v3.0.2) (2023-02-09)
+
+
+### Bug Fixes
+
+* Add condition for IAM mixin for stubSimpleCall in gapic_$service_$version.ts.njk ([#1321](https://github.com/googleapis/gapic-generator-typescript/issues/1321)) ([22197aa](https://github.com/googleapis/gapic-generator-typescript/commit/22197aa0b2c469a2c225df8df08708b76e0c334c))
+
 ## [3.0.1](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.0...v3.0.1) (2023-02-06)
 
 
