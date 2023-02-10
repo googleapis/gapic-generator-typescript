@@ -158,7 +158,7 @@ export class Generator {
       const info = yaml.load(content) as ServiceYaml;
       this.serviceYaml = info;
       const serviceMixins = [];
-      for (let i = 0; i < info.apis.length; i++) {
+      for (let i = 0; i < info.apis?.length ?? 0; i++) {
         const api = info.apis[i];
         for (const [, value] of Object.entries(api)) {
           serviceMixins.push(value);
