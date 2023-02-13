@@ -279,14 +279,19 @@ export class Generator {
 
   private buildAPIObject(): API {
     const protoPackagesToGenerate = new Set<string>();
-    API.filterOutIgnoredServices(
-      this.request.protoFile.filter(
-        fd =>
-          this.request.fileToGenerate.includes(fd.name!) &&
+
+    const fdsWithServicesToGenerate: protos.google.protobuf.IFileDescriptorProto[] = [];
+    for (const fd of this.request.protoFile) {
+      if (this.request.fileToGenerate.includes(fd.name!) &&
           fd.service &&
-          fd.service.length > 0
-      )
-    ).forEach(fd => protoPackagesToGenerate.add(fd.package || ''));
+          fd.service.length > 0) {
+        fdsWithServicesToGenerate.push(fd);
+      }
+    }
+    const withoutIgnored = API.filterOutIgnoredServices(fdsWithServicesToGenerate);
+    for (const fd of withoutIgnored) {
+      protoPackagesToGenerate.add(fd.package || '');
+    }
     const packageNamesToGenerate = Array.from(protoPackagesToGenerate);
     const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
     if (packageName === '') {

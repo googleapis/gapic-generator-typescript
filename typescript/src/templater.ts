@@ -81,9 +81,9 @@ async function createSnippetMetadata(
     for (const method of service.method) {
       const paramNameAndTypes: protos.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter[] = [];
 
-      method.paramComment?.forEach(x =>
-        paramNameAndTypes.push({name: x.paramName, type: x.paramType})
-      );
+      for (const paramComment of method.paramComment ?? []) {
+        paramNameAndTypes.push({name: paramComment.paramName, type: paramComment.paramType});
+      }
 
       const startRegionTag = await countRegionTagLines(
         'samples/generated/$version/$service.$method.js.njk',

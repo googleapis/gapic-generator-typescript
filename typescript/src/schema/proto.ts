@@ -637,13 +637,13 @@ export function getHeaderRequestParams(
 
 // Parses the routing annotation and sets headerRequest for a method. This assumes the routing annotations
 // are in a sorted order (e.g. all the annotations for a single parameter are next to each other).
-
 export function getDynamicHeaderRequestParams(
   rules: protos.google.api.IRoutingParameter[]
 ) {
   const params: DynamicRoutingParameters[][] = [[]];
   let countOfParameters = 0;
-  rules.forEach((rule, index) => {
+  for (let index = 0; index < rules.length; ++index) {
+    const rule = rules[index];
     // Add the first rule to the first array
     if (index === 0) {
       params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
@@ -659,7 +659,7 @@ export function getDynamicHeaderRequestParams(
       params[countOfParameters] = [];
       params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
     }
-  });
+  }
   return params;
 }
 
@@ -682,9 +682,9 @@ export function convertFieldToCamelCase(field: string) {
     return camelCaseFields;
   }
   const fieldsToRetrieve = field.split('.');
-  fieldsToRetrieve.forEach(field => {
+  for (const field of fieldsToRetrieve) {
     camelCaseFields.push(field.toCamelCase());
-  });
+  }
   return camelCaseFields;
 }
 
@@ -867,9 +867,9 @@ function augmentService(parameters: AugmentServiceParameters) {
         resourceReference?.childType,
         errorLocation
       );
-      parentResources.forEach(
-        resource => (uniqueResources[resource.name] = resource)
-      );
+      for (const resource of parentResources) {
+        uniqueResources[resource.name] = resource;
+      }
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
       if (!resourceReference || !resourceReference.type) continue;
