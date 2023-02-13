@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.3](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.2...v3.0.3) (2023-02-13)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^3.5.7 ([#1323](https://github.com/googleapis/gapic-generator-typescript/issues/1323)) ([178dcf0](https://github.com/googleapis/gapic-generator-typescript/commit/178dcf039caa7bedf24e779e9f829effae11de81))
+* Do not fail if service yaml does not list any apis ([#1325](https://github.com/googleapis/gapic-generator-typescript/issues/1325)) ([28a980a](https://github.com/googleapis/gapic-generator-typescript/commit/28a980a42e7d49d3b90b0cf1391e3b6f8348547e))
+* Make error message more visible ([#1330](https://github.com/googleapis/gapic-generator-typescript/issues/1330)) ([9c53c64](https://github.com/googleapis/gapic-generator-typescript/commit/9c53c648871718585a015566e940f4267bc4297b))
+* Use correct syntax for inline link tags ([#1328](https://github.com/googleapis/gapic-generator-typescript/issues/1328)) ([801a54d](https://github.com/googleapis/gapic-generator-typescript/commit/801a54d450c1b770593f54731161093009626d1e))
+* Use the official rules_ts ([#1329](https://github.com/googleapis/gapic-generator-typescript/issues/1329)) ([4aef706](https://github.com/googleapis/gapic-generator-typescript/commit/4aef70624d39b904000aa201100c87dfd5b8ea05))
+
 ## [3.0.2](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.1...v3.0.2) (2023-02-09)
 
 
