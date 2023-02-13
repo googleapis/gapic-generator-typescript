@@ -161,7 +161,7 @@ async function main(processArgv: string[]) {
   const protoc = protocParameter ?? protocEnv ?? 'protoc';
   if (!fs.existsSync(protoc)) {
     throw new Error(
-      `protoc binary is not found at ${protoc}, use --protoc option to point to your protoc binary`
+      `ERROR: protoc binary is not found at ${protoc}, use --protoc option to point to your protoc binary`
     );
   }
 

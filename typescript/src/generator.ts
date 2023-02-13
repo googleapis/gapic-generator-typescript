@@ -118,17 +118,17 @@ export class Generator {
     if (this.paramMap?.['grpc-service-config']) {
       const filename = this.paramMap['grpc-service-config'];
       if (!fs.existsSync(filename)) {
-        throw new Error(`File ${filename} cannot be opened.`);
+        throw new Error(`ERROR: File ${filename} cannot be opened.`);
       }
       const content = await readFile(filename);
       const json = JSON.parse(content.toString());
       const ServiceConfig = this.root.lookupType('ServiceConfig');
       if (!ServiceConfig) {
-        throw new Error('Cannot find ServiceConfig type in proto JSON');
+        throw new Error('INTERNAL ERROR: Cannot find ServiceConfig type in proto JSON');
       }
       const deserialized = serializer.fromProto3JSON(ServiceConfig, json);
       if (!deserialized) {
-        throw new Error('Cannot parse the content of gRPC service config');
+        throw new Error('ERROR: Cannot parse the content of gRPC service config');
       }
       this.grpcServiceConfig = ServiceConfig.toObject(deserialized) as protos.grpc.service_config.ServiceConfig;
     }
@@ -138,7 +138,7 @@ export class Generator {
     if (this.paramMap?.['bundle-config']) {
       const filename = this.paramMap['bundle-config'];
       if (!fs.existsSync(filename)) {
-        throw new Error(`File ${filename} cannot be opened.`);
+        throw new Error(`ERROR: File ${filename} cannot be opened.`);
       }
       const content = fs.readFileSync(filename, 'utf8');
       const info = yaml.load(content);
@@ -152,7 +152,7 @@ export class Generator {
     if (this.paramMap?.['service-yaml']) {
       const filename = this.paramMap['service-yaml'];
       if (!fs.existsSync(filename)) {
-        throw new Error(`File ${filename} cannot be opened.`);
+        throw new Error(`ERROR: File ${filename} cannot be opened.`);
       }
       const content = fs.readFileSync(filename, 'utf8');
       const info = yaml.load(content) as ServiceYaml;
@@ -237,11 +237,11 @@ export class Generator {
     const inputBuffer = await getStdin();
     const CodeGeneratorRequest = this.root.lookupType('CodeGeneratorRequest');
     if (!CodeGeneratorRequest) {
-      throw new Error('Cannot find CodeGeneratorRequest type in proto JSON');
+      throw new Error('INTERNAL ERROR: Cannot find CodeGeneratorRequest type in proto JSON');
     }
     this.request = CodeGeneratorRequest.toObject(CodeGeneratorRequest.decode(inputBuffer)) as protos.google.protobuf.compiler.CodeGeneratorRequest;
     if (!this.request.protoFile) {
-      throw new Error('No input files given to the protoc plugin.');
+      throw new Error('ERROR: No input files given to the protoc plugin.');
     }
     if (this.request.parameter) {
       this.getParamMap(this.request.parameter);
@@ -269,7 +269,7 @@ export class Generator {
     }
     const File = this.root.lookupType('File');
     if (!File) {
-      throw new Error('Cannot find File type in proto JSON');
+      throw new Error('INTERNAL ERROR: Cannot find File type in proto JSON');
     }
     const protoList = {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
     protoList.name = 'proto.list';
@@ -295,7 +295,7 @@ export class Generator {
     const packageNamesToGenerate = Array.from(protoPackagesToGenerate);
     const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
     if (packageName === '') {
-      throw new Error('Cannot get package name to generate.');
+      throw new Error('ERROR: Protos do not define any service, client library cannot be generated.');
     }
     const api = new API(this.request.protoFile, packageName, {
       grpcServiceConfig: this.grpcServiceConfig,

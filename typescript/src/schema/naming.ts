@@ -57,7 +57,7 @@ export class Naming {
       rootPackage = this.checkServiceInPackage(protoPackages, mainServiceName);
     }
     if (invalidPrefix && !mainServiceName) {
-      throw new Error('Protos provided have different proto packages.');
+      throw new Error('ERROR: Protos provided have different proto packages.');
     }
     if (!invalidPrefix) {
       rootPackage = prefix.replace(/\.$/, '');
@@ -65,7 +65,7 @@ export class Naming {
 
     const segments = rootPackage.split('.');
     if (!segments || segments.length < 2) {
-      throw new Error(`Cannot parse package name ${rootPackage}.`);
+      throw new Error(`ERROR: Cannot parse package name ${rootPackage}.`);
     }
 
     // version should follow the pattern of 'v1' or 'v1alpha1'
@@ -77,7 +77,7 @@ export class Naming {
     );
     if (versionIndex === -1) {
       throw new Error(
-        `Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`
+        `ERROR: Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`
       );
     }
     const version = segments[versionIndex];
@@ -85,7 +85,7 @@ export class Naming {
     // name immediately preceeds the version
     if (versionIndex === 0) {
       throw new Error(
-        `Cannot parse package name ${rootPackage}: version ${version} is the first segment in the name.`
+        `ERROR: Cannot parse package name ${rootPackage}: version ${version} is the first segment in the name.`
       );
     }
     const name = segments[versionIndex - 1];
@@ -101,7 +101,7 @@ export class Naming {
 
     if (!this.version && protoPackages.length > 1) {
       throw new Error(
-        'All protos must have the same proto package up to and including the version.'
+        'ERROR: All protos must have the same proto package up to and including the version.'
       );
     }
   }

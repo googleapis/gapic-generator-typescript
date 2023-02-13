@@ -125,7 +125,9 @@ function longrunning(
   ) {
     if (!method.options?.['.google.longrunning.operationInfo']) {
       throw new Error(
-        `rpc "${service.packageName}.${service.name}.${method.name}" returns google.longrunning.Operation but is missing option google.longrunning.operation_info`
+        `ERROR: rpc "${service.packageName}.${service.name}.${method.name}" ` +
+          'returns google.longrunning.Operation but is missing ' +
+          'option google.longrunning.operation_info'
       );
     } else {
       return method.options!['.google.longrunning.operationInfo']!;
@@ -285,7 +287,7 @@ function pagingField(
       repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n')
     );
     // TODO: an option to ignore errors
-    throw new Error(`Bad pagination settings for ${method.name}`);
+    throw new Error(`ERROR: Pagination settings for ${method.name} violate https://google.aip.dev/158`);
   }
   return repeatedFields[0];
 }
@@ -360,14 +362,15 @@ function pagingMapResponseType(
   }
   if (mapResponses.length > 1) {
     throw new Error(
-      `Paginated "${method.name}" method can only have one map field`
+      `ERROR: Paginated "${method.name}" method can only have one map field.`
     );
   }
   const pagingMapResponse = mapResponses[0];
   // convert paging.field typeName .google.cloud.compute.v1.ItemEntry to ItemEntry
   if (pagingMapResponse.name !== pagingfield.typeName?.split('.').pop()) {
     throw new Error(
-      `Paginated "${method.name}" method map response field name "${pagingMapResponse.name}" is not matching the paging field name "${pagingfield.typeName}"`
+      `ERROR: Paginated "${method.name}" method map response field name "${pagingMapResponse.name}" ` +
+        'is not matching the paging field name "${pagingfield.typeName}"'
     );
   }
   if (pagingMapResponse.field) {
@@ -377,7 +380,7 @@ function pagingMapResponseType(
       pagingMapResponse.field[0].type !== 9 // TYPE_STRING
     ) {
       throw new Error(
-        `Paginated "${method.name}" method map response field key's type should be string`
+        `ERROR: Paginated "${method.name}" method map response field key's type should be string`
       );
     }
     return pagingMapResponse.field[1].typeName;
@@ -484,11 +487,15 @@ function augmentMethod(
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
       throw new Error(
-        `rpc "${parameters.service.packageName}.${method.name}" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type`
+        `ERROR: rpc "${parameters.service.packageName}.${method.name}" ` +
+          'has google.longrunning.operation_info but is missing ' +
+          'option google.longrunning.operation_info.metadata_type'
       );
     } else if (!method.longRunningResponseType) {
       throw new Error(
-        `rpc "${parameters.service.packageName}.${method.name}" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.response_type`
+        `ERROR: rpc "${parameters.service.packageName}.${method.name}" ` +
+          'has google.longrunning.operation_info but is missing ' +
+          'option google.longrunning.operation_info.response_type'
       );
     }
   }
@@ -504,7 +511,7 @@ function augmentMethod(
         );
         if (!repeatedFields[0].typeName) {
           throw new Error(
-            `Wrong bundle config for method ${method.name}: typeName is undefined.`
+            `ERROR: Wrong bundle config for method ${method.name}: typeName is undefined.`
           );
         }
         bc.repeatedField = repeatedFields[0].typeName!.substring(1)!;

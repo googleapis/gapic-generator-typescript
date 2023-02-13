@@ -139,7 +139,7 @@ export class API {
     for (const service of servicesList) {
       if (!service.options || !service.options['.google.api.defaultHost']) {
         throw new Error(
-          `service "${packageName}.${service.name}" is missing option google.api.default_host`
+          `ERROR: service "${packageName}.${service.name}" is missing option google.api.default_host`
         );
       }
       const defaultHost = service!.options!['.google.api.defaultHost']!;
@@ -173,7 +173,7 @@ export class API {
 
     if (serviceNamesList.length === 0) {
       throw new Error(
-        `Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
+        `ERROR: Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
       );
     }
 
