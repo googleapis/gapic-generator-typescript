@@ -139,7 +139,7 @@ export class API {
     for (const service of servicesList) {
       if (!service.options || !service.options['.google.api.defaultHost']) {
         throw new Error(
-          `ERROR: service "${packageName}.${service.name}" is missing option google.api.default_host`
+          `service "${packageName}.${service.name}" is missing option google.api.default_host`
         );
       }
       const defaultHost = service!.options!['.google.api.defaultHost']!;

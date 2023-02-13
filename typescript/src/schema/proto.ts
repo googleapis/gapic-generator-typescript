@@ -125,7 +125,7 @@ function longrunning(
   ) {
     if (!method.options?.['.google.longrunning.operationInfo']) {
       throw new Error(
-        `ERROR: rpc "${service.packageName}.${service.name}.${method.name}" ` +
+        `rpc "${service.packageName}.${service.name}.${method.name}" ` +
           'returns google.longrunning.Operation but is missing ' +
           'option google.longrunning.operation_info'
       );
