@@ -103,11 +103,12 @@ export class API {
 
     const allMessages: MessagesMap = {};
     for (const fd of fileDescriptors) {
-      fd.messageType
-        ?.filter(message => message.name)
-        .forEach(message => {
-          allMessages['.' + fd.package! + '.' + message.name!] = message;
-        });
+      for (const message of fd.messageType ?? []) {
+        if (!message.name) {
+          continue;
+        }
+        allMessages['.' + fd.package! + '.' + message.name!] = message;
+      }
     }
 
     const commentsMap = new CommentsMap(fileDescriptors);
@@ -129,43 +130,46 @@ export class API {
       return map;
     }, {} as ProtosMap);
 
-    const serviceNamesList: string[] = [];
-
-    filteredProtos
-      .filter(fd => fd.service)
-      .reduce((servicesList, fd) => {
-        servicesList.push(...fd.service!);
-        return servicesList;
-      }, [] as protos.google.protobuf.IServiceDescriptorProto[])
-      .filter(service => {
-        if (!service.options || !service.options['.google.api.defaultHost']) {
-          throw new Error(
-            `service "${packageName}.${service.name}" is missing option google.api.default_host`
-          );
-        }
-        const defaultHost = service!.options!['.google.api.defaultHost']!;
-        if (defaultHost.length === 0) {
-          console.warn(
-            `service ${packageName}.${service.name} google.api.default_host is empty`
-          );
-        }
-        return service?.options?.['.google.api.defaultHost'];
-      })
-      .sort((service1, service2) =>
+    const protosWithService = filteredProtos.filter(fd => fd.service);
+    const servicesList: protos.google.protobuf.IServiceDescriptorProto[] = [];
+    for (const fd of protosWithService) {
+      servicesList.push(...fd.service!);
+    }
+    const servicesWithDefaultHost: protos.google.protobuf.IServiceDescriptorProto[] = [];
+    for (const service of servicesList) {
+      if (!service.options || !service.options['.google.api.defaultHost']) {
+        throw new Error(
+          `service "${packageName}.${service.name}" is missing option google.api.default_host`
+        );
+      }
+      const defaultHost = service!.options!['.google.api.defaultHost']!;
+      if (defaultHost.length === 0) {
+        console.warn(
+          `service ${packageName}.${service.name} google.api.default_host is empty`
+        );
+      }
+      if (service?.options?.['.google.api.defaultHost']) {
+        servicesWithDefaultHost.push(service);
+      }
+    }
+    servicesWithDefaultHost.sort(
+      (service1, service2) =>
         service1.name!.localeCompare(service2.name!)
-      )
-      .forEach(service => {
-        const defaultHost = service!.options!['.google.api.defaultHost']!;
-        const [hostname, port] = defaultHost.split(':');
-        if (hostname && this.hostName && hostname !== this.hostName) {
-          console.warn(
-            `Warning: different hostnames ${hostname} and ${this.hostName} within the same client are not supported.`
-          );
-        }
-        this.hostName = hostname || this.hostName || 'localhost';
-        this.port = port ?? this.port ?? '443';
-        serviceNamesList.push(service.name || this.naming.name);
-      });
+    );
+
+    const serviceNamesList: string[] = [];
+    for (const service of servicesWithDefaultHost) {
+      const defaultHost = service!.options!['.google.api.defaultHost']!;
+      const [hostname, port] = defaultHost.split(':');
+      if (hostname && this.hostName && hostname !== this.hostName) {
+        console.warn(
+          `Warning: different hostnames ${hostname} and ${this.hostName} within the same client are not supported.`
+        );
+      }
+      this.hostName = hostname || this.hostName || 'localhost';
+      this.port = port ?? this.port ?? '443';
+      serviceNamesList.push(service.name || this.naming.name);
+    }
 
     if (serviceNamesList.length === 0) {
       throw new Error(
@@ -261,7 +265,9 @@ function getResourceDatabase(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
         `file ${fd.name} message ${messageName}`
       );
-      (m.nestedType ?? []).forEach(m => messagesStack.push(m));
+      for (const message of m.nestedType ?? []) {
+        messagesStack.push(message);
+      }
     }
   }
   return [allResourceDatabase, resourceDatabase];
