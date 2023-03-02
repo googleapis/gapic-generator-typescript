@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.4](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.3...v3.0.4) (2023-03-02)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency yargs to ^17.7.0 ([#1336](https://github.com/googleapis/gapic-generator-typescript/issues/1336)) ([f5b43e2](https://github.com/googleapis/gapic-generator-typescript/commit/f5b43e2631b9779df14481c9399fc0d6d823edff))
+* **deps:** Update dependency yargs to ^17.7.1 ([#1342](https://github.com/googleapis/gapic-generator-typescript/issues/1342)) ([88e21f5](https://github.com/googleapis/gapic-generator-typescript/commit/88e21f517eada3a001e908065c6eaaac5b5ace0b))
+* Rename snippet metadata file ([#1343](https://github.com/googleapis/gapic-generator-typescript/issues/1343)) ([fbab492](https://github.com/googleapis/gapic-generator-typescript/commit/fbab4920e70d63a22f9941980511ed29cc69d937))
+* Update generated samples to reflect string arrays ([#1331](https://github.com/googleapis/gapic-generator-typescript/issues/1331)) ([e49e945](https://github.com/googleapis/gapic-generator-typescript/commit/e49e9450eaebd5da8f7be1efaf71f3fda3317a2e))
+
 ## [3.0.3](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.2...v3.0.3) (2023-02-13)
 
 
