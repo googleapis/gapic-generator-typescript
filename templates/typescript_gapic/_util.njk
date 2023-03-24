@@ -58,7 +58,7 @@ limitations under the License.
 {% for line in lines %}
 {%- set trimmed = line.replace(r/\s+$/, '') -%}
 {%- if trimmed.length > 0 %}
- * {{ trimmed.replaceAll('*/', '* /') | replace(markdownReferenceRegex, '{@link $2|$1}') | safe }}
+ * {{ trimmed.replaceAll('*/', '* /') | replace(markdownReferenceRegex, replaceMarkdownLink('$2', '$1')) | safe }}
 {%- else %}
  *
 {%- endif %}
@@ -68,7 +68,7 @@ limitations under the License.
 {%- macro printCommentsForMethod(method) -%}
 {%- set lines = method.comments -%}
 {% for line in lines %}
- *{{ line.replaceAll('*/', '* /').replace(r/\s+$/, '') | replace(markdownReferenceRegex, '{@link $2|$1}') | safe }}
+ *{{ line.replaceAll('*/', '* /').replace(r/\s+$/, '') | replace(markdownReferenceRegex, replaceMarkdownLink('$2', '$1')) | safe }}
 {%- endfor %}
 {%- endmacro -%}
 
@@ -108,7 +108,7 @@ limitations under the License.
 {%- for line in lines %}
 {%- set trimmed = line.replace(r/\s+$/, '') -%}
 {%- if trimmed.length > 0 %}
- *  {{ trimmed.replaceAll('*/', '* /') | replace(markdownReferenceRegex, '{@link $2|$1}') | safe }}
+ *  {{ trimmed.replaceAll('*/', '* /') | replace(markdownReferenceRegex, replaceMarkdownLink('$2', '$1')) | safe }}
 {%- else %}
  *
 {%- endif -%}
@@ -248,7 +248,11 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- if tsType.length > 0 -%}
 {{ tsType }}
 {%- else -%}
-{@link {{ type.substring(1) }} | {{ toMessageName(type) -}}}
+{%- if type.startsWith('.') -%}
+{@link protos{{ type }}|{{ toMessageName(type) }}}
+{%- else -%}
+{@link protos.{{ type }}|{{ toMessageName(type) }}}
+{%- endif -%}
 {%- endif -%}
 {%- endmacro -%}
 
@@ -477,4 +481,13 @@ protos{{ method.pagingResponseType }}
   }
 {%- endfor -%}
 ]
+{%- endmacro -%}
+
+{%- macro replaceMarkdownLink(type, typeName) -%}
+{%- set tsType = typescriptType(type) -%}
+{%- if tsType.length > 0 -%}
+{@link {{ type }}|{{ typeName }}}
+{%- else -%}
+{@link protos.{{ type }}|{{ typeName }}}
+{%- endif -%}
 {%- endmacro -%}
