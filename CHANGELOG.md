@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.5](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.4...v3.0.5) (2023-03-27)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^3.5.8 ([#1356](https://github.com/googleapis/gapic-generator-typescript/issues/1356)) ([3ea002b](https://github.com/googleapis/gapic-generator-typescript/commit/3ea002bef7a8aa72e86cccf51ae3317ba781c256))
+* Ensure links are prefixed with "protos." ([#1351](https://github.com/googleapis/gapic-generator-typescript/issues/1351)) ([ca2387f](https://github.com/googleapis/gapic-generator-typescript/commit/ca2387f21af8c808293df2f5049ffee22358f49b))
+
 ## [3.0.4](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.3...v3.0.4) (2023-03-02)
 
 
