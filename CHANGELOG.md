@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.6](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.5...v3.0.6) (2023-05-16)
+
+
+### Bug Fixes
+
+* Add explicit Bazel dependency on protos.json ([#1383](https://github.com/googleapis/gapic-generator-typescript/issues/1383)) ([dcc686f](https://github.com/googleapis/gapic-generator-typescript/commit/dcc686f2bbf3337640bf8385d1e511a54f41b2bd))
+* **deps:** Update dependency google-gax to ^3.6.0 ([#1369](https://github.com/googleapis/gapic-generator-typescript/issues/1369)) ([1d0d6f6](https://github.com/googleapis/gapic-generator-typescript/commit/1d0d6f6f58cad6cd62ac500be79c5642db2a2b27))
+* **deps:** Update dependency long to ^5.2.3 ([#1365](https://github.com/googleapis/gapic-generator-typescript/issues/1365)) ([d6ef18a](https://github.com/googleapis/gapic-generator-typescript/commit/d6ef18a1c7204fdb86a60fa8961f0a9508a71e31))
+* **deps:** Update dependency nunjucks to ^3.2.4 ([#1366](https://github.com/googleapis/gapic-generator-typescript/issues/1366)) ([54d9c80](https://github.com/googleapis/gapic-generator-typescript/commit/54d9c8075033346fd91e259b3fa5d526f9497e51))
+* **deps:** Update dependency proto3-json-serializer to ^1.1.1 ([#1372](https://github.com/googleapis/gapic-generator-typescript/issues/1372)) ([11684ec](https://github.com/googleapis/gapic-generator-typescript/commit/11684ec2f024edb4eedd4109c1a58d0e5b0ba244))
+* **deps:** Update dependency yargs to ^17.7.2 ([#1374](https://github.com/googleapis/gapic-generator-typescript/issues/1374)) ([d127f57](https://github.com/googleapis/gapic-generator-typescript/commit/d127f57998b1f758dc423f10889d1d51fc639a53))
+* Replace markdown links with tsdoc compatible link tags ([#1361](https://github.com/googleapis/gapic-generator-typescript/issues/1361)) ([9bc27d5](https://github.com/googleapis/gapic-generator-typescript/commit/9bc27d5bd6bd4cd63e33d05a3d00fa62f4f527d8))
+
 ## [3.0.5](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.4...v3.0.5) (2023-03-27)
 
 
