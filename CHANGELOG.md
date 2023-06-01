@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.7](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.6...v3.0.7) (2023-06-01)
+
+
+### Bug Fixes
+
+* Do not generate docs-test script ([#1391](https://github.com/googleapis/gapic-generator-typescript/issues/1391)) ([fe5af77](https://github.com/googleapis/gapic-generator-typescript/commit/fe5af77e3dcc9b28eebc2243e8fc497116af0a15))
+* Remove linkinator config ([#1395](https://github.com/googleapis/gapic-generator-typescript/issues/1395)) ([4b21891](https://github.com/googleapis/gapic-generator-typescript/commit/4b21891966bf1347a928eb5e0c732406e945366c))
+
 ## [3.0.6](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.5...v3.0.6) (2023-05-16)
 
 
