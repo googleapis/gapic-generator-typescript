@@ -26,7 +26,7 @@ limitations under the License.
 {% import "../../_operations.njk" as operations -%}
 {% import "../../_namer.njk" as namer -%}
 {{- namer.initialize(id, service) -}}
-import {% if not api.legacyProtoLoad %}type {% endif %}* as gax from 'google-gax';
+import * as gax from 'google-gax';
 import type {Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.longRunning.length > 0 or service.LongRunningOperationsMixin > 0 %}, GrpcClientOptions{%- endif -%}
 {%- if service.longRunning.length > 0 or service.diregapicLRO.length > 0 %}, LROperation{%- endif -%}
@@ -41,19 +41,22 @@ import {
 {%- if service.streaming.length > 0 -%}{{- importStreamJoiner() -}}PassThrough{%- endif -%}
 } from 'stream';
 {%- endif %}
-import * as protos from '../../protos/protos';
-{%- if api.legacyProtoLoad %}
-import * as path from 'path';
-{%- else %}
-import jsonProtos = require('../../protos/protos.json');
-{%- endif %}
+import type * as protos from '../../protos/protos';
+import * as {{ service.name.toSnakeCase() }}_client_config from '{{ service.name.toSnakeCase() }}_client_config.json';
+import fs from 'fs';
+import path from 'path';
+import {fileURLToPath} from 'url';
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
 /**
  * Client JSON configuration object, loaded from
  * `src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`.
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
-import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json';
-const version = require('../../../package.json').version;
+const gapicConfig = JSON.parse(fs.readFileSync(path.join(dirname, '{{ service.name.toSnakeCase() }}_client_config.json'),'utf8'));
+const jsonProtos = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', 'protos/protos.json'), 'utf8'));
+const version = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', '..', 'package.json'), 'utf8')).version;
 
 /**
 {{- util.printCommentsForService(service) }}
@@ -171,7 +174,7 @@ export class {{ service.name }}Client {
 
     // Load google-gax module synchronously if needed
     if (!gaxInstance) {
-      gaxInstance = require('google-gax') as typeof gax;
+      gaxInstance = gax as typeof gax;
     }
     {%- endif %}
 
@@ -233,6 +236,13 @@ export class {{ service.name }}Client {
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
     }
+    // Add ESM headers
+    if (opts.libVersion && isEsm) {
+      clientHeader.push(`${opts.libVersion}-esm`);
+    } else if (opts.libVersion && !isEsm) {
+      clientHeader.push(`${opts.libVersion}-cjs`);
+    }
+
     // Load the applicable protos.
 {%- if api.legacyProtoLoad %}
     this._protos = this._gaxGrpc.loadProto(
@@ -240,7 +250,7 @@ export class {{ service.name }}Client {
       '{{ service.protoFile }}'
     );
 {%- else %}
-    this._protos = this._gaxGrpc.loadProtoJSON(jsonProtos);
+    this._protos = this._gaxGrpc.loadProtoJSON(jsonProtos as gax.protobuf.INamespace);
 {%- endif %}
 
 {%- if service.pathTemplates.length > 0 %}
@@ -295,7 +305,7 @@ export class {{ service.name }}Client {
       protoFilesRoot) as (typeof protoFilesRoot);
 {%- else %}
 
-    const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
+    const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos as gax.protobuf.INamespace);
 {%- endif %}
 {%- endif %}
 {%- if service.longRunning.length > 0 or service.LongRunningOperationsMixin > 0%}

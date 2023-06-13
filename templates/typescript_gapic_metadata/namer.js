@@ -37,7 +37,7 @@ function initialize() {
  * @returns A generated name that should not have conflicts with known
  * predefined names.
  */
-function get(name, serviceName) {
+export function get(name, serviceName) {
   initialize();
 
   let counter = 0;
@@ -57,11 +57,9 @@ function get(name, serviceName) {
  * @param {string} serviceName The service name the given name belongs to.
  * @returns {string} Empty string (so it can be safely used in templates).
  */
-function register(name, serviceName) {
+export function register(name, serviceName) {
   initialize();
 
   get.names.add(`${serviceName}!${name}`);
   return '';
 }
-
-module.exports = {register, get};
