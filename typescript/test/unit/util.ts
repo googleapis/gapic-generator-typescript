@@ -22,9 +22,13 @@ import {
   processPathTemplate,
 } from '../../src/util.js';
 import {protobuf} from 'google-gax';
-import protoJson from '../../../protos/protos.json' assert { type: 'json' };
 import type * as protos from '../../../protos/index.js';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
+const protoJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'protos/protos.json'), 'utf8'));
 describe('src/util.ts', () => {
   describe('CommonPrefix', () => {
     it('should return correct result', () => {

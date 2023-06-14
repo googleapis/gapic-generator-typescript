@@ -5,10 +5,26 @@
   "repository": "googleapis/nodejs-showcase",
   "license": "Apache-2.0",
   "author": "Google LLC",
-  "main": "build/src/index.js",
+  "main": "./build/cjs/src/index.cjs",
+  "types": "./build/cjs/src/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./build/cjs/src/index.d.ts",
+        "default": "./build/esm/src/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/src/index.d.ts",
+        "default": "./build/cjs/src/index.cjs"
+      }
+    }
+  },
   "files": [
-    "build/src",
-    "build/protos"
+    "build/esm",
+    "build/cjs",
+    "build/protos",
+    "!build/esm/**/*.map"
   ],
   "keywords": [
     "google apis client",
@@ -30,7 +46,6 @@
   ],
   "scripts": {
     "clean": "gts clean",
-    "compile": "tsc -p . && cp -r protos build/ && minifyProtoJson",
     "compile-protos": "compileProtos src",
     "docs": "jsdoc -c .jsdoc.js",
     "predocs-test": "npm run docs",
@@ -38,8 +53,13 @@
     "fix": "gts fix",
     "lint": "gts check",
     "prepare": "npm run compile-protos && npm run compile",
-    "system-test": "c8 mocha build/system-test",
-    "test": "c8 mocha build/test"
+    "system-test": "c8 mocha build/cjs/system-test",
+    "test:cjs": "c8 mocha build/cjs/test",
+    "test:esm": "c8 mocha --loader=esmock build/esm/test",
+    "test": "npm run test:cjs && npm run test:esm",
+    "compile:esm": "tsc -p ./tsconfig.esm.json",
+    "compile:cjs": "tsc -p ./tsconfig.json",
+    "compile": "npm run compile:esm && npm run compile:cjs && cp -r protos build/esm && cp -r protos build/cjs && minifyProtoJson build/cjs && minifyProtoJson build/esm"
   },
   "dependencies": {
     "google-gax": "^3.6.0"
@@ -59,11 +79,11 @@
     "pack-n-play": "^1.0.0-2",
     "sinon": "^15.1.0",
     "ts-loader": "^8.4.0",
-    "typescript": "^4.8.4",
+    "typescript": "^4.9.5",
     "webpack": "^4.46.0",
     "webpack-cli": "^4.10.0"
   },
   "engines": {
-    "node": ">=v12"
+    "node": ">=14.0.0"
   }
 }

@@ -19,15 +19,22 @@
 import * as gax from 'google-gax';
 import type {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, LROperation, PaginationCallback, GaxCall} from 'google-gax';
 import {Transform, PassThrough} from 'stream';
-import * as protos from '../../protos/protos';
-import * as path from 'path';
+import type * as protos from '../../protos/protos';
+import * as echo_client_config from 'echo_client_config.json';
+import fs from 'fs';
+import path from 'path';
+import {fileURLToPath} from 'url';
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
 /**
  * Client JSON configuration object, loaded from
  * `src/v1beta1/echo_client_config.json`.
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
-import * as gapicConfig from './echo_client_config.json';
-const version = require('../../../package.json').version;
+const gapicConfig = JSON.parse(fs.readFileSync(path.join(dirname, 'echo_client_config.json'),'utf8'));
+const jsonProtos = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', 'protos/protos.json'), 'utf8'));
+const version = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', '..', 'package.json'), 'utf8')).version;
 
 /**
  *  This service is used showcase the four main types of rpcs - unary, server
@@ -140,6 +147,13 @@ export class EchoClient {
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
     }
+    // Add ESM headers
+    if (opts.libVersion && isEsm) {
+      clientHeader.push(`${opts.libVersion}-esm`);
+    } else if (opts.libVersion && !isEsm) {
+      clientHeader.push(`${opts.libVersion}-cjs`);
+    }
+
     // Load the applicable protos.
     this._protos = this._gaxGrpc.loadProto(
       path.join(__dirname, '..', '..', 'protos'),

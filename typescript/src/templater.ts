@@ -285,12 +285,12 @@ async function loadNamerPlugin(basePath: string) {
       return '';
     },
   };
+
   if (fs.existsSync(namerLocation)) {
     let namer: Namer;
-    namer = (await import(namerLocation)).default as Namer;
-    const {register, get} = namer;
-    id.register = register;
-    id.get = get;
+    namer = (await import(namerLocation)) as Namer;
+    id.register = namer.register;
+    id.get = namer.get;
   }
 
   return id;

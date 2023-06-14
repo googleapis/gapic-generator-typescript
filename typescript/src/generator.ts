@@ -19,9 +19,7 @@ import * as yaml from 'js-yaml';
 import * as serializer from 'proto3-json-serializer';
 import {protobuf} from 'google-gax';
 import type * as protos from '../../protos/index.js';
-import protoJson from '../../protos/protos.json' assert { type: 'json' };
 import * as url from 'url';
-
 import {API} from './schema/api.js';
 import {processTemplates} from './templater.js';
 import {BundleConfigClient, BundleConfig} from './bundle.js';
@@ -30,6 +28,8 @@ import {commonPrefix} from './util.js';
 
 // https://blog.logrocket.com/alternatives-dirname-node-js-es-modules/#help-im-missing-dirname
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+
+const protoJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'protos/protos.json'), 'utf8'));
 
 function getStdin() {
   return new Promise<Buffer>(resolve => {

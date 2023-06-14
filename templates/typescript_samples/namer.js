@@ -36,7 +36,7 @@ function initialize() {
  * @returns A generated name that should not have conflicts with known
  * predefined names.
  */
-export function get(name) {
+function get(name) {
   initialize();
 
   let counter = 0;
@@ -55,9 +55,11 @@ export function get(name) {
  * @param {string} name Reserved name that should not be used.
  * @returns {string} Empty string (so it can be safely used in templates).
  */
-export function register(name) {
+function register(name) {
   initialize();
 
   get.names.add(name);
   return '';
 }
+
+module.exports = {register, get};

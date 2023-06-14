@@ -17,18 +17,25 @@
 // ** All changes to this file may be overwritten. **
 
 /* global window */
-import type * as gax from 'google-gax';
+import * as gax from 'google-gax';
 import type {Callback, CallOptions, Descriptors, ClientOptions} from 'google-gax';
 
-import * as protos from '../../protos/protos';
-import jsonProtos = require('../../protos/protos.json');
+import type * as protos from '../../protos/protos';
+import * as test_service_client_config from 'test_service_client_config.json';
+import fs from 'fs';
+import path from 'path';
+import {fileURLToPath} from 'url';
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
 /**
  * Client JSON configuration object, loaded from
  * `src/v1/test_service_client_config.json`.
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
-import * as gapicConfig from './test_service_client_config.json';
-const version = require('../../../package.json').version;
+const gapicConfig = JSON.parse(fs.readFileSync(path.join(dirname, 'test_service_client_config.json'),'utf8'));
+const jsonProtos = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', 'protos/protos.json'), 'utf8'));
+const version = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', '..', 'package.json'), 'utf8')).version;
 
 /**
  *  This is a service description.
@@ -112,7 +119,7 @@ export class TestServiceClient {
 
     // Load google-gax module synchronously if needed
     if (!gaxInstance) {
-      gaxInstance = require('google-gax') as typeof gax;
+      gaxInstance = gax as typeof gax;
     }
 
     // Choose either gRPC or proto-over-HTTP implementation of google-gax.
@@ -156,8 +163,15 @@ export class TestServiceClient {
     if (opts.libName && opts.libVersion) {
       clientHeader.push(`${opts.libName}/${opts.libVersion}`);
     }
+    // Add ESM headers
+    if (opts.libVersion && isEsm) {
+      clientHeader.push(`${opts.libVersion}-esm`);
+    } else if (opts.libVersion && !isEsm) {
+      clientHeader.push(`${opts.libVersion}-cjs`);
+    }
+
     // Load the applicable protos.
-    this._protos = this._gaxGrpc.loadProtoJSON(jsonProtos);
+    this._protos = this._gaxGrpc.loadProtoJSON(jsonProtos as gax.protobuf.INamespace);
 
     // Put together the default options sent with requests.
     this._defaults = this._gaxGrpc.constructSettings(
