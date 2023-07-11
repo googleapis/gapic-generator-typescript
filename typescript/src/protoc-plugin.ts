@@ -14,17 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as yargs from 'yargs';
-import {Generator} from './generator';
-import {IArguments} from './gapic-generator-typescript';
+import {Generator} from './generator.js';
 
 async function main() {
-  const argv = yargs.argv as IArguments;
-
-  if (argv.descriptor) {
-    throw new Error('Descriptor option is not yet supported.');
-  }
-
   const generator = new Generator();
   await generator.initializeFromStdin();
   await generator.generate();

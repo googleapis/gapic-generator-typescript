@@ -21,10 +21,13 @@ SCRIPTDIR=`dirname "$0"`
 cd "$SCRIPTDIR"
 cd ..   # now in the package.json directory
 
+export TMPDIR=`mktemp -d`
+
 ### Test script pulling the docker image and use it against showcase proto.
 
 # Docker image tag: gapic-generator-typescript:latest.
-DIR_NAME=$TMPDIR/.showcase-typescript
+DIR_NAME=$TMPDIR/showcase-typescript
+echo "Running Docker container test, TMPDIR: $TMPDIR"
 # Remove test directory if it already exists
 rm -rf $DIR_NAME
 # Create new directory showcase-typescript. 
@@ -41,5 +44,6 @@ npm install  # install dependencies
 npm run fix  # format the code
 npm test     # run unit tests
 
-# Test succeed
-echo 'docker test succeeded! '
+# Test succeeded
+echo 'Docker test succeeded! '
+rm -rf $TMPDIR

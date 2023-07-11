@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../protos';
+import * as fs from 'fs';
+import * as fsp from 'fs/promises';
+import * as path from 'path';
+import type * as protos from '../../protos/index.js';
 
 export function commonPrefix(strings: string[]): string {
   if (strings.length === 0) {
@@ -31,32 +34,6 @@ export function commonPrefix(strings: string[]): string {
   return result;
 }
 
-// Convert a string Duration, e.g. "600s", to a proper protobuf type since
-// protobufjs does not support it at this moment.
-export function duration(text: string): protos.google.protobuf.Duration {
-  const multipliers: {[suffix: string]: number} = {
-    s: 1,
-    m: 60,
-    h: 60 * 60,
-    d: 60 * 60 * 24,
-  };
-  const match = text.match(/^([\d.]+)([smhd])$/);
-  if (!match) {
-    throw new Error(`Cannot parse "${text}" into google.protobuf.Duration.`);
-  }
-  const float = Number(match[1]);
-  const suffix = match[2];
-  const multiplier = multipliers[suffix];
-  const seconds = float * multiplier;
-  const floor = Math.floor(seconds);
-  const frac = seconds - floor;
-  const result = protos.google.protobuf.Duration.fromObject({
-    seconds: floor,
-    nanos: frac * 1e9,
-  });
-  return result;
-}
-
 // Convert a Duration to (possibly fractional) seconds.
 export function seconds(duration: protos.google.protobuf.IDuration): number {
   return Number(duration.seconds || 0) + Number(duration.nanos || 0) * 1e-9;
@@ -71,6 +48,10 @@ export function milliseconds(
   );
 }
 
+export function isDigit(value: string): boolean {
+  return /^\d+$/.test(value);
+}
+
 String.prototype.capitalize = function (this: string): string {
   if (this.length === 0) {
     return this;
@@ -78,25 +59,56 @@ String.prototype.capitalize = function (this: string): string {
   return this[0].toUpperCase() + this.slice(1);
 };
 
-String.prototype.words = function (this: string): string[] {
+String.prototype.words = function (
+  this: string,
+  protobufJsStyle = false
+): string[] {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  let arg = this;
+  if (protobufJsStyle) {
+    // treat multiple capital letters as one word
+    // e.g. CreateOSPolicy => create, os, policy
+    // (the default would've been create, o, s, policy)
+    arg = this.replace(/([A-Z])([A-Z]+)([A-Z])/g, (str: string) => {
+      return (
+        str[0] +
+        str.slice(1, str.length - 1).toLowerCase() +
+        str[str.length - 1]
+      );
+    });
+  }
   // split on spaces, non-alphanumeric, or capital letters
-  return this.split(/(?=[A-Z])|[\s\W_]+/)
+  return arg
+    .split(/(?=[A-Z])|[\s\W_]+/)
     .filter(w => w.length > 0)
     .map(w => w.toLowerCase());
 };
 
-String.prototype.toCamelCase = function (this: string): string {
-  const words = this.words();
+String.prototype.toCamelCase = function (
+  this: string,
+  protobufJsStyle = false
+): string {
+  const words = this.words(protobufJsStyle);
   if (words.length === 0) {
     return this;
   }
   const result = [words[0]];
-  result.push(...words.slice(1).map(w => w.capitalize()));
+  result.push(
+    ...words.slice(1).map(w => {
+      if (isDigit(w)) {
+        return '_' + w;
+      }
+      return w.capitalize();
+    })
+  );
   return result.join('');
 };
 
-String.prototype.toPascalCase = function (this: string): string {
-  const words = this.words();
+String.prototype.toPascalCase = function (
+  this: string,
+  protobufJsStyle = false
+): string {
+  const words = this.words(protobufJsStyle);
   if (words.length === 0) {
     return this;
   }
@@ -104,28 +116,26 @@ String.prototype.toPascalCase = function (this: string): string {
   return result.join('');
 };
 
-String.prototype.toKebabCase = function (this: string): string {
-  const words = this.words();
+String.prototype.toKebabCase = function (
+  this: string,
+  protobufJsStyle = false
+): string {
+  const words = this.words(protobufJsStyle);
   if (words.length === 0) {
     return this;
   }
   return words.join('-');
 };
 
-String.prototype.toSnakeCase = function (this: string): string {
-  const words = this.words();
+String.prototype.toSnakeCase = function (
+  this: string,
+  protobufJsStyle = false
+): string {
+  const words = this.words(protobufJsStyle);
   if (words.length === 0) {
     return this;
   }
   return words.join('_');
-};
-
-String.prototype.replaceAll = function (
-  this: string,
-  search: string,
-  replacement: string
-) {
-  return this.split(search).join(replacement);
 };
 
 Array.prototype.toCamelCaseString = function (
@@ -178,4 +188,42 @@ export function getResourceNameByPattern(pattern: string): string {
     }
   }
   return name.join('_');
+}
+
+// For the given path template, extract the field name and prepare the regular
+// expression to extract the field value.
+// For example, for "/projects/{project=*}", the field name
+// is "project", and the regex will extract the part of the string that
+// corresponds to the curly brackets.
+export function processPathTemplate(
+  pathTemplate: string
+): {fieldSend: string; messageRegex: string} | null {
+  // Find the template part
+  const patternMatch = pathTemplate.match(/{(\w+)[=}]/);
+  if (!patternMatch) {
+    return null;
+  }
+  const fieldSend = patternMatch[1];
+
+  let messageRegex = pathTemplate;
+  messageRegex = messageRegex.replace(/{(\w+)}/, (_match, group) => {
+    return `{${group}=*}`;
+  });
+  messageRegex = messageRegex.replace(/(\/?)(\*+)/g, (_match, slash, stars) => {
+    if (stars === '*') {
+      return slash + '[^/]+';
+    }
+    if (slash === '/') {
+      return '(?:/.*)?';
+    }
+    return '(?:.*)?';
+  });
+  messageRegex = messageRegex.replace(
+    /{(\w+)=([^}]+)}/,
+    (_match, before, after) => {
+      return `(?<${before}>${after})`;
+    }
+  );
+
+  return {fieldSend, messageRegex};
 }

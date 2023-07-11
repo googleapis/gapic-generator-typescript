@@ -12,10 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as assert from 'assert';
+import assert from 'assert';
 import {describe, it} from 'mocha';
-import {commonPrefix, duration, seconds, milliseconds} from '../../src/util';
-import * as protos from '../../../protos';
+import {
+  commonPrefix,
+  seconds,
+  milliseconds,
+  isDigit,
+  processPathTemplate,
+} from '../../src/util.js';
+import {protobuf} from 'google-gax';
+import protoJson from '../../../protos/protos.json' assert { type: 'json' };
+import type * as protos from '../../../protos/index.js';
 
 describe('src/util.ts', () => {
   describe('CommonPrefix', () => {
@@ -34,80 +42,41 @@ describe('src/util.ts', () => {
   });
 
   describe('Duration', () => {
-    it('should support fractional seconds', () => {
-      const input = '0.1s';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 0);
-      assert.strictEqual(Number(dur.nanos), 0.1 * 1e9);
-    });
-
-    it('should support fractional minutes', () => {
-      const input = '0.5m';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 30);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
-
-    it('should build correct Duration object for seconds', () => {
-      const input = '5s';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 5);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
-
-    it('should build correct Duration object for minutes', () => {
-      const input = '10m';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 10 * 60);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
-
-    it('should build correct Duration object for hours', () => {
-      const input = '2h';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 2 * 60 * 60);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
-
-    it('should build correct Duration object for days', () => {
-      const input = '3d';
-      const dur = duration(input);
-      assert.strictEqual(Number(dur.seconds), 3 * 60 * 60 * 24);
-      assert.strictEqual(Number(dur.nanos), 0);
-    });
+    const root = protobuf.Root.fromJSON(protoJson);
+    const Duration = root.lookupType('google.protobuf.Duration');
 
     it('should convert Duration to whole seconds', () => {
-      const duration = protos.google.protobuf.Duration.fromObject({
+      const duration = Duration.toObject(Duration.fromObject({
         seconds: 10,
         nanos: 0,
-      });
+      })) as protos.google.protobuf.Duration;
       const result = seconds(duration);
       assert.strictEqual(result, 10);
     });
 
     it('should convert Duration to fractional seconds', () => {
-      const duration = protos.google.protobuf.Duration.fromObject({
+      const duration = Duration.toObject(Duration.fromObject({
         seconds: 5,
         nanos: 500000000,
-      });
+      })) as protos.google.protobuf.Duration;
       const result = seconds(duration);
       assert.strictEqual(result, 5.5);
     });
 
     it('should convert Duration to whole milliseconds', () => {
-      const duration = protos.google.protobuf.Duration.fromObject({
+      const duration = Duration.toObject(Duration.fromObject({
         seconds: 10,
         nanos: 0,
-      });
+      })) as protos.google.protobuf.Duration;
       const result = milliseconds(duration);
       assert.strictEqual(result, 10000);
     });
 
     it('should convert Duration to fractional milliseconds', () => {
-      const duration = protos.google.protobuf.Duration.fromObject({
+      const duration = Duration.toObject(Duration.fromObject({
         seconds: 5,
         nanos: 500000000,
-      });
+      })) as protos.google.protobuf.Duration;
       const result = milliseconds(duration);
       assert.strictEqual(result, 5500);
     });
@@ -130,11 +99,35 @@ describe('src/util.ts', () => {
         'case',
         'string',
       ]);
+      assert.deepStrictEqual('camelCaseABCString'.words(), [
+        'camel',
+        'case',
+        'a',
+        'b',
+        'c',
+        'string',
+      ]);
+      assert.deepStrictEqual(
+        'camelCaseABCString'.words(/*protobufJsStyle:*/ true),
+        ['camel', 'case', 'abc', 'string']
+      );
       assert.deepStrictEqual('PascalCaseString'.words(), [
         'pascal',
         'case',
         'string',
       ]);
+      assert.deepStrictEqual('PascalCaseABCString'.words(), [
+        'pascal',
+        'case',
+        'a',
+        'b',
+        'c',
+        'string',
+      ]);
+      assert.deepStrictEqual(
+        'PascalCaseABCString'.words(/*protobufJsStyle:*/ true),
+        ['pascal', 'case', 'abc', 'string']
+      );
       assert.deepStrictEqual('snake_case_string'.words(), [
         'snake',
         'case',
@@ -194,6 +187,18 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(
         'productName.v1p1beta1'.toCamelCase(),
         'productNameV1p1beta1'
+      );
+      assert.deepStrictEqual(
+        'display_video_360_advertiser_link'.toCamelCase(),
+        'displayVideo_360AdvertiserLink'
+      );
+      assert.deepStrictEqual(
+        'CreateOSSomething'.toCamelCase(),
+        'createOSSomething'
+      );
+      assert.deepStrictEqual(
+        'CreateOSSomething'.toCamelCase(/*protobufJsStyle:*/ true),
+        'createOsSomething'
       );
     });
 
@@ -295,19 +300,6 @@ describe('src/util.ts', () => {
         'product_name_v1p1beta1'
       );
     });
-
-    it('should replace all search item with replacement', () => {
-      assert.deepStrictEqual(''.replaceAll('', 'success'), '');
-      assert.deepStrictEqual('Read me'.replaceAll('me', 'this'), 'Read this');
-      assert.deepStrictEqual(
-        'This is a Test'.replaceAll('T', 't'),
-        'this is a test'
-      );
-      assert.deepStrictEqual(
-        'location*/address*/room/*'.replaceAll('*/', '* /'),
-        'location* /address* /room/*'
-      );
-    });
   });
 
   describe('array manipulation', () => {
@@ -391,6 +383,82 @@ describe('src/util.ts', () => {
         ['tableReference', 'project_id'].toSnakeCaseString('!.'),
         'table_reference!.project_id'
       );
+    });
+  });
+
+  describe('Detect number', () => {
+    it('should return true if the string is number', () => {
+      assert.deepStrictEqual(isDigit('123'), true);
+    });
+    it('should return false if the string is not number', () => {
+      assert.deepStrictEqual(isDigit('abc345'), false);
+      assert.deepStrictEqual(isDigit(''), false);
+      assert.deepStrictEqual(isDigit('hello'), false);
+      assert.deepStrictEqual(isDigit('NaN'), false);
+      assert.deepStrictEqual(isDigit('0b110100'), false);
+      assert.deepStrictEqual(isDigit('Infinity'), false);
+      assert.deepStrictEqual(isDigit('-Infinity'), false);
+    });
+  });
+
+  describe('Path template to regex', () => {
+    it('should get convert a full path template into regex', () => {
+      assert.deepStrictEqual(processPathTemplate('{foo}'), {
+        fieldSend: 'foo',
+        messageRegex: '(?<foo>[^/]+)',
+      });
+      assert.deepStrictEqual(processPathTemplate('{foo=*}'), {
+        fieldSend: 'foo',
+        messageRegex: '(?<foo>[^/]+)',
+      });
+      assert.deepStrictEqual(processPathTemplate('{foo=**}'), {
+        fieldSend: 'foo',
+        messageRegex: '(?<foo>(?:.*)?)',
+      });
+      assert.deepStrictEqual(processPathTemplate('{foo=bar}'), {
+        fieldSend: 'foo',
+        messageRegex: '(?<foo>bar)',
+      });
+      assert.deepStrictEqual(processPathTemplate('*'), null);
+      assert.deepStrictEqual(processPathTemplate('*}'), null);
+      assert.deepStrictEqual(processPathTemplate('**'), null);
+      assert.deepStrictEqual(
+        processPathTemplate(
+          'test/{database=projects/*/databases/*}/documents/*/**'
+        ),
+        {
+          fieldSend: 'database',
+          messageRegex:
+            'test/(?<database>projects/[^/]+/databases/[^/]+)/documents/[^/]+(?:/.*)?',
+        }
+      );
+      assert.deepStrictEqual(
+        processPathTemplate('{database=projects/*/databases/*}/documents/*/**'),
+        {
+          fieldSend: 'database',
+          messageRegex:
+            '(?<database>projects/[^/]+/databases/[^/]+)/documents/[^/]+(?:/.*)?',
+        }
+      );
+      assert.deepStrictEqual(
+        processPathTemplate('{new_name_match=projects/*/instances/*/tables/*}'),
+        {
+          fieldSend: 'new_name_match',
+          messageRegex:
+            '(?<new_name_match>projects/[^/]+/instances/[^/]+/tables/[^/]+)',
+        }
+      );
+      assert.deepStrictEqual(
+        processPathTemplate('{routing_id=projects/*}/**'),
+        {
+          fieldSend: 'routing_id',
+          messageRegex: '(?<routing_id>projects/[^/]+)(?:/.*)?',
+        }
+      );
+      assert.deepStrictEqual(processPathTemplate('profiles/{routing_id=*}'), {
+        fieldSend: 'routing_id',
+        messageRegex: 'profiles/(?<routing_id>[^/]+)',
+      });
     });
   });
 });

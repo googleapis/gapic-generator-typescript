@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,11 +17,9 @@
 // ** All changes to this file may be overwritten. **
 
 /* global window */
-import * as gax from 'google-gax';
-import {Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback, GaxCall} from 'google-gax';
-
-import { Transform } from 'stream';
-import { RequestType } from 'google-gax/build/src/apitypes';
+import type * as gax from 'google-gax';
+import type {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, LROperation, PaginationCallback, GaxCall} from 'google-gax';
+import {Transform} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
 /**
@@ -30,7 +28,6 @@ import jsonProtos = require('../../protos/protos.json');
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
 import * as gapicConfig from './cloud_redis_client_config.json';
-import { operationsProtos } from 'google-gax';
 const version = require('../../../package.json').version;
 
 /**
@@ -55,6 +52,7 @@ const version = require('../../../package.json').version;
 export class CloudRedisClient {
   private _terminated = false;
   private _opts: ClientOptions;
+  private _providedCustomServicePath: boolean;
   private _gaxModule: typeof gax | typeof gax.fallback;
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
@@ -66,6 +64,7 @@ export class CloudRedisClient {
     longrunning: {},
     batching: {},
   };
+  warn: (code: string, message: string, warnType?: string) => void;
   innerApiCalls: {[name: string]: Function};
   pathTemplates: {[name: string]: gax.PathTemplate};
   operationsClient: gax.OperationsClient;
@@ -76,7 +75,7 @@ export class CloudRedisClient {
    *
    * @param {object} [options] - The configuration object.
    * The options accepted by the constructor are described in detail
-   * in [this document](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#creating-the-client-instance).
+   * in [this document](https://github.com/googleapis/gax-nodejs/blob/main/client-libraries.md#creating-the-client-instance).
    * The common options are:
    * @param {object} [options.credentials] - Credentials object.
    * @param {string} [options.credentials.client_email]
@@ -99,16 +98,23 @@ export class CloudRedisClient {
    *     API remote host.
    * @param {gax.ClientConfig} [options.clientConfig] - Client configuration override.
    *     Follows the structure of {@link gapicConfig}.
-   * @param {boolean} [options.fallback] - Use HTTP fallback mode.
-   *     In fallback mode, a special browser-compatible transport implementation is used
-   *     instead of gRPC transport. In browser context (if the `window` object is defined)
-   *     the fallback mode is enabled automatically; set `options.fallback` to `false`
-   *     if you need to override this behavior.
+   * @param {boolean | "rest"} [options.fallback] - Use HTTP fallback mode.
+   *     Pass "rest" to use HTTP/1.1 REST API instead of gRPC.
+   *     For more information, please check the
+   *     {@link https://github.com/googleapis/gax-nodejs/blob/main/client-libraries.md#http11-rest-api-mode documentation}.
+   * @param {gax} [gaxInstance]: loaded instance of `google-gax`. Useful if you
+   *     need to avoid loading the default gRPC version and want to use the fallback
+   *     HTTP implementation. Load only fallback version and pass it to the constructor:
+   *     ```
+   *     const gax = require('google-gax/build/src/fallback'); // avoids loading google-gax with gRPC
+   *     const client = new CloudRedisClient({fallback: 'rest'}, gax);
+   *     ```
    */
-  constructor(opts?: ClientOptions) {
+  constructor(opts?: ClientOptions, gaxInstance?: typeof gax | typeof gax.fallback) {
     // Ensure that options include all the required fields.
     const staticMembers = this.constructor as typeof CloudRedisClient;
     const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.servicePath;
+    this._providedCustomServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
     const port = opts?.port || staticMembers.port;
     const clientConfig = opts?.clientConfig ?? {};
     const fallback = opts?.fallback ?? (typeof window !== 'undefined' && typeof window?.fetch === 'function');
@@ -119,8 +125,13 @@ export class CloudRedisClient {
       opts['scopes'] = staticMembers.scopes;
     }
 
+    // Load google-gax module synchronously if needed
+    if (!gaxInstance) {
+      gaxInstance = require('google-gax') as typeof gax;
+    }
+
     // Choose either gRPC or proto-over-HTTP implementation of google-gax.
-    this._gaxModule = opts.fallback ? gax.fallback : gax;
+    this._gaxModule = opts.fallback ? gaxInstance.fallback : gaxInstance;
 
     // Create a `gaxGrpc` object, with any grpc-specific options sent to the client.
     this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
@@ -130,6 +141,12 @@ export class CloudRedisClient {
 
     // Save the auth object to the client, for use by other methods.
     this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
+
+    // Set useJWTAccessWithScope on the auth object.
+    this.auth.useJWTAccessWithScope = true;
+
+    // Set defaultServicePath on the auth object.
+    this.auth.defaultServicePath = staticMembers.servicePath;
 
     // Set the default scopes in auth client if needed.
     if (servicePath === staticMembers.servicePath) {
@@ -178,15 +195,18 @@ export class CloudRedisClient {
     };
 
     const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
-
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
-
-    this.operationsClient = this._gaxModule.lro({
+    const lroOptions: GrpcClientOptions = {
       auth: this.auth,
       grpc: 'grpc' in this._gaxGrpc ? this._gaxGrpc.grpc : undefined
-    }).operationsClient(opts);
+    };
+    if (opts.fallback === 'rest') {
+      lroOptions.protoJson = protoFilesRoot;
+      lroOptions.httpRules = [];
+    }
+    this.operationsClient = this._gaxModule.lro(lroOptions).operationsClient(opts);
     const createInstanceResponse = protoFilesRoot.lookup(
       '.google.cloud.redis.v1beta1.Instance') as gax.protobuf.Type;
     const createInstanceMetadata = protoFilesRoot.lookup(
@@ -248,6 +268,9 @@ export class CloudRedisClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
+
+    // Add a warn function to the client constructor so it can be easily tested.
+    this.warn = this._gaxModule.warn;
   }
 
   /**
@@ -274,7 +297,7 @@ export class CloudRedisClient {
           (this._protos as protobuf.Root).lookupService('google.cloud.redis.v1beta1.CloudRedis') :
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).google.cloud.redis.v1beta1.CloudRedis,
-        this._opts) as Promise<{[method: string]: Function}>;
+        this._opts, this._providedCustomServicePath) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
@@ -300,7 +323,8 @@ export class CloudRedisClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -363,6 +387,24 @@ export class CloudRedisClient {
   // -------------------
   // -- Service calls --
   // -------------------
+/**
+ * Gets the details of a specific Redis instance.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. Redis instance resource name using the form:
+ *       `projects/{project_id}/locations/{location_id}/instances/{instance_id}`
+ *   where `location_id` refers to a GCP region.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing {@link protos.google.cloud.redis.v1beta1.Instance|Instance}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.get_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_GetInstance_async
+ */
   getInstance(
       request?: protos.google.cloud.redis.v1beta1.IGetInstanceRequest,
       options?: CallOptions):
@@ -383,25 +425,6 @@ export class CloudRedisClient {
           protos.google.cloud.redis.v1beta1.IInstance,
           protos.google.cloud.redis.v1beta1.IGetInstanceRequest|null|undefined,
           {}|null|undefined>): void;
-/**
- * Gets the details of a specific Redis instance.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.name
- *   Required. Redis instance resource name using the form:
- *       `projects/{project_id}/locations/{location_id}/instances/{instance_id}`
- *   where `location_id` refers to a GCP region.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Instance]{@link google.cloud.redis.v1beta1.Instance}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
- *   for more details and examples.
- * @example
- * const [response] = await client.getInstance(request);
- */
   getInstance(
       request?: protos.google.cloud.redis.v1beta1.IGetInstanceRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -430,33 +453,13 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.getInstance(request, options, callback);
   }
 
-  createInstance(
-      request?: protos.google.cloud.redis.v1beta1.ICreateInstanceRequest,
-      options?: CallOptions):
-      Promise<[
-        LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-        protos.google.longrunning.IOperation|undefined, {}|undefined
-      ]>;
-  createInstance(
-      request: protos.google.cloud.redis.v1beta1.ICreateInstanceRequest,
-      options: CallOptions,
-      callback: Callback<
-          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
-  createInstance(
-      request: protos.google.cloud.redis.v1beta1.ICreateInstanceRequest,
-      callback: Callback<
-          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Creates a Redis instance based on the specified tier and memory size.
  *
@@ -494,13 +497,31 @@ export class CloudRedisClient {
  *   The first element of the array is an object representing
  *   a long running operation. Its `promise()` method returns a promise
  *   you can `await` for.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const [operation] = await client.createInstance(request);
- * const [response] = await operation.promise();
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.create_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_CreateInstance_async
  */
+  createInstance(
+      request?: protos.google.cloud.redis.v1beta1.ICreateInstanceRequest,
+      options?: CallOptions):
+      Promise<[
+        LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+        protos.google.longrunning.IOperation|undefined, {}|undefined
+      ]>;
+  createInstance(
+      request: protos.google.cloud.redis.v1beta1.ICreateInstanceRequest,
+      options: CallOptions,
+      callback: Callback<
+          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
+  createInstance(
+      request: protos.google.cloud.redis.v1beta1.ICreateInstanceRequest,
+      callback: Callback<
+          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   createInstance(
       request?: protos.google.cloud.redis.v1beta1.ICreateInstanceRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -529,8 +550,8 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.createInstance(request, options, callback);
@@ -541,21 +562,49 @@ export class CloudRedisClient {
  *   The operation name that will be passed.
  * @returns {Promise} - The promise which resolves to an object.
  *   The decoded operation object has result and metadata field to get information from.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const decodedOperation = await checkCreateInstanceProgress(name);
- * console.log(decodedOperation.result);
- * console.log(decodedOperation.done);
- * console.log(decodedOperation.metadata);
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.create_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_CreateInstance_async
  */
   async checkCreateInstanceProgress(name: string): Promise<LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>>{
-    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.createInstance, gax.createDefaultBackoffSettings());
+    const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.createInstance, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>;
   }
+/**
+ * Updates the metadata and configuration of a specific Redis instance.
+ *
+ * Completed longrunning.Operation will contain the new instance object
+ * in the response field. The returned operation is automatically deleted
+ * after a few hours, so there is no need to call DeleteOperation.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {google.protobuf.FieldMask} request.updateMask
+ *   Required. Mask of fields to update. At least one path must be supplied in
+ *   this field. The elements of the repeated paths field may only include these
+ *   fields from {@link protos.google.cloud.redis.v1beta1.Instance|Instance}:
+ *
+ *    *   `displayName`
+ *    *   `labels`
+ *    *   `memorySizeGb`
+ *    *   `redisConfig`
+ * @param {google.cloud.redis.v1beta1.Instance} request.instance
+ *   Required. Update description.
+ *   Only fields specified in update_mask are updated.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing
+ *   a long running operation. Its `promise()` method returns a promise
+ *   you can `await` for.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.update_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_UpdateInstance_async
+ */
   updateInstance(
       request?: protos.google.cloud.redis.v1beta1.IUpdateInstanceRequest,
       options?: CallOptions):
@@ -576,40 +625,6 @@ export class CloudRedisClient {
           LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
           protos.google.longrunning.IOperation|null|undefined,
           {}|null|undefined>): void;
-/**
- * Updates the metadata and configuration of a specific Redis instance.
- *
- * Completed longrunning.Operation will contain the new instance object
- * in the response field. The returned operation is automatically deleted
- * after a few hours, so there is no need to call DeleteOperation.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {google.protobuf.FieldMask} request.updateMask
- *   Required. Mask of fields to update. At least one path must be supplied in
- *   this field. The elements of the repeated paths field may only include these
- *   fields from {@link google.cloud.redis.v1beta1.Instance|Instance}:
- *
- *    *   `displayName`
- *    *   `labels`
- *    *   `memorySizeGb`
- *    *   `redisConfig`
- * @param {google.cloud.redis.v1beta1.Instance} request.instance
- *   Required. Update description.
- *   Only fields specified in update_mask are updated.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing
- *   a long running operation. Its `promise()` method returns a promise
- *   you can `await` for.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
- *   for more details and examples.
- * @example
- * const [operation] = await client.updateInstance(request);
- * const [response] = await operation.promise();
- */
   updateInstance(
       request?: protos.google.cloud.redis.v1beta1.IUpdateInstanceRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -638,8 +653,8 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'instance.name': request.instance!.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'instance.name': request.instance!.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.updateInstance(request, options, callback);
@@ -650,41 +665,17 @@ export class CloudRedisClient {
  *   The operation name that will be passed.
  * @returns {Promise} - The promise which resolves to an object.
  *   The decoded operation object has result and metadata field to get information from.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const decodedOperation = await checkUpdateInstanceProgress(name);
- * console.log(decodedOperation.result);
- * console.log(decodedOperation.done);
- * console.log(decodedOperation.metadata);
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.update_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_UpdateInstance_async
  */
   async checkUpdateInstanceProgress(name: string): Promise<LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>>{
-    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.updateInstance, gax.createDefaultBackoffSettings());
+    const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.updateInstance, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>;
   }
-  importInstance(
-      request?: protos.google.cloud.redis.v1beta1.IImportInstanceRequest,
-      options?: CallOptions):
-      Promise<[
-        LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-        protos.google.longrunning.IOperation|undefined, {}|undefined
-      ]>;
-  importInstance(
-      request: protos.google.cloud.redis.v1beta1.IImportInstanceRequest,
-      options: CallOptions,
-      callback: Callback<
-          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
-  importInstance(
-      request: protos.google.cloud.redis.v1beta1.IImportInstanceRequest,
-      callback: Callback<
-          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Import a Redis RDB snapshot file from Cloud Storage into a Redis instance.
  *
@@ -709,13 +700,31 @@ export class CloudRedisClient {
  *   The first element of the array is an object representing
  *   a long running operation. Its `promise()` method returns a promise
  *   you can `await` for.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const [operation] = await client.importInstance(request);
- * const [response] = await operation.promise();
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.import_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_ImportInstance_async
  */
+  importInstance(
+      request?: protos.google.cloud.redis.v1beta1.IImportInstanceRequest,
+      options?: CallOptions):
+      Promise<[
+        LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+        protos.google.longrunning.IOperation|undefined, {}|undefined
+      ]>;
+  importInstance(
+      request: protos.google.cloud.redis.v1beta1.IImportInstanceRequest,
+      options: CallOptions,
+      callback: Callback<
+          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
+  importInstance(
+      request: protos.google.cloud.redis.v1beta1.IImportInstanceRequest,
+      callback: Callback<
+          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   importInstance(
       request?: protos.google.cloud.redis.v1beta1.IImportInstanceRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -744,8 +753,8 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.importInstance(request, options, callback);
@@ -756,41 +765,17 @@ export class CloudRedisClient {
  *   The operation name that will be passed.
  * @returns {Promise} - The promise which resolves to an object.
  *   The decoded operation object has result and metadata field to get information from.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const decodedOperation = await checkImportInstanceProgress(name);
- * console.log(decodedOperation.result);
- * console.log(decodedOperation.done);
- * console.log(decodedOperation.metadata);
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.import_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_ImportInstance_async
  */
   async checkImportInstanceProgress(name: string): Promise<LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>>{
-    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.importInstance, gax.createDefaultBackoffSettings());
+    const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.importInstance, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>;
   }
-  exportInstance(
-      request?: protos.google.cloud.redis.v1beta1.IExportInstanceRequest,
-      options?: CallOptions):
-      Promise<[
-        LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-        protos.google.longrunning.IOperation|undefined, {}|undefined
-      ]>;
-  exportInstance(
-      request: protos.google.cloud.redis.v1beta1.IExportInstanceRequest,
-      options: CallOptions,
-      callback: Callback<
-          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
-  exportInstance(
-      request: protos.google.cloud.redis.v1beta1.IExportInstanceRequest,
-      callback: Callback<
-          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Export Redis instance data into a Redis RDB format file in Cloud Storage.
  *
@@ -813,13 +798,31 @@ export class CloudRedisClient {
  *   The first element of the array is an object representing
  *   a long running operation. Its `promise()` method returns a promise
  *   you can `await` for.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const [operation] = await client.exportInstance(request);
- * const [response] = await operation.promise();
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.export_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_ExportInstance_async
  */
+  exportInstance(
+      request?: protos.google.cloud.redis.v1beta1.IExportInstanceRequest,
+      options?: CallOptions):
+      Promise<[
+        LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+        protos.google.longrunning.IOperation|undefined, {}|undefined
+      ]>;
+  exportInstance(
+      request: protos.google.cloud.redis.v1beta1.IExportInstanceRequest,
+      options: CallOptions,
+      callback: Callback<
+          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
+  exportInstance(
+      request: protos.google.cloud.redis.v1beta1.IExportInstanceRequest,
+      callback: Callback<
+          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   exportInstance(
       request?: protos.google.cloud.redis.v1beta1.IExportInstanceRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -848,8 +851,8 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.exportInstance(request, options, callback);
@@ -860,41 +863,17 @@ export class CloudRedisClient {
  *   The operation name that will be passed.
  * @returns {Promise} - The promise which resolves to an object.
  *   The decoded operation object has result and metadata field to get information from.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const decodedOperation = await checkExportInstanceProgress(name);
- * console.log(decodedOperation.result);
- * console.log(decodedOperation.done);
- * console.log(decodedOperation.metadata);
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.export_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_ExportInstance_async
  */
   async checkExportInstanceProgress(name: string): Promise<LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>>{
-    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.exportInstance, gax.createDefaultBackoffSettings());
+    const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.exportInstance, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>;
   }
-  failoverInstance(
-      request?: protos.google.cloud.redis.v1beta1.IFailoverInstanceRequest,
-      options?: CallOptions):
-      Promise<[
-        LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-        protos.google.longrunning.IOperation|undefined, {}|undefined
-      ]>;
-  failoverInstance(
-      request: protos.google.cloud.redis.v1beta1.IFailoverInstanceRequest,
-      options: CallOptions,
-      callback: Callback<
-          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
-  failoverInstance(
-      request: protos.google.cloud.redis.v1beta1.IFailoverInstanceRequest,
-      callback: Callback<
-          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Initiates a failover of the master node to current replica node for a
  * specific STANDARD tier Cloud Memorystore for Redis instance.
@@ -914,13 +893,31 @@ export class CloudRedisClient {
  *   The first element of the array is an object representing
  *   a long running operation. Its `promise()` method returns a promise
  *   you can `await` for.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const [operation] = await client.failoverInstance(request);
- * const [response] = await operation.promise();
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.failover_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_FailoverInstance_async
  */
+  failoverInstance(
+      request?: protos.google.cloud.redis.v1beta1.IFailoverInstanceRequest,
+      options?: CallOptions):
+      Promise<[
+        LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+        protos.google.longrunning.IOperation|undefined, {}|undefined
+      ]>;
+  failoverInstance(
+      request: protos.google.cloud.redis.v1beta1.IFailoverInstanceRequest,
+      options: CallOptions,
+      callback: Callback<
+          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
+  failoverInstance(
+      request: protos.google.cloud.redis.v1beta1.IFailoverInstanceRequest,
+      callback: Callback<
+          LROperation<protos.google.cloud.redis.v1beta1.IInstance, protos.google.protobuf.IAny>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   failoverInstance(
       request?: protos.google.cloud.redis.v1beta1.IFailoverInstanceRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -949,8 +946,8 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.failoverInstance(request, options, callback);
@@ -961,21 +958,38 @@ export class CloudRedisClient {
  *   The operation name that will be passed.
  * @returns {Promise} - The promise which resolves to an object.
  *   The decoded operation object has result and metadata field to get information from.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const decodedOperation = await checkFailoverInstanceProgress(name);
- * console.log(decodedOperation.result);
- * console.log(decodedOperation.done);
- * console.log(decodedOperation.metadata);
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.failover_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_FailoverInstance_async
  */
   async checkFailoverInstanceProgress(name: string): Promise<LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>>{
-    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.failoverInstance, gax.createDefaultBackoffSettings());
+    const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.failoverInstance, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.cloud.redis.v1beta1.Instance, protos.google.protobuf.Any>;
   }
+/**
+ * Deletes a specific Redis instance.  Instance stops serving and data is
+ * deleted.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. Redis instance resource name using the form:
+ *       `projects/{project_id}/locations/{location_id}/instances/{instance_id}`
+ *   where `location_id` refers to a GCP region.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing
+ *   a long running operation. Its `promise()` method returns a promise
+ *   you can `await` for.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.delete_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_DeleteInstance_async
+ */
   deleteInstance(
       request?: protos.google.cloud.redis.v1beta1.IDeleteInstanceRequest,
       options?: CallOptions):
@@ -996,29 +1010,6 @@ export class CloudRedisClient {
           LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IAny>,
           protos.google.longrunning.IOperation|null|undefined,
           {}|null|undefined>): void;
-/**
- * Deletes a specific Redis instance.  Instance stops serving and data is
- * deleted.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.name
- *   Required. Redis instance resource name using the form:
- *       `projects/{project_id}/locations/{location_id}/instances/{instance_id}`
- *   where `location_id` refers to a GCP region.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing
- *   a long running operation. Its `promise()` method returns a promise
- *   you can `await` for.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
- *   for more details and examples.
- * @example
- * const [operation] = await client.deleteInstance(request);
- * const [response] = await operation.promise();
- */
   deleteInstance(
       request?: protos.google.cloud.redis.v1beta1.IDeleteInstanceRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -1047,8 +1038,8 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.deleteInstance(request, options, callback);
@@ -1059,43 +1050,18 @@ export class CloudRedisClient {
  *   The operation name that will be passed.
  * @returns {Promise} - The promise which resolves to an object.
  *   The decoded operation object has result and metadata field to get information from.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const decodedOperation = await checkDeleteInstanceProgress(name);
- * console.log(decodedOperation.result);
- * console.log(decodedOperation.done);
- * console.log(decodedOperation.metadata);
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.delete_instance.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_DeleteInstance_async
  */
   async checkDeleteInstanceProgress(name: string): Promise<LROperation<protos.google.protobuf.Empty, protos.google.protobuf.Any>>{
-    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.deleteInstance, gax.createDefaultBackoffSettings());
+    const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.deleteInstance, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.protobuf.Empty, protos.google.protobuf.Any>;
   }
-  listInstances(
-      request?: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.cloud.redis.v1beta1.IInstance[],
-        protos.google.cloud.redis.v1beta1.IListInstancesRequest|null,
-        protos.google.cloud.redis.v1beta1.IListInstancesResponse
-      ]>;
-  listInstances(
-      request: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
-      options: CallOptions,
-      callback: PaginationCallback<
-          protos.google.cloud.redis.v1beta1.IListInstancesRequest,
-          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null|undefined,
-          protos.google.cloud.redis.v1beta1.IInstance>): void;
-  listInstances(
-      request: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
-      callback: PaginationCallback<
-          protos.google.cloud.redis.v1beta1.IListInstancesRequest,
-          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null|undefined,
-          protos.google.cloud.redis.v1beta1.IInstance>): void;
-/**
+ /**
  * Lists all Redis instances owned by a project in either the specified
  * location (region) or all locations.
  *
@@ -1117,7 +1083,7 @@ export class CloudRedisClient {
  *   If not specified, a default value of 1000 will be used by the service.
  *   Regardless of the page_size value, the response may include a partial list
  *   and a caller should only rely on response's
- *   {@link CloudRedis.ListInstancesResponse.next_page_token|next_page_token}
+ *   {@link protos.CloudRedis.ListInstancesResponse.next_page_token|next_page_token}
  *   to determine if there are more instances left to be queried.
  * @param {string} request.pageToken
  *   The next_page_token value returned from a previous List request,
@@ -1125,16 +1091,36 @@ export class CloudRedisClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [Instance]{@link google.cloud.redis.v1beta1.Instance}.
+ *   The first element of the array is Array of {@link protos.google.cloud.redis.v1beta1.Instance|Instance}.
  *   The client library will perform auto-pagination by default: it will call the API as many
  *   times as needed and will merge results from all the pages into this array.
  *   Note that it can affect your quota.
  *   We recommend using `listInstancesAsync()`
  *   method described below for async iteration which you can stop as needed.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination | documentation }
  *   for more details and examples.
  */
+  listInstances(
+      request?: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.cloud.redis.v1beta1.IInstance[],
+        protos.google.cloud.redis.v1beta1.IListInstancesRequest|null,
+        protos.google.cloud.redis.v1beta1.IListInstancesResponse
+      ]>;
+  listInstances(
+      request: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
+      options: CallOptions,
+      callback: PaginationCallback<
+          protos.google.cloud.redis.v1beta1.IListInstancesRequest,
+          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null|undefined,
+          protos.google.cloud.redis.v1beta1.IInstance>): void;
+  listInstances(
+      request: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
+      callback: PaginationCallback<
+          protos.google.cloud.redis.v1beta1.IListInstancesRequest,
+          protos.google.cloud.redis.v1beta1.IListInstancesResponse|null|undefined,
+          protos.google.cloud.redis.v1beta1.IInstance>): void;
   listInstances(
       request?: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
       optionsOrCallback?: CallOptions|PaginationCallback<
@@ -1164,8 +1150,8 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.listInstances(request, options, callback);
@@ -1185,7 +1171,7 @@ export class CloudRedisClient {
  *   If not specified, a default value of 1000 will be used by the service.
  *   Regardless of the page_size value, the response may include a partial list
  *   and a caller should only rely on response's
- *   {@link CloudRedis.ListInstancesResponse.next_page_token|next_page_token}
+ *   {@link protos.CloudRedis.ListInstancesResponse.next_page_token|next_page_token}
  *   to determine if there are more instances left to be queried.
  * @param {string} request.pageToken
  *   The next_page_token value returned from a previous List request,
@@ -1193,13 +1179,12 @@ export class CloudRedisClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [Instance]{@link google.cloud.redis.v1beta1.Instance} on 'data' event.
+ *   An object stream which emits an object representing {@link protos.google.cloud.redis.v1beta1.Instance|Instance} on 'data' event.
  *   The client library will perform auto-pagination by default: it will call the API as many
  *   times as needed. Note that it can affect your quota.
  *   We recommend using `listInstancesAsync()`
  *   method described below for async iteration which you can stop as needed.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination | documentation }
  *   for more details and examples.
  */
   listInstancesStream(
@@ -1212,13 +1197,14 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
-    const callSettings = new gax.CallSettings(options);
+    const defaultCallSettings = this._defaults['listInstances'];
+    const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listInstances.createStream(
-      this.innerApiCalls.listInstances as gax.GaxCall,
+      this.innerApiCalls.listInstances as GaxCall,
       request,
       callSettings
     );
@@ -1240,7 +1226,7 @@ export class CloudRedisClient {
  *   If not specified, a default value of 1000 will be used by the service.
  *   Regardless of the page_size value, the response may include a partial list
  *   and a caller should only rely on response's
- *   {@link CloudRedis.ListInstancesResponse.next_page_token|next_page_token}
+ *   {@link protos.CloudRedis.ListInstancesResponse.next_page_token|next_page_token}
  *   to determine if there are more instances left to be queried.
  * @param {string} request.pageToken
  *   The next_page_token value returned from a previous List request,
@@ -1248,18 +1234,14 @@ export class CloudRedisClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Object}
- *   An iterable Object that allows [async iteration](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols).
+ *   An iterable Object that allows {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols | async iteration }.
  *   When you iterate the returned iterable, each element will be an object representing
- *   [Instance]{@link google.cloud.redis.v1beta1.Instance}. The API will be called under the hood as needed, once per the page,
+ *   {@link protos.google.cloud.redis.v1beta1.Instance|Instance}. The API will be called under the hood as needed, once per the page,
  *   so you can stop the iteration when you don't need more results.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination | documentation }
  *   for more details and examples.
- * @example
- * const iterable = client.listInstancesAsync(request);
- * for await (const response of iterable) {
- *   // process response
- * }
+ * @example <caption>include:samples/generated/v1beta1/cloud_redis.list_instances.js</caption>
+ * region_tag:redis_v1beta1_generated_CloudRedis_ListInstances_async
  */
   listInstancesAsync(
       request?: protos.google.cloud.redis.v1beta1.IListInstancesRequest,
@@ -1271,18 +1253,193 @@ export class CloudRedisClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
-    options = options || {};
-    const callSettings = new gax.CallSettings(options);
+    const defaultCallSettings = this._defaults['listInstances'];
+    const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listInstances.asyncIterate(
       this.innerApiCalls['listInstances'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.cloud.redis.v1beta1.IInstance>;
   }
+/**
+   * Gets the latest state of a long-running operation.  Clients can use this
+   * method to poll the operation result at intervals as recommended by the API
+   * service.
+   *
+   * @param {Object} request - The request object that will be sent.
+   * @param {string} request.name - The name of the operation resource.
+   * @param {Object=} options
+   *   Optional parameters. You can override the default settings for this call,
+   *   e.g, timeout, retries, paginations, etc. See {@link
+   *   https://googleapis.github.io/gax-nodejs/global.html#CallOptions | gax.CallOptions}
+   *   for the details.
+   * @param {function(?Error, ?Object)=} callback
+   *   The function which will be called with the result of the API call.
+   *
+   *   The second parameter to the callback is an object representing
+   *   {@link google.longrunning.Operation | google.longrunning.Operation}.
+   * @return {Promise} - The promise which resolves to an array.
+   *   The first element of the array is an object representing
+   * {@link google.longrunning.Operation | google.longrunning.Operation}.
+   * The promise has a method named "cancel" which cancels the ongoing API call.
+   *
+   * @example
+   * ```
+   * const client = longrunning.operationsClient();
+   * const name = '';
+   * const [response] = await client.getOperation({name});
+   * // doThingsWith(response)
+   * ```
+   */
+  getOperation(
+    request: protos.google.longrunning.GetOperationRequest,
+    options?:
+      | gax.CallOptions
+      | Callback<
+          protos.google.longrunning.Operation,
+          protos.google.longrunning.GetOperationRequest,
+          {} | null | undefined
+        >,
+    callback?: Callback<
+      protos.google.longrunning.Operation,
+      protos.google.longrunning.GetOperationRequest,
+      {} | null | undefined
+    >
+  ): Promise<[protos.google.longrunning.Operation]> {
+    return this.operationsClient.getOperation(request, options, callback);
+  }
+  /**
+   * Lists operations that match the specified filter in the request. If the
+   * server doesn't support this method, it returns `UNIMPLEMENTED`. Returns an iterable object.
+   *
+   * For-await-of syntax is used with the iterable to recursively get response element on-demand.
+   *
+   * @param {Object} request - The request object that will be sent.
+   * @param {string} request.name - The name of the operation collection.
+   * @param {string} request.filter - The standard list filter.
+   * @param {number=} request.pageSize -
+   *   The maximum number of resources contained in the underlying API
+   *   response. If page streaming is performed per-resource, this
+   *   parameter does not affect the return value. If page streaming is
+   *   performed per-page, this determines the maximum number of
+   *   resources in a page.
+   * @param {Object=} options
+   *   Optional parameters. You can override the default settings for this call,
+   *   e.g, timeout, retries, paginations, etc. See {@link
+   *   https://googleapis.github.io/gax-nodejs/global.html#CallOptions | gax.CallOptions} for the
+   *   details.
+   * @returns {Object}
+   *   An iterable Object that conforms to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols | iteration protocols}.
+   *
+   * @example
+   * ```
+   * const client = longrunning.operationsClient();
+   * for await (const response of client.listOperationsAsync(request));
+   * // doThingsWith(response)
+   * ```
+   */
+  listOperationsAsync(
+    request: protos.google.longrunning.ListOperationsRequest,
+    options?: gax.CallOptions
+  ): AsyncIterable<protos.google.longrunning.ListOperationsResponse> {
+    return this.operationsClient.listOperationsAsync(request, options);
+  }
+  /**
+   * Starts asynchronous cancellation on a long-running operation.  The server
+   * makes a best effort to cancel the operation, but success is not
+   * guaranteed.  If the server doesn't support this method, it returns
+   * `google.rpc.Code.UNIMPLEMENTED`.  Clients can use
+   * {@link Operations.GetOperation} or
+   * other methods to check whether the cancellation succeeded or whether the
+   * operation completed despite cancellation. On successful cancellation,
+   * the operation is not deleted; instead, it becomes an operation with
+   * an {@link Operation.error} value with a {@link google.rpc.Status.code} of
+   * 1, corresponding to `Code.CANCELLED`.
+   *
+   * @param {Object} request - The request object that will be sent.
+   * @param {string} request.name - The name of the operation resource to be cancelled.
+   * @param {Object=} options
+   *   Optional parameters. You can override the default settings for this call,
+   * e.g, timeout, retries, paginations, etc. See {@link
+   * https://googleapis.github.io/gax-nodejs/global.html#CallOptions | gax.CallOptions} for the
+   * details.
+   * @param {function(?Error)=} callback
+   *   The function which will be called with the result of the API call.
+   * @return {Promise} - The promise which resolves when API call finishes.
+   *   The promise has a method named "cancel" which cancels the ongoing API
+   * call.
+   *
+   * @example
+   * ```
+   * const client = longrunning.operationsClient();
+   * await client.cancelOperation({name: ''});
+   * ```
+   */
+   cancelOperation(
+    request: protos.google.longrunning.CancelOperationRequest,
+    options?:
+      | gax.CallOptions
+      | Callback<
+          protos.google.protobuf.Empty,
+          protos.google.longrunning.CancelOperationRequest,
+          {} | undefined | null
+        >,
+    callback?: Callback<
+      protos.google.longrunning.CancelOperationRequest,
+      protos.google.protobuf.Empty,
+      {} | undefined | null
+    >
+  ): Promise<protos.google.protobuf.Empty> {
+    return this.operationsClient.cancelOperation(request, options, callback);
+  }
+
+  /**
+   * Deletes a long-running operation. This method indicates that the client is
+   * no longer interested in the operation result. It does not cancel the
+   * operation. If the server doesn't support this method, it returns
+   * `google.rpc.Code.UNIMPLEMENTED`.
+   *
+   * @param {Object} request - The request object that will be sent.
+   * @param {string} request.name - The name of the operation resource to be deleted.
+   * @param {Object=} options
+   *   Optional parameters. You can override the default settings for this call,
+   * e.g, timeout, retries, paginations, etc. See {@link
+   * https://googleapis.github.io/gax-nodejs/global.html#CallOptions | gax.CallOptions}
+   * for the details.
+   * @param {function(?Error)=} callback
+   *   The function which will be called with the result of the API call.
+   * @return {Promise} - The promise which resolves when API call finishes.
+   *   The promise has a method named "cancel" which cancels the ongoing API
+   * call.
+   *
+   * @example
+   * ```
+   * const client = longrunning.operationsClient();
+   * await client.deleteOperation({name: ''});
+   * ```
+   */
+  deleteOperation(
+    request: protos.google.longrunning.DeleteOperationRequest,
+    options?:
+      | gax.CallOptions
+      | Callback<
+          protos.google.protobuf.Empty,
+          protos.google.longrunning.DeleteOperationRequest,
+          {} | null | undefined
+        >,
+    callback?: Callback<
+      protos.google.protobuf.Empty,
+      protos.google.longrunning.DeleteOperationRequest,
+      {} | null | undefined
+    >
+  ): Promise<protos.google.protobuf.Empty> {
+    return this.operationsClient.deleteOperation(request, options, callback);
+  }
+
   // --------------------
   // -- Path templates --
   // --------------------
@@ -1379,11 +1536,11 @@ export class CloudRedisClient {
    * @returns {Promise} A promise that resolves when the client is closed.
    */
   close(): Promise<void> {
-    this.initialize();
-    if (!this._terminated) {
-      return this.cloudRedisStub!.then(stub => {
+    if (this.cloudRedisStub && !this._terminated) {
+      return this.cloudRedisStub.then(stub => {
         this._terminated = true;
         stub.close();
+        this.operationsClient.close();
       });
     }
     return Promise.resolve();

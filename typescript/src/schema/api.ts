@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../../protos';
+import type * as protos from '../../../protos/index.js';
 
-import {Naming, Options as namingOptions} from './naming';
-import {Proto, MessagesMap, ServiceDescriptorProto} from './proto';
-import {ResourceDatabase, ResourceDescriptor} from './resource-database';
-import {CommentsMap} from './comments';
+import {Naming, Options as namingOptions} from './naming.js';
+import {Proto, MessagesMap, ServiceDescriptorProto} from './proto.js';
+import {ResourceDatabase, ResourceDescriptor} from './resource-database.js';
+import {CommentsMap} from './comments.js';
 
 export interface ProtosMap {
   [filename: string]: Proto;
@@ -36,6 +36,10 @@ export class API {
   uniqKeywords: string[];
   packageName: string;
   rest?: boolean;
+  diregapic?: boolean;
+  handwrittenLayer?: boolean;
+  legacyProtoLoad: boolean;
+  restNumericEnums: boolean;
 
   static isIgnoredService(
     fd: protos.google.protobuf.IFileDescriptorProto
@@ -45,9 +49,11 @@ export class API {
     return (
       fd.package === 'google.longrunning' ||
       fd.package === 'google.cloud' ||
+      fd.package === 'google.cloud.location' ||
       fd.package === 'google.protobuf' ||
       fd.package === 'google.type' ||
       fd.package === 'google.rpc' ||
+      fd.package === 'google.rpc.context' ||
       fd.package === 'google.api'
     );
   }
@@ -85,7 +91,11 @@ export class API {
     // users specify the actual package name, if not, set it to product name.
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
+    this.handwrittenLayer = options.handwrittenLayer ?? false;
     this.rest = options.rest;
+    this.diregapic = options.diregapic ?? false;
+    this.legacyProtoLoad = options.legacyProtoLoad ?? false;
+    this.restNumericEnums = options.restNumericEnums ?? false;
 
     const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
       fileDescriptors
@@ -93,17 +103,20 @@ export class API {
 
     const allMessages: MessagesMap = {};
     for (const fd of fileDescriptors) {
-      fd.messageType
-        ?.filter(message => message.name)
-        .forEach(message => {
-          allMessages['.' + fd.package! + '.' + message.name!] = message;
-        });
+      for (const message of fd.messageType ?? []) {
+        if (!message.name) {
+          continue;
+        }
+        allMessages['.' + fd.package! + '.' + message.name!] = message;
+      }
     }
+
     const commentsMap = new CommentsMap(fileDescriptors);
 
     const filteredProtos = API.filterOutIgnoredServices(
       fileDescriptors.filter(fd => fd.name)
     );
+
     this.protos = filteredProtos.reduce((map, fd) => {
       map[fd.name!] = new Proto({
         fd,
@@ -117,47 +130,53 @@ export class API {
       return map;
     }, {} as ProtosMap);
 
-    const serviceNamesList: string[] = [];
-    filteredProtos
-      .filter(fd => fd.service)
-      .reduce((servicesList, fd) => {
-        servicesList.push(...fd.service!);
-        return servicesList;
-      }, [] as protos.google.protobuf.IServiceDescriptorProto[])
-      .filter(service => {
-        if (!service.options || !service.options['.google.api.defaultHost']) {
-          throw new Error(
-            `service "${packageName}.${service.name}" is missing option google.api.default_host`
-          );
-        }
-        const defaultHost = service!.options!['.google.api.defaultHost']!;
-        if (defaultHost.length === 0) {
-          console.warn(
-            `service ${packageName}.${service.name} google.api.default_host is empty`
-          );
-        }
-        return service?.options?.['.google.api.defaultHost'];
-      })
-      .sort((service1, service2) =>
+    const protosWithService = filteredProtos.filter(fd => fd.service);
+    const servicesList: protos.google.protobuf.IServiceDescriptorProto[] = [];
+    for (const fd of protosWithService) {
+      servicesList.push(...fd.service!);
+    }
+    const servicesWithDefaultHost: protos.google.protobuf.IServiceDescriptorProto[] = [];
+    for (const service of servicesList) {
+      if (!service.options || !service.options['.google.api.defaultHost']) {
+        throw new Error(
+          `service "${packageName}.${service.name}" is missing option google.api.default_host`
+        );
+      }
+      const defaultHost = service!.options!['.google.api.defaultHost']!;
+      if (defaultHost.length === 0) {
+        console.warn(
+          `service ${packageName}.${service.name} google.api.default_host is empty`
+        );
+      }
+      if (service?.options?.['.google.api.defaultHost']) {
+        servicesWithDefaultHost.push(service);
+      }
+    }
+    servicesWithDefaultHost.sort(
+      (service1, service2) =>
         service1.name!.localeCompare(service2.name!)
-      )
-      .forEach(service => {
-        const defaultHost = service!.options!['.google.api.defaultHost']!;
-        const [hostname, port] = defaultHost.split(':');
-        if (hostname && this.hostName && hostname !== this.hostName) {
-          console.warn(
-            `Warning: different hostnames ${hostname} and ${this.hostName} within the same client are not supported.`
-          );
-        }
-        this.hostName = hostname || this.hostName || 'localhost';
-        this.port = port ?? this.port ?? '443';
-        serviceNamesList.push(service.name || this.naming.name);
-      });
+    );
+
+    const serviceNamesList: string[] = [];
+    for (const service of servicesWithDefaultHost) {
+      const defaultHost = service!.options!['.google.api.defaultHost']!;
+      const [hostname, port] = defaultHost.split(':');
+      if (hostname && this.hostName && hostname !== this.hostName) {
+        console.warn(
+          `Warning: different hostnames ${hostname} and ${this.hostName} within the same client are not supported.`
+        );
+      }
+      this.hostName = hostname || this.hostName || 'localhost';
+      this.port = port ?? this.port ?? '443';
+      serviceNamesList.push(service.name || this.naming.name);
+    }
+
     if (serviceNamesList.length === 0) {
       throw new Error(
-        `Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
+        `ERROR: Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
       );
     }
+
     this.mainServiceName = options.mainServiceName || serviceNamesList[0];
     // For generating keywords in package.json
     this.uniqKeywords = [
@@ -207,6 +226,9 @@ export class API {
       port: this.port,
       services: this.services,
       rest: this.rest,
+      diregapic: this.diregapic,
+      handwrittenLayer: this.handwrittenLayer,
+      legacyProtoLoad: this.legacyProtoLoad,
     });
   }
 }
@@ -243,7 +265,9 @@ function getResourceDatabase(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
         `file ${fd.name} message ${messageName}`
       );
-      (m.nestedType ?? []).forEach(m => messagesStack.push(m));
+      for (const message of m.nestedType ?? []) {
+        messagesStack.push(message);
+      }
     }
   }
   return [allResourceDatabase, resourceDatabase];

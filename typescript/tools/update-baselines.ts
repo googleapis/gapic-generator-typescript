@@ -21,15 +21,9 @@
 import {exec} from 'child_process';
 import * as path from 'path';
 import {promisify} from 'util';
-import {
-  readdir,
-  mkdirp,
-  existsSync,
-  stat,
-  symlink,
-  copy,
-  remove,
-} from 'fs-extra';
+import {existsSync} from 'fs';
+import * as fsp from 'fs/promises';
+import {readdir, stat, symlink} from 'fs/promises';
 
 const execp = promisify(exec);
 
@@ -40,7 +34,7 @@ const baselineZip = path.join(
   'bazel-testlogs',
   'unit_tests',
   'test.outputs',
-  'outputs.zip'
+  'outputs.zip',
 );
 
 function getBaselineDirectory(library: string): string {
@@ -56,7 +50,7 @@ async function copyBaseline(library: string, root: string, directory = '.') {
   const start = path.join(root, directory);
   const targetDirectory = path.join(getBaselineDirectory(library), directory);
   if (!existsSync(targetDirectory)) {
-    await mkdirp(targetDirectory);
+    await fsp.mkdir(targetDirectory, {recursive: true});
   }
   const files = await readdir(start);
   for (const file of files) {
@@ -71,13 +65,13 @@ async function copyBaseline(library: string, root: string, directory = '.') {
       // (package.json.baseline is a symlink to package.json to make renovate bot happy)
       if (relativePath.endsWith(`${path.sep}package.json`)) {
         const packageJson = baseline.substring(0, baseline.lastIndexOf('.'));
-        await copy(absolutePath, packageJson);
+        await fsp.cp(absolutePath, packageJson, {recursive: true});
         const dirname = path.dirname(packageJson);
         process.chdir(dirname);
         await symlink('package.json', 'package.json.baseline');
         process.chdir(cwd);
       } else {
-        await copy(absolutePath, baseline);
+        await fsp.cp(absolutePath, baseline, {recursive: true});
       }
       console.log(`    - ${relativePath}`);
     }
@@ -100,7 +94,7 @@ async function main() {
     file.match(resultPrefix)
   );
   for (const oldFolder of oldFolders) {
-    await remove(oldFolder);
+    await fsp.rm(oldFolder, {recursive: true});
   }
   // unzip baselines
   await execp(`unzip -o "${baselineZip}" -d .`);
@@ -120,7 +114,7 @@ async function main() {
 
     console.log(`Updating baseline for ${library}...`);
     console.log(`  - rm -rf "${baselineDir}"...`);
-    await remove(baselineDir);
+    await fsp.rm(baselineDir, {recursive: true});
     console.log(`  - copying files from ${dir}...`);
     await copyBaseline(library, path.join(root, dir));
     console.log('done!');

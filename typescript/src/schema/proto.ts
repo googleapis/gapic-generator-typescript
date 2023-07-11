@@ -12,18 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../../protos';
-import {CommentsMap, Comment} from './comments';
-import {milliseconds} from '../util';
-import {ResourceDescriptor, ResourceDatabase} from './resource-database';
+import type * as protos from '../../../protos/index.js';
+import {CommentsMap, Comment, Type} from './comments.js';
+import {processPathTemplate, milliseconds} from '../util.js';
+import {ResourceDescriptor, ResourceDatabase} from './resource-database.js';
 import {
   RetryableCodeMap,
   defaultParametersName,
   defaultNonIdempotentRetryCodesName,
   defaultParameters,
-} from './retryable-code-map';
-import {BundleConfig} from '../bundle';
-import {Options} from './naming';
+} from './retryable-code-map.js';
+import {BundleConfig} from '../bundle.js';
+import {Options} from './naming.js';
+import {ServiceYaml} from '../serviceyaml.js';
+import {protobuf} from 'google-gax';
+import protoJson from '../../../protos/protos.json' assert { type: 'json' };
 
 const COMMON_PROTO_LIST = [
   'google.api',
@@ -32,7 +35,7 @@ const COMMON_PROTO_LIST = [
   'google.type',
 ];
 
-interface MethodDescriptorProto
+export interface MethodDescriptorProto
   extends protos.google.protobuf.IMethodDescriptorProto {
   longRunning?: protos.google.longrunning.IOperationInfo;
   longRunningResponseType?: string;
@@ -44,6 +47,8 @@ interface MethodDescriptorProto
     | undefined;
   pagingFieldName: string | undefined;
   pagingResponseType?: string;
+  pagingMapResponseType?: string;
+  ignoreMapPagingMethod?: boolean | undefined;
   inputInterface: string;
   outputInterface: string;
   comments: string[];
@@ -57,8 +62,14 @@ interface MethodDescriptorProto
   // into x-goog-request-params header, the array will contain
   // [ ['request', 'foo'], ['request', 'bar']]
   headerRequestParams: string[][];
+  // if there are multiple parameters to be sent in the dynamic routing header or multiple routing annotations, then this will be an array of DynamicRoutingParameters,
+  // where the first array of DynamicRoutingParameters is the set of information for the first annotation to attempt to find a match for the first parameter,
+  // and the second array DynamicRoutingParameters is the set of information for the second annotation to attempt to find
+  // a match for the second parameter, and so forth.
+  dynamicRoutingRequestParams: DynamicRoutingParameters[][];
   bundleConfig?: BundleConfig;
   toJSON: Function | undefined;
+  isDiregapicLRO?: boolean;
 }
 
 export interface ServiceDescriptorProto
@@ -82,8 +93,14 @@ export interface ServiceDescriptorProto
   grpcServiceConfig: protos.grpc.service_config.ServiceConfig;
   bundleConfigsMethods: MethodDescriptorProto[];
   bundleConfigs?: BundleConfig[];
-  iamService: boolean;
+  serviceYaml: ServiceYaml;
   toJSON: Function | undefined;
+  IAMPolicyMixin: number;
+  LocationMixin: number;
+  LongRunningOperationsMixin: number;
+  protoFile: string;
+  diregapicLRO?: MethodDescriptorProto[];
+  httpRules?: protos.google.api.IHttpRule[];
 }
 
 export interface ServicesMap {
@@ -108,7 +125,9 @@ function longrunning(
   ) {
     if (!method.options?.['.google.longrunning.operationInfo']) {
       throw new Error(
-        `rpc "${service.packageName}.${service.name}.${method.name}" returns google.longrunning.Operation but is missing option google.longrunning.operation_info`
+        `rpc "${service.packageName}.${service.name}.${method.name}" ` +
+          'returns google.longrunning.Operation but is missing ' +
+          'option google.longrunning.operation_info'
       );
     } else {
       return method.options!['.google.longrunning.operationInfo']!;
@@ -153,6 +172,26 @@ function longRunningMetadataType(
   );
 }
 
+// Detect non-AIP-compliant LRO method for DIREGAPIC, where the response type is customized Operation and the method is not polling method.
+// (TODO: summerji) Update the detector when DIREGAPIC LRO annotation merged in googleapis-discovery.
+function isDiregapicLRO(
+  packageName: string,
+  method: MethodDescriptorProto,
+  isDiregapic?: boolean
+): boolean | '' | null | undefined {
+  const operationOutputType = toFullyQualifiedName(packageName, 'Operation');
+  return (
+    isDiregapic &&
+    method.outputType &&
+    method.outputType === operationOutputType &&
+    method.options?.['.google.api.http'] &&
+    !(
+      method.options?.['.google.api.http'].get ||
+      (method.name === 'Wait' && method.options?.['.google.api.http'].post)
+    )
+  );
+}
+
 // convert from input interface to message name
 // eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
 function toMessageName(messageType: string): string {
@@ -177,7 +216,7 @@ function pagingField(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
   // TODO: remove this once the next version of the Talent API is published.
   //
@@ -199,26 +238,26 @@ function pagingField(
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
-    inputType && inputType.field!.some(field => field.name === 'page_token');
+    inputType && inputType.field && inputType.field.some(field => field.name === 'page_token');
   // Support paginated methods defined in Discovery-based APIs,
   // where it uses "max_results" to define the maximum number of
   // paginated resources to return.
   const hasPageSize =
-    inputType &&
-    inputType.field!.some(
+    inputType && inputType.field &&
+    inputType.field.some(
       field =>
-        field.name === 'page_size' || (rest && field.name === 'max_results')
+        field.name === 'page_size' ||
+        (diregapic && field.name === 'max_results')
     );
   const hasNextPageToken =
-    outputType &&
-    outputType.field!.some(field => field.name === 'next_page_token');
+    outputType && outputType.field &&
+    outputType.field.some(field => field.name === 'next_page_token');
   if (!hasPageToken || !hasPageSize || !hasNextPageToken) {
     return undefined;
   }
   const repeatedFields = outputType.field!.filter(
     field =>
-      field.label ===
-      protos.google.protobuf.FieldDescriptorProto.Label.LABEL_REPEATED
+      field.label === 3 // LABEL_REPEATED
   );
   if (repeatedFields.length === 0) {
     return undefined;
@@ -248,7 +287,7 @@ function pagingField(
       repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n')
     );
     // TODO: an option to ignore errors
-    throw new Error(`Bad pagination settings for ${method.name}`);
+    throw new Error(`ERROR: Pagination settings for ${method.name} violate https://google.aip.dev/158`);
   }
   return repeatedFields[0];
 }
@@ -257,41 +296,96 @@ function pagingFieldName(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
-  const field = pagingField(messages, method, service, rest);
+  const field = pagingField(messages, method, service, diregapic);
   return field?.name;
 }
 
 function pagingResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  rest?: boolean
+  diregapic?: boolean
 ) {
-  const field = pagingField(messages, method, undefined, rest);
+  const field = pagingField(messages, method, undefined, diregapic);
   if (!field || !field.type) {
     return undefined;
   }
   if (
-    field.type === protos.google.protobuf.FieldDescriptorProto.Type.TYPE_MESSAGE
+    field.type === 11 // TYPE_MESSAGE
   ) {
     return field.typeName; //.google.showcase.v1beta1.EchoResponse
   }
-  const type = protos.google.protobuf.FieldDescriptorProto.Type[field.type];
+  const type = Type[field.type];
   // .google.protobuf.FieldDescriptorProto.Type.TYPE_STRING
   return '.google.protobuf.FieldDescriptorProto.Type.' + type;
 }
 
-export function getSingleHeaderParam(
-  rule: protos.google.api.IHttpRule
-): string[] {
-  const message =
-    rule.post || rule.delete || rule.get || rule.put || rule.patch;
-  if (message) {
-    const res = message.match(/{(.*?)[=}]/);
-    return res?.[1] ? res[1].split('.') : [];
+// Ignore non-diregapic pagination method where its response type contains a map.
+function ignoreMapPagingMethod(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  diregapic?: boolean
+) {
+  const pagingfield = pagingField(messages, method, undefined, diregapic);
+  const outputType = messages[method.outputType!];
+  if (!pagingfield?.type || !outputType.nestedType) {
+    return undefined;
   }
-  return [];
+  if (diregapic) {
+    return false;
+  }
+  for (const desProto of outputType.nestedType) {
+    if (desProto.options && desProto.options.mapEntry) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Support DIREGAPIC google-discovery API pagination response with map field.
+function pagingMapResponseType(
+  messages: MessagesMap,
+  method: MethodDescriptorProto,
+  diregapic?: boolean
+) {
+  const pagingfield = pagingField(messages, method, undefined, diregapic);
+  const outputType = messages[method.outputType!];
+  if (!pagingfield?.type || !diregapic || !outputType.nestedType) {
+    return undefined;
+  }
+  const mapResponses = outputType.nestedType.filter(desProto => {
+    return desProto.options && desProto.options.mapEntry;
+  });
+  if (mapResponses.length === 0) {
+    return undefined;
+  }
+  if (mapResponses.length > 1) {
+    throw new Error(
+      `ERROR: Paginated "${method.name}" method can only have one map field.`
+    );
+  }
+  const pagingMapResponse = mapResponses[0];
+  // convert paging.field typeName .google.cloud.compute.v1.ItemEntry to ItemEntry
+  if (pagingMapResponse.name !== pagingfield.typeName?.split('.').pop()) {
+    throw new Error(
+      `ERROR: Paginated "${method.name}" method map response field name "${pagingMapResponse.name}" ` +
+        'is not matching the paging field name "${pagingfield.typeName}"'
+    );
+  }
+  if (pagingMapResponse.field) {
+    if (
+      pagingMapResponse.field.length === 2 &&
+      pagingMapResponse.field[0].name === 'key' &&
+      pagingMapResponse.field[0].type !== 9 // TYPE_STRING
+    ) {
+      throw new Error(
+        `ERROR: Paginated "${method.name}" method map response field key's type should be string`
+      );
+    }
+    return pagingMapResponse.field[1].typeName;
+  }
+  return undefined;
 }
 
 function getMethodConfig(
@@ -301,22 +395,27 @@ function getMethodConfig(
 ): protos.grpc.service_config.MethodConfig {
   let exactMatch: protos.grpc.service_config.IMethodConfig | undefined;
   let serviceMatch: protos.grpc.service_config.IMethodConfig | undefined;
-  for (const config of grpcServiceConfig.methodConfig) {
-    if (!config.name) {
-      continue;
-    }
-    for (const name of config.name) {
-      if (name.service === serviceName && !name.method) {
-        serviceMatch = config;
+  if (Array.isArray(grpcServiceConfig.methodConfig)) {
+    for (const config of grpcServiceConfig.methodConfig) {
+      if (!config.name) {
+        continue;
       }
-      if (name.service === serviceName && name.method === methodName) {
-        exactMatch = config;
+      for (const name of config.name) {
+        if (name.service === serviceName && !name.method) {
+          serviceMatch = config;
+        } else if (name.service === serviceName && name.method === methodName) {
+          exactMatch = config;
+        }
       }
     }
+  } else {
+    console.warn("Warning: cannot parse gRPC service config: methodConfig is not an array.");
   }
-  const result = protos.grpc.service_config.MethodConfig.fromObject(
+  const root = protobuf.Root.fromJSON(protoJson);
+  const MethodConfig = root.lookupType('MethodConfig');
+  const result = MethodConfig.toObject(MethodConfig.fromObject(
     exactMatch || serviceMatch || {}
-  );
+  )) as protos.grpc.service_config.MethodConfig;
   return result;
 }
 
@@ -324,7 +423,7 @@ interface AugmentMethodParameters {
   allMessages: MessagesMap;
   localMessages: MessagesMap;
   service: ServiceDescriptorProto;
-  rest?: boolean;
+  diregapic?: boolean;
 }
 
 function augmentMethod(
@@ -342,17 +441,32 @@ function augmentMethod(
         parameters.service.packageName,
         method
       ),
+      isDiregapicLRO: isDiregapicLRO(
+        parameters.service.packageName,
+        method,
+        parameters.diregapic
+      ),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
         method,
         parameters.service,
-        parameters.rest
+        parameters.diregapic
       ),
       pagingResponseType: pagingResponseType(
         parameters.allMessages,
         method,
-        parameters.rest
+        parameters.diregapic
+      ),
+      pagingMapResponseType: pagingMapResponseType(
+        parameters.allMessages,
+        method,
+        parameters.diregapic
+      ),
+      ignoreMapPagingMethod: ignoreMapPagingMethod(
+        parameters.allMessages,
+        method,
+        parameters.diregapic
       ),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
@@ -373,11 +487,15 @@ function augmentMethod(
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
       throw new Error(
-        `rpc "${parameters.service.packageName}.${method.name}" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.metadata_type`
+        `ERROR: rpc "${parameters.service.packageName}.${method.name}" ` +
+          'has google.longrunning.operation_info but is missing ' +
+          'option google.longrunning.operation_info.metadata_type'
       );
     } else if (!method.longRunningResponseType) {
       throw new Error(
-        `rpc "${parameters.service.packageName}.${method.name}" has google.longrunning.operation_info but is missing option google.longrunning.operation_info.response_type`
+        `ERROR: rpc "${parameters.service.packageName}.${method.name}" ` +
+          'has google.longrunning.operation_info but is missing ' +
+          'option google.longrunning.operation_info.response_type'
       );
     }
   }
@@ -388,14 +506,12 @@ function augmentMethod(
         const inputType = parameters.allMessages[method.inputType!];
         const repeatedFields = inputType.field!.filter(
           field =>
-            field.label ===
-              protos.google.protobuf.FieldDescriptorProto.Label
-                .LABEL_REPEATED &&
-            field.name === bc.batchDescriptor.batched_field
+            field.label === 3 // LABEL_REPEATED
+            && field.name === bc.batchDescriptor.batched_field
         );
         if (!repeatedFields[0].typeName) {
           throw new Error(
-            `Wrong bundle config for method ${method.name}: typeName is undefined.`
+            `ERROR: Wrong bundle config for method ${method.name}: typeName is undefined.`
           );
         }
         bc.repeatedField = repeatedFields[0].typeName!.substring(1)!;
@@ -455,13 +571,46 @@ function augmentMethod(
   if (method.methodConfig.timeout) {
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
   }
-  method.headerRequestParams = getHeaderRequestParams(
-    method.options?.['.google.api.http']
-  );
+  const methodDynamicRouting = method.options?.['.google.api.routing'];
+  const methodDynamicRoutingParameters =
+    methodDynamicRouting?.routingParameters;
+  // If dynamic routing annotation doesn't exist, then send implicitly generated headers.
+  if (!methodDynamicRouting) {
+    method.headerRequestParams = getHeaderRequestParams(
+      method.options?.['.google.api.http']
+    );
+  }
+  // If dynamic routing annotation exists and is non-empty, then send dynamic routing headers.
+  else if (
+    methodDynamicRoutingParameters &&
+    methodDynamicRoutingParameters.length > 0
+  ) {
+    method.dynamicRoutingRequestParams = getDynamicHeaderRequestParams(
+      methodDynamicRoutingParameters
+    );
+  }
   // protobuf.js redefines .toJSON to serialize only known fields,
   // but we need to serialize the whole augmented object.
   method.toJSON = undefined;
   return method;
+}
+
+export function getSingleHeaderParam(
+  rule: protos.google.api.IHttpRule
+): string[][] {
+  const message =
+    rule.post || rule.delete || rule.get || rule.put || rule.patch;
+  if (message) {
+    const result: string[][] = [];
+    const matches = message.matchAll(/{(.*?)[=}]/g);
+    for (const match of matches) {
+      if (match[1]) {
+        result.push(match[1].split('.'));
+      }
+    }
+    return result;
+  }
+  return [];
 }
 
 export function getHeaderRequestParams(
@@ -470,14 +619,12 @@ export function getHeaderRequestParams(
   if (!httpRule) {
     return [];
   }
-  const params: string[][] = [];
-  params.push(getSingleHeaderParam(httpRule));
-
+  let params: string[][] = [];
+  params = params.concat(getSingleHeaderParam(httpRule));
   httpRule.additionalBindings = httpRule.additionalBindings ?? [];
-  params.push(
+  params = params.concat(
     ...httpRule.additionalBindings.map(binding => getSingleHeaderParam(binding))
   );
-
   // de-dup result array
   const used = new Set();
   const result: string[][] = [];
@@ -492,8 +639,99 @@ export function getHeaderRequestParams(
     used.add(joined);
     result.push(param);
   }
-
   return result;
+}
+
+// Parses the routing annotation and sets headerRequest for a method. This assumes the routing annotations
+// are in a sorted order (e.g. all the annotations for a single parameter are next to each other).
+export function getDynamicHeaderRequestParams(
+  rules: protos.google.api.IRoutingParameter[]
+) {
+  const params: DynamicRoutingParameters[][] = [[]];
+  let countOfParameters = 0;
+  for (let index = 0; index < rules.length; ++index) {
+    const rule = rules[index];
+    // Add the first rule to the first array
+    if (index === 0) {
+      params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
+    }
+    // If the 'fieldSend' is the same as the previous rule, then add it to the same array. Otherwise, start a new array.
+    else if (
+      getSingleRoutingHeaderParam(rule).fieldSend ===
+      getSingleRoutingHeaderParam(rules[index - 1]).fieldSend
+    ) {
+      params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
+    } else {
+      countOfParameters++;
+      params[countOfParameters] = [];
+      params[countOfParameters].push(getSingleRoutingHeaderParam(rule));
+    }
+  }
+  return params;
+}
+
+// This is what each routing annotation is translated into.
+export interface DynamicRoutingParameters {
+  // The original path template, unchanged
+  pathTemplate: string;
+  // The name of request field to apply the rules to
+  fieldRetrieve: string[];
+  // The name of the field to send in the header
+  fieldSend: string;
+  // The regex to extract the value to send in the header
+  messageRegex: string;
+}
+
+// The field to be retrieved needs to be converted into camelCase
+export function convertFieldToCamelCase(field: string) {
+  const camelCaseFields: string[] = [];
+  if (field === '') {
+    return camelCaseFields;
+  }
+  const fieldsToRetrieve = field.split('.');
+  for (const field of fieldsToRetrieve) {
+    camelCaseFields.push(field.toCamelCase());
+  }
+  return camelCaseFields;
+}
+
+// This parses a single Routing Parameter and returns a MapRoutingParameters interface.
+export function getSingleRoutingHeaderParam(
+  rule: protos.google.api.IRoutingParameter
+): DynamicRoutingParameters {
+  let dynamicRoutingRule: DynamicRoutingParameters = {
+    pathTemplate: rule.pathTemplate ?? '',
+    fieldRetrieve: [],
+    fieldSend: '',
+    messageRegex: '',
+  };
+  // If routing parameters are empty, then return empty interface
+  if (!rule.field) {
+    return dynamicRoutingRule;
+  } else if (!rule.pathTemplate) {
+    // If there is no path template, then capture the full field from the message
+    dynamicRoutingRule = {
+      pathTemplate: '',
+      fieldRetrieve: convertFieldToCamelCase(rule.field),
+      fieldSend: rule.field,
+      messageRegex: `(?<${rule.field}>.*)`,
+    };
+  }
+  // If the annotation is malformed, then return empty interface
+  else {
+    const processedPathTemplate = processPathTemplate(rule.pathTemplate);
+    if (!processedPathTemplate) {
+      return dynamicRoutingRule;
+    }
+    const {fieldSend, messageRegex} = processedPathTemplate;
+    dynamicRoutingRule = {
+      pathTemplate: rule.pathTemplate,
+      fieldRetrieve: convertFieldToCamelCase(rule.field),
+      fieldSend,
+      messageRegex,
+    };
+  }
+  return dynamicRoutingRule;
 }
 
 interface AugmentServiceParameters {
@@ -505,12 +743,34 @@ interface AugmentServiceParameters {
   allResourceDatabase: ResourceDatabase;
   resourceDatabase: ResourceDatabase;
   options: Options;
+  protoFile: string;
 }
 
 function augmentService(parameters: AugmentServiceParameters) {
   const augmentedService = parameters.service as ServiceDescriptorProto;
   augmentedService.packageName = parameters.packageName;
-  augmentedService.iamService = parameters.options.iamService ?? false;
+  augmentedService.serviceYaml = parameters.options.serviceYaml!;
+  augmentedService.protoFile = parameters.protoFile;
+  if (
+    parameters.options.serviceYaml?.apis.includes('google.iam.v1.IAMPolicy')
+  ) {
+    augmentedService.IAMPolicyMixin = 1;
+  } else {
+    augmentedService.IAMPolicyMixin = 0;
+  }
+  if (
+    parameters.options.serviceYaml?.apis.includes(
+      'google.cloud.location.Locations'
+    )
+  ) {
+    augmentedService.LocationMixin = 1;
+  } else {
+    augmentedService.LocationMixin = 0;
+  }
+
+  if (parameters.options.serviceYaml?.http) {
+    augmentedService.httpRules = parameters.options.serviceYaml.http.rules;
+  }
   augmentedService.comments = parameters.commentsMap.getServiceComment(
     parameters.service.name!
   );
@@ -520,17 +780,17 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.bundleConfigs = parameters.options.bundleConfigs?.filter(
     bc => bc.serviceName === parameters.service.name
   );
-  augmentedService.method = augmentedService.method.map(method =>
+  augmentedService.method = augmentedService.method?.map(method =>
     augmentMethod(
       {
         allMessages: parameters.allMessages,
         localMessages: parameters.localMessages,
         service: augmentedService,
-        rest: parameters.options.rest,
+        diregapic: parameters.options.diregapic,
       },
       method
     )
-  );
+  ) ?? [];
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
     method => method.bundleConfig
   );
@@ -540,6 +800,9 @@ function augmentService(parameters: AugmentServiceParameters) {
   );
   augmentedService.longRunning = augmentedService.method.filter(
     method => method.longRunning
+  );
+  augmentedService.diregapicLRO = augmentedService.method.filter(
+    method => method.isDiregapicLRO
   );
   augmentedService.streaming = augmentedService.method.filter(
     method => method.streaming
@@ -556,6 +819,17 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.paging = augmentedService.method.filter(
     method => method.pagingFieldName
   );
+
+  const hasLroMethods = augmentedService.longRunning.length > 0;
+  if (
+    parameters.options.serviceYaml?.apis.includes(
+      'google.longrunning.Operations'
+    ) &&
+    // enable LRO mixin if either LRO methods exist, or overridden by an option
+    (hasLroMethods || parameters.options.mixinsOverridden)
+  ) {
+    augmentedService.LongRunningOperationsMixin = 1;
+  }
 
   augmentedService.hostname = '';
   augmentedService.port = 0;
@@ -600,9 +874,9 @@ function augmentService(parameters: AugmentServiceParameters) {
         resourceReference?.childType,
         errorLocation
       );
-      parentResources.forEach(
-        resource => (uniqueResources[resource.name] = resource)
-      );
+      for (const resource of parentResources) {
+        uniqueResources[resource.name] = resource;
+      }
 
       // 2. If this resource reference has .type, we should have a known resource with this type, check two maps.
       if (!resourceReference || !resourceReference.type) continue;
@@ -653,17 +927,28 @@ interface ProtoParameters {
 }
 
 export class Proto {
+  // instrumentation for unit tests
+  static constructorCallCount = 0;
+  static constructorCallArgs: ProtoParameters[] = [];
+  static resetInstrumentation() {
+    Proto.constructorCallCount = 0;
+    Proto.constructorCallArgs = [];
+  }
+
   filePB2: protos.google.protobuf.IFileDescriptorProto;
   services: ServicesMap = {};
   allMessages: MessagesMap = {};
   localMessages: MessagesMap = {};
   fileToGenerate = true;
-  rest?: boolean;
+  diregapic?: boolean;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
   // resourceDatabase: all resources defined by `google.api.resource` or `google.api.resource_definition`
   constructor(parameters: ProtoParameters) {
+    ++Proto.constructorCallCount;
+    Proto.constructorCallArgs.push(parameters);
+
     parameters.fd.service = parameters.fd.service || [];
     parameters.fd.messageType = parameters.fd.messageType || [];
 
@@ -675,7 +960,7 @@ export class Proto {
         map[`.${parameters.fd.package!}.${message.name!}`] = message;
         return map;
       }, {} as MessagesMap);
-    this.rest = parameters.options.rest;
+    this.diregapic = parameters.options.diregapic;
     const protopackage = parameters.fd.package;
     // Allow to generate if a proto has no service and its package name is differ from its service's.
     if (
@@ -705,6 +990,7 @@ export class Proto {
           allResourceDatabase: parameters.allResourceDatabase,
           resourceDatabase: parameters.resourceDatabase,
           options: parameters.options,
+          protoFile: parameters.fd.name!,
         })
       )
       .reduce((map, service) => {

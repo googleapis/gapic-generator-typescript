@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,11 +17,9 @@
 // ** All changes to this file may be overwritten. **
 
 /* global window */
-import * as gax from 'google-gax';
-import {Callback, CallOptions, Descriptors, ClientOptions, LROperation, PaginationCallback, GaxCall} from 'google-gax';
-
-import { Transform } from 'stream';
-import { RequestType } from 'google-gax/build/src/apitypes';
+import type * as gax from 'google-gax';
+import type {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, LROperation, PaginationCallback, GaxCall} from 'google-gax';
+import {Transform, PassThrough} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
 /**
@@ -30,7 +28,6 @@ import jsonProtos = require('../../protos/protos.json');
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
 import * as gapicConfig from './messaging_client_config.json';
-import { operationsProtos } from 'google-gax';
 const version = require('../../../package.json').version;
 
 /**
@@ -44,6 +41,7 @@ const version = require('../../../package.json').version;
 export class MessagingClient {
   private _terminated = false;
   private _opts: ClientOptions;
+  private _providedCustomServicePath: boolean;
   private _gaxModule: typeof gax | typeof gax.fallback;
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
@@ -55,6 +53,7 @@ export class MessagingClient {
     longrunning: {},
     batching: {},
   };
+  warn: (code: string, message: string, warnType?: string) => void;
   innerApiCalls: {[name: string]: Function};
   pathTemplates: {[name: string]: gax.PathTemplate};
   operationsClient: gax.OperationsClient;
@@ -65,7 +64,7 @@ export class MessagingClient {
    *
    * @param {object} [options] - The configuration object.
    * The options accepted by the constructor are described in detail
-   * in [this document](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#creating-the-client-instance).
+   * in [this document](https://github.com/googleapis/gax-nodejs/blob/main/client-libraries.md#creating-the-client-instance).
    * The common options are:
    * @param {object} [options.credentials] - Credentials object.
    * @param {string} [options.credentials.client_email]
@@ -88,16 +87,23 @@ export class MessagingClient {
    *     API remote host.
    * @param {gax.ClientConfig} [options.clientConfig] - Client configuration override.
    *     Follows the structure of {@link gapicConfig}.
-   * @param {boolean} [options.fallback] - Use HTTP fallback mode.
-   *     In fallback mode, a special browser-compatible transport implementation is used
-   *     instead of gRPC transport. In browser context (if the `window` object is defined)
-   *     the fallback mode is enabled automatically; set `options.fallback` to `false`
-   *     if you need to override this behavior.
+   * @param {boolean | "rest"} [options.fallback] - Use HTTP fallback mode.
+   *     Pass "rest" to use HTTP/1.1 REST API instead of gRPC.
+   *     For more information, please check the
+   *     {@link https://github.com/googleapis/gax-nodejs/blob/main/client-libraries.md#http11-rest-api-mode documentation}.
+   * @param {gax} [gaxInstance]: loaded instance of `google-gax`. Useful if you
+   *     need to avoid loading the default gRPC version and want to use the fallback
+   *     HTTP implementation. Load only fallback version and pass it to the constructor:
+   *     ```
+   *     const gax = require('google-gax/build/src/fallback'); // avoids loading google-gax with gRPC
+   *     const client = new MessagingClient({fallback: 'rest'}, gax);
+   *     ```
    */
-  constructor(opts?: ClientOptions) {
+  constructor(opts?: ClientOptions, gaxInstance?: typeof gax | typeof gax.fallback) {
     // Ensure that options include all the required fields.
     const staticMembers = this.constructor as typeof MessagingClient;
     const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.servicePath;
+    this._providedCustomServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
     const port = opts?.port || staticMembers.port;
     const clientConfig = opts?.clientConfig ?? {};
     const fallback = opts?.fallback ?? (typeof window !== 'undefined' && typeof window?.fetch === 'function');
@@ -108,8 +114,13 @@ export class MessagingClient {
       opts['scopes'] = staticMembers.scopes;
     }
 
+    // Load google-gax module synchronously if needed
+    if (!gaxInstance) {
+      gaxInstance = require('google-gax') as typeof gax;
+    }
+
     // Choose either gRPC or proto-over-HTTP implementation of google-gax.
-    this._gaxModule = opts.fallback ? gax.fallback : gax;
+    this._gaxModule = opts.fallback ? gaxInstance.fallback : gaxInstance;
 
     // Create a `gaxGrpc` object, with any grpc-specific options sent to the client.
     this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
@@ -119,6 +130,12 @@ export class MessagingClient {
 
     // Save the auth object to the client, for use by other methods.
     this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
+
+    // Set useJWTAccessWithScope on the auth object.
+    this.auth.useJWTAccessWithScope = true;
+
+    // Set defaultServicePath on the auth object.
+    this.auth.defaultServicePath = staticMembers.servicePath;
 
     // Set the default scopes in auth client if needed.
     if (servicePath === staticMembers.servicePath) {
@@ -154,13 +171,19 @@ export class MessagingClient {
         'sessions/{session}/tests/{test}/blueprints/{blueprint}'
       ),
       roomPathTemplate: new this._gaxModule.PathTemplate(
-        'rooms/{room_id}'
+        'rooms/{room}'
       ),
-      roomIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'rooms/{room_id}/blurbs/{blurb_id}'
+      roomBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'rooms/{room}/blurbs/{blurb}'
       ),
-      roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'rooms/{room_id}/blurbs/legacy/{legacy_room_id}.{blurb_id}'
+      roomBlurbsLegacyRoomBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'rooms/{room}/blurbs/legacy/{legacy_room}.{blurb}'
+      ),
+      sequencePathTemplate: new this._gaxModule.PathTemplate(
+        'sequences/{sequence}'
+      ),
+      sequenceReportPathTemplate: new this._gaxModule.PathTemplate(
+        'sequences/{sequence}/sequenceReport'
       ),
       sessionPathTemplate: new this._gaxModule.PathTemplate(
         'sessions/{session}'
@@ -169,13 +192,13 @@ export class MessagingClient {
         'sessions/{session}/tests/{test}'
       ),
       userPathTemplate: new this._gaxModule.PathTemplate(
-        'users/{user_id}'
+        'users/{user}'
       ),
-      userIdProfileBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'user/{user_id}/profile/blurbs/{blurb_id}'
+      userProfileBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'users/{user}/profile/blurbs/{blurb}'
       ),
-      userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate: new this._gaxModule.PathTemplate(
-        'user/{user_id}/profile/blurbs/legacy/{legacy_user_id}~{blurb_id}'
+      userProfileBlurbsLegacyUserBlurbPathTemplate: new this._gaxModule.PathTemplate(
+        'users/{user}/profile/blurbs/legacy/{legacy_user}~{blurb}'
       ),
     };
 
@@ -192,21 +215,24 @@ export class MessagingClient {
     // Some of the methods on this service provide streaming responses.
     // Provide descriptors for these.
     this.descriptors.stream = {
-      streamBlurbs: new this._gaxModule.StreamDescriptor(gax.StreamType.SERVER_STREAMING),
-      sendBlurbs: new this._gaxModule.StreamDescriptor(gax.StreamType.CLIENT_STREAMING),
-      connect: new this._gaxModule.StreamDescriptor(gax.StreamType.BIDI_STREAMING)
+      streamBlurbs: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.SERVER_STREAMING, opts.fallback === 'rest'),
+      sendBlurbs: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.CLIENT_STREAMING, opts.fallback === 'rest'),
+      connect: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.BIDI_STREAMING, opts.fallback === 'rest')
     };
 
     const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
-
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
-
-    this.operationsClient = this._gaxModule.lro({
+    const lroOptions: GrpcClientOptions = {
       auth: this.auth,
       grpc: 'grpc' in this._gaxGrpc ? this._gaxGrpc.grpc : undefined
-    }).operationsClient(opts);
+    };
+    if (opts.fallback === 'rest') {
+      lroOptions.protoJson = protoFilesRoot;
+      lroOptions.httpRules = [];
+    }
+    this.operationsClient = this._gaxModule.lro(lroOptions).operationsClient(opts);
     const searchBlurbsResponse = protoFilesRoot.lookup(
       '.google.showcase.v1beta1.SearchBlurbsResponse') as gax.protobuf.Type;
     const searchBlurbsMetadata = protoFilesRoot.lookup(
@@ -228,6 +254,9 @@ export class MessagingClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
+
+    // Add a warn function to the client constructor so it can be easily tested.
+    this.warn = this._gaxModule.warn;
   }
 
   /**
@@ -254,7 +283,7 @@ export class MessagingClient {
           (this._protos as protobuf.Root).lookupService('google.showcase.v1beta1.Messaging') :
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).google.showcase.v1beta1.Messaging,
-        this._opts) as Promise<{[method: string]: Function}>;
+        this._opts, this._providedCustomServicePath) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
@@ -264,6 +293,13 @@ export class MessagingClient {
       const callPromise = this.messagingStub.then(
         stub => (...args: Array<{}>) => {
           if (this._terminated) {
+            if (methodName in this.descriptors.stream) {
+              const stream = new PassThrough();
+              setImmediate(() => {
+                stream.emit('error', new this._gaxModule.GoogleError('The client has already been closed.'));
+              });
+              return stream;
+            }
             return Promise.reject('The client has already been closed.');
           }
           const func = stub[methodName];
@@ -281,7 +317,8 @@ export class MessagingClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -342,26 +379,6 @@ export class MessagingClient {
   // -------------------
   // -- Service calls --
   // -------------------
-  createRoom(
-      request?: protos.google.showcase.v1beta1.ICreateRoomRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.showcase.v1beta1.IRoom,
-        protos.google.showcase.v1beta1.ICreateRoomRequest|undefined, {}|undefined
-      ]>;
-  createRoom(
-      request: protos.google.showcase.v1beta1.ICreateRoomRequest,
-      options: CallOptions,
-      callback: Callback<
-          protos.google.showcase.v1beta1.IRoom,
-          protos.google.showcase.v1beta1.ICreateRoomRequest|null|undefined,
-          {}|null|undefined>): void;
-  createRoom(
-      request: protos.google.showcase.v1beta1.ICreateRoomRequest,
-      callback: Callback<
-          protos.google.showcase.v1beta1.IRoom,
-          protos.google.showcase.v1beta1.ICreateRoomRequest|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Creates a room.
  *
@@ -372,13 +389,32 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Room]{@link google.showcase.v1beta1.Room}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   The first element of the array is an object representing {@link protos.google.showcase.v1beta1.Room|Room}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
  *   for more details and examples.
- * @example
- * const [response] = await client.createRoom(request);
+ * @example <caption>include:samples/generated/v1beta1/messaging.create_room.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_CreateRoom_async
  */
+  createRoom(
+      request?: protos.google.showcase.v1beta1.ICreateRoomRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.showcase.v1beta1.IRoom,
+        protos.google.showcase.v1beta1.ICreateRoomRequest|undefined, {}|undefined
+      ]>;
+  createRoom(
+      request: protos.google.showcase.v1beta1.ICreateRoomRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.ICreateRoomRequest|null|undefined,
+          {}|null|undefined>): void;
+  createRoom(
+      request: protos.google.showcase.v1beta1.ICreateRoomRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.ICreateRoomRequest|null|undefined,
+          {}|null|undefined>): void;
   createRoom(
       request?: protos.google.showcase.v1beta1.ICreateRoomRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -403,29 +439,11 @@ export class MessagingClient {
       options = optionsOrCallback as CallOptions;
     }
     options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
     return this.innerApiCalls.createRoom(request, options, callback);
   }
-  getRoom(
-      request?: protos.google.showcase.v1beta1.IGetRoomRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.showcase.v1beta1.IRoom,
-        protos.google.showcase.v1beta1.IGetRoomRequest|undefined, {}|undefined
-      ]>;
-  getRoom(
-      request: protos.google.showcase.v1beta1.IGetRoomRequest,
-      options: CallOptions,
-      callback: Callback<
-          protos.google.showcase.v1beta1.IRoom,
-          protos.google.showcase.v1beta1.IGetRoomRequest|null|undefined,
-          {}|null|undefined>): void;
-  getRoom(
-      request: protos.google.showcase.v1beta1.IGetRoomRequest,
-      callback: Callback<
-          protos.google.showcase.v1beta1.IRoom,
-          protos.google.showcase.v1beta1.IGetRoomRequest|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Retrieves the Room with the given resource name.
  *
@@ -436,13 +454,32 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Room]{@link google.showcase.v1beta1.Room}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   The first element of the array is an object representing {@link protos.google.showcase.v1beta1.Room|Room}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
  *   for more details and examples.
- * @example
- * const [response] = await client.getRoom(request);
+ * @example <caption>include:samples/generated/v1beta1/messaging.get_room.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_GetRoom_async
  */
+  getRoom(
+      request?: protos.google.showcase.v1beta1.IGetRoomRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.showcase.v1beta1.IRoom,
+        protos.google.showcase.v1beta1.IGetRoomRequest|undefined, {}|undefined
+      ]>;
+  getRoom(
+      request: protos.google.showcase.v1beta1.IGetRoomRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IGetRoomRequest|null|undefined,
+          {}|null|undefined>): void;
+  getRoom(
+      request: protos.google.showcase.v1beta1.IGetRoomRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IRoom,
+          protos.google.showcase.v1beta1.IGetRoomRequest|null|undefined,
+          {}|null|undefined>): void;
   getRoom(
       request?: protos.google.showcase.v1beta1.IGetRoomRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -471,12 +508,31 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.getRoom(request, options, callback);
   }
+/**
+ * Updates a room.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {google.showcase.v1beta1.Room} request.room
+ *   The room to update.
+ * @param {google.protobuf.FieldMask} request.updateMask
+ *   The field mask to determine which fields are to be updated. If empty, the
+ *   server will assume all fields are to be updated.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing {@link protos.google.showcase.v1beta1.Room|Room}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1beta1/messaging.update_room.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_UpdateRoom_async
+ */
   updateRoom(
       request?: protos.google.showcase.v1beta1.IUpdateRoomRequest,
       options?: CallOptions):
@@ -497,26 +553,6 @@ export class MessagingClient {
           protos.google.showcase.v1beta1.IRoom,
           protos.google.showcase.v1beta1.IUpdateRoomRequest|null|undefined,
           {}|null|undefined>): void;
-/**
- * Updates a room.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {google.showcase.v1beta1.Room} request.room
- *   The room to update.
- * @param {google.protobuf.FieldMask} request.updateMask
- *   The field mask to determine wich fields are to be updated. If empty, the
- *   server will assume all fields are to be updated.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Room]{@link google.showcase.v1beta1.Room}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
- *   for more details and examples.
- * @example
- * const [response] = await client.updateRoom(request);
- */
   updateRoom(
       request?: protos.google.showcase.v1beta1.IUpdateRoomRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -545,32 +581,12 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'room.name': request.room!.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'room.name': request.room!.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.updateRoom(request, options, callback);
   }
-  deleteRoom(
-      request?: protos.google.showcase.v1beta1.IDeleteRoomRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.protobuf.IEmpty,
-        protos.google.showcase.v1beta1.IDeleteRoomRequest|undefined, {}|undefined
-      ]>;
-  deleteRoom(
-      request: protos.google.showcase.v1beta1.IDeleteRoomRequest,
-      options: CallOptions,
-      callback: Callback<
-          protos.google.protobuf.IEmpty,
-          protos.google.showcase.v1beta1.IDeleteRoomRequest|null|undefined,
-          {}|null|undefined>): void;
-  deleteRoom(
-      request: protos.google.showcase.v1beta1.IDeleteRoomRequest,
-      callback: Callback<
-          protos.google.protobuf.IEmpty,
-          protos.google.showcase.v1beta1.IDeleteRoomRequest|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Deletes a room and all of its blurbs.
  *
@@ -581,13 +597,32 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   The first element of the array is an object representing {@link protos.google.protobuf.Empty|Empty}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
  *   for more details and examples.
- * @example
- * const [response] = await client.deleteRoom(request);
+ * @example <caption>include:samples/generated/v1beta1/messaging.delete_room.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_DeleteRoom_async
  */
+  deleteRoom(
+      request?: protos.google.showcase.v1beta1.IDeleteRoomRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteRoomRequest|undefined, {}|undefined
+      ]>;
+  deleteRoom(
+      request: protos.google.showcase.v1beta1.IDeleteRoomRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteRoomRequest|null|undefined,
+          {}|null|undefined>): void;
+  deleteRoom(
+      request: protos.google.showcase.v1beta1.IDeleteRoomRequest,
+      callback: Callback<
+          protos.google.protobuf.IEmpty,
+          protos.google.showcase.v1beta1.IDeleteRoomRequest|null|undefined,
+          {}|null|undefined>): void;
   deleteRoom(
       request?: protos.google.showcase.v1beta1.IDeleteRoomRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -616,32 +651,12 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.deleteRoom(request, options, callback);
   }
-  createBlurb(
-      request?: protos.google.showcase.v1beta1.ICreateBlurbRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.showcase.v1beta1.IBlurb,
-        protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined
-      ]>;
-  createBlurb(
-      request: protos.google.showcase.v1beta1.ICreateBlurbRequest,
-      options: CallOptions,
-      callback: Callback<
-          protos.google.showcase.v1beta1.IBlurb,
-          protos.google.showcase.v1beta1.ICreateBlurbRequest|null|undefined,
-          {}|null|undefined>): void;
-  createBlurb(
-      request: protos.google.showcase.v1beta1.ICreateBlurbRequest,
-      callback: Callback<
-          protos.google.showcase.v1beta1.IBlurb,
-          protos.google.showcase.v1beta1.ICreateBlurbRequest|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Creates a blurb. If the parent is a room, the blurb is understood to be a
  * message in that room. If the parent is a profile, the blurb is understood
@@ -657,13 +672,32 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Blurb]{@link google.showcase.v1beta1.Blurb}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   The first element of the array is an object representing {@link protos.google.showcase.v1beta1.Blurb|Blurb}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
  *   for more details and examples.
- * @example
- * const [response] = await client.createBlurb(request);
+ * @example <caption>include:samples/generated/v1beta1/messaging.create_blurb.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_CreateBlurb_async
  */
+  createBlurb(
+      request?: protos.google.showcase.v1beta1.ICreateBlurbRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.showcase.v1beta1.IBlurb,
+        protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined
+      ]>;
+  createBlurb(
+      request: protos.google.showcase.v1beta1.ICreateBlurbRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.ICreateBlurbRequest|null|undefined,
+          {}|null|undefined>): void;
+  createBlurb(
+      request: protos.google.showcase.v1beta1.ICreateBlurbRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.ICreateBlurbRequest|null|undefined,
+          {}|null|undefined>): void;
   createBlurb(
       request?: protos.google.showcase.v1beta1.ICreateBlurbRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -692,12 +726,28 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.createBlurb(request, options, callback);
   }
+/**
+ * Retrieves the Blurb with the given resource name.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   The resource name of the requested blurb.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing {@link protos.google.showcase.v1beta1.Blurb|Blurb}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1beta1/messaging.get_blurb.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_GetBlurb_async
+ */
   getBlurb(
       request?: protos.google.showcase.v1beta1.IGetBlurbRequest,
       options?: CallOptions):
@@ -718,23 +768,6 @@ export class MessagingClient {
           protos.google.showcase.v1beta1.IBlurb,
           protos.google.showcase.v1beta1.IGetBlurbRequest|null|undefined,
           {}|null|undefined>): void;
-/**
- * Retrieves the Blurb with the given resource name.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.name
- *   The resource name of the requested blurb.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Blurb]{@link google.showcase.v1beta1.Blurb}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
- *   for more details and examples.
- * @example
- * const [response] = await client.getBlurb(request);
- */
   getBlurb(
       request?: protos.google.showcase.v1beta1.IGetBlurbRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -763,32 +796,12 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.getBlurb(request, options, callback);
   }
-  updateBlurb(
-      request?: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.showcase.v1beta1.IBlurb,
-        protos.google.showcase.v1beta1.IUpdateBlurbRequest|undefined, {}|undefined
-      ]>;
-  updateBlurb(
-      request: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
-      options: CallOptions,
-      callback: Callback<
-          protos.google.showcase.v1beta1.IBlurb,
-          protos.google.showcase.v1beta1.IUpdateBlurbRequest|null|undefined,
-          {}|null|undefined>): void;
-  updateBlurb(
-      request: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
-      callback: Callback<
-          protos.google.showcase.v1beta1.IBlurb,
-          protos.google.showcase.v1beta1.IUpdateBlurbRequest|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Updates a blurb.
  *
@@ -802,13 +815,32 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Blurb]{@link google.showcase.v1beta1.Blurb}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   The first element of the array is an object representing {@link protos.google.showcase.v1beta1.Blurb|Blurb}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
  *   for more details and examples.
- * @example
- * const [response] = await client.updateBlurb(request);
+ * @example <caption>include:samples/generated/v1beta1/messaging.update_blurb.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_UpdateBlurb_async
  */
+  updateBlurb(
+      request?: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.showcase.v1beta1.IBlurb,
+        protos.google.showcase.v1beta1.IUpdateBlurbRequest|undefined, {}|undefined
+      ]>;
+  updateBlurb(
+      request: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IUpdateBlurbRequest|null|undefined,
+          {}|null|undefined>): void;
+  updateBlurb(
+      request: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IBlurb,
+          protos.google.showcase.v1beta1.IUpdateBlurbRequest|null|undefined,
+          {}|null|undefined>): void;
   updateBlurb(
       request?: protos.google.showcase.v1beta1.IUpdateBlurbRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -837,12 +869,28 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'blurb.name': request.blurb!.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'blurb.name': request.blurb!.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.updateBlurb(request, options, callback);
   }
+/**
+ * Deletes a blurb.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   The resource name of the requested blurb.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing {@link protos.google.protobuf.Empty|Empty}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1beta1/messaging.delete_blurb.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_DeleteBlurb_async
+ */
   deleteBlurb(
       request?: protos.google.showcase.v1beta1.IDeleteBlurbRequest,
       options?: CallOptions):
@@ -863,23 +911,6 @@ export class MessagingClient {
           protos.google.protobuf.IEmpty,
           protos.google.showcase.v1beta1.IDeleteBlurbRequest|null|undefined,
           {}|null|undefined>): void;
-/**
- * Deletes a blurb.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.name
- *   The resource name of the requested blurb.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
- *   for more details and examples.
- * @example
- * const [response] = await client.deleteBlurb(request);
- */
   deleteBlurb(
       request?: protos.google.showcase.v1beta1.IDeleteBlurbRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -908,8 +939,8 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.deleteBlurb(request, options, callback);
@@ -928,14 +959,11 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits [StreamBlurbsResponse]{@link google.showcase.v1beta1.StreamBlurbsResponse} on 'data' event.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#server-streaming)
+ *   An object stream which emits {@link protos.google.showcase.v1beta1.StreamBlurbsResponse|StreamBlurbsResponse} on 'data' event.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#server-streaming | documentation }
  *   for more details and examples.
- * @example
- * const stream = client.streamBlurbs(request);
- * stream.on('data', (response) => { ... });
- * stream.on('end', () => { ... });
+ * @example <caption>include:samples/generated/v1beta1/messaging.stream_blurbs.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_StreamBlurbs_async
  */
   streamBlurbs(
       request?: protos.google.showcase.v1beta1.IStreamBlurbsRequest,
@@ -947,13 +975,26 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.streamBlurbs(request, options);
   }
 
+/**
+ * This is a stream to create multiple blurbs. If an invalid blurb is
+ * requested to be created, the stream will close with an error.
+ *
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Stream} - A writable stream which accepts objects representing
+ * {@link protos.google.showcase.v1beta1.CreateBlurbRequest|CreateBlurbRequest}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#client-streaming | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1beta1/messaging.send_blurbs.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_SendBlurbs_async
+ */
   sendBlurbs(
       options?: CallOptions,
       callback?: Callback<
@@ -967,22 +1008,6 @@ export class MessagingClient {
         protos.google.showcase.v1beta1.ICreateBlurbRequest|null|undefined,
         {}|null|undefined>):
     gax.CancellableStream;
-/**
- * This is a stream to create multiple blurbs. If an invalid blurb is
- * requested to be created, the stream will close with an error.
- *
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Stream} - A writable stream which accepts objects representing
- * [CreateBlurbRequest]{@link google.showcase.v1beta1.CreateBlurbRequest}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#client-streaming)
- *   for more details and examples.
- * @example
- * const stream = client.sendBlurbs(callback);
- * stream.write(request);
- * stream.end();
- */
   sendBlurbs(
       optionsOrCallback?: CallOptions|Callback<
         protos.google.showcase.v1beta1.ISendBlurbsResponse,
@@ -1012,45 +1037,20 @@ export class MessagingClient {
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
  *   An object stream which is both readable and writable. It accepts objects
- *   representing [ConnectRequest]{@link google.showcase.v1beta1.ConnectRequest} for write() method, and
- *   will emit objects representing [StreamBlurbsResponse]{@link google.showcase.v1beta1.StreamBlurbsResponse} on 'data' event asynchronously.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#bi-directional-streaming)
+ *   representing {@link protos.google.showcase.v1beta1.ConnectRequest|ConnectRequest} for write() method, and
+ *   will emit objects representing {@link protos.google.showcase.v1beta1.StreamBlurbsResponse|StreamBlurbsResponse} on 'data' event asynchronously.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#bi-directional-streaming | documentation }
  *   for more details and examples.
- * @example
- * const stream = client.connect();
- * stream.on('data', (response) => { ... });
- * stream.on('end', () => { ... });
- * stream.write(request);
- * stream.end();
+ * @example <caption>include:samples/generated/v1beta1/messaging.connect.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_Connect_async
  */
   connect(
       options?: CallOptions):
     gax.CancellableStream {
     this.initialize();
-    return this.innerApiCalls.connect(options);
+    return this.innerApiCalls.connect(null, options);
   }
 
-  searchBlurbs(
-      request?: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
-      options?: CallOptions):
-      Promise<[
-        LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
-        protos.google.longrunning.IOperation|undefined, {}|undefined
-      ]>;
-  searchBlurbs(
-      request: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
-      options: CallOptions,
-      callback: Callback<
-          LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
-  searchBlurbs(
-      request: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
-      callback: Callback<
-          LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
 /**
  * This method searches through all blurbs across all rooms and profiles
  * for blurbs containing to words found in the query. Only posts that
@@ -1079,13 +1079,31 @@ export class MessagingClient {
  *   The first element of the array is an object representing
  *   a long running operation. Its `promise()` method returns a promise
  *   you can `await` for.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const [operation] = await client.searchBlurbs(request);
- * const [response] = await operation.promise();
+ * @example <caption>include:samples/generated/v1beta1/messaging.search_blurbs.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_SearchBlurbs_async
  */
+  searchBlurbs(
+      request?: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
+      options?: CallOptions):
+      Promise<[
+        LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
+        protos.google.longrunning.IOperation|undefined, {}|undefined
+      ]>;
+  searchBlurbs(
+      request: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
+      options: CallOptions,
+      callback: Callback<
+          LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
+  searchBlurbs(
+      request: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
+      callback: Callback<
+          LROperation<protos.google.showcase.v1beta1.ISearchBlurbsResponse, protos.google.showcase.v1beta1.ISearchBlurbsMetadata>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   searchBlurbs(
       request?: protos.google.showcase.v1beta1.ISearchBlurbsRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -1114,8 +1132,8 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.searchBlurbs(request, options, callback);
@@ -1126,21 +1144,41 @@ export class MessagingClient {
  *   The operation name that will be passed.
  * @returns {Promise} - The promise which resolves to an object.
  *   The decoded operation object has result and metadata field to get information from.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const decodedOperation = await checkSearchBlurbsProgress(name);
- * console.log(decodedOperation.result);
- * console.log(decodedOperation.done);
- * console.log(decodedOperation.metadata);
+ * @example <caption>include:samples/generated/v1beta1/messaging.search_blurbs.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_SearchBlurbs_async
  */
   async checkSearchBlurbsProgress(name: string): Promise<LROperation<protos.google.showcase.v1beta1.SearchBlurbsResponse, protos.google.showcase.v1beta1.SearchBlurbsMetadata>>{
-    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.searchBlurbs, gax.createDefaultBackoffSettings());
+    const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.searchBlurbs, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.showcase.v1beta1.SearchBlurbsResponse, protos.google.showcase.v1beta1.SearchBlurbsMetadata>;
   }
+ /**
+ * Lists all chat rooms.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {number} request.pageSize
+ *   The maximum number of rooms return. Server may return fewer rooms
+ *   than requested. If unspecified, server will pick an appropriate default.
+ * @param {string} request.pageToken
+ *   The value of google.showcase.v1beta1.ListRoomsResponse.next_page_token
+ *   returned from the previous call to
+ *   `google.showcase.v1beta1.Messaging\ListRooms` method.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is Array of {@link protos.google.showcase.v1beta1.Room|Room}.
+ *   The client library will perform auto-pagination by default: it will call the API as many
+ *   times as needed and will merge results from all the pages into this array.
+ *   Note that it can affect your quota.
+ *   We recommend using `listRoomsAsync()`
+ *   method described below for async iteration which you can stop as needed.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination | documentation }
+ *   for more details and examples.
+ */
   listRooms(
       request?: protos.google.showcase.v1beta1.IListRoomsRequest,
       options?: CallOptions):
@@ -1162,31 +1200,6 @@ export class MessagingClient {
           protos.google.showcase.v1beta1.IListRoomsRequest,
           protos.google.showcase.v1beta1.IListRoomsResponse|null|undefined,
           protos.google.showcase.v1beta1.IRoom>): void;
-/**
- * Lists all chat rooms.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {number} request.pageSize
- *   The maximum number of rooms return. Server may return fewer rooms
- *   than requested. If unspecified, server will pick an appropriate default.
- * @param {string} request.pageToken
- *   The value of google.showcase.v1beta1.ListRoomsResponse.next_page_token
- *   returned from the previous call to
- *   `google.showcase.v1beta1.Messaging\ListRooms` method.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [Room]{@link google.showcase.v1beta1.Room}.
- *   The client library will perform auto-pagination by default: it will call the API as many
- *   times as needed and will merge results from all the pages into this array.
- *   Note that it can affect your quota.
- *   We recommend using `listRoomsAsync()`
- *   method described below for async iteration which you can stop as needed.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
- *   for more details and examples.
- */
   listRooms(
       request?: protos.google.showcase.v1beta1.IListRoomsRequest,
       optionsOrCallback?: CallOptions|PaginationCallback<
@@ -1212,6 +1225,8 @@ export class MessagingClient {
       options = optionsOrCallback as CallOptions;
     }
     options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
     return this.innerApiCalls.listRooms(request, options, callback);
   }
@@ -1230,13 +1245,12 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [Room]{@link google.showcase.v1beta1.Room} on 'data' event.
+ *   An object stream which emits an object representing {@link protos.google.showcase.v1beta1.Room|Room} on 'data' event.
  *   The client library will perform auto-pagination by default: it will call the API as many
  *   times as needed. Note that it can affect your quota.
  *   We recommend using `listRoomsAsync()`
  *   method described below for async iteration which you can stop as needed.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination | documentation }
  *   for more details and examples.
  */
   listRoomsStream(
@@ -1245,10 +1259,13 @@ export class MessagingClient {
     Transform{
     request = request || {};
     options = options || {};
-    const callSettings = new gax.CallSettings(options);
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    const defaultCallSettings = this._defaults['listRooms'];
+    const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listRooms.createStream(
-      this.innerApiCalls.listRooms as gax.GaxCall,
+      this.innerApiCalls.listRooms as GaxCall,
       request,
       callSettings
     );
@@ -1270,18 +1287,14 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Object}
- *   An iterable Object that allows [async iteration](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols).
+ *   An iterable Object that allows {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols | async iteration }.
  *   When you iterate the returned iterable, each element will be an object representing
- *   [Room]{@link google.showcase.v1beta1.Room}. The API will be called under the hood as needed, once per the page,
+ *   {@link protos.google.showcase.v1beta1.Room|Room}. The API will be called under the hood as needed, once per the page,
  *   so you can stop the iteration when you don't need more results.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination | documentation }
  *   for more details and examples.
- * @example
- * const iterable = client.listRoomsAsync(request);
- * for await (const response of iterable) {
- *   // process response
- * }
+ * @example <caption>include:samples/generated/v1beta1/messaging.list_rooms.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_ListRooms_async
  */
   listRoomsAsync(
       request?: protos.google.showcase.v1beta1.IListRoomsRequest,
@@ -1289,15 +1302,45 @@ export class MessagingClient {
     AsyncIterable<protos.google.showcase.v1beta1.IRoom>{
     request = request || {};
     options = options || {};
-    options = options || {};
-    const callSettings = new gax.CallSettings(options);
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    const defaultCallSettings = this._defaults['listRooms'];
+    const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listRooms.asyncIterate(
       this.innerApiCalls['listRooms'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.IRoom>;
   }
+ /**
+ * Lists blurbs for a specific chat room or user profile depending on the
+ * parent resource name.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent
+ *   The resource name of the requested room or profile whos blurbs to list.
+ * @param {number} request.pageSize
+ *   The maximum number of blurbs to return. Server may return fewer
+ *   blurbs than requested. If unspecified, server will pick an appropriate
+ *   default.
+ * @param {string} request.pageToken
+ *   The value of google.showcase.v1beta1.ListBlurbsResponse.next_page_token
+ *   returned from the previous call to
+ *   `google.showcase.v1beta1.Messaging\ListBlurbs` method.
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is Array of {@link protos.google.showcase.v1beta1.Blurb|Blurb}.
+ *   The client library will perform auto-pagination by default: it will call the API as many
+ *   times as needed and will merge results from all the pages into this array.
+ *   Note that it can affect your quota.
+ *   We recommend using `listBlurbsAsync()`
+ *   method described below for async iteration which you can stop as needed.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination | documentation }
+ *   for more details and examples.
+ */
   listBlurbs(
       request?: protos.google.showcase.v1beta1.IListBlurbsRequest,
       options?: CallOptions):
@@ -1319,35 +1362,6 @@ export class MessagingClient {
           protos.google.showcase.v1beta1.IListBlurbsRequest,
           protos.google.showcase.v1beta1.IListBlurbsResponse|null|undefined,
           protos.google.showcase.v1beta1.IBlurb>): void;
-/**
- * Lists blurbs for a specific chat room or user profile depending on the
- * parent resource name.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.parent
- *   The resource name of the requested room or profile whos blurbs to list.
- * @param {number} request.pageSize
- *   The maximum number of blurbs to return. Server may return fewer
- *   blurbs than requested. If unspecified, server will pick an appropriate
- *   default.
- * @param {string} request.pageToken
- *   The value of google.showcase.v1beta1.ListBlurbsResponse.next_page_token
- *   returned from the previous call to
- *   `google.showcase.v1beta1.Messaging\ListBlurbs` method.
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is Array of [Blurb]{@link google.showcase.v1beta1.Blurb}.
- *   The client library will perform auto-pagination by default: it will call the API as many
- *   times as needed and will merge results from all the pages into this array.
- *   Note that it can affect your quota.
- *   We recommend using `listBlurbsAsync()`
- *   method described below for async iteration which you can stop as needed.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
- *   for more details and examples.
- */
   listBlurbs(
       request?: protos.google.showcase.v1beta1.IListBlurbsRequest,
       optionsOrCallback?: CallOptions|PaginationCallback<
@@ -1377,8 +1391,8 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.listBlurbs(request, options, callback);
@@ -1401,13 +1415,12 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}
- *   An object stream which emits an object representing [Blurb]{@link google.showcase.v1beta1.Blurb} on 'data' event.
+ *   An object stream which emits an object representing {@link protos.google.showcase.v1beta1.Blurb|Blurb} on 'data' event.
  *   The client library will perform auto-pagination by default: it will call the API as many
  *   times as needed. Note that it can affect your quota.
  *   We recommend using `listBlurbsAsync()`
  *   method described below for async iteration which you can stop as needed.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination | documentation }
  *   for more details and examples.
  */
   listBlurbsStream(
@@ -1420,13 +1433,14 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
-    const callSettings = new gax.CallSettings(options);
+    const defaultCallSettings = this._defaults['listBlurbs'];
+    const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listBlurbs.createStream(
-      this.innerApiCalls.listBlurbs as gax.GaxCall,
+      this.innerApiCalls.listBlurbs as GaxCall,
       request,
       callSettings
     );
@@ -1451,18 +1465,14 @@ export class MessagingClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Object}
- *   An iterable Object that allows [async iteration](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols).
+ *   An iterable Object that allows {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols | async iteration }.
  *   When you iterate the returned iterable, each element will be an object representing
- *   [Blurb]{@link google.showcase.v1beta1.Blurb}. The API will be called under the hood as needed, once per the page,
+ *   {@link protos.google.showcase.v1beta1.Blurb|Blurb}. The API will be called under the hood as needed, once per the page,
  *   so you can stop the iteration when you don't need more results.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#auto-pagination | documentation }
  *   for more details and examples.
- * @example
- * const iterable = client.listBlurbsAsync(request);
- * for await (const response of iterable) {
- *   // process response
- * }
+ * @example <caption>include:samples/generated/v1beta1/messaging.list_blurbs.js</caption>
+ * region_tag:localhost_v1beta1_generated_Messaging_ListBlurbs_async
  */
   listBlurbsAsync(
       request?: protos.google.showcase.v1beta1.IListBlurbsRequest,
@@ -1474,15 +1484,15 @@ export class MessagingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
-    options = options || {};
-    const callSettings = new gax.CallSettings(options);
+    const defaultCallSettings = this._defaults['listBlurbs'];
+    const callSettings = defaultCallSettings.merge(options);
     this.initialize();
     return this.descriptors.page.listBlurbs.asyncIterate(
       this.innerApiCalls['listBlurbs'] as GaxCall,
-      request as unknown as RequestType,
+      request as {},
       callSettings
     ) as AsyncIterable<protos.google.showcase.v1beta1.IBlurb>;
   }
@@ -1542,109 +1552,155 @@ export class MessagingClient {
   /**
    * Return a fully-qualified room resource name string.
    *
-   * @param {string} room_id
+   * @param {string} room
    * @returns {string} Resource name string.
    */
-  roomPath(roomId:string) {
+  roomPath(room:string) {
     return this.pathTemplates.roomPathTemplate.render({
-      room_id: roomId,
+      room: room,
     });
   }
 
   /**
-   * Parse the room_id from Room resource.
+   * Parse the room from Room resource.
    *
    * @param {string} roomName
    *   A fully-qualified path representing Room resource.
-   * @returns {string} A string representing the room_id.
+   * @returns {string} A string representing the room.
    */
-  matchRoomIdFromRoomName(roomName: string) {
-    return this.pathTemplates.roomPathTemplate.match(roomName).room_id;
+  matchRoomFromRoomName(roomName: string) {
+    return this.pathTemplates.roomPathTemplate.match(roomName).room;
   }
 
   /**
-   * Return a fully-qualified roomIdBlurbId resource name string.
+   * Return a fully-qualified roomBlurb resource name string.
    *
-   * @param {string} room_id
-   * @param {string} blurb_id
+   * @param {string} room
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  roomIdBlurbIdPath(roomId:string,blurbId:string) {
-    return this.pathTemplates.roomIdBlurbIdPathTemplate.render({
-      room_id: roomId,
-      blurb_id: blurbId,
+  roomBlurbPath(room:string,blurb:string) {
+    return this.pathTemplates.roomBlurbPathTemplate.render({
+      room: room,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the room_id from RoomIdBlurbId resource.
+   * Parse the room from RoomBlurb resource.
    *
-   * @param {string} roomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurb_id resource.
-   * @returns {string} A string representing the room_id.
+   * @param {string} roomBlurbName
+   *   A fully-qualified path representing room_blurb resource.
+   * @returns {string} A string representing the room.
    */
-  matchRoomIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).room_id;
+  matchRoomFromRoomBlurbName(roomBlurbName: string) {
+    return this.pathTemplates.roomBlurbPathTemplate.match(roomBlurbName).room;
   }
 
   /**
-   * Parse the blurb_id from RoomIdBlurbId resource.
+   * Parse the blurb from RoomBlurb resource.
    *
-   * @param {string} roomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} roomBlurbName
+   *   A fully-qualified path representing room_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromRoomIdBlurbIdName(roomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbIdPathTemplate.match(roomIdBlurbIdName).blurb_id;
+  matchBlurbFromRoomBlurbName(roomBlurbName: string) {
+    return this.pathTemplates.roomBlurbPathTemplate.match(roomBlurbName).blurb;
   }
 
   /**
-   * Return a fully-qualified roomIdBlurbsLegacyRoomIdBlurbId resource name string.
+   * Return a fully-qualified roomBlurbsLegacyRoomBlurb resource name string.
    *
-   * @param {string} room_id
-   * @param {string} legacy_room_id
-   * @param {string} blurb_id
+   * @param {string} room
+   * @param {string} legacy_room
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  roomIdBlurbsLegacyRoomIdBlurbIdPath(roomId:string,legacyRoomId:string,blurbId:string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.render({
-      room_id: roomId,
-      legacy_room_id: legacyRoomId,
-      blurb_id: blurbId,
+  roomBlurbsLegacyRoomBlurbPath(room:string,legacyRoom:string,blurb:string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.render({
+      room: room,
+      legacy_room: legacyRoom,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the room_id from RoomIdBlurbsLegacyRoomIdBlurbId resource.
+   * Parse the room from RoomBlurbsLegacyRoomBlurb resource.
    *
-   * @param {string} roomIdBlurbsLegacyRoomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurbs_legacy_room_id_blurb_id resource.
-   * @returns {string} A string representing the room_id.
+   * @param {string} roomBlurbsLegacyRoomBlurbName
+   *   A fully-qualified path representing room_blurbs_legacy_room_blurb resource.
+   * @returns {string} A string representing the room.
    */
-  matchRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(roomIdBlurbsLegacyRoomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match(roomIdBlurbsLegacyRoomIdBlurbIdName).room_id;
+  matchRoomFromRoomBlurbsLegacyRoomBlurbName(roomBlurbsLegacyRoomBlurbName: string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match(roomBlurbsLegacyRoomBlurbName).room;
   }
 
   /**
-   * Parse the legacy_room_id from RoomIdBlurbsLegacyRoomIdBlurbId resource.
+   * Parse the legacy_room from RoomBlurbsLegacyRoomBlurb resource.
    *
-   * @param {string} roomIdBlurbsLegacyRoomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurbs_legacy_room_id_blurb_id resource.
-   * @returns {string} A string representing the legacy_room_id.
+   * @param {string} roomBlurbsLegacyRoomBlurbName
+   *   A fully-qualified path representing room_blurbs_legacy_room_blurb resource.
+   * @returns {string} A string representing the legacy_room.
    */
-  matchLegacyRoomIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(roomIdBlurbsLegacyRoomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match(roomIdBlurbsLegacyRoomIdBlurbIdName).legacy_room_id;
+  matchLegacyRoomFromRoomBlurbsLegacyRoomBlurbName(roomBlurbsLegacyRoomBlurbName: string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match(roomBlurbsLegacyRoomBlurbName).legacy_room;
   }
 
   /**
-   * Parse the blurb_id from RoomIdBlurbsLegacyRoomIdBlurbId resource.
+   * Parse the blurb from RoomBlurbsLegacyRoomBlurb resource.
    *
-   * @param {string} roomIdBlurbsLegacyRoomIdBlurbIdName
-   *   A fully-qualified path representing room_id_blurbs_legacy_room_id_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} roomBlurbsLegacyRoomBlurbName
+   *   A fully-qualified path representing room_blurbs_legacy_room_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromRoomIdBlurbsLegacyRoomIdBlurbIdName(roomIdBlurbsLegacyRoomIdBlurbIdName: string) {
-    return this.pathTemplates.roomIdBlurbsLegacyRoomIdBlurbIdPathTemplate.match(roomIdBlurbsLegacyRoomIdBlurbIdName).blurb_id;
+  matchBlurbFromRoomBlurbsLegacyRoomBlurbName(roomBlurbsLegacyRoomBlurbName: string) {
+    return this.pathTemplates.roomBlurbsLegacyRoomBlurbPathTemplate.match(roomBlurbsLegacyRoomBlurbName).blurb;
+  }
+
+  /**
+   * Return a fully-qualified sequence resource name string.
+   *
+   * @param {string} sequence
+   * @returns {string} Resource name string.
+   */
+  sequencePath(sequence:string) {
+    return this.pathTemplates.sequencePathTemplate.render({
+      sequence: sequence,
+    });
+  }
+
+  /**
+   * Parse the sequence from Sequence resource.
+   *
+   * @param {string} sequenceName
+   *   A fully-qualified path representing Sequence resource.
+   * @returns {string} A string representing the sequence.
+   */
+  matchSequenceFromSequenceName(sequenceName: string) {
+    return this.pathTemplates.sequencePathTemplate.match(sequenceName).sequence;
+  }
+
+  /**
+   * Return a fully-qualified sequenceReport resource name string.
+   *
+   * @param {string} sequence
+   * @returns {string} Resource name string.
+   */
+  sequenceReportPath(sequence:string) {
+    return this.pathTemplates.sequenceReportPathTemplate.render({
+      sequence: sequence,
+    });
+  }
+
+  /**
+   * Parse the sequence from SequenceReport resource.
+   *
+   * @param {string} sequenceReportName
+   *   A fully-qualified path representing SequenceReport resource.
+   * @returns {string} A string representing the sequence.
+   */
+  matchSequenceFromSequenceReportName(sequenceReportName: string) {
+    return this.pathTemplates.sequenceReportPathTemplate.match(sequenceReportName).sequence;
   }
 
   /**
@@ -1709,109 +1765,109 @@ export class MessagingClient {
   /**
    * Return a fully-qualified user resource name string.
    *
-   * @param {string} user_id
+   * @param {string} user
    * @returns {string} Resource name string.
    */
-  userPath(userId:string) {
+  userPath(user:string) {
     return this.pathTemplates.userPathTemplate.render({
-      user_id: userId,
+      user: user,
     });
   }
 
   /**
-   * Parse the user_id from User resource.
+   * Parse the user from User resource.
    *
    * @param {string} userName
    *   A fully-qualified path representing User resource.
-   * @returns {string} A string representing the user_id.
+   * @returns {string} A string representing the user.
    */
-  matchUserIdFromUserName(userName: string) {
-    return this.pathTemplates.userPathTemplate.match(userName).user_id;
+  matchUserFromUserName(userName: string) {
+    return this.pathTemplates.userPathTemplate.match(userName).user;
   }
 
   /**
-   * Return a fully-qualified userIdProfileBlurbId resource name string.
+   * Return a fully-qualified userProfileBlurb resource name string.
    *
-   * @param {string} user_id
-   * @param {string} blurb_id
+   * @param {string} user
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  userIdProfileBlurbIdPath(userId:string,blurbId:string) {
-    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.render({
-      user_id: userId,
-      blurb_id: blurbId,
+  userProfileBlurbPath(user:string,blurb:string) {
+    return this.pathTemplates.userProfileBlurbPathTemplate.render({
+      user: user,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the user_id from UserIdProfileBlurbId resource.
+   * Parse the user from UserProfileBlurb resource.
    *
-   * @param {string} userIdProfileBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurb_id resource.
-   * @returns {string} A string representing the user_id.
+   * @param {string} userProfileBlurbName
+   *   A fully-qualified path representing user_profile_blurb resource.
+   * @returns {string} A string representing the user.
    */
-  matchUserIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).user_id;
+  matchUserFromUserProfileBlurbName(userProfileBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbPathTemplate.match(userProfileBlurbName).user;
   }
 
   /**
-   * Parse the blurb_id from UserIdProfileBlurbId resource.
+   * Parse the blurb from UserProfileBlurb resource.
    *
-   * @param {string} userIdProfileBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} userProfileBlurbName
+   *   A fully-qualified path representing user_profile_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromUserIdProfileBlurbIdName(userIdProfileBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbIdPathTemplate.match(userIdProfileBlurbIdName).blurb_id;
+  matchBlurbFromUserProfileBlurbName(userProfileBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbPathTemplate.match(userProfileBlurbName).blurb;
   }
 
   /**
-   * Return a fully-qualified userIdProfileBlurbsLegacyUserIdBlurbId resource name string.
+   * Return a fully-qualified userProfileBlurbsLegacyUserBlurb resource name string.
    *
-   * @param {string} user_id
-   * @param {string} legacy_user_id
-   * @param {string} blurb_id
+   * @param {string} user
+   * @param {string} legacy_user
+   * @param {string} blurb
    * @returns {string} Resource name string.
    */
-  userIdProfileBlurbsLegacyUserIdBlurbIdPath(userId:string,legacyUserId:string,blurbId:string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.render({
-      user_id: userId,
-      legacy_user_id: legacyUserId,
-      blurb_id: blurbId,
+  userProfileBlurbsLegacyUserBlurbPath(user:string,legacyUser:string,blurb:string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.render({
+      user: user,
+      legacy_user: legacyUser,
+      blurb: blurb,
     });
   }
 
   /**
-   * Parse the user_id from UserIdProfileBlurbsLegacyUserIdBlurbId resource.
+   * Parse the user from UserProfileBlurbsLegacyUserBlurb resource.
    *
-   * @param {string} userIdProfileBlurbsLegacyUserIdBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurbs_legacy_user_id_blurb_id resource.
-   * @returns {string} A string representing the user_id.
+   * @param {string} userProfileBlurbsLegacyUserBlurbName
+   *   A fully-qualified path representing user_profile_blurbs_legacy_user_blurb resource.
+   * @returns {string} A string representing the user.
    */
-  matchUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(userIdProfileBlurbsLegacyUserIdBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match(userIdProfileBlurbsLegacyUserIdBlurbIdName).user_id;
+  matchUserFromUserProfileBlurbsLegacyUserBlurbName(userProfileBlurbsLegacyUserBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match(userProfileBlurbsLegacyUserBlurbName).user;
   }
 
   /**
-   * Parse the legacy_user_id from UserIdProfileBlurbsLegacyUserIdBlurbId resource.
+   * Parse the legacy_user from UserProfileBlurbsLegacyUserBlurb resource.
    *
-   * @param {string} userIdProfileBlurbsLegacyUserIdBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurbs_legacy_user_id_blurb_id resource.
-   * @returns {string} A string representing the legacy_user_id.
+   * @param {string} userProfileBlurbsLegacyUserBlurbName
+   *   A fully-qualified path representing user_profile_blurbs_legacy_user_blurb resource.
+   * @returns {string} A string representing the legacy_user.
    */
-  matchLegacyUserIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(userIdProfileBlurbsLegacyUserIdBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match(userIdProfileBlurbsLegacyUserIdBlurbIdName).legacy_user_id;
+  matchLegacyUserFromUserProfileBlurbsLegacyUserBlurbName(userProfileBlurbsLegacyUserBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match(userProfileBlurbsLegacyUserBlurbName).legacy_user;
   }
 
   /**
-   * Parse the blurb_id from UserIdProfileBlurbsLegacyUserIdBlurbId resource.
+   * Parse the blurb from UserProfileBlurbsLegacyUserBlurb resource.
    *
-   * @param {string} userIdProfileBlurbsLegacyUserIdBlurbIdName
-   *   A fully-qualified path representing user_id_profile_blurbs_legacy_user_id_blurb_id resource.
-   * @returns {string} A string representing the blurb_id.
+   * @param {string} userProfileBlurbsLegacyUserBlurbName
+   *   A fully-qualified path representing user_profile_blurbs_legacy_user_blurb resource.
+   * @returns {string} A string representing the blurb.
    */
-  matchBlurbIdFromUserIdProfileBlurbsLegacyUserIdBlurbIdName(userIdProfileBlurbsLegacyUserIdBlurbIdName: string) {
-    return this.pathTemplates.userIdProfileBlurbsLegacyUserIdBlurbIdPathTemplate.match(userIdProfileBlurbsLegacyUserIdBlurbIdName).blurb_id;
+  matchBlurbFromUserProfileBlurbsLegacyUserBlurbName(userProfileBlurbsLegacyUserBlurbName: string) {
+    return this.pathTemplates.userProfileBlurbsLegacyUserBlurbPathTemplate.match(userProfileBlurbsLegacyUserBlurbName).blurb;
   }
 
   /**
@@ -1821,11 +1877,11 @@ export class MessagingClient {
    * @returns {Promise} A promise that resolves when the client is closed.
    */
   close(): Promise<void> {
-    this.initialize();
-    if (!this._terminated) {
-      return this.messagingStub!.then(stub => {
+    if (this.messagingStub && !this._terminated) {
+      return this.messagingStub.then(stub => {
         this._terminated = true;
         stub.close();
+        this.operationsClient.close();
       });
     }
     return Promise.resolve();

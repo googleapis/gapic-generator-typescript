@@ -3,27 +3,27 @@ name: Test generator
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: gcr.io/gapic-images/googleapis-bazel:20210105
+    container: gcr.io/gapic-images/googleapis:20230531
     # Dockerfile for this image: https://github.com/googleapis/googleapis-discovery/blob/master/Dockerfile
     # If you update its version, please also update it below in
     # 'Cache Bazel files' - unfortunately it cannot accept variables at this
     # time.
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Cache Bazel files
       id: cache-bazel
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/bazel
-        key: ${{ runner.os }}-bazel-20210105-${{ secrets.CACHE_VERSION }}
+        key: ${{ runner.os }}-googleapis-20220711-${{ secrets.CACHE_VERSION }}
 
     - name: Cache not found
       if: steps.cache-bazel.outputs.cache-hit != 'true'
@@ -55,74 +55,34 @@ jobs:
         chmod +x bazel-bin/protoc_plugin.sh
         ./gapic-error-conformance -plugin="bazel-bin/protoc_plugin.sh"
 
-    - name: Run linting
-      run: bazel run @nodejs//:npm -- run lint
-
     - name: Prepare baseline artifacts
       run: |
-        mkdir -p ~/artifacts/test-application-runners
-        tar cfz ~/artifacts/test-protos.tar.gz -C test-fixtures protos
-        cp bazel-bin/typescript/test/test-application/test-*.js ~/artifacts/test-application-runners/
+        mkdir -p ~/artifacts
         cp bazel-testlogs/unit_tests/test.outputs/outputs.zip ~/artifacts/
+        bazel run -- @pnpm//:pnpm --dir $PWD install
         tar cfz ~/artifacts/node_modules.tar.gz node_modules
 
     - name: Save artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: artifacts
         path: ~/artifacts
-
-  showcase-test-application:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # Test on the oldest and the newest supported version just in case
-        node-version: [10.x, 14.x]
-        test: [js, ts]
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-
-    - name: Download artifacts
-      uses: actions/download-artifact@v2
-      with:
-        name: artifacts
-        path: ~/artifacts
-
-    - name: Prepare test applications
-      run: |
-        rm -f bazel-testlogs
-        mkdir -p bazel-testlogs/unit_tests/test.outputs
-        mv ~/artifacts/outputs.zip bazel-testlogs/unit_tests/test.outputs/
-        tar xzf ~/artifacts/node_modules.tar.gz
-        mv ~/artifacts/test-application-runners/test-${{ matrix.test }}.js .
-
-    - name: Run ${{ matrix.test }} test application
-      run: npx mocha test-${{ matrix.test }}.js
-      env:
-        NPM_CONFIG_PREFIX: /tmp/.npm-global
 
   lib-tests:
     needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x]
-        lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech]
+        node-version: [14.x]
+        lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech, showcase-legacy, compute, logging]
     steps:
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
 
     - name: Download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: artifacts
         path: ~/artifacts
@@ -139,6 +99,8 @@ jobs:
         npm install
         npm test
         npm run fix
+        # Second compile to make sure "gts fix" did not break the code, it happens!
+        rm -rf build
         npm run compile
         npm run system-test
         npm run docs

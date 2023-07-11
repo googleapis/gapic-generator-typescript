@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,12 +20,25 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as servicemonitoringserviceModule from '../src';
 
 import {PassThrough} from 'stream';
 
 import {protobuf} from 'google-gax';
+
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -87,126 +100,145 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v3.ServiceMonitoringServiceClient', () => {
-    it('has servicePath', () => {
-        const servicePath = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('has apiEndpoint', () => {
+            const apiEndpoint = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.apiEndpoint;
+            assert(apiEndpoint);
         });
-        assert.strictEqual(client.serviceMonitoringServiceStub, undefined);
-        await client.initialize();
-        assert(client.serviceMonitoringServiceStub);
-    });
 
-    it('has close method', () => {
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('has port', () => {
+            const port = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.port;
+            assert(port);
+            assert(typeof port === 'number');
         });
-        client.close();
-    });
 
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('should create a client with no option', () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient();
+            assert(client);
         });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
 
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('should create a client with gRPC fallback', () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+                fallback: true,
+            });
+            assert(client);
         });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.serviceMonitoringServiceStub, undefined);
+            await client.initialize();
+            assert(client.serviceMonitoringServiceStub);
+        });
+
+        it('has close method for the initialized client', done => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            assert(client.serviceMonitoringServiceStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.serviceMonitoringServiceStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('createService', () => {
         it('invokes createService without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.Service());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateServiceRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.Service()
+            );
             client.innerApiCalls.createService = stubSimpleCall(expectedResponse);
             const [response] = await client.createService(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createService without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.Service());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateServiceRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.Service()
+            );
             client.innerApiCalls.createService = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createService(
@@ -221,76 +253,100 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.createService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createService with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateServiceRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createService = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createService(request), expectedError);
-            assert((client.innerApiCalls.createService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes createService with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateServiceRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createService(request), expectedError);
         });
     });
 
     describe('getService', () => {
         it('invokes getService without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.Service());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetServiceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.Service()
+            );
             client.innerApiCalls.getService = stubSimpleCall(expectedResponse);
             const [response] = await client.getService(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getService without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.Service());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetServiceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.Service()
+            );
             client.innerApiCalls.getService = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getService(
@@ -305,78 +361,102 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getService with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetServiceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getService = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getService(request), expectedError);
-            assert((client.innerApiCalls.getService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes getService with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetServiceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getService(request), expectedError);
         });
     });
 
     describe('updateService', () => {
         it('invokes updateService without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
-            request.service = {};
-            request.service.name = '';
-            const expectedHeaderRequestParams = "service.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.Service());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateServiceRequest()
+            );
+            request.service ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateServiceRequest', ['service', 'name']);
+            request.service.name = defaultValue1;
+            const expectedHeaderRequestParams = `service.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.Service()
+            );
             client.innerApiCalls.updateService = stubSimpleCall(expectedResponse);
             const [response] = await client.updateService(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateService without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
-            request.service = {};
-            request.service.name = '';
-            const expectedHeaderRequestParams = "service.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.Service());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateServiceRequest()
+            );
+            request.service ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateServiceRequest', ['service', 'name']);
+            request.service.name = defaultValue1;
+            const expectedHeaderRequestParams = `service.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.Service()
+            );
             client.innerApiCalls.updateService = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.updateService(
@@ -391,77 +471,102 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.updateService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateService with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceRequest());
-            request.service = {};
-            request.service.name = '';
-            const expectedHeaderRequestParams = "service.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateServiceRequest()
+            );
+            request.service ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateServiceRequest', ['service', 'name']);
+            request.service.name = defaultValue1;
+            const expectedHeaderRequestParams = `service.name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateService = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateService(request), expectedError);
-            assert((client.innerApiCalls.updateService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes updateService with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateServiceRequest()
+            );
+            request.service ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateServiceRequest', ['service', 'name']);
+            request.service.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateService(request), expectedError);
         });
     });
 
     describe('deleteService', () => {
         it('invokes deleteService without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteServiceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteService = stubSimpleCall(expectedResponse);
             const [response] = await client.deleteService(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteService without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteServiceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteService = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.deleteService(
@@ -476,76 +581,100 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.deleteService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteService with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteServiceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteService = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteService(request), expectedError);
-            assert((client.innerApiCalls.deleteService as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteService as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteService as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes deleteService with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteServiceRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteServiceRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteService(request), expectedError);
         });
     });
 
     describe('createServiceLevelObjective', () => {
         it('invokes createServiceLevelObjective without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateServiceLevelObjectiveRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.ServiceLevelObjective()
+            );
             client.innerApiCalls.createServiceLevelObjective = stubSimpleCall(expectedResponse);
             const [response] = await client.createServiceLevelObjective(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createServiceLevelObjective without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateServiceLevelObjectiveRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.ServiceLevelObjective()
+            );
             client.innerApiCalls.createServiceLevelObjective = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createServiceLevelObjective(
@@ -560,76 +689,100 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.createServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createServiceLevelObjective with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateServiceLevelObjectiveRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createServiceLevelObjective = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createServiceLevelObjective(request), expectedError);
-            assert((client.innerApiCalls.createServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes createServiceLevelObjective with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateServiceLevelObjectiveRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createServiceLevelObjective(request), expectedError);
         });
     });
 
     describe('getServiceLevelObjective', () => {
         it('invokes getServiceLevelObjective without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetServiceLevelObjectiveRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.ServiceLevelObjective()
+            );
             client.innerApiCalls.getServiceLevelObjective = stubSimpleCall(expectedResponse);
             const [response] = await client.getServiceLevelObjective(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getServiceLevelObjective without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetServiceLevelObjectiveRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.ServiceLevelObjective()
+            );
             client.innerApiCalls.getServiceLevelObjective = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getServiceLevelObjective(
@@ -644,78 +797,102 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getServiceLevelObjective with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetServiceLevelObjectiveRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getServiceLevelObjective = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getServiceLevelObjective(request), expectedError);
-            assert((client.innerApiCalls.getServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes getServiceLevelObjective with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetServiceLevelObjectiveRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getServiceLevelObjective(request), expectedError);
         });
     });
 
     describe('updateServiceLevelObjective', () => {
         it('invokes updateServiceLevelObjective without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
-            request.serviceLevelObjective = {};
-            request.serviceLevelObjective.name = '';
-            const expectedHeaderRequestParams = "service_level_objective.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest()
+            );
+            request.serviceLevelObjective ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateServiceLevelObjectiveRequest', ['serviceLevelObjective', 'name']);
+            request.serviceLevelObjective.name = defaultValue1;
+            const expectedHeaderRequestParams = `service_level_objective.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.ServiceLevelObjective()
+            );
             client.innerApiCalls.updateServiceLevelObjective = stubSimpleCall(expectedResponse);
             const [response] = await client.updateServiceLevelObjective(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateServiceLevelObjective without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
-            request.serviceLevelObjective = {};
-            request.serviceLevelObjective.name = '';
-            const expectedHeaderRequestParams = "service_level_objective.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest()
+            );
+            request.serviceLevelObjective ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateServiceLevelObjectiveRequest', ['serviceLevelObjective', 'name']);
+            request.serviceLevelObjective.name = defaultValue1;
+            const expectedHeaderRequestParams = `service_level_objective.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.ServiceLevelObjective()
+            );
             client.innerApiCalls.updateServiceLevelObjective = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.updateServiceLevelObjective(
@@ -730,77 +907,102 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.updateServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateServiceLevelObjective with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest());
-            request.serviceLevelObjective = {};
-            request.serviceLevelObjective.name = '';
-            const expectedHeaderRequestParams = "service_level_objective.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest()
+            );
+            request.serviceLevelObjective ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateServiceLevelObjectiveRequest', ['serviceLevelObjective', 'name']);
+            request.serviceLevelObjective.name = defaultValue1;
+            const expectedHeaderRequestParams = `service_level_objective.name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateServiceLevelObjective = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateServiceLevelObjective(request), expectedError);
-            assert((client.innerApiCalls.updateServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes updateServiceLevelObjective with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateServiceLevelObjectiveRequest()
+            );
+            request.serviceLevelObjective ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateServiceLevelObjectiveRequest', ['serviceLevelObjective', 'name']);
+            request.serviceLevelObjective.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateServiceLevelObjective(request), expectedError);
         });
     });
 
     describe('deleteServiceLevelObjective', () => {
         it('invokes deleteServiceLevelObjective without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteServiceLevelObjectiveRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteServiceLevelObjective = stubSimpleCall(expectedResponse);
             const [response] = await client.deleteServiceLevelObjective(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteServiceLevelObjective without error using callback', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteServiceLevelObjectiveRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteServiceLevelObjective = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.deleteServiceLevelObjective(
@@ -815,31 +1017,53 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteServiceLevelObjective with error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteServiceLevelObjectiveRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteServiceLevelObjective = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteServiceLevelObjective(request), expectedError);
-            assert((client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteServiceLevelObjective as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes deleteServiceLevelObjective with closed client', async () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteServiceLevelObjectiveRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteServiceLevelObjectiveRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteServiceLevelObjective(request), expectedError);
         });
     });
 
@@ -850,17 +1074,13 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServicesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
@@ -868,8 +1088,12 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             client.innerApiCalls.listServices = stubSimpleCall(expectedResponse);
             const [response] = await client.listServices(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listServices as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listServices as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listServices as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listServices without error using callback', async () => {
@@ -878,17 +1102,13 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServicesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
@@ -907,8 +1127,12 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listServices as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.listServices as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listServices as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listServices with error', async () => {
@@ -917,21 +1141,22 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServicesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listServices = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listServices(request), expectedError);
-            assert((client.innerApiCalls.listServices as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listServices as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listServices as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listServicesStream without error', async () => {
@@ -940,9 +1165,13 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServicesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
@@ -966,10 +1195,11 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listServices.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listServices, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listServices.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -979,9 +1209,13 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServicesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.descriptors.page.listServices.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listServicesStream(request);
@@ -1000,22 +1234,28 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.listServices.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listServices, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listServices.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                         expectedHeaderRequestParams
+                    ) 
             );
         });
 
         it('uses async iteration with listServices without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServicesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
@@ -1030,10 +1270,11 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listServices.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listServices.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -1043,9 +1284,14 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServicesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServicesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedError = new Error('expected');
             client.descriptors.page.listServices.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listServicesAsync(request);
             await assert.rejects(async () => {
@@ -1057,10 +1303,11 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listServices.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listServices.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });
@@ -1072,17 +1319,13 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
@@ -1090,8 +1333,12 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             client.innerApiCalls.listServiceLevelObjectives = stubSimpleCall(expectedResponse);
             const [response] = await client.listServiceLevelObjectives(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listServiceLevelObjectives as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listServiceLevelObjectives as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listServiceLevelObjectives as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listServiceLevelObjectives without error using callback', async () => {
@@ -1100,17 +1347,13 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
@@ -1129,8 +1372,12 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listServiceLevelObjectives as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.listServiceLevelObjectives as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listServiceLevelObjectives as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listServiceLevelObjectives with error', async () => {
@@ -1139,21 +1386,22 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listServiceLevelObjectives = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listServiceLevelObjectives(request), expectedError);
-            assert((client.innerApiCalls.listServiceLevelObjectives as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listServiceLevelObjectives as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listServiceLevelObjectives as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listServiceLevelObjectivesStream without error', async () => {
@@ -1162,9 +1410,13 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
@@ -1188,10 +1440,11 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listServiceLevelObjectives.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listServiceLevelObjectives, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listServiceLevelObjectives.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -1201,9 +1454,13 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.descriptors.page.listServiceLevelObjectives.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listServiceLevelObjectivesStream(request);
@@ -1222,22 +1479,28 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.listServiceLevelObjectives.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listServiceLevelObjectives, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listServiceLevelObjectives.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                         expectedHeaderRequestParams
+                    ) 
             );
         });
 
         it('uses async iteration with listServiceLevelObjectives without error', async () => {
             const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
@@ -1252,10 +1515,11 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listServiceLevelObjectives.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listServiceLevelObjectives.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -1265,9 +1529,14 @@ describe('v3.ServiceMonitoringServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListServiceLevelObjectivesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedError = new Error('expected');
             client.descriptors.page.listServiceLevelObjectives.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listServiceLevelObjectivesAsync(request);
             await assert.rejects(async () => {
@@ -1279,10 +1548,11 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listServiceLevelObjectives.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listServiceLevelObjectives.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });

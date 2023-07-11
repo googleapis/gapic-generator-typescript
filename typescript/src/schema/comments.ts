@@ -12,7 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../../protos';
+import type * as protos from '../../../protos/index.js';
+
+// Copied from FieldDescriptorProto to simplify the build
+export enum Type {
+  TYPE_DOUBLE = 1,
+  TYPE_FLOAT = 2,
+  TYPE_INT64 = 3,
+  TYPE_UINT64 = 4,
+  TYPE_INT32 = 5,
+  TYPE_FIXED64 = 6,
+  TYPE_FIXED32 = 7,
+  TYPE_BOOL = 8,
+  TYPE_STRING = 9,
+  TYPE_GROUP = 10,
+  TYPE_MESSAGE = 11,
+  TYPE_BYTES = 12,
+  TYPE_UINT32 = 13,
+  TYPE_ENUM = 14,
+  TYPE_SFIXED32 = 15,
+  TYPE_SFIXED64 = 16,
+  TYPE_SINT32 = 17,
+  TYPE_SINT64 = 18,
+}
 
 // For one comment in service and method level, paramName & paramName will be ''.
 // Only field has name and type of parameters.
@@ -39,7 +61,7 @@ export class CommentsMap {
     for (const fd of fds) {
       if (fd && fd.sourceCodeInfo && fd.sourceCodeInfo.location) {
         const locations = fd.sourceCodeInfo.location;
-        locations.forEach(location => {
+        for (const location of locations) {
           if (location.leadingComments !== null) {
             // p is an array with format [f1, i1, f2, i2, ...]
             // - f1 refers to the protobuf field tag
@@ -49,8 +71,8 @@ export class CommentsMap {
             // since the field tag of Service is 6.
             // [6, x, 2, y] refers to the yth method in that service,
             // since the field tag of Method is 2.
-            const p = location.path!;
-            if (p.length === 2 && p[0] === 6) {
+            const p = location.path;
+            if (p && p.length === 2 && p[0] === 6) {
               if (fd.service && fd.service[p[1]] && fd.service[p[1]].name) {
                 const serviceName = fd.service[p[1]].name!;
                 const comments = (location.leadingComments || '')
@@ -63,7 +85,7 @@ export class CommentsMap {
                 };
                 commentsMap[serviceName] = serviceComment;
               }
-            } else if (p.length === 4 && p[2] === 2 && p[0] === 6) {
+            } else if (p && p.length === 4 && p[2] === 2 && p[0] === 6) {
               if (
                 fd.service &&
                 fd.service[p[1]] &&
@@ -85,7 +107,7 @@ export class CommentsMap {
                   commentsMap[key] = methodComment;
                 }
               }
-            } else if (p.length === 4 && p[0] === 4 && p[2] === 2) {
+            } else if (p && p.length === 4 && p[0] === 4 && p[2] === 2) {
               // This contains a field's information
               // example, this path:
               //   [ 4, 3, 2, 7, 1 ]
@@ -108,11 +130,8 @@ export class CommentsMap {
                 const messageType = fd.messageType[p[1]].name;
                 const field = fd.messageType[p[1]].field![p[3]];
                 if (field) {
-                  //Type Enum: TYPE_STRING, TYPE_BOOL, etc.
-                  let paramType =
-                    protos.google.protobuf.FieldDescriptorProto.Type[
-                      field.type!
-                    ];
+                  // Type Enum: TYPE_STRING, TYPE_BOOL, etc.
+                  let paramType = Type[field.type!];
                   // If field.label is 'REPEATED' then the paramType is an array.
                   if (field.label === 3) {
                     paramType += '[]';
@@ -145,7 +164,7 @@ export class CommentsMap {
               }
             }
           }
-        });
+        }
         this.comments = commentsMap;
       }
     }

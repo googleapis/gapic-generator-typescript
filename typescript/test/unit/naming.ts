@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as assert from 'assert';
+import assert from 'assert';
 import {describe, it} from 'mocha';
-import * as protos from '../../../protos';
-import {Naming, Options} from '../../src/schema/naming';
+import type * as protos from '../../../protos/index.js';
+import {Naming, Options} from '../../src/schema/naming.js';
 
 describe('src/schema/naming.ts', () => {
   it('parses name correctly', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
-    const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
+    const descriptor2 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'google.namespace.service.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     descriptor2.package = 'google.namespace.service.v1beta1';
-    descriptor2.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor2.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     const naming = new Naming([descriptor1, descriptor2]);
     assert.strictEqual(naming.name, 'Service');
     assert.strictEqual(naming.productName, 'Service');
@@ -34,9 +34,9 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('parses name correctly 2', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'service.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     const naming = new Naming([descriptor1]);
     assert.strictEqual(naming.name, 'Service');
     assert.strictEqual(naming.productName, 'Service');
@@ -46,9 +46,9 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('parses name correctly 3', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'company.service.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     const naming = new Naming([descriptor1]);
     assert.strictEqual(naming.name, 'Service');
     assert.strictEqual(naming.productName, 'Service');
@@ -58,9 +58,9 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('ignores everything after the version', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'company.service.v1beta1.unexpected';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     const naming = new Naming([descriptor1]);
     assert.strictEqual(naming.name, 'Service');
     assert.strictEqual(naming.productName, 'Service');
@@ -73,10 +73,10 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('ignores files with no services when determining package name', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
-    const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
+    const descriptor2 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'google.namespace.service.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     descriptor2.package = 'google.namespace.service.v1beta2';
     const naming = new Naming([descriptor1, descriptor2]);
     assert.strictEqual(naming.name, 'Service');
@@ -87,12 +87,12 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('ignores LRO files when determining package name', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
-    const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
+    const descriptor2 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'google.namespace.service.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     descriptor2.package = 'google.longrunning';
-    descriptor2.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor2.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     const naming = new Naming([descriptor1, descriptor2]);
     assert.strictEqual(naming.name, 'Service');
     assert.strictEqual(naming.productName, 'Service');
@@ -102,12 +102,12 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('ignores IAM files when determining package name', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
-    const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
+    const descriptor2 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'google.namespace.service.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     descriptor2.package = 'google.iam.v1';
-    descriptor2.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor2.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     const naming = new Naming([descriptor1, descriptor2]);
     assert.strictEqual(naming.name, 'Service');
     assert.strictEqual(naming.productName, 'Service');
@@ -117,9 +117,9 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('determines package name for IAM alone', () => {
-    const descriptor = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor.package = 'google.iam.v1';
-    descriptor.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     const naming = new Naming([descriptor]);
     assert.strictEqual(naming.name, 'Iam');
     assert.strictEqual(naming.productName, 'Iam');
@@ -129,9 +129,9 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('fails on bad package name 1', () => {
-    const descriptor = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor.package = 'nonamespace';
-    descriptor.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     assert.throws(() => {
       const naming = new Naming([descriptor]);
       assert(naming);
@@ -139,9 +139,9 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('fails on bad package name 2', () => {
-    const descriptor = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor.package = '---';
-    descriptor.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     assert.throws(() => {
       const naming = new Naming([descriptor]);
       assert(naming);
@@ -149,9 +149,9 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('fails on no package name', () => {
-    const descriptor = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor.package = '';
-    descriptor.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     assert.throws(() => {
       const naming = new Naming([descriptor]);
       assert(naming);
@@ -159,12 +159,12 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('fails if no common package, no service-name', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
-    const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
+    const descriptor2 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'namespace1.service.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     descriptor2.package = 'namespace2.service.v1beta1';
-    descriptor2.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor2.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     assert.throws(() => {
       const naming = new Naming([descriptor1, descriptor2]);
       assert(naming);
@@ -172,13 +172,13 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('parse name correctly if no common package, but service-name specified', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
-    const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
+    const descriptor2 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'namespace1.service1.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     descriptor2.package = 'namespace2.service2.v1beta1';
-    descriptor2.service = [new protos.google.protobuf.ServiceDescriptorProto()];
-    const serviceConfig = new protos.grpc.service_config.ServiceConfig();
+    descriptor2.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+    const serviceConfig = {} as protos.grpc.service_config.ServiceConfig;
     const options: Options = {
       grpcServiceConfig: serviceConfig,
       mainServiceName: 'service1',
@@ -194,12 +194,12 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('fails if different versions', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
-    const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
+    const descriptor2 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'namespace.service.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     descriptor2.package = 'namespace.service.v1beta2';
-    descriptor2.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor2.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     assert.throws(() => {
       const naming = new Naming([descriptor1, descriptor2]);
       assert(naming);
@@ -207,12 +207,12 @@ describe('src/schema/naming.ts', () => {
   });
 
   it('fails if not all packages have versions', () => {
-    const descriptor1 = new protos.google.protobuf.FileDescriptorProto();
-    const descriptor2 = new protos.google.protobuf.FileDescriptorProto();
+    const descriptor1 = {} as protos.google.protobuf.FileDescriptorProto;
+    const descriptor2 = {} as protos.google.protobuf.FileDescriptorProto;
     descriptor1.package = 'namespace.service.v1beta1';
-    descriptor1.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor1.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     descriptor2.package = 'namespace.service';
-    descriptor2.service = [new protos.google.protobuf.ServiceDescriptorProto()];
+    descriptor2.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
     assert.throws(() => {
       const naming = new Naming([descriptor1, descriptor2]);
       assert(naming);

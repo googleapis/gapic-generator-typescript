@@ -1,5 +1,500 @@
 # Changelog
 
+## [3.0.7](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.6...v3.0.7) (2023-06-01)
+
+
+### Bug Fixes
+
+* Do not generate docs-test script ([#1391](https://github.com/googleapis/gapic-generator-typescript/issues/1391)) ([fe5af77](https://github.com/googleapis/gapic-generator-typescript/commit/fe5af77e3dcc9b28eebc2243e8fc497116af0a15))
+* Remove linkinator config ([#1395](https://github.com/googleapis/gapic-generator-typescript/issues/1395)) ([4b21891](https://github.com/googleapis/gapic-generator-typescript/commit/4b21891966bf1347a928eb5e0c732406e945366c))
+
+## [3.0.6](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.5...v3.0.6) (2023-05-16)
+
+
+### Bug Fixes
+
+* Add explicit Bazel dependency on protos.json ([#1383](https://github.com/googleapis/gapic-generator-typescript/issues/1383)) ([dcc686f](https://github.com/googleapis/gapic-generator-typescript/commit/dcc686f2bbf3337640bf8385d1e511a54f41b2bd))
+* **deps:** Update dependency google-gax to ^3.6.0 ([#1369](https://github.com/googleapis/gapic-generator-typescript/issues/1369)) ([1d0d6f6](https://github.com/googleapis/gapic-generator-typescript/commit/1d0d6f6f58cad6cd62ac500be79c5642db2a2b27))
+* **deps:** Update dependency long to ^5.2.3 ([#1365](https://github.com/googleapis/gapic-generator-typescript/issues/1365)) ([d6ef18a](https://github.com/googleapis/gapic-generator-typescript/commit/d6ef18a1c7204fdb86a60fa8961f0a9508a71e31))
+* **deps:** Update dependency nunjucks to ^3.2.4 ([#1366](https://github.com/googleapis/gapic-generator-typescript/issues/1366)) ([54d9c80](https://github.com/googleapis/gapic-generator-typescript/commit/54d9c8075033346fd91e259b3fa5d526f9497e51))
+* **deps:** Update dependency proto3-json-serializer to ^1.1.1 ([#1372](https://github.com/googleapis/gapic-generator-typescript/issues/1372)) ([11684ec](https://github.com/googleapis/gapic-generator-typescript/commit/11684ec2f024edb4eedd4109c1a58d0e5b0ba244))
+* **deps:** Update dependency yargs to ^17.7.2 ([#1374](https://github.com/googleapis/gapic-generator-typescript/issues/1374)) ([d127f57](https://github.com/googleapis/gapic-generator-typescript/commit/d127f57998b1f758dc423f10889d1d51fc639a53))
+* Replace markdown links with tsdoc compatible link tags ([#1361](https://github.com/googleapis/gapic-generator-typescript/issues/1361)) ([9bc27d5](https://github.com/googleapis/gapic-generator-typescript/commit/9bc27d5bd6bd4cd63e33d05a3d00fa62f4f527d8))
+
+## [3.0.5](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.4...v3.0.5) (2023-03-27)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^3.5.8 ([#1356](https://github.com/googleapis/gapic-generator-typescript/issues/1356)) ([3ea002b](https://github.com/googleapis/gapic-generator-typescript/commit/3ea002bef7a8aa72e86cccf51ae3317ba781c256))
+* Ensure links are prefixed with "protos." ([#1351](https://github.com/googleapis/gapic-generator-typescript/issues/1351)) ([ca2387f](https://github.com/googleapis/gapic-generator-typescript/commit/ca2387f21af8c808293df2f5049ffee22358f49b))
+
+## [3.0.4](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.3...v3.0.4) (2023-03-02)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency yargs to ^17.7.0 ([#1336](https://github.com/googleapis/gapic-generator-typescript/issues/1336)) ([f5b43e2](https://github.com/googleapis/gapic-generator-typescript/commit/f5b43e2631b9779df14481c9399fc0d6d823edff))
+* **deps:** Update dependency yargs to ^17.7.1 ([#1342](https://github.com/googleapis/gapic-generator-typescript/issues/1342)) ([88e21f5](https://github.com/googleapis/gapic-generator-typescript/commit/88e21f517eada3a001e908065c6eaaac5b5ace0b))
+* Rename snippet metadata file ([#1343](https://github.com/googleapis/gapic-generator-typescript/issues/1343)) ([fbab492](https://github.com/googleapis/gapic-generator-typescript/commit/fbab4920e70d63a22f9941980511ed29cc69d937))
+* Update generated samples to reflect string arrays ([#1331](https://github.com/googleapis/gapic-generator-typescript/issues/1331)) ([e49e945](https://github.com/googleapis/gapic-generator-typescript/commit/e49e9450eaebd5da8f7be1efaf71f3fda3317a2e))
+
+## [3.0.3](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.2...v3.0.3) (2023-02-13)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^3.5.7 ([#1323](https://github.com/googleapis/gapic-generator-typescript/issues/1323)) ([178dcf0](https://github.com/googleapis/gapic-generator-typescript/commit/178dcf039caa7bedf24e779e9f829effae11de81))
+* Do not fail if service yaml does not list any apis ([#1325](https://github.com/googleapis/gapic-generator-typescript/issues/1325)) ([28a980a](https://github.com/googleapis/gapic-generator-typescript/commit/28a980a42e7d49d3b90b0cf1391e3b6f8348547e))
+* Make error message more visible ([#1330](https://github.com/googleapis/gapic-generator-typescript/issues/1330)) ([9c53c64](https://github.com/googleapis/gapic-generator-typescript/commit/9c53c648871718585a015566e940f4267bc4297b))
+* Use correct syntax for inline link tags ([#1328](https://github.com/googleapis/gapic-generator-typescript/issues/1328)) ([801a54d](https://github.com/googleapis/gapic-generator-typescript/commit/801a54d450c1b770593f54731161093009626d1e))
+* Use the official rules_ts ([#1329](https://github.com/googleapis/gapic-generator-typescript/issues/1329)) ([4aef706](https://github.com/googleapis/gapic-generator-typescript/commit/4aef70624d39b904000aa201100c87dfd5b8ea05))
+
+## [3.0.2](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.1...v3.0.2) (2023-02-09)
+
+
+### Bug Fixes
+
+* Add condition for IAM mixin for stubSimpleCall in gapic_$service_$version.ts.njk ([#1321](https://github.com/googleapis/gapic-generator-typescript/issues/1321)) ([22197aa](https://github.com/googleapis/gapic-generator-typescript/commit/22197aa0b2c469a2c225df8df08708b76e0c334c))
+
+## [3.0.1](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.0...v3.0.1) (2023-02-06)
+
+
+### Bug Fixes
+
+* Only ignore folders in the top level ([#1318](https://github.com/googleapis/gapic-generator-typescript/issues/1318)) ([c6b0bfe](https://github.com/googleapis/gapic-generator-typescript/commit/c6b0bfea43b1269a937a53b1e0cce7189a60766b))
+
+## [3.0.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.18.2...v3.0.0) (2023-02-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* convert to ESM, use Aspect build rules ([#1307](https://github.com/googleapis/gapic-generator-typescript/issues/1307))
+
+### Features
+
+* Convert to ESM, use Aspect build rules ([#1307](https://github.com/googleapis/gapic-generator-typescript/issues/1307)) ([1653bb0](https://github.com/googleapis/gapic-generator-typescript/commit/1653bb0352c0ee4b53a9c005e97cc19e79aa067c))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^3.5.6 ([#1310](https://github.com/googleapis/gapic-generator-typescript/issues/1310)) ([dbebd2a](https://github.com/googleapis/gapic-generator-typescript/commit/dbebd2a12e02f72d9859f7b3cfcb294493f11c67))
+* **deps:** Update dependency yargs to ^17.6.0 ([#1282](https://github.com/googleapis/gapic-generator-typescript/issues/1282)) ([5291da0](https://github.com/googleapis/gapic-generator-typescript/commit/5291da08e9db0bc7e694f7ce5142a98a5e3cf682))
+* Update .gitignore file to include everything in the proto folder ([#1304](https://github.com/googleapis/gapic-generator-typescript/issues/1304)) ([d1d7399](https://github.com/googleapis/gapic-generator-typescript/commit/d1d7399c613535efbe0f93bc29faa413ba5f264a))
+
+## [2.18.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.18.1...v2.18.2) (2022-09-27)
+
+
+### Bug Fixes
+
+* Mixins override command line processing ([#1277](https://github.com/googleapis/gapic-generator-typescript/issues/1277)) ([03bf5a7](https://github.com/googleapis/gapic-generator-typescript/commit/03bf5a73cf09abf2a394a13d7ceb4a05adf6912d))
+
+## [2.18.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.18.0...v2.18.1) (2022-09-23)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^3.5.2 ([#1271](https://github.com/googleapis/gapic-generator-typescript/issues/1271)) ([8b1c234](https://github.com/googleapis/gapic-generator-typescript/commit/8b1c23453c0dbd4aa440d6b78fcaf455abfdf091))
+* **deps:** Update dependency protobufjs to ^7.1.2 ([#1272](https://github.com/googleapis/gapic-generator-typescript/issues/1272)) ([9dfd102](https://github.com/googleapis/gapic-generator-typescript/commit/9dfd1020db6ca3b6e84b24c4e35bcbb4eca7fe85))
+
+## [2.18.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.17.0...v2.18.0) (2022-09-20)
+
+
+### Features
+
+* An option to override mixins ([#1266](https://github.com/googleapis/gapic-generator-typescript/issues/1266)) ([2546855](https://github.com/googleapis/gapic-generator-typescript/commit/2546855c516ca93417db1f0ad993604ebb85f43f))
+
+
+### Bug Fixes
+
+* Remove LRO mixin if there are no LRO methods ([#1262](https://github.com/googleapis/gapic-generator-typescript/issues/1262)) ([2d28ae4](https://github.com/googleapis/gapic-generator-typescript/commit/2d28ae41121e298e9078f2ef190c4224e39273ab))
+* Use fully qualified request type name in tests ([#1267](https://github.com/googleapis/gapic-generator-typescript/issues/1267)) ([238156e](https://github.com/googleapis/gapic-generator-typescript/commit/238156ed0352e7d9729ab2eca24ef274b7436419))
+
+## [2.17.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.16.1...v2.17.0) (2022-09-14)
+
+
+### Features
+
+* Option to request REST numeric enum values ([#1251](https://github.com/googleapis/gapic-generator-typescript/issues/1251)) ([38427db](https://github.com/googleapis/gapic-generator-typescript/commit/38427db4f4e6131ce1013073ab22afc593ef891b))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^3.4.0 ([#1240](https://github.com/googleapis/gapic-generator-typescript/issues/1240)) ([e1307ad](https://github.com/googleapis/gapic-generator-typescript/commit/e1307ad18b86442491a48ef3e4b999bde17573d9))
+* **deps:** Update dependency google-gax to ^3.5.0 ([#1247](https://github.com/googleapis/gapic-generator-typescript/issues/1247)) ([d62fea1](https://github.com/googleapis/gapic-generator-typescript/commit/d62fea15263f3008484c18828ecbc082323e3c12))
+* **deps:** Update dependency google-gax to ^3.5.1 ([#1257](https://github.com/googleapis/gapic-generator-typescript/issues/1257)) ([52a84fe](https://github.com/googleapis/gapic-generator-typescript/commit/52a84fead40fa4d28b0be8694eaca8da169dc23f))
+* **deps:** Update dependency protobufjs to ^7.1.1 ([#1256](https://github.com/googleapis/gapic-generator-typescript/issues/1256)) ([d903269](https://github.com/googleapis/gapic-generator-typescript/commit/d903269a1de54d597530e1b97ea2fe778a468b06))
+* Minify proto JSONs in the build folder of the generated library ([#1258](https://github.com/googleapis/gapic-generator-typescript/issues/1258)) ([b0c2325](https://github.com/googleapis/gapic-generator-typescript/commit/b0c232510ad25f0580e12f80e118e0c38a4db353))
+* Preserve default values in x-goog-request-params ([#1250](https://github.com/googleapis/gapic-generator-typescript/issues/1250)) ([#1248](https://github.com/googleapis/gapic-generator-typescript/issues/1248)) ([f91b28a](https://github.com/googleapis/gapic-generator-typescript/commit/f91b28aead45de514859e5bda2758b37b794c101))
+
+## [2.16.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.16.0...v2.16.1) (2022-08-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-gax to ^3.3.1 ([#1234](https://github.com/googleapis/gapic-generator-typescript/issues/1234)) ([9900e88](https://github.com/googleapis/gapic-generator-typescript/commit/9900e88b2756b8fe1b4f48736f3689098a6bfc84))
+* **deps:** update dependency protobufjs to ^7.1.0 ([#1228](https://github.com/googleapis/gapic-generator-typescript/issues/1228)) ([0066ceb](https://github.com/googleapis/gapic-generator-typescript/commit/0066ceba9d825a0408f5a024658288725c036225))
+* use _gaxModule when accessing gax for bundling ([#1232](https://github.com/googleapis/gapic-generator-typescript/issues/1232)) ([2e8611a](https://github.com/googleapis/gapic-generator-typescript/commit/2e8611aa880b4f3a99d3f10ac2864ab19af38321))
+
+## [2.16.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.4...v2.16.0) (2022-08-26)
+
+
+### Features
+
+* allow passing gax instance ([#1224](https://github.com/googleapis/gapic-generator-typescript/issues/1224)) ([f0e6aeb](https://github.com/googleapis/gapic-generator-typescript/commit/f0e6aebab8fb61c106e5631b0220747ace04b825))
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-gax to ^3.2.1 ([#1218](https://github.com/googleapis/gapic-generator-typescript/issues/1218)) ([1e8af28](https://github.com/googleapis/gapic-generator-typescript/commit/1e8af2876c900208117b9af0eddd168d08d164a4))
+* **deps:** update dependency google-gax to ^3.2.2 ([#1223](https://github.com/googleapis/gapic-generator-typescript/issues/1223)) ([c2e5bb5](https://github.com/googleapis/gapic-generator-typescript/commit/c2e5bb53c49e926840cd311e58b88865fa7d261c))
+* **deps:** update dependency google-gax to ^3.3.0 ([#1227](https://github.com/googleapis/gapic-generator-typescript/issues/1227)) ([1d04855](https://github.com/googleapis/gapic-generator-typescript/commit/1d04855ca907dc83d367172ee65f4821c8725cf5))
+
+## [2.15.4](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.3...v2.15.4) (2022-08-19)
+
+
+### Bug Fixes
+
+* bring Docker image back to work ([#1206](https://github.com/googleapis/gapic-generator-typescript/issues/1206)) ([37ebe6b](https://github.com/googleapis/gapic-generator-typescript/commit/37ebe6bfb203e55a04d0903aa2f71190986e09b4))
+* **deps:** rollback to use webpack 4 ([#1186](https://github.com/googleapis/gapic-generator-typescript/issues/1186)) ([b7dfa5a](https://github.com/googleapis/gapic-generator-typescript/commit/b7dfa5a40c8a5303525d95afb96e801eaf6834aa))
+* **deps:** update dependency fs-extra to ^10.1.0 ([#1188](https://github.com/googleapis/gapic-generator-typescript/issues/1188)) ([6b782dd](https://github.com/googleapis/gapic-generator-typescript/commit/6b782dd417b8b49059d12d75576339622030c050))
+* **deps:** update dependency google-gax to ^3.1.4 ([#1175](https://github.com/googleapis/gapic-generator-typescript/issues/1175)) ([2ed4cd5](https://github.com/googleapis/gapic-generator-typescript/commit/2ed4cd53788e74eb8ce9f5441ae52d64d7a25ddd))
+* **deps:** update dependency google-gax to ^3.2.0 ([#1212](https://github.com/googleapis/gapic-generator-typescript/issues/1212)) ([a8bbc85](https://github.com/googleapis/gapic-generator-typescript/commit/a8bbc855a409f796cd86a6a474365b780cb80def))
+* **deps:** update dependency long to ^5.2.0 ([#1176](https://github.com/googleapis/gapic-generator-typescript/issues/1176)) ([4a18cc2](https://github.com/googleapis/gapic-generator-typescript/commit/4a18cc2579be54f98ef58c3f1ecc66d7d08bc748))
+* **deps:** update dependency protobufjs to v7 ([#1166](https://github.com/googleapis/gapic-generator-typescript/issues/1166)) ([123b2ec](https://github.com/googleapis/gapic-generator-typescript/commit/123b2ece491a138cbd41bcbd8eb70ab2b9d87ef3))
+* **deps:** update dependency yargs to ^17.5.1 ([#1190](https://github.com/googleapis/gapic-generator-typescript/issues/1190)) ([13c1b02](https://github.com/googleapis/gapic-generator-typescript/commit/13c1b027907e2fb0ffa94a3ff743e3995dc7387e))
+* no unused var in tests, reformat ([#1162](https://github.com/googleapis/gapic-generator-typescript/issues/1162)) ([ae96e0b](https://github.com/googleapis/gapic-generator-typescript/commit/ae96e0bb0596ea7be6781395a574720fe7d7ae29))
+* pass fallback to createApiCall for browser ([#1216](https://github.com/googleapis/gapic-generator-typescript/issues/1216)) ([7bad386](https://github.com/googleapis/gapic-generator-typescript/commit/7bad3867dabc8132a47f755a6a81f970becabc3c))
+* **samples:** add disclaimer ([#1211](https://github.com/googleapis/gapic-generator-typescript/issues/1211)) ([c0fd282](https://github.com/googleapis/gapic-generator-typescript/commit/c0fd28210ff9f400350bfe9526e598f8e84d630d))
+
+## [2.15.3](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.2...v2.15.3) (2022-07-20)
+
+
+### Bug Fixes
+
+* proper processing of routing headers ([#1160](https://github.com/googleapis/gapic-generator-typescript/issues/1160)) ([6e9f77f](https://github.com/googleapis/gapic-generator-typescript/commit/6e9f77f5f1251f539202b9ebf65ca9fff3f0d117))
+
+## [2.15.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.1...v2.15.2) (2022-07-01)
+
+
+### Bug Fixes
+
+* **deps:** update all dependencies (major) ([#1135](https://github.com/googleapis/gapic-generator-typescript/issues/1135)) ([732d192](https://github.com/googleapis/gapic-generator-typescript/commit/732d192eee35ff4794df5ab62239f323bce7ca4a))
+* follow case convention [#1149](https://github.com/googleapis/gapic-generator-typescript/issues/1149) in generated tests ([#1157](https://github.com/googleapis/gapic-generator-typescript/issues/1157)) ([365a7cd](https://github.com/googleapis/gapic-generator-typescript/commit/365a7cd8135aadd133c53abd579e671851d4878f))
+
+## [2.15.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.15.0...v2.15.1) (2022-06-23)
+
+
+### Bug Fixes
+
+* trigger release for [#1151](https://github.com/googleapis/gapic-generator-typescript/issues/1151) ([#1152](https://github.com/googleapis/gapic-generator-typescript/issues/1152)) ([3d658ac](https://github.com/googleapis/gapic-generator-typescript/commit/3d658acddaa1ac81ea583f492909ecef38bb43bd))
+
+## [2.15.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.6...v2.15.0) (2022-06-17)
+
+
+### Features
+
+* support regapic LRO ([#1143](https://github.com/googleapis/gapic-generator-typescript/issues/1143)) ([cb9f737](https://github.com/googleapis/gapic-generator-typescript/commit/cb9f737b2e7d458e859fb7900202489fe28912ba))
+
+
+### Bug Fixes
+
+* camel case for multiple capital letters ([#1149](https://github.com/googleapis/gapic-generator-typescript/issues/1149)) ([cdf4c71](https://github.com/googleapis/gapic-generator-typescript/commit/cdf4c71fe132f15d0661b8b3f9ce7a0aecbce395))
+
+## [2.14.6](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.5...v2.14.6) (2022-06-10)
+
+
+### Bug Fixes
+
+* unit tests for LRO and Location need async iteration stub ([#1145](https://github.com/googleapis/gapic-generator-typescript/issues/1145)) ([44e5804](https://github.com/googleapis/gapic-generator-typescript/commit/44e5804b4ad9c0366dbcc86ffd2a66f024953b05))
+
+### [2.14.5](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.4...v2.14.5) (2022-05-23)
+
+
+### Bug Fixes
+
+* use optional chaining for routing parameters ([#1138](https://github.com/googleapis/gapic-generator-typescript/issues/1138)) ([b1aa357](https://github.com/googleapis/gapic-generator-typescript/commit/b1aa3577bdcd5b742516136b1753919485504819))
+
+### [2.14.4](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.3...v2.14.4) (2022-05-10)
+
+
+### Bug Fixes
+
+* determine transport for construct StreamDescriptor ([#1131](https://github.com/googleapis/gapic-generator-typescript/issues/1131)) ([b542bcf](https://github.com/googleapis/gapic-generator-typescript/commit/b542bcf995200c00a394d328a0c968d3eb1436d7))
+
+### [2.14.3](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.2...v2.14.3) (2022-04-27)
+
+
+### Bug Fixes
+
+* dynamic route fix ([#1130](https://github.com/googleapis/gapic-generator-typescript/issues/1130)) ([e6cd782](https://github.com/googleapis/gapic-generator-typescript/commit/e6cd782865dfd7ba3d09d2b42a2746ac2d1dc7fa))
+
+### [2.14.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.1...v2.14.2) (2022-03-15)
+
+
+### Bug Fixes
+
+* closed method unit test ([#1121](https://github.com/googleapis/gapic-generator-typescript/issues/1121)) ([56dadc8](https://github.com/googleapis/gapic-generator-typescript/commit/56dadc887f4581356db4b6f8be52bbd31ddec795))
+* rename path template params which is reserved word in strict mode ([#1124](https://github.com/googleapis/gapic-generator-typescript/issues/1124)) ([e1ebf3a](https://github.com/googleapis/gapic-generator-typescript/commit/e1ebf3aecebf11c78ea77bb9ba275883a8ff2237))
+* update comment for diregapic LRO method with map response ([#1123](https://github.com/googleapis/gapic-generator-typescript/issues/1123)) ([79ca616](https://github.com/googleapis/gapic-generator-typescript/commit/79ca616c0ae2f4055563cc0ff513a89facf47c44))
+
+### [2.14.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.14.0...v2.14.1) (2022-03-04)
+
+
+### Bug Fixes
+
+* should ignore google/rpc/context/*.proto ([#1119](https://github.com/googleapis/gapic-generator-typescript/issues/1119)) ([62d6913](https://github.com/googleapis/gapic-generator-typescript/commit/62d6913455d09e2fb406f4c44fa34509c1f0181f))
+
+## [2.14.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.13.0...v2.14.0) (2022-02-15)
+
+
+### Features
+
+* add note to autogenerated samples for handwritten tags ([#1106](https://github.com/googleapis/gapic-generator-typescript/issues/1106)) ([759f2bb](https://github.com/googleapis/gapic-generator-typescript/commit/759f2bbcb2804a2fbd908e0fd30e8ab80a6321ba))
+
+
+### Bug Fixes
+
+* add coverage for close method ([#1109](https://github.com/googleapis/gapic-generator-typescript/issues/1109)) ([d886454](https://github.com/googleapis/gapic-generator-typescript/commit/d886454aba9039fbe9510c55321afbaac7d25e4f))
+* anti-patten in close method and add unit test for unary call ([#1105](https://github.com/googleapis/gapic-generator-typescript/issues/1105)) ([a0f5fee](https://github.com/googleapis/gapic-generator-typescript/commit/a0f5fee0fc1fd15484c0a85a584afbef732c0754))
+* lint of assigned value not being used ([#1103](https://github.com/googleapis/gapic-generator-typescript/issues/1103)) ([68af89c](https://github.com/googleapis/gapic-generator-typescript/commit/68af89c408a323a4af9021073645b93ad6a65928))
+* make license header dynamic to change year ([#1107](https://github.com/googleapis/gapic-generator-typescript/issues/1107)) ([ecc7434](https://github.com/googleapis/gapic-generator-typescript/commit/ecc7434eeab0c54f5ae0c1401905cfd244ebe3d5))
+
+## [2.13.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.2...v2.13.0) (2022-02-03)
+
+
+### Features
+
+* add snippet metadata file ([#1084](https://github.com/googleapis/gapic-generator-typescript/issues/1084)) ([5965e9c](https://github.com/googleapis/gapic-generator-typescript/commit/5965e9cfceedee3f93f8d998beea64087a4277f6))
+
+
+### Bug Fixes
+
+* close client with stream methodshould return stream object ([#1101](https://github.com/googleapis/gapic-generator-typescript/issues/1101)) ([40f23d1](https://github.com/googleapis/gapic-generator-typescript/commit/40f23d1d310dfd34e620a6d2f3e43d43f93fde77))
+
+### [2.12.2](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.1...v2.12.2) (2022-02-01)
+
+
+### Bug Fixes
+
+* add check for undefined routing header parameters ([#1098](https://github.com/googleapis/gapic-generator-typescript/issues/1098)) ([b20e514](https://github.com/googleapis/gapic-generator-typescript/commit/b20e514d39efd1b958f536cf38df5b99f3b93a68))
+
+### [2.12.1](https://github.com/googleapis/gapic-generator-typescript/compare/v2.12.0...v2.12.1) (2022-01-28)
+
+
+### Bug Fixes
+
+* remove empty else ([#1095](https://github.com/googleapis/gapic-generator-typescript/issues/1095)) ([52b2aa8](https://github.com/googleapis/gapic-generator-typescript/commit/52b2aa873aee307b84255d002a97cd27fed7936f))
+
+## [2.12.0](https://github.com/googleapis/gapic-generator-typescript/compare/v2.11.0...v2.12.0) (2022-01-24)
+
+
+### Features
+
+* add handwritten_layer variable for handwritten samples ([#1065](https://github.com/googleapis/gapic-generator-typescript/issues/1065)) ([f614a1d](https://github.com/googleapis/gapic-generator-typescript/commit/f614a1d2c2820b4f80210b1f53826d212610006e))
+
+
+### Bug Fixes
+
+* add null request for bi_di stream call ([#1066](https://github.com/googleapis/gapic-generator-typescript/issues/1066)) ([1149cb1](https://github.com/googleapis/gapic-generator-typescript/commit/1149cb16463531694c580034cc05b9f659a0a058))
+* change dynamic routing header field to camelCase ([#1091](https://github.com/googleapis/gapic-generator-typescript/issues/1091)) ([1e05e76](https://github.com/googleapis/gapic-generator-typescript/commit/1e05e7668fb7f4b40c448f784485a73719f9f90d))
+* **deps:** update all dependencies ([#1067](https://github.com/googleapis/gapic-generator-typescript/issues/1067)) ([45c1e7e](https://github.com/googleapis/gapic-generator-typescript/commit/45c1e7ef53191d959b22cc1ed31cf6a38b1d6435))
+* **deps:** update all dependencies ([#1083](https://github.com/googleapis/gapic-generator-typescript/issues/1083)) ([7820278](https://github.com/googleapis/gapic-generator-typescript/commit/7820278c77dcdb650066895cb7c018ae2d6cc4e6))
+* **deps:** update dependency @types/js-yaml to ^4.0.5 ([#1062](https://github.com/googleapis/gapic-generator-typescript/issues/1062)) ([6ce721a](https://github.com/googleapis/gapic-generator-typescript/commit/6ce721aa72ceb0124e9c4a1d3cb0b2ea7bd1e7a8))
+* ignore generating non-diregapic pagination with map response ([#1076](https://github.com/googleapis/gapic-generator-typescript/issues/1076)) ([b7dc09f](https://github.com/googleapis/gapic-generator-typescript/commit/b7dc09f6ad026476ea9a20abe331c2dfb033b113))
+* **test:** update copyright year in baselines ([#1077](https://github.com/googleapis/gapic-generator-typescript/issues/1077)) ([d19e653](https://github.com/googleapis/gapic-generator-typescript/commit/d19e65355bde5a8cb1e3c1d5715ff4b7f1289f88))
+* update test template for dynamic routing header ([#1058](https://github.com/googleapis/gapic-generator-typescript/issues/1058)) ([1f210d4](https://github.com/googleapis/gapic-generator-typescript/commit/1f210d4077562bad3783ef19820f07eaec1bb835))
+
+## [2.11.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.10.0...v2.11.0) (2021-11-08)
+
+
+### Features
+
+* add example tags ([#1045](https://www.github.com/googleapis/gapic-generator-typescript/issues/1045)) ([c4466b9](https://www.github.com/googleapis/gapic-generator-typescript/commit/c4466b9d9da77c1690a6dec0e7b1687ec11b5dd3))
+
+## [2.10.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.9.0...v2.10.0) (2021-11-08)
+
+
+### Features
+
+* add dynamic routing to generated client ([#1042](https://www.github.com/googleapis/gapic-generator-typescript/issues/1042)) ([afe38bf](https://www.github.com/googleapis/gapic-generator-typescript/commit/afe38bf0b36e50240684e3806f7505c009611a3f))
+
+
+### Bug Fixes
+
+* naming collision on samples ([#1034](https://www.github.com/googleapis/gapic-generator-typescript/issues/1034)) ([b1e522e](https://www.github.com/googleapis/gapic-generator-typescript/commit/b1e522e3f6b65766836db9f12a00bf531d71ed35))
+* remove deprecated fields ([#1036](https://www.github.com/googleapis/gapic-generator-typescript/issues/1036)) ([dcdb895](https://www.github.com/googleapis/gapic-generator-typescript/commit/dcdb89599857db1715be3438a0a571ff3b05d6ce))
+* replace empty objects with curly brackets instead of strings ([#1041](https://www.github.com/googleapis/gapic-generator-typescript/issues/1041)) ([b6c3957](https://www.github.com/googleapis/gapic-generator-typescript/commit/b6c395725d7b0d01e0dbed211fafbaf5764f4171))
+
+## [2.9.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.8.0...v2.9.0) (2021-11-01)
+
+
+### Features
+
+* add dynamic routing annotation parsing functionality ([#1028](https://www.github.com/googleapis/gapic-generator-typescript/issues/1028)) ([793f885](https://www.github.com/googleapis/gapic-generator-typescript/commit/793f885ceadbd5716267bba81bc3539483256a17))
+* remove markdown links ([#1004](https://www.github.com/googleapis/gapic-generator-typescript/issues/1004)) ([39de25d](https://www.github.com/googleapis/gapic-generator-typescript/commit/39de25d97e0a6a224e9a8ad39c8d1b0d250fd788))
+
+## [2.8.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.7.0...v2.8.0) (2021-10-27)
+
+
+### Features
+
+* move comments in front of overloaded function ([#1030](https://www.github.com/googleapis/gapic-generator-typescript/issues/1030)) ([a0af610](https://www.github.com/googleapis/gapic-generator-typescript/commit/a0af610cc8f28c8ea001ee0d7669e1cbd44ce5a3))
+
+## [2.7.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.4...v2.7.0) (2021-10-25)
+
+
+### Features
+
+* enable npm test to output errors ([#1023](https://www.github.com/googleapis/gapic-generator-typescript/issues/1023)) ([ca1736e](https://www.github.com/googleapis/gapic-generator-typescript/commit/ca1736efe7b879dc1191c42c2a3640e78eb0bfa8))
+
+
+### Bug Fixes
+
+* **deps:** update all dependencies ([#1020](https://www.github.com/googleapis/gapic-generator-typescript/issues/1020)) ([154d903](https://www.github.com/googleapis/gapic-generator-typescript/commit/154d90368e649fd333c5ae0f6b07a2a6d4620784))
+* **deps:** update dependency google-gax to ^2.28.0 ([#1016](https://www.github.com/googleapis/gapic-generator-typescript/issues/1016)) ([0cd2911](https://www.github.com/googleapis/gapic-generator-typescript/commit/0cd291190a9e97ce55e0a6d1eef450db1ba64583))
+* handle the fields with nums ([#1019](https://www.github.com/googleapis/gapic-generator-typescript/issues/1019)) ([6a24bf4](https://www.github.com/googleapis/gapic-generator-typescript/commit/6a24bf4acbf613855faa365e3e331ddf377ab500))
+
+### [2.6.4](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.3...v2.6.4) (2021-10-18)
+
+
+### Bug Fixes
+
+* **deps:** update all dependencies ([#998](https://www.github.com/googleapis/gapic-generator-typescript/issues/998)) ([f6c25b0](https://www.github.com/googleapis/gapic-generator-typescript/commit/f6c25b0e8a0da4805d27f516c965e5b029c2c4c8))
+
+### [2.6.3](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.2...v2.6.3) (2021-09-30)
+
+
+### Bug Fixes
+
+* **deps:** update all dependencies ([#993](https://www.github.com/googleapis/gapic-generator-typescript/issues/993)) ([0072eff](https://www.github.com/googleapis/gapic-generator-typescript/commit/0072eff4f3a1016b36a74cd98b0df6e5944a7770))
+
+### [2.6.2](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.1...v2.6.2) (2021-09-27)
+
+
+### Bug Fixes
+
+* add api short name to generated sample region tag ([#987](https://www.github.com/googleapis/gapic-generator-typescript/issues/987)) ([4656468](https://www.github.com/googleapis/gapic-generator-typescript/commit/4656468eaa57390369a21d71f5ead776ebaa6148))
+
+### [2.6.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.6.0...v2.6.1) (2021-09-22)
+
+
+### Bug Fixes
+
+* find protoc based on its bazel location ([#978](https://www.github.com/googleapis/gapic-generator-typescript/issues/978)) ([4a68f0c](https://www.github.com/googleapis/gapic-generator-typescript/commit/4a68f0c71efd0b073b80c03f9467493094a518e3))
+* update region tags for generated samples ([#981](https://www.github.com/googleapis/gapic-generator-typescript/issues/981)) ([4d5f9f0](https://www.github.com/googleapis/gapic-generator-typescript/commit/4d5f9f09c9f9641881a0414f576342ac39400ee9))
+
+## [2.6.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.5.0...v2.6.0) (2021-09-16)
+
+
+### Features
+
+* auto generate samples for each method ([#952](https://www.github.com/googleapis/gapic-generator-typescript/issues/952)) ([68fdeaa](https://www.github.com/googleapis/gapic-generator-typescript/commit/68fdeaa9c3fbb1bb04475acf149b523b82f600e4))
+* update retry and timeout logic for generated async/stream methods ([#973](https://www.github.com/googleapis/gapic-generator-typescript/issues/973)) ([5f61bd1](https://www.github.com/googleapis/gapic-generator-typescript/commit/5f61bd1cf42512e4cb3bc67bd6439aedb5ab974b))
+
+## [2.5.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.4.1...v2.5.0) (2021-09-03)
+
+
+### Features
+
+* Add minimum wrapper for mitigate future full-implementation diregapic LRO change ([#967](https://www.github.com/googleapis/gapic-generator-typescript/issues/967)) ([e12a72d](https://www.github.com/googleapis/gapic-generator-typescript/commit/e12a72d821cc2cb70c2471bc81f3656c5231f7ea))
+
+
+### Bug Fixes
+
+* **build:** migrate to main branch ([#972](https://www.github.com/googleapis/gapic-generator-typescript/issues/972)) ([faf3819](https://www.github.com/googleapis/gapic-generator-typescript/commit/faf3819e16bc916b274f52b9f63883defd824db4))
+
+### [2.4.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.4.0...v2.4.1) (2021-08-27)
+
+
+### Bug Fixes
+
+* google.cloud.location is a common proto package ([#963](https://www.github.com/googleapis/gapic-generator-typescript/issues/963)) ([7da9ba9](https://www.github.com/googleapis/gapic-generator-typescript/commit/7da9ba9962e8d4e5340741b724d04a8478bd093a))
+
+## [2.4.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.3.0...v2.4.0) (2021-08-19)
+
+
+### Features
+
+* add variables for self-signed auth to generator ([#908](https://www.github.com/googleapis/gapic-generator-typescript/issues/908)) ([09aa195](https://www.github.com/googleapis/gapic-generator-typescript/commit/09aa19561703e66ec7ad2eb57e8f7f5e506627a1))
+
+
+### Bug Fixes
+
+* closing mixin clients ([#957](https://www.github.com/googleapis/gapic-generator-typescript/issues/957)) ([7a543bf](https://www.github.com/googleapis/gapic-generator-typescript/commit/7a543bf0c16ff2a99d8e731cca5e40fe43dbb9ed))
+
+## [2.3.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.2.0...v2.3.0) (2021-08-06)
+
+
+### Features
+
+* Add diregapic option in command line ([#948](https://www.github.com/googleapis/gapic-generator-typescript/issues/948)) ([a3525d4](https://www.github.com/googleapis/gapic-generator-typescript/commit/a3525d49a2cf777ee927f1f92bc7190bd72586b6))
+
+## [2.2.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.1...v2.2.0) (2021-07-31)
+
+
+### Features
+
+* adding location service mixin ([#941](https://www.github.com/googleapis/gapic-generator-typescript/issues/941)) ([c9705d3](https://www.github.com/googleapis/gapic-generator-typescript/commit/c9705d3ec1a43b9b49bc20c8f3f748a20214f59a))
+* adding operations mixin service ([#942](https://www.github.com/googleapis/gapic-generator-typescript/issues/942)) ([747f7b5](https://www.github.com/googleapis/gapic-generator-typescript/commit/747f7b5920832adde1388a587de1a64c09103d1e))
+
+
+### Bug Fixes
+
+* add bazel option for transport ([#945](https://www.github.com/googleapis/gapic-generator-typescript/issues/945)) ([3835239](https://www.github.com/googleapis/gapic-generator-typescript/commit/3835239be746751679a65e8602fbeaf4c91cc437))
+
+### [2.1.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.1.0...v2.1.1) (2021-07-26)
+
+
+### Bug Fixes
+
+* missing call warn() in lro method ([#939](https://www.github.com/googleapis/gapic-generator-typescript/issues/939)) ([af8ce2f](https://www.github.com/googleapis/gapic-generator-typescript/commit/af8ce2f59c005f300aaa8b43383317c88f91bc6a))
+
+## [2.1.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.0.1...v2.1.0) (2021-07-16)
+
+
+### Features
+
+* support paging map response type ([#922](https://www.github.com/googleapis/gapic-generator-typescript/issues/922)) ([693732f](https://www.github.com/googleapis/gapic-generator-typescript/commit/693732f593227295e6d06e80c1d3e95ff6067671))
+
+
+### Bug Fixes
+
+* **legacy proto load:** use single proto file ([#936](https://www.github.com/googleapis/gapic-generator-typescript/issues/936)) ([41c4651](https://www.github.com/googleapis/gapic-generator-typescript/commit/41c46518d11908df0be8ef98a060a9e203017fef))
+
+### [2.0.1](https://www.github.com/googleapis/gapic-generator-typescript/compare/v2.0.0...v2.0.1) (2021-07-14)
+
+
+### Bug Fixes
+
+* remove duplicate service_yaml parameter ([#932](https://www.github.com/googleapis/gapic-generator-typescript/issues/932)) ([78fd850](https://www.github.com/googleapis/gapic-generator-typescript/commit/78fd850094c2517aeea76640a9821d62ba999579))
+
+## [2.0.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.6.0...v2.0.0) (2021-07-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update IAMPolicy mixin to use <$service>.yaml file instead of explicit generator flag (#909)
+
+### Features
+
+* **mtls:** pass variable to indicate whether default service endpoint used ([#900](https://www.github.com/googleapis/gapic-generator-typescript/issues/900)) ([af309c6](https://www.github.com/googleapis/gapic-generator-typescript/commit/af309c6fa97f92773887163bb91211e7577f56af))
+* Update IAMPolicy mixin to use <$service>.yaml file instead of explicit generator flag ([#909](https://www.github.com/googleapis/gapic-generator-typescript/issues/909)) ([73199f5](https://www.github.com/googleapis/gapic-generator-typescript/commit/73199f50920a36aaf1aa46d1757b4c254f36be1f))
+
+
+### Bug Fixes
+
+* multiple proto listing for legacy loading ([#926](https://www.github.com/googleapis/gapic-generator-typescript/issues/926)) ([63dfcbe](https://www.github.com/googleapis/gapic-generator-typescript/commit/63dfcbeb0a5b33c0b2e01abf7372312cdf1ad34a))
+* only invoke stub for methods that are deprecated ([#927](https://www.github.com/googleapis/gapic-generator-typescript/issues/927)) ([0fdbf16](https://www.github.com/googleapis/gapic-generator-typescript/commit/0fdbf16ccc134b124b5a7f8ce9d8935ed58b8595))
+
+## [1.6.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.5.0...v1.6.0) (2021-07-12)
+
+
+### Features
+
+* --legacy-proto-load to load proto files at runtime ([#916](https://www.github.com/googleapis/gapic-generator-typescript/issues/916)) ([898b575](https://www.github.com/googleapis/gapic-generator-typescript/commit/898b5751408f089b9d3711543bdf2b08c130bf4d))
+* use stub for warn method in test ([#921](https://www.github.com/googleapis/gapic-generator-typescript/issues/921)) ([0c8479e](https://www.github.com/googleapis/gapic-generator-typescript/commit/0c8479efb2b9f915b97b47dfe821d602efedce75))
+
 ## [1.5.0](https://www.github.com/googleapis/gapic-generator-typescript/compare/v1.4.1...v1.5.0) (2021-06-17)
 
 

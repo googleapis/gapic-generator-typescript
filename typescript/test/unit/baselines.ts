@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {describe} from 'mocha';
-import {runBaselineTest} from '../util';
+import {runBaselineTest} from '../util.js';
 
 describe('Baseline tests', () => {
   runBaselineTest({
@@ -45,7 +45,7 @@ describe('Baseline tests', () => {
     outputDir: '.test-out-kms',
     protoPath: 'google/cloud/kms/v1/*.proto',
     useCommonProto: false,
-    iamService: true,
+    serviceYaml: 'google/cloud/kms/v1/cloudkms_v1.yaml',
   });
 
   runBaselineTest({
@@ -61,6 +61,7 @@ describe('Baseline tests', () => {
     outputDir: '.test-out-redis',
     protoPath: 'google/cloud/redis/v1beta1/*.proto',
     useCommonProto: true,
+    mixins: 'google.longrunning.Operations',
   });
 
   runBaselineTest({
@@ -69,8 +70,20 @@ describe('Baseline tests', () => {
     protoPath: 'google/showcase/v1beta1/*.proto',
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
+    serviceYaml: 'google/showcase/v1beta1/showcase_v1beta1.yaml',
     template: 'typescript_gapic;typescript_packing_test',
     metadata: true,
+    restNumericEnums: true,
+    mixins: 'none',
+  });
+
+  runBaselineTest({
+    baselineName: 'showcase-legacy',
+    outputDir: '.test-out-showcase-legacy',
+    protoPath: 'google/showcase/v1beta1/echo.proto',
+    useCommonProto: false,
+    mainServiceName: 'ShowcaseService',
+    legacyProtoLoad: true,
   });
 
   runBaselineTest({
@@ -101,10 +114,11 @@ describe('Baseline tests', () => {
   runBaselineTest({
     baselineName: 'logging',
     outputDir: '.test-out-logging',
-    protoPath: 'google/logging/v2/*.proto',
+    protoPath: 'google/logging/v2/*.proto;google/logging/type/*.proto',
     useCommonProto: true,
     bundleConfig: 'google/logging/v2/logging_gapic.yaml',
     mainServiceName: 'LoggingService',
+    grpcServiceConfig: 'google/logging/v2/logging_grpc_service_config.json',
   });
 
   runBaselineTest({
@@ -145,6 +159,24 @@ describe('Baseline tests', () => {
     baselineName: 'deprecatedtest',
     outputDir: '.test-out-deprecatedtest',
     protoPath: 'google/deprecatedtest/v1/*.proto',
+    useCommonProto: true,
+    metadata: false,
+  });
+
+  runBaselineTest({
+    baselineName: 'compute',
+    outputDir: '.test-out-compute',
+    protoPath: 'google/cloud/compute/v1/*.proto',
+    useCommonProto: false,
+    packageName: '@google-cloud/compute',
+    diregapic: true,
+  });
+
+  // Adding new baseline test to test routing annotation
+  runBaselineTest({
+    baselineName: 'routingtest',
+    outputDir: '.test-out-routingtest',
+    protoPath: 'google/routingtest/v1/*.proto',
     useCommonProto: true,
     metadata: false,
   });

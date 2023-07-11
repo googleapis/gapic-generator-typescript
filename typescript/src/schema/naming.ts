@@ -12,18 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../../protos';
-import {commonPrefix} from '../util';
-import {API} from './api';
-import {BundleConfig} from '../bundle';
+import type * as protos from '../../../protos/index.js';
+import {commonPrefix} from '../util.js';
+import {API} from './api.js';
+import {BundleConfig} from '../bundle.js';
+import {ServiceYaml} from '../serviceyaml.js';
 
 export interface Options {
   grpcServiceConfig: protos.grpc.service_config.ServiceConfig;
   bundleConfigs?: BundleConfig[];
   publishName?: string;
   mainServiceName?: string;
-  iamService?: boolean;
+  serviceYaml?: ServiceYaml;
   rest?: boolean;
+  diregapic?: boolean;
+  handwrittenLayer?: boolean;
+  legacyProtoLoad?: boolean;
+  restNumericEnums?: boolean;
+  mixinsOverridden?: boolean;
 }
 
 export class Naming {
@@ -51,7 +57,7 @@ export class Naming {
       rootPackage = this.checkServiceInPackage(protoPackages, mainServiceName);
     }
     if (invalidPrefix && !mainServiceName) {
-      throw new Error('Protos provided have different proto packages.');
+      throw new Error('ERROR: Protos provided have different proto packages.');
     }
     if (!invalidPrefix) {
       rootPackage = prefix.replace(/\.$/, '');
@@ -59,7 +65,7 @@ export class Naming {
 
     const segments = rootPackage.split('.');
     if (!segments || segments.length < 2) {
-      throw new Error(`Cannot parse package name ${rootPackage}.`);
+      throw new Error(`ERROR: Cannot parse package name ${rootPackage}.`);
     }
 
     // version should follow the pattern of 'v1' or 'v1alpha1'
@@ -71,7 +77,7 @@ export class Naming {
     );
     if (versionIndex === -1) {
       throw new Error(
-        `Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`
+        `ERROR: Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`
       );
     }
     const version = segments[versionIndex];
@@ -79,7 +85,7 @@ export class Naming {
     // name immediately preceeds the version
     if (versionIndex === 0) {
       throw new Error(
-        `Cannot parse package name ${rootPackage}: version ${version} is the first segment in the name.`
+        `ERROR: Cannot parse package name ${rootPackage}: version ${version} is the first segment in the name.`
       );
     }
     const name = segments[versionIndex - 1];
@@ -95,7 +101,7 @@ export class Naming {
 
     if (!this.version && protoPackages.length > 1) {
       throw new Error(
-        'All protos must have the same proto package up to and including the version.'
+        'ERROR: All protos must have the same proto package up to and including the version.'
       );
     }
   }

@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as fs from 'fs-extra';
+import * as fs from 'fs';
+import * as fsp from 'fs/promises';
 import * as path from 'path';
+import * as url from 'url';
 import {it} from 'mocha';
 import {execSync} from 'child_process';
-import * as assert from 'assert';
+import assert from 'assert';
+
+// https://blog.logrocket.com/alternatives-dirname-node-js-es-modules/#help-im-missing-dirname
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const NO_OUTPUT_FILE = 0;
 const IDENTICAL_FILE = 1;
@@ -34,8 +39,13 @@ export interface BaselineOptions {
   packageName?: string;
   template?: string;
   bundleConfig?: string;
-  iamService?: boolean;
+  serviceYaml?: string;
   metadata?: boolean;
+  legacyProtoLoad?: boolean;
+  transport?: string;
+  diregapic?: boolean;
+  restNumericEnums?: boolean;
+  mixins?: string;
 }
 
 const cwd = process.cwd();
@@ -78,16 +88,20 @@ export function runBaselineTest(options: BaselineOptions) {
   const bundleConfig = options.bundleConfig
     ? path.join(protosDirRoot, options.bundleConfig.split('/').join(path.sep))
     : undefined;
-  const iamService = options.iamService ?? false;
+  const serviceYaml = options.serviceYaml
+    ? path.join(protosDirRoot, options.serviceYaml.split('/').join(path.sep))
+    : undefined;
+  const legacyProtoLoad = options.legacyProtoLoad ?? false;
+  const restNumericEnums = options.restNumericEnums ?? false;
   it(options.baselineName, async function () {
     this.timeout(60000);
     if (fs.existsSync(outputDir)) {
-      await fs.remove(outputDir);
+      await fsp.rm(outputDir, {recursive: true});
     }
     fs.mkdirSync(outputDir);
 
     let commandLine =
-      `${entryPointPath} --protoc=./external/com_google_protobuf/protoc ` +
+      `${entryPointPath} ` +
       `--output_dir=${outputDir} ` +
       `-I${protosDirRoot} ${protoPaths.join(' ')}`;
     if (options.useCommonProto) {
@@ -108,11 +122,26 @@ export function runBaselineTest(options: BaselineOptions) {
     if (options.bundleConfig) {
       commandLine += ` --bundle-config="${bundleConfig}"`;
     }
-    if (options.iamService) {
-      commandLine += ` --iam-service="${iamService}"`;
+    if (options.serviceYaml) {
+      commandLine += ` --service-yaml="${serviceYaml}"`;
     }
     if (options.metadata) {
       commandLine += ' --metadata';
+    }
+    if (legacyProtoLoad) {
+      commandLine += ' --legacy-proto-load';
+    }
+    if (restNumericEnums) {
+      commandLine += ' --rest-numeric-enums';
+    }
+    if (options.transport && options.transport === 'rest') {
+      commandLine += ' --transport=rest';
+    }
+    if (options.diregapic) {
+      commandLine += ' --diregapic';
+    }
+    if (options.mixins) {
+      commandLine += ` --mixins="${options.mixins}"`;
     }
     execSync(commandLine);
     assert(equalToBaseline(outputDir, baselineDir));

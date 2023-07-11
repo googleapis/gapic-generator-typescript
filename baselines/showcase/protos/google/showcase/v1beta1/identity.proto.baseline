@@ -27,6 +27,7 @@ package google.showcase.v1beta1;
 option go_package = "github.com/googleapis/gapic-showcase/server/genproto";
 option java_package = "com.google.showcase.v1beta1";
 option java_multiple_files = true;
+option ruby_package = "Google::Showcase::V1beta1";
 
 // A simple identity service.
 service Identity {
@@ -41,7 +42,8 @@ service Identity {
       body: "*"
     };
     option (google.api.method_signature) = "user.display_name,user.email";
-    option (google.api.method_signature) = "user.display_name,user.email,user.age,user.nickname,user.enable_notifications,user.height_feet";
+    option (google.api.method_signature) =
+        "user.display_name,user.email,user.age,user.nickname,user.enable_notifications,user.height_feet";
   }
 
   // Retrieves the User with the given uri.
@@ -56,7 +58,7 @@ service Identity {
   rpc UpdateUser(UpdateUserRequest) returns (User) {
     option (google.api.http) = {
       patch: "/v1beta1/{user.name=users/*}"
-      body: "*"
+      body: "user"
     };
   }
 
@@ -80,7 +82,7 @@ service Identity {
 message User {
   option (google.api.resource) = {
     type: "showcase.googleapis.com/User"
-    pattern: "users/{user_id}"
+    pattern: "users/{user}"
   };
 
   // The resource name of the user.
@@ -93,16 +95,14 @@ message User {
   string email = 3 [(google.api.field_behavior) = REQUIRED];
 
   // The timestamp at which the user was created.
-  google.protobuf.Timestamp create_time = 4 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
+  google.protobuf.Timestamp create_time = 4
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The latest timestamp at which the user was updated.
-  google.protobuf.Timestamp update_time = 5 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
+  google.protobuf.Timestamp update_time = 5
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The age of the use in years.
+  // The age of the user in years.
   optional int32 age = 6;
 
   // The height of the user in feet.
@@ -117,7 +117,7 @@ message User {
   // Enables the receiving of notifications. The default is true if unset.
   //
   // (-- aip.dev/not-precedent: The default for the feature is true.
-  //    Ordinarily, the default for a `bool` field should be false. --)
+  //     Ordinarily, the default for a `bool` field should be false. --)
   optional bool enable_notifications = 9;
 }
 
@@ -144,7 +144,7 @@ message UpdateUserRequest {
   // The user to update.
   User user = 1;
 
-  // The field mask to determine wich fields are to be updated. If empty, the
+  // The field mask to determine which fields are to be updated. If empty, the
   // server will assume all fields are to be updated.
   google.protobuf.FieldMask update_mask = 2;
 }

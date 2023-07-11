@@ -1,4 +1,8 @@
-import * as $protobuf from "protobufjs";
+// Note: the import line below was manually edited to import protobuf.js from google-gax, but not directly.
+import {protobuf as $protobuf} from "google-gax";
+
+// Note: this file was manually edited to remove references to Long which are not needed in this project.
+
 /** Namespace grpc. */
 export namespace grpc {
 
@@ -132,6 +136,13 @@ export namespace grpc {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for MethodConfig
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace MethodConfig {
@@ -230,6 +241,13 @@ export namespace grpc {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for Name
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
 
             /** Properties of a RetryPolicy. */
@@ -344,6 +362,13 @@ export namespace grpc {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for RetryPolicy
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
 
             /** Properties of a HedgingPolicy. */
@@ -446,6 +471,13 @@ export namespace grpc {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for HedgingPolicy
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
         }
 
@@ -531,6 +563,13 @@ export namespace grpc {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for PickFirstConfig
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a RoundRobinConfig. */
@@ -615,6 +654,13 @@ export namespace grpc {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for RoundRobinConfig
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a GrpcLbConfig. */
@@ -705,6 +751,13 @@ export namespace grpc {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for GrpcLbConfig
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a XdsConfig. */
@@ -807,6 +860,13 @@ export namespace grpc {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for XdsConfig
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a LoadBalancingConfig. */
@@ -924,6 +984,13 @@ export namespace grpc {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for LoadBalancingConfig
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a ServiceConfig. */
@@ -1038,6 +1105,13 @@ export namespace grpc {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ServiceConfig
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace ServiceConfig {
@@ -1142,6 +1216,13 @@ export namespace grpc {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for RetryThrottlingPolicy
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
 
             /** Properties of a HealthCheckConfig. */
@@ -1232,6 +1313,13 @@ export namespace grpc {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for HealthCheckConfig
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
         }
     }
@@ -1337,6 +1425,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for Http
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a HttpRule. */
@@ -1386,19 +1481,19 @@ export namespace google {
             public selector: string;
 
             /** HttpRule get. */
-            public get: string;
+            public get?: (string|null);
 
             /** HttpRule put. */
-            public put: string;
+            public put?: (string|null);
 
             /** HttpRule post. */
-            public post: string;
+            public post?: (string|null);
 
             /** HttpRule delete. */
-            public delete: string;
+            public delete?: (string|null);
 
             /** HttpRule patch. */
-            public patch: string;
+            public patch?: (string|null);
 
             /** HttpRule custom. */
             public custom?: (google.api.ICustomHttpPattern|null);
@@ -1484,6 +1579,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for HttpRule
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a CustomHttpPattern. */
@@ -1580,6 +1682,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for CustomHttpPattern
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** FieldBehavior enum. */
@@ -1589,7 +1698,9 @@ export namespace google {
             REQUIRED = 2,
             OUTPUT_ONLY = 3,
             INPUT_ONLY = 4,
-            IMMUTABLE = 5
+            IMMUTABLE = 5,
+            UNORDERED_LIST = 6,
+            NON_EMPTY_DEFAULT = 7
         }
 
         /** Properties of a ResourceDescriptor. */
@@ -1612,6 +1723,9 @@ export namespace google {
 
             /** ResourceDescriptor singular */
             singular?: (string|null);
+
+            /** ResourceDescriptor style */
+            style?: (google.api.ResourceDescriptor.Style[]|null);
         }
 
         /** Represents a ResourceDescriptor. */
@@ -1640,6 +1754,9 @@ export namespace google {
 
             /** ResourceDescriptor singular. */
             public singular: string;
+
+            /** ResourceDescriptor style. */
+            public style: google.api.ResourceDescriptor.Style[];
 
             /**
              * Creates a new ResourceDescriptor instance using the specified properties.
@@ -1710,6 +1827,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ResourceDescriptor
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace ResourceDescriptor {
@@ -1719,6 +1843,12 @@ export namespace google {
                 HISTORY_UNSPECIFIED = 0,
                 ORIGINALLY_SINGLE_PATTERN = 1,
                 FUTURE_MULTI_PATTERN = 2
+            }
+
+            /** Style enum. */
+            enum Style {
+                STYLE_UNSPECIFIED = 0,
+                DECLARATIVE_FRIENDLY = 1
             }
         }
 
@@ -1816,6 +1946,213 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ResourceReference
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of a RoutingRule. */
+        interface IRoutingRule {
+
+            /** RoutingRule routingParameters */
+            routingParameters?: (google.api.IRoutingParameter[]|null);
+        }
+
+        /** Represents a RoutingRule. */
+        class RoutingRule implements IRoutingRule {
+
+            /**
+             * Constructs a new RoutingRule.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: google.api.IRoutingRule);
+
+            /** RoutingRule routingParameters. */
+            public routingParameters: google.api.IRoutingParameter[];
+
+            /**
+             * Creates a new RoutingRule instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns RoutingRule instance
+             */
+            public static create(properties?: google.api.IRoutingRule): google.api.RoutingRule;
+
+            /**
+             * Encodes the specified RoutingRule message. Does not implicitly {@link google.api.RoutingRule.verify|verify} messages.
+             * @param message RoutingRule message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: google.api.IRoutingRule, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified RoutingRule message, length delimited. Does not implicitly {@link google.api.RoutingRule.verify|verify} messages.
+             * @param message RoutingRule message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: google.api.IRoutingRule, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a RoutingRule message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns RoutingRule
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.api.RoutingRule;
+
+            /**
+             * Decodes a RoutingRule message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns RoutingRule
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.api.RoutingRule;
+
+            /**
+             * Verifies a RoutingRule message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a RoutingRule message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns RoutingRule
+             */
+            public static fromObject(object: { [k: string]: any }): google.api.RoutingRule;
+
+            /**
+             * Creates a plain object from a RoutingRule message. Also converts values to other types if specified.
+             * @param message RoutingRule
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: google.api.RoutingRule, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this RoutingRule to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for RoutingRule
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of a RoutingParameter. */
+        interface IRoutingParameter {
+
+            /** RoutingParameter field */
+            field?: (string|null);
+
+            /** RoutingParameter pathTemplate */
+            pathTemplate?: (string|null);
+        }
+
+        /** Represents a RoutingParameter. */
+        class RoutingParameter implements IRoutingParameter {
+
+            /**
+             * Constructs a new RoutingParameter.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: google.api.IRoutingParameter);
+
+            /** RoutingParameter field. */
+            public field: string;
+
+            /** RoutingParameter pathTemplate. */
+            public pathTemplate: string;
+
+            /**
+             * Creates a new RoutingParameter instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns RoutingParameter instance
+             */
+            public static create(properties?: google.api.IRoutingParameter): google.api.RoutingParameter;
+
+            /**
+             * Encodes the specified RoutingParameter message. Does not implicitly {@link google.api.RoutingParameter.verify|verify} messages.
+             * @param message RoutingParameter message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: google.api.IRoutingParameter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified RoutingParameter message, length delimited. Does not implicitly {@link google.api.RoutingParameter.verify|verify} messages.
+             * @param message RoutingParameter message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: google.api.IRoutingParameter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a RoutingParameter message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns RoutingParameter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.api.RoutingParameter;
+
+            /**
+             * Decodes a RoutingParameter message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns RoutingParameter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.api.RoutingParameter;
+
+            /**
+             * Verifies a RoutingParameter message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a RoutingParameter message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns RoutingParameter
+             */
+            public static fromObject(object: { [k: string]: any }): google.api.RoutingParameter;
+
+            /**
+             * Creates a plain object from a RoutingParameter message. Also converts values to other types if specified.
+             * @param message RoutingParameter
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: google.api.RoutingParameter, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this RoutingParameter to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for RoutingParameter
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
     }
 
@@ -1910,6 +2247,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for FileDescriptorSet
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a FileDescriptorProto. */
@@ -1950,6 +2294,9 @@ export namespace google {
 
             /** FileDescriptorProto syntax */
             syntax?: (string|null);
+
+            /** FileDescriptorProto edition */
+            edition?: (string|null);
         }
 
         /** Represents a FileDescriptorProto. */
@@ -1996,6 +2343,9 @@ export namespace google {
 
             /** FileDescriptorProto syntax. */
             public syntax: string;
+
+            /** FileDescriptorProto edition. */
+            public edition: string;
 
             /**
              * Creates a new FileDescriptorProto instance using the specified properties.
@@ -2066,6 +2416,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for FileDescriptorProto
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a DescriptorProto. */
@@ -2210,6 +2567,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for DescriptorProto
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace DescriptorProto {
@@ -2314,6 +2678,13 @@ export namespace google {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for ExtensionRange
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
 
             /** Properties of a ReservedRange. */
@@ -2410,6 +2781,13 @@ export namespace google {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for ReservedRange
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
         }
 
@@ -2501,6 +2879,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ExtensionRangeOptions
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a FieldDescriptorProto. */
@@ -2651,6 +3036,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for FieldDescriptorProto
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace FieldDescriptorProto {
@@ -2779,6 +3171,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for OneofDescriptorProto
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of an EnumDescriptorProto. */
@@ -2893,6 +3292,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for EnumDescriptorProto
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace EnumDescriptorProto {
@@ -2991,6 +3397,13 @@ export namespace google {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for EnumReservedRange
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
         }
 
@@ -3094,6 +3507,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for EnumValueDescriptorProto
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a ServiceDescriptorProto. */
@@ -3196,6 +3616,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ServiceDescriptorProto
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a MethodDescriptorProto. */
@@ -3316,6 +3743,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for MethodDescriptorProto
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a FileOptions. */
@@ -3529,6 +3963,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for FileOptions
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace FileOptions {
@@ -3656,6 +4097,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for MessageOptions
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a FieldOptions. */
@@ -3672,6 +4120,9 @@ export namespace google {
 
             /** FieldOptions lazy */
             lazy?: (boolean|null);
+
+            /** FieldOptions unverifiedLazy */
+            unverifiedLazy?: (boolean|null);
 
             /** FieldOptions deprecated */
             deprecated?: (boolean|null);
@@ -3709,6 +4160,9 @@ export namespace google {
 
             /** FieldOptions lazy. */
             public lazy: boolean;
+
+            /** FieldOptions unverifiedLazy. */
+            public unverifiedLazy: boolean;
 
             /** FieldOptions deprecated. */
             public deprecated: boolean;
@@ -3788,6 +4242,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for FieldOptions
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace FieldOptions {
@@ -3895,6 +4356,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for OneofOptions
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of an EnumOptions. */
@@ -3997,6 +4465,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for EnumOptions
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of an EnumValueOptions. */
@@ -4093,6 +4568,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for EnumValueOptions
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a ServiceOptions. */
@@ -4195,6 +4677,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ServiceOptions
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a MethodOptions. */
@@ -4211,6 +4700,9 @@ export namespace google {
 
             /** MethodOptions .google.api.http */
             ".google.api.http"?: (google.api.IHttpRule|null);
+
+            /** MethodOptions .google.api.routing */
+            ".google.api.routing"?: (google.api.IRoutingRule|null);
 
             /** MethodOptions .google.api.methodSignature */
             ".google.api.methodSignature"?: (string[]|null);
@@ -4306,6 +4798,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for MethodOptions
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace MethodOptions {
@@ -4328,10 +4827,10 @@ export namespace google {
             identifierValue?: (string|null);
 
             /** UninterpretedOption positiveIntValue */
-            positiveIntValue?: (number|Long|null);
+            positiveIntValue?: (number|null);
 
             /** UninterpretedOption negativeIntValue */
-            negativeIntValue?: (number|Long|null);
+            negativeIntValue?: (number|null);
 
             /** UninterpretedOption doubleValue */
             doubleValue?: (number|null);
@@ -4359,10 +4858,10 @@ export namespace google {
             public identifierValue: string;
 
             /** UninterpretedOption positiveIntValue. */
-            public positiveIntValue: (number|Long);
+            public positiveIntValue: (number);
 
             /** UninterpretedOption negativeIntValue. */
-            public negativeIntValue: (number|Long);
+            public negativeIntValue: (number);
 
             /** UninterpretedOption doubleValue. */
             public doubleValue: number;
@@ -4442,6 +4941,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for UninterpretedOption
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace UninterpretedOption {
@@ -4540,6 +5046,13 @@ export namespace google {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for NamePart
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
         }
 
@@ -4631,6 +5144,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for SourceCodeInfo
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace SourceCodeInfo {
@@ -4747,6 +5267,13 @@ export namespace google {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for Location
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
         }
 
@@ -4838,6 +5365,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for GeneratedCodeInfo
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         namespace GeneratedCodeInfo {
@@ -4856,6 +5390,9 @@ export namespace google {
 
                 /** Annotation end */
                 end?: (number|null);
+
+                /** Annotation semantic */
+                semantic?: (google.protobuf.GeneratedCodeInfo.Annotation.Semantic|null);
             }
 
             /** Represents an Annotation. */
@@ -4878,6 +5415,9 @@ export namespace google {
 
                 /** Annotation end. */
                 public end: number;
+
+                /** Annotation semantic. */
+                public semantic: google.protobuf.GeneratedCodeInfo.Annotation.Semantic;
 
                 /**
                  * Creates a new Annotation instance using the specified properties.
@@ -4948,6 +5488,23 @@ export namespace google {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for Annotation
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+
+            namespace Annotation {
+
+                /** Semantic enum. */
+                enum Semantic {
+                    NONE = 0,
+                    SET = 1,
+                    ALIAS = 2
+                }
             }
         }
 
@@ -5045,13 +5602,20 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for Any
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a Duration. */
         interface IDuration {
 
             /** Duration seconds */
-            seconds?: (number|Long|null);
+            seconds?: (number|null);
 
             /** Duration nanos */
             nanos?: (number|null);
@@ -5067,7 +5631,7 @@ export namespace google {
             constructor(properties?: google.protobuf.IDuration);
 
             /** Duration seconds. */
-            public seconds: (number|Long);
+            public seconds: (number);
 
             /** Duration nanos. */
             public nanos: number;
@@ -5141,6 +5705,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for Duration
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of an Empty. */
@@ -5225,6 +5796,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for Empty
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Namespace compiler. */
@@ -5336,6 +5914,13 @@ export namespace google {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for Version
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
 
             /** Properties of a CodeGeneratorRequest. */
@@ -5444,6 +6029,13 @@ export namespace google {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for CodeGeneratorRequest
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
 
             /** Properties of a CodeGeneratorResponse. */
@@ -5453,7 +6045,7 @@ export namespace google {
                 error?: (string|null);
 
                 /** CodeGeneratorResponse supportedFeatures */
-                supportedFeatures?: (number|Long|null);
+                supportedFeatures?: (number|null);
 
                 /** CodeGeneratorResponse file */
                 file?: (google.protobuf.compiler.CodeGeneratorResponse.IFile[]|null);
@@ -5472,7 +6064,7 @@ export namespace google {
                 public error: string;
 
                 /** CodeGeneratorResponse supportedFeatures. */
-                public supportedFeatures: (number|Long);
+                public supportedFeatures: (number);
 
                 /** CodeGeneratorResponse file. */
                 public file: google.protobuf.compiler.CodeGeneratorResponse.IFile[];
@@ -5546,6 +6138,13 @@ export namespace google {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for CodeGeneratorResponse
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
             }
 
             namespace CodeGeneratorResponse {
@@ -5567,6 +6166,9 @@ export namespace google {
 
                     /** File content */
                     content?: (string|null);
+
+                    /** File generatedCodeInfo */
+                    generatedCodeInfo?: (google.protobuf.IGeneratedCodeInfo|null);
                 }
 
                 /** Represents a File. */
@@ -5586,6 +6188,9 @@ export namespace google {
 
                     /** File content. */
                     public content: string;
+
+                    /** File generatedCodeInfo. */
+                    public generatedCodeInfo?: (google.protobuf.IGeneratedCodeInfo|null);
 
                     /**
                      * Creates a new File instance using the specified properties.
@@ -5656,6 +6261,13 @@ export namespace google {
                      * @returns JSON object
                      */
                     public toJSON(): { [k: string]: any };
+
+                    /**
+                     * Gets the default type url for File
+                     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                     * @returns The default type url
+                     */
+                    public static getTypeUrl(typeUrlPrefix?: string): string;
                 }
             }
         }
@@ -5748,6 +6360,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for DoubleValue
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a FloatValue. */
@@ -5838,13 +6457,20 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for FloatValue
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of an Int64Value. */
         interface IInt64Value {
 
             /** Int64Value value */
-            value?: (number|Long|null);
+            value?: (number|null);
         }
 
         /** Represents an Int64Value. */
@@ -5857,7 +6483,7 @@ export namespace google {
             constructor(properties?: google.protobuf.IInt64Value);
 
             /** Int64Value value. */
-            public value: (number|Long);
+            public value: (number);
 
             /**
              * Creates a new Int64Value instance using the specified properties.
@@ -5928,13 +6554,20 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for Int64Value
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a UInt64Value. */
         interface IUInt64Value {
 
             /** UInt64Value value */
-            value?: (number|Long|null);
+            value?: (number|null);
         }
 
         /** Represents a UInt64Value. */
@@ -5947,7 +6580,7 @@ export namespace google {
             constructor(properties?: google.protobuf.IUInt64Value);
 
             /** UInt64Value value. */
-            public value: (number|Long);
+            public value: (number);
 
             /**
              * Creates a new UInt64Value instance using the specified properties.
@@ -6018,6 +6651,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for UInt64Value
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of an Int32Value. */
@@ -6108,6 +6748,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for Int32Value
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a UInt32Value. */
@@ -6198,6 +6845,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for UInt32Value
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a BoolValue. */
@@ -6288,6 +6942,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for BoolValue
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a StringValue. */
@@ -6378,6 +7039,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for StringValue
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a BytesValue. */
@@ -6468,6 +7136,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for BytesValue
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
     }
 
@@ -6718,6 +7393,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for Operation
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a GetOperationRequest. */
@@ -6808,6 +7490,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for GetOperationRequest
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a ListOperationsRequest. */
@@ -6916,6 +7605,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ListOperationsRequest
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a ListOperationsResponse. */
@@ -7012,6 +7708,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ListOperationsResponse
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a CancelOperationRequest. */
@@ -7102,6 +7805,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for CancelOperationRequest
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a DeleteOperationRequest. */
@@ -7192,6 +7902,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for DeleteOperationRequest
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of a WaitOperationRequest. */
@@ -7288,6 +8005,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for WaitOperationRequest
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Properties of an OperationInfo. */
@@ -7384,6 +8108,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for OperationInfo
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
     }
 
@@ -7490,6 +8221,13 @@ export namespace google {
              * @returns JSON object
              */
             public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for Status
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
         /** Code enum. */
@@ -7511,6 +8249,1202 @@ export namespace google {
             INTERNAL = 13,
             UNAVAILABLE = 14,
             DATA_LOSS = 15
+        }
+    }
+
+    /** Namespace cloud. */
+    namespace cloud {
+
+        /** Namespace tools. */
+        namespace tools {
+
+            /** Namespace snippetgen. */
+            namespace snippetgen {
+
+                /** Namespace snippetindex. */
+                namespace snippetindex {
+
+                    /** Namespace v1. */
+                    namespace v1 {
+
+                        /** Properties of an Index. */
+                        interface IIndex {
+
+                            /** Index clientLibrary */
+                            clientLibrary?: (google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary|null);
+
+                            /** Index snippets */
+                            snippets?: (google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[]|null);
+                        }
+
+                        /** Represents an Index. */
+                        class Index implements IIndex {
+
+                            /**
+                             * Constructs a new Index.
+                             * @param [properties] Properties to set
+                             */
+                            constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IIndex);
+
+                            /** Index clientLibrary. */
+                            public clientLibrary?: (google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary|null);
+
+                            /** Index snippets. */
+                            public snippets: google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[];
+
+                            /**
+                             * Creates a new Index instance using the specified properties.
+                             * @param [properties] Properties to set
+                             * @returns Index instance
+                             */
+                            public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IIndex): google.cloud.tools.snippetgen.snippetindex.v1.Index;
+
+                            /**
+                             * Encodes the specified Index message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Index.verify|verify} messages.
+                             * @param message Index message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.IIndex, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Encodes the specified Index message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Index.verify|verify} messages.
+                             * @param message Index message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.IIndex, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Decodes an Index message from the specified reader or buffer.
+                             * @param reader Reader or buffer to decode from
+                             * @param [length] Message length if known beforehand
+                             * @returns Index
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.Index;
+
+                            /**
+                             * Decodes an Index message from the specified reader or buffer, length delimited.
+                             * @param reader Reader or buffer to decode from
+                             * @returns Index
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.Index;
+
+                            /**
+                             * Verifies an Index message.
+                             * @param message Plain object to verify
+                             * @returns `null` if valid, otherwise the reason why it is not
+                             */
+                            public static verify(message: { [k: string]: any }): (string|null);
+
+                            /**
+                             * Creates an Index message from a plain object. Also converts values to their respective internal types.
+                             * @param object Plain object
+                             * @returns Index
+                             */
+                            public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.Index;
+
+                            /**
+                             * Creates a plain object from an Index message. Also converts values to other types if specified.
+                             * @param message Index
+                             * @param [options] Conversion options
+                             * @returns Plain object
+                             */
+                            public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.Index, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                            /**
+                             * Converts this Index to JSON.
+                             * @returns JSON object
+                             */
+                            public toJSON(): { [k: string]: any };
+
+                            /**
+                             * Gets the default type url for Index
+                             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                             * @returns The default type url
+                             */
+                            public static getTypeUrl(typeUrlPrefix?: string): string;
+                        }
+
+                        /** Properties of a Snippet. */
+                        interface ISnippet {
+
+                            /** Snippet regionTag */
+                            regionTag?: (string|null);
+
+                            /** snippet configuration. */
+                            title?: (string|null);
+
+                            /** Snippet description */
+                            description?: (string|null);
+
+                            /** Snippet file */
+                            file?: (string|null);
+
+                            /** Snippet language */
+                            language?: (google.cloud.tools.snippetgen.snippetindex.v1.Language|null);
+
+                            /** Snippet clientMethod */
+                            clientMethod?: (google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod|null);
+
+                            /** Snippet canonical */
+                            canonical?: (boolean|null);
+
+                            /** Snippet origin */
+                            origin?: (google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin|null);
+
+                            /** Snippet segments */
+                            segments?: (google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment[]|null);
+                        }
+
+                        /** Represents a Snippet. */
+                        class Snippet implements ISnippet {
+
+                            /**
+                             * Constructs a new Snippet.
+                             * @param [properties] Properties to set
+                             */
+                            constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.ISnippet);
+
+                            /** Snippet regionTag. */
+                            public regionTag: string;
+
+                            /** snippet configuration. */
+                            public title: string;
+
+                            /** Snippet description. */
+                            public description: string;
+
+                            /** Snippet file. */
+                            public file: string;
+
+                            /** Snippet language. */
+                            public language: google.cloud.tools.snippetgen.snippetindex.v1.Language;
+
+                            /** Snippet clientMethod. */
+                            public clientMethod?: (google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod|null);
+
+                            /** Snippet canonical. */
+                            public canonical: boolean;
+
+                            /** Snippet origin. */
+                            public origin: google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin;
+
+                            /** Snippet segments. */
+                            public segments: google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment[];
+
+                            /**
+                             * Creates a new Snippet instance using the specified properties.
+                             * @param [properties] Properties to set
+                             * @returns Snippet instance
+                             */
+                            public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.ISnippet): google.cloud.tools.snippetgen.snippetindex.v1.Snippet;
+
+                            /**
+                             * Encodes the specified Snippet message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Snippet.verify|verify} messages.
+                             * @param message Snippet message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.ISnippet, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Encodes the specified Snippet message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Snippet.verify|verify} messages.
+                             * @param message Snippet message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.ISnippet, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Decodes a Snippet message from the specified reader or buffer.
+                             * @param reader Reader or buffer to decode from
+                             * @param [length] Message length if known beforehand
+                             * @returns Snippet
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.Snippet;
+
+                            /**
+                             * Decodes a Snippet message from the specified reader or buffer, length delimited.
+                             * @param reader Reader or buffer to decode from
+                             * @returns Snippet
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.Snippet;
+
+                            /**
+                             * Verifies a Snippet message.
+                             * @param message Plain object to verify
+                             * @returns `null` if valid, otherwise the reason why it is not
+                             */
+                            public static verify(message: { [k: string]: any }): (string|null);
+
+                            /**
+                             * Creates a Snippet message from a plain object. Also converts values to their respective internal types.
+                             * @param object Plain object
+                             * @returns Snippet
+                             */
+                            public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.Snippet;
+
+                            /**
+                             * Creates a plain object from a Snippet message. Also converts values to other types if specified.
+                             * @param message Snippet
+                             * @param [options] Conversion options
+                             * @returns Plain object
+                             */
+                            public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.Snippet, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                            /**
+                             * Converts this Snippet to JSON.
+                             * @returns JSON object
+                             */
+                            public toJSON(): { [k: string]: any };
+
+                            /**
+                             * Gets the default type url for Snippet
+                             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                             * @returns The default type url
+                             */
+                            public static getTypeUrl(typeUrlPrefix?: string): string;
+                        }
+
+                        namespace Snippet {
+
+                            /** Origin enum. */
+                            enum Origin {
+                                ORIGIN_UNSPECIFIED = 0,
+                                API_DEFINITION = 1,
+                                CONFIG = 2,
+                                HANDWRITTEN = 3
+                            }
+
+                            /** Properties of a Segment. */
+                            interface ISegment {
+
+                                /** Segment start */
+                                start?: (number|null);
+
+                                /** Segment end */
+                                end?: (number|null);
+
+                                /** Segment type */
+                                type?: (google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType|null);
+                            }
+
+                            /** Represents a Segment. */
+                            class Segment implements ISegment {
+
+                                /**
+                                 * Constructs a new Segment.
+                                 * @param [properties] Properties to set
+                                 */
+                                constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment);
+
+                                /** Segment start. */
+                                public start: number;
+
+                                /** Segment end. */
+                                public end: number;
+
+                                /** Segment type. */
+                                public type: google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType;
+
+                                /**
+                                 * Creates a new Segment instance using the specified properties.
+                                 * @param [properties] Properties to set
+                                 * @returns Segment instance
+                                 */
+                                public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment): google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment;
+
+                                /**
+                                 * Encodes the specified Segment message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.verify|verify} messages.
+                                 * @param message Segment message or plain object to encode
+                                 * @param [writer] Writer to encode to
+                                 * @returns Writer
+                                 */
+                                public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                                /**
+                                 * Encodes the specified Segment message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.verify|verify} messages.
+                                 * @param message Segment message or plain object to encode
+                                 * @param [writer] Writer to encode to
+                                 * @returns Writer
+                                 */
+                                public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.Snippet.ISegment, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                                /**
+                                 * Decodes a Segment message from the specified reader or buffer.
+                                 * @param reader Reader or buffer to decode from
+                                 * @param [length] Message length if known beforehand
+                                 * @returns Segment
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment;
+
+                                /**
+                                 * Decodes a Segment message from the specified reader or buffer, length delimited.
+                                 * @param reader Reader or buffer to decode from
+                                 * @returns Segment
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment;
+
+                                /**
+                                 * Verifies a Segment message.
+                                 * @param message Plain object to verify
+                                 * @returns `null` if valid, otherwise the reason why it is not
+                                 */
+                                public static verify(message: { [k: string]: any }): (string|null);
+
+                                /**
+                                 * Creates a Segment message from a plain object. Also converts values to their respective internal types.
+                                 * @param object Plain object
+                                 * @returns Segment
+                                 */
+                                public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment;
+
+                                /**
+                                 * Creates a plain object from a Segment message. Also converts values to other types if specified.
+                                 * @param message Segment
+                                 * @param [options] Conversion options
+                                 * @returns Plain object
+                                 */
+                                public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                                /**
+                                 * Converts this Segment to JSON.
+                                 * @returns JSON object
+                                 */
+                                public toJSON(): { [k: string]: any };
+
+                                /**
+                                 * Gets the default type url for Segment
+                                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                                 * @returns The default type url
+                                 */
+                                public static getTypeUrl(typeUrlPrefix?: string): string;
+                            }
+
+                            namespace Segment {
+
+                                /** SegmentType enum. */
+                                enum SegmentType {
+                                    SEGMENT_TYPE_UNSPECIFIED = 0,
+                                    FULL = 1,
+                                    SHORT = 2,
+                                    CLIENT_INITIALIZATION = 3,
+                                    REQUEST_INITIALIZATION = 4,
+                                    REQUEST_EXECUTION = 5,
+                                    RESPONSE_HANDLING = 6
+                                }
+                            }
+                        }
+
+                        /** Properties of a ClientMethod. */
+                        interface IClientMethod {
+
+                            /** ClientMethod shortName */
+                            shortName?: (string|null);
+
+                            /** ClientMethod fullName */
+                            fullName?: (string|null);
+
+                            /** ClientMethod async */
+                            async?: (boolean|null);
+
+                            /** ClientMethod parameters */
+                            parameters?: (google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter[]|null);
+
+                            /** ClientMethod resultType */
+                            resultType?: (string|null);
+
+                            /** ClientMethod client */
+                            client?: (google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient|null);
+
+                            /** ClientMethod method */
+                            method?: (google.cloud.tools.snippetgen.snippetindex.v1.IMethod|null);
+                        }
+
+                        /** Represents a ClientMethod. */
+                        class ClientMethod implements IClientMethod {
+
+                            /**
+                             * Constructs a new ClientMethod.
+                             * @param [properties] Properties to set
+                             */
+                            constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod);
+
+                            /** ClientMethod shortName. */
+                            public shortName: string;
+
+                            /** ClientMethod fullName. */
+                            public fullName: string;
+
+                            /** ClientMethod async. */
+                            public async: boolean;
+
+                            /** ClientMethod parameters. */
+                            public parameters: google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter[];
+
+                            /** ClientMethod resultType. */
+                            public resultType: string;
+
+                            /** ClientMethod client. */
+                            public client?: (google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient|null);
+
+                            /** ClientMethod method. */
+                            public method?: (google.cloud.tools.snippetgen.snippetindex.v1.IMethod|null);
+
+                            /**
+                             * Creates a new ClientMethod instance using the specified properties.
+                             * @param [properties] Properties to set
+                             * @returns ClientMethod instance
+                             */
+                            public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod): google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod;
+
+                            /**
+                             * Encodes the specified ClientMethod message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.verify|verify} messages.
+                             * @param message ClientMethod message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Encodes the specified ClientMethod message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.verify|verify} messages.
+                             * @param message ClientMethod message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.IClientMethod, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Decodes a ClientMethod message from the specified reader or buffer.
+                             * @param reader Reader or buffer to decode from
+                             * @param [length] Message length if known beforehand
+                             * @returns ClientMethod
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod;
+
+                            /**
+                             * Decodes a ClientMethod message from the specified reader or buffer, length delimited.
+                             * @param reader Reader or buffer to decode from
+                             * @returns ClientMethod
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod;
+
+                            /**
+                             * Verifies a ClientMethod message.
+                             * @param message Plain object to verify
+                             * @returns `null` if valid, otherwise the reason why it is not
+                             */
+                            public static verify(message: { [k: string]: any }): (string|null);
+
+                            /**
+                             * Creates a ClientMethod message from a plain object. Also converts values to their respective internal types.
+                             * @param object Plain object
+                             * @returns ClientMethod
+                             */
+                            public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod;
+
+                            /**
+                             * Creates a plain object from a ClientMethod message. Also converts values to other types if specified.
+                             * @param message ClientMethod
+                             * @param [options] Conversion options
+                             * @returns Plain object
+                             */
+                            public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                            /**
+                             * Converts this ClientMethod to JSON.
+                             * @returns JSON object
+                             */
+                            public toJSON(): { [k: string]: any };
+
+                            /**
+                             * Gets the default type url for ClientMethod
+                             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                             * @returns The default type url
+                             */
+                            public static getTypeUrl(typeUrlPrefix?: string): string;
+                        }
+
+                        namespace ClientMethod {
+
+                            /** Properties of a Parameter. */
+                            interface IParameter {
+
+                                /** Parameter type */
+                                type?: (string|null);
+
+                                /** Parameter name */
+                                name?: (string|null);
+                            }
+
+                            /** Represents a Parameter. */
+                            class Parameter implements IParameter {
+
+                                /**
+                                 * Constructs a new Parameter.
+                                 * @param [properties] Properties to set
+                                 */
+                                constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter);
+
+                                /** Parameter type. */
+                                public type: string;
+
+                                /** Parameter name. */
+                                public name: string;
+
+                                /**
+                                 * Creates a new Parameter instance using the specified properties.
+                                 * @param [properties] Properties to set
+                                 * @returns Parameter instance
+                                 */
+                                public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter): google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter;
+
+                                /**
+                                 * Encodes the specified Parameter message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter.verify|verify} messages.
+                                 * @param message Parameter message or plain object to encode
+                                 * @param [writer] Writer to encode to
+                                 * @returns Writer
+                                 */
+                                public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                                /**
+                                 * Encodes the specified Parameter message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter.verify|verify} messages.
+                                 * @param message Parameter message or plain object to encode
+                                 * @param [writer] Writer to encode to
+                                 * @returns Writer
+                                 */
+                                public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                                /**
+                                 * Decodes a Parameter message from the specified reader or buffer.
+                                 * @param reader Reader or buffer to decode from
+                                 * @param [length] Message length if known beforehand
+                                 * @returns Parameter
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter;
+
+                                /**
+                                 * Decodes a Parameter message from the specified reader or buffer, length delimited.
+                                 * @param reader Reader or buffer to decode from
+                                 * @returns Parameter
+                                 * @throws {Error} If the payload is not a reader or valid buffer
+                                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                                 */
+                                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter;
+
+                                /**
+                                 * Verifies a Parameter message.
+                                 * @param message Plain object to verify
+                                 * @returns `null` if valid, otherwise the reason why it is not
+                                 */
+                                public static verify(message: { [k: string]: any }): (string|null);
+
+                                /**
+                                 * Creates a Parameter message from a plain object. Also converts values to their respective internal types.
+                                 * @param object Plain object
+                                 * @returns Parameter
+                                 */
+                                public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter;
+
+                                /**
+                                 * Creates a plain object from a Parameter message. Also converts values to other types if specified.
+                                 * @param message Parameter
+                                 * @param [options] Conversion options
+                                 * @returns Plain object
+                                 */
+                                public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.Parameter, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                                /**
+                                 * Converts this Parameter to JSON.
+                                 * @returns JSON object
+                                 */
+                                public toJSON(): { [k: string]: any };
+
+                                /**
+                                 * Gets the default type url for Parameter
+                                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                                 * @returns The default type url
+                                 */
+                                public static getTypeUrl(typeUrlPrefix?: string): string;
+                            }
+                        }
+
+                        /** Properties of a ServiceClient. */
+                        interface IServiceClient {
+
+                            /** ServiceClient shortName */
+                            shortName?: (string|null);
+
+                            /** ServiceClient fullName */
+                            fullName?: (string|null);
+                        }
+
+                        /** Represents a ServiceClient. */
+                        class ServiceClient implements IServiceClient {
+
+                            /**
+                             * Constructs a new ServiceClient.
+                             * @param [properties] Properties to set
+                             */
+                            constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient);
+
+                            /** ServiceClient shortName. */
+                            public shortName: string;
+
+                            /** ServiceClient fullName. */
+                            public fullName: string;
+
+                            /**
+                             * Creates a new ServiceClient instance using the specified properties.
+                             * @param [properties] Properties to set
+                             * @returns ServiceClient instance
+                             */
+                            public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient): google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient;
+
+                            /**
+                             * Encodes the specified ServiceClient message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient.verify|verify} messages.
+                             * @param message ServiceClient message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Encodes the specified ServiceClient message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient.verify|verify} messages.
+                             * @param message ServiceClient message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.IServiceClient, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Decodes a ServiceClient message from the specified reader or buffer.
+                             * @param reader Reader or buffer to decode from
+                             * @param [length] Message length if known beforehand
+                             * @returns ServiceClient
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient;
+
+                            /**
+                             * Decodes a ServiceClient message from the specified reader or buffer, length delimited.
+                             * @param reader Reader or buffer to decode from
+                             * @returns ServiceClient
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient;
+
+                            /**
+                             * Verifies a ServiceClient message.
+                             * @param message Plain object to verify
+                             * @returns `null` if valid, otherwise the reason why it is not
+                             */
+                            public static verify(message: { [k: string]: any }): (string|null);
+
+                            /**
+                             * Creates a ServiceClient message from a plain object. Also converts values to their respective internal types.
+                             * @param object Plain object
+                             * @returns ServiceClient
+                             */
+                            public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient;
+
+                            /**
+                             * Creates a plain object from a ServiceClient message. Also converts values to other types if specified.
+                             * @param message ServiceClient
+                             * @param [options] Conversion options
+                             * @returns Plain object
+                             */
+                            public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.ServiceClient, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                            /**
+                             * Converts this ServiceClient to JSON.
+                             * @returns JSON object
+                             */
+                            public toJSON(): { [k: string]: any };
+
+                            /**
+                             * Gets the default type url for ServiceClient
+                             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                             * @returns The default type url
+                             */
+                            public static getTypeUrl(typeUrlPrefix?: string): string;
+                        }
+
+                        /** Properties of a ClientLibrary. */
+                        interface IClientLibrary {
+
+                            /** ClientLibrary name */
+                            name?: (string|null);
+
+                            /** ClientLibrary version */
+                            version?: (string|null);
+
+                            /** ClientLibrary language */
+                            language?: (google.cloud.tools.snippetgen.snippetindex.v1.Language|null);
+
+                            /** ClientLibrary apis */
+                            apis?: (google.cloud.tools.snippetgen.snippetindex.v1.IApi[]|null);
+                        }
+
+                        /** Represents a ClientLibrary. */
+                        class ClientLibrary implements IClientLibrary {
+
+                            /**
+                             * Constructs a new ClientLibrary.
+                             * @param [properties] Properties to set
+                             */
+                            constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary);
+
+                            /** ClientLibrary name. */
+                            public name: string;
+
+                            /** ClientLibrary version. */
+                            public version: string;
+
+                            /** ClientLibrary language. */
+                            public language: google.cloud.tools.snippetgen.snippetindex.v1.Language;
+
+                            /** ClientLibrary apis. */
+                            public apis: google.cloud.tools.snippetgen.snippetindex.v1.IApi[];
+
+                            /**
+                             * Creates a new ClientLibrary instance using the specified properties.
+                             * @param [properties] Properties to set
+                             * @returns ClientLibrary instance
+                             */
+                            public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary): google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary;
+
+                            /**
+                             * Encodes the specified ClientLibrary message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.verify|verify} messages.
+                             * @param message ClientLibrary message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Encodes the specified ClientLibrary message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary.verify|verify} messages.
+                             * @param message ClientLibrary message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Decodes a ClientLibrary message from the specified reader or buffer.
+                             * @param reader Reader or buffer to decode from
+                             * @param [length] Message length if known beforehand
+                             * @returns ClientLibrary
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary;
+
+                            /**
+                             * Decodes a ClientLibrary message from the specified reader or buffer, length delimited.
+                             * @param reader Reader or buffer to decode from
+                             * @returns ClientLibrary
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary;
+
+                            /**
+                             * Verifies a ClientLibrary message.
+                             * @param message Plain object to verify
+                             * @returns `null` if valid, otherwise the reason why it is not
+                             */
+                            public static verify(message: { [k: string]: any }): (string|null);
+
+                            /**
+                             * Creates a ClientLibrary message from a plain object. Also converts values to their respective internal types.
+                             * @param object Plain object
+                             * @returns ClientLibrary
+                             */
+                            public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary;
+
+                            /**
+                             * Creates a plain object from a ClientLibrary message. Also converts values to other types if specified.
+                             * @param message ClientLibrary
+                             * @param [options] Conversion options
+                             * @returns Plain object
+                             */
+                            public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.ClientLibrary, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                            /**
+                             * Converts this ClientLibrary to JSON.
+                             * @returns JSON object
+                             */
+                            public toJSON(): { [k: string]: any };
+
+                            /**
+                             * Gets the default type url for ClientLibrary
+                             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                             * @returns The default type url
+                             */
+                            public static getTypeUrl(typeUrlPrefix?: string): string;
+                        }
+
+                        /** Properties of a Method. */
+                        interface IMethod {
+
+                            /** Method shortName */
+                            shortName?: (string|null);
+
+                            /** Method fullName */
+                            fullName?: (string|null);
+
+                            /** Method service */
+                            service?: (google.cloud.tools.snippetgen.snippetindex.v1.IService|null);
+                        }
+
+                        /** Represents a Method. */
+                        class Method implements IMethod {
+
+                            /**
+                             * Constructs a new Method.
+                             * @param [properties] Properties to set
+                             */
+                            constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IMethod);
+
+                            /** Method shortName. */
+                            public shortName: string;
+
+                            /** Method fullName. */
+                            public fullName: string;
+
+                            /** Method service. */
+                            public service?: (google.cloud.tools.snippetgen.snippetindex.v1.IService|null);
+
+                            /**
+                             * Creates a new Method instance using the specified properties.
+                             * @param [properties] Properties to set
+                             * @returns Method instance
+                             */
+                            public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IMethod): google.cloud.tools.snippetgen.snippetindex.v1.Method;
+
+                            /**
+                             * Encodes the specified Method message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Method.verify|verify} messages.
+                             * @param message Method message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.IMethod, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Encodes the specified Method message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Method.verify|verify} messages.
+                             * @param message Method message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.IMethod, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Decodes a Method message from the specified reader or buffer.
+                             * @param reader Reader or buffer to decode from
+                             * @param [length] Message length if known beforehand
+                             * @returns Method
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.Method;
+
+                            /**
+                             * Decodes a Method message from the specified reader or buffer, length delimited.
+                             * @param reader Reader or buffer to decode from
+                             * @returns Method
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.Method;
+
+                            /**
+                             * Verifies a Method message.
+                             * @param message Plain object to verify
+                             * @returns `null` if valid, otherwise the reason why it is not
+                             */
+                            public static verify(message: { [k: string]: any }): (string|null);
+
+                            /**
+                             * Creates a Method message from a plain object. Also converts values to their respective internal types.
+                             * @param object Plain object
+                             * @returns Method
+                             */
+                            public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.Method;
+
+                            /**
+                             * Creates a plain object from a Method message. Also converts values to other types if specified.
+                             * @param message Method
+                             * @param [options] Conversion options
+                             * @returns Plain object
+                             */
+                            public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.Method, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                            /**
+                             * Converts this Method to JSON.
+                             * @returns JSON object
+                             */
+                            public toJSON(): { [k: string]: any };
+
+                            /**
+                             * Gets the default type url for Method
+                             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                             * @returns The default type url
+                             */
+                            public static getTypeUrl(typeUrlPrefix?: string): string;
+                        }
+
+                        /** Properties of a Service. */
+                        interface IService {
+
+                            /** Service shortName */
+                            shortName?: (string|null);
+
+                            /** Service fullName */
+                            fullName?: (string|null);
+                        }
+
+                        /** Represents a Service. */
+                        class Service implements IService {
+
+                            /**
+                             * Constructs a new Service.
+                             * @param [properties] Properties to set
+                             */
+                            constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IService);
+
+                            /** Service shortName. */
+                            public shortName: string;
+
+                            /** Service fullName. */
+                            public fullName: string;
+
+                            /**
+                             * Creates a new Service instance using the specified properties.
+                             * @param [properties] Properties to set
+                             * @returns Service instance
+                             */
+                            public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IService): google.cloud.tools.snippetgen.snippetindex.v1.Service;
+
+                            /**
+                             * Encodes the specified Service message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Service.verify|verify} messages.
+                             * @param message Service message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.IService, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Encodes the specified Service message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Service.verify|verify} messages.
+                             * @param message Service message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.IService, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Decodes a Service message from the specified reader or buffer.
+                             * @param reader Reader or buffer to decode from
+                             * @param [length] Message length if known beforehand
+                             * @returns Service
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.Service;
+
+                            /**
+                             * Decodes a Service message from the specified reader or buffer, length delimited.
+                             * @param reader Reader or buffer to decode from
+                             * @returns Service
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.Service;
+
+                            /**
+                             * Verifies a Service message.
+                             * @param message Plain object to verify
+                             * @returns `null` if valid, otherwise the reason why it is not
+                             */
+                            public static verify(message: { [k: string]: any }): (string|null);
+
+                            /**
+                             * Creates a Service message from a plain object. Also converts values to their respective internal types.
+                             * @param object Plain object
+                             * @returns Service
+                             */
+                            public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.Service;
+
+                            /**
+                             * Creates a plain object from a Service message. Also converts values to other types if specified.
+                             * @param message Service
+                             * @param [options] Conversion options
+                             * @returns Plain object
+                             */
+                            public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.Service, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                            /**
+                             * Converts this Service to JSON.
+                             * @returns JSON object
+                             */
+                            public toJSON(): { [k: string]: any };
+
+                            /**
+                             * Gets the default type url for Service
+                             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                             * @returns The default type url
+                             */
+                            public static getTypeUrl(typeUrlPrefix?: string): string;
+                        }
+
+                        /** Properties of an Api. */
+                        interface IApi {
+
+                            /** Api id */
+                            id?: (string|null);
+
+                            /** Api version */
+                            version?: (string|null);
+                        }
+
+                        /** Represents an Api. */
+                        class Api implements IApi {
+
+                            /**
+                             * Constructs a new Api.
+                             * @param [properties] Properties to set
+                             */
+                            constructor(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IApi);
+
+                            /** Api id. */
+                            public id: string;
+
+                            /** Api version. */
+                            public version: string;
+
+                            /**
+                             * Creates a new Api instance using the specified properties.
+                             * @param [properties] Properties to set
+                             * @returns Api instance
+                             */
+                            public static create(properties?: google.cloud.tools.snippetgen.snippetindex.v1.IApi): google.cloud.tools.snippetgen.snippetindex.v1.Api;
+
+                            /**
+                             * Encodes the specified Api message. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Api.verify|verify} messages.
+                             * @param message Api message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encode(message: google.cloud.tools.snippetgen.snippetindex.v1.IApi, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Encodes the specified Api message, length delimited. Does not implicitly {@link google.cloud.tools.snippetgen.snippetindex.v1.Api.verify|verify} messages.
+                             * @param message Api message or plain object to encode
+                             * @param [writer] Writer to encode to
+                             * @returns Writer
+                             */
+                            public static encodeDelimited(message: google.cloud.tools.snippetgen.snippetindex.v1.IApi, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                            /**
+                             * Decodes an Api message from the specified reader or buffer.
+                             * @param reader Reader or buffer to decode from
+                             * @param [length] Message length if known beforehand
+                             * @returns Api
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): google.cloud.tools.snippetgen.snippetindex.v1.Api;
+
+                            /**
+                             * Decodes an Api message from the specified reader or buffer, length delimited.
+                             * @param reader Reader or buffer to decode from
+                             * @returns Api
+                             * @throws {Error} If the payload is not a reader or valid buffer
+                             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                             */
+                            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): google.cloud.tools.snippetgen.snippetindex.v1.Api;
+
+                            /**
+                             * Verifies an Api message.
+                             * @param message Plain object to verify
+                             * @returns `null` if valid, otherwise the reason why it is not
+                             */
+                            public static verify(message: { [k: string]: any }): (string|null);
+
+                            /**
+                             * Creates an Api message from a plain object. Also converts values to their respective internal types.
+                             * @param object Plain object
+                             * @returns Api
+                             */
+                            public static fromObject(object: { [k: string]: any }): google.cloud.tools.snippetgen.snippetindex.v1.Api;
+
+                            /**
+                             * Creates a plain object from an Api message. Also converts values to other types if specified.
+                             * @param message Api
+                             * @param [options] Conversion options
+                             * @returns Plain object
+                             */
+                            public static toObject(message: google.cloud.tools.snippetgen.snippetindex.v1.Api, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                            /**
+                             * Converts this Api to JSON.
+                             * @returns JSON object
+                             */
+                            public toJSON(): { [k: string]: any };
+
+                            /**
+                             * Gets the default type url for Api
+                             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                             * @returns The default type url
+                             */
+                            public static getTypeUrl(typeUrlPrefix?: string): string;
+                        }
+
+                        /** Language enum. */
+                        enum Language {
+                            LANGUAGE_UNSPECIFIED = 0,
+                            C_PLUS_PLUS = 1,
+                            C_SHARP = 2,
+                            DART = 3,
+                            ELIXIR = 4,
+                            ERLANG = 5,
+                            F_SHARP = 6,
+                            GO = 7,
+                            JAVA = 8,
+                            JAVASCRIPT = 9,
+                            KOTLIN = 10,
+                            PHP = 11,
+                            PYTHON = 12,
+                            RUBY = 13,
+                            RUST = 14,
+                            SWIFT = 15,
+                            TYPESCRIPT = 16,
+                            VB_NET = 17
+                        }
+                    }
+                }
+            }
         }
     }
 }

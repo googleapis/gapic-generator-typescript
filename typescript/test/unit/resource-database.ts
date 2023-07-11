@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as protos from '../../../protos';
-import {ResourceDatabase} from '../../src/schema/resource-database';
+import type * as protos from '../../../protos/index.js';
+import {ResourceDatabase} from '../../src/schema/resource-database.js';
 import {describe, it, beforeEach, afterEach} from 'mocha';
-import * as assert from 'assert';
+import assert from 'assert';
 
 describe('src/schema/resource-database.ts', () => {
   let warnings: string[] = [];

@@ -3,35 +3,47 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def gapic_generator_typescript_repositories():
   maybe(
-      http_archive,
-      name = "build_bazel_rules_nodejs",
-      sha256 = "a160d9ac88f2aebda2aa995de3fa3171300c076f06ad1d7c2e1385728b8442fa",
-      urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.4.1/rules_nodejs-3.4.1.tar.gz"],
+    http_archive,
+    name = "aspect_rules_js",
+    sha256 = "0b69e0967f8eb61de60801d6c8654843076bf7ef7512894a692a47f86e84a5c2",
+    strip_prefix = "rules_js-1.27.1",
+    url = "https://github.com/aspect-build/rules_js/archive/refs/tags/v1.27.1.tar.gz",
+  )
+
+  maybe(
+    http_archive,
+    name = "aspect_rules_ts",
+    sha256 = "40ab6d3d9cc3259da54fe2f162588aba92244af0f151fbc905dcc8e7b8744296",
+    strip_prefix = "rules_ts-1.4.2",
+    url = "https://github.com/aspect-build/rules_ts/archive/refs/tags/v1.4.2.tar.gz",
   )
 
   maybe(
       http_archive,
       name = "rules_proto",
-      sha256 = "602e7161d9195e50246177e7c55b2f39950a9cf7366f74ed5f22fd45750cd208",
-      strip_prefix = "rules_proto-97d8af4dc474595af3900dd85cb3a29ad28cc313",
+      sha256 = "5d4cd6780634eb2ecafa091df8be8009d395f70a02f722e07e063883dd8af861",
+      strip_prefix = "rules_proto-493169c1199dc21b9da860f7040a4502aa174676",
       urls = [
-          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/97d8af4dc474595af3900dd85cb3a29ad28cc313.tar.gz",
-          "https://github.com/bazelbuild/rules_proto/archive/97d8af4dc474595af3900dd85cb3a29ad28cc313.tar.gz",
+          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/493169c1199dc21b9da860f7040a4502aa174676.tar.gz",
+          "https://github.com/bazelbuild/rules_proto/archive/493169c1199dc21b9da860f7040a4502aa174676.tar.gz",
       ],
   )
 
-  _rules_gapic_version = "0.5.4"
+  _rules_gapic_version = "0.9.0"
   maybe(
       http_archive,
       name = "rules_gapic",
       strip_prefix = "rules_gapic-%s" % _rules_gapic_version,
       urls = ["https://github.com/googleapis/rules_gapic/archive/v%s.tar.gz" % _rules_gapic_version],
   )
- 
+
   maybe(
       http_archive,
       name = "com_google_protobuf",
-      sha256 = "07f8a02afc14a657f727ed89a8ec5627b9ecc47116d60acaabaa1da233bd2e8f",
-      strip_prefix = "protobuf-3.15.4",
-      urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.15.4.tar.gz"],
+      sha256 = "877ad443ab212a42d9c15dd3d2bbbaeec0c5a6a6eb43dd1c85713ebcb0e9f4c2",
+      strip_prefix = "protobuf-3.23.2",
+      urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.23.2.tar.gz"],
   )
+
+# This is the version of Node.js that would run the generator, it's unrelated to the versions supported by the generated libraries
+NODE_VERSION = "18.12.1" # https://github.com/bazelbuild/rules_nodejs/blob/stable/nodejs/private/node_versions.bzl

@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,12 +20,25 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as alertpolicyserviceModule from '../src';
 
 import {PassThrough} from 'stream';
 
 import {protobuf} from 'google-gax';
+
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -87,126 +100,145 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v3.AlertPolicyServiceClient', () => {
-    it('has servicePath', () => {
-        const servicePath = alertpolicyserviceModule.v3.AlertPolicyServiceClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = alertpolicyserviceModule.v3.AlertPolicyServiceClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = alertpolicyserviceModule.v3.AlertPolicyServiceClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = alertpolicyserviceModule.v3.AlertPolicyServiceClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('has apiEndpoint', () => {
+            const apiEndpoint = alertpolicyserviceModule.v3.AlertPolicyServiceClient.apiEndpoint;
+            assert(apiEndpoint);
         });
-        assert.strictEqual(client.alertPolicyServiceStub, undefined);
-        await client.initialize();
-        assert(client.alertPolicyServiceStub);
-    });
 
-    it('has close method', () => {
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('has port', () => {
+            const port = alertpolicyserviceModule.v3.AlertPolicyServiceClient.port;
+            assert(port);
+            assert(typeof port === 'number');
         });
-        client.close();
-    });
 
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('should create a client with no option', () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient();
+            assert(client);
         });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
 
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('should create a client with gRPC fallback', () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+                fallback: true,
+            });
+            assert(client);
         });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.alertPolicyServiceStub, undefined);
+            await client.initialize();
+            assert(client.alertPolicyServiceStub);
+        });
+
+        it('has close method for the initialized client', done => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            assert(client.alertPolicyServiceStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.alertPolicyServiceStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('getAlertPolicy', () => {
         it('invokes getAlertPolicy without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.AlertPolicy()
+            );
             client.innerApiCalls.getAlertPolicy = stubSimpleCall(expectedResponse);
             const [response] = await client.getAlertPolicy(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getAlertPolicy without error using callback', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.AlertPolicy()
+            );
             client.innerApiCalls.getAlertPolicy = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getAlertPolicy(
@@ -221,76 +253,100 @@ describe('v3.AlertPolicyServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getAlertPolicy with error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.GetAlertPolicyRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getAlertPolicy = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getAlertPolicy(request), expectedError);
-            assert((client.innerApiCalls.getAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes getAlertPolicy with closed client', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.GetAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.GetAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getAlertPolicy(request), expectedError);
         });
     });
 
     describe('createAlertPolicy', () => {
         it('invokes createAlertPolicy without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.AlertPolicy()
+            );
             client.innerApiCalls.createAlertPolicy = stubSimpleCall(expectedResponse);
             const [response] = await client.createAlertPolicy(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createAlertPolicy without error using callback', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.AlertPolicy()
+            );
             client.innerApiCalls.createAlertPolicy = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createAlertPolicy(
@@ -305,76 +361,100 @@ describe('v3.AlertPolicyServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.createAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createAlertPolicy with error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.CreateAlertPolicyRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createAlertPolicy = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createAlertPolicy(request), expectedError);
-            assert((client.innerApiCalls.createAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes createAlertPolicy with closed client', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.CreateAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.CreateAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createAlertPolicy(request), expectedError);
         });
     });
 
     describe('deleteAlertPolicy', () => {
         it('invokes deleteAlertPolicy without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteAlertPolicy = stubSimpleCall(expectedResponse);
             const [response] = await client.deleteAlertPolicy(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteAlertPolicy without error using callback', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.deleteAlertPolicy = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.deleteAlertPolicy(
@@ -389,78 +469,102 @@ describe('v3.AlertPolicyServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.deleteAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteAlertPolicy with error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.DeleteAlertPolicyRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteAlertPolicy = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteAlertPolicy(request), expectedError);
-            assert((client.innerApiCalls.deleteAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes deleteAlertPolicy with closed client', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.DeleteAlertPolicyRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.DeleteAlertPolicyRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.deleteAlertPolicy(request), expectedError);
         });
     });
 
     describe('updateAlertPolicy', () => {
         it('invokes updateAlertPolicy without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
-            request.alertPolicy = {};
-            request.alertPolicy.name = '';
-            const expectedHeaderRequestParams = "alert_policy.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateAlertPolicyRequest()
+            );
+            request.alertPolicy ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateAlertPolicyRequest', ['alertPolicy', 'name']);
+            request.alertPolicy.name = defaultValue1;
+            const expectedHeaderRequestParams = `alert_policy.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.AlertPolicy()
+            );
             client.innerApiCalls.updateAlertPolicy = stubSimpleCall(expectedResponse);
             const [response] = await client.updateAlertPolicy(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateAlertPolicy without error using callback', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
-            request.alertPolicy = {};
-            request.alertPolicy.name = '';
-            const expectedHeaderRequestParams = "alert_policy.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy());
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateAlertPolicyRequest()
+            );
+            request.alertPolicy ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateAlertPolicyRequest', ['alertPolicy', 'name']);
+            request.alertPolicy.name = defaultValue1;
+            const expectedHeaderRequestParams = `alert_policy.name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.monitoring.v3.AlertPolicy()
+            );
             client.innerApiCalls.updateAlertPolicy = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.updateAlertPolicy(
@@ -475,32 +579,55 @@ describe('v3.AlertPolicyServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.updateAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.updateAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes updateAlertPolicy with error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.UpdateAlertPolicyRequest());
-            request.alertPolicy = {};
-            request.alertPolicy.name = '';
-            const expectedHeaderRequestParams = "alert_policy.name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateAlertPolicyRequest()
+            );
+            request.alertPolicy ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateAlertPolicyRequest', ['alertPolicy', 'name']);
+            request.alertPolicy.name = defaultValue1;
+            const expectedHeaderRequestParams = `alert_policy.name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateAlertPolicy = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateAlertPolicy(request), expectedError);
-            assert((client.innerApiCalls.updateAlertPolicy as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.updateAlertPolicy as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.updateAlertPolicy as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes updateAlertPolicy with closed client', async () => {
+            const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.UpdateAlertPolicyRequest()
+            );
+            request.alertPolicy ??= {};
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.UpdateAlertPolicyRequest', ['alertPolicy', 'name']);
+            request.alertPolicy.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.updateAlertPolicy(request), expectedError);
         });
     });
 
@@ -511,17 +638,13 @@ describe('v3.AlertPolicyServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListAlertPoliciesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListAlertPoliciesRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
@@ -529,8 +652,12 @@ describe('v3.AlertPolicyServiceClient', () => {
             client.innerApiCalls.listAlertPolicies = stubSimpleCall(expectedResponse);
             const [response] = await client.listAlertPolicies(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listAlertPolicies as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listAlertPolicies as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listAlertPolicies as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listAlertPolicies without error using callback', async () => {
@@ -539,17 +666,13 @@ describe('v3.AlertPolicyServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListAlertPoliciesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListAlertPoliciesRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
@@ -568,8 +691,12 @@ describe('v3.AlertPolicyServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listAlertPolicies as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.listAlertPolicies as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listAlertPolicies as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listAlertPolicies with error', async () => {
@@ -578,21 +705,22 @@ describe('v3.AlertPolicyServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListAlertPoliciesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListAlertPoliciesRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listAlertPolicies = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listAlertPolicies(request), expectedError);
-            assert((client.innerApiCalls.listAlertPolicies as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listAlertPolicies as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listAlertPolicies as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listAlertPoliciesStream without error', async () => {
@@ -601,9 +729,13 @@ describe('v3.AlertPolicyServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListAlertPoliciesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListAlertPoliciesRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
@@ -627,10 +759,11 @@ describe('v3.AlertPolicyServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listAlertPolicies.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listAlertPolicies, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listAlertPolicies.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -640,9 +773,13 @@ describe('v3.AlertPolicyServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListAlertPoliciesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListAlertPoliciesRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.descriptors.page.listAlertPolicies.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listAlertPoliciesStream(request);
@@ -661,22 +798,28 @@ describe('v3.AlertPolicyServiceClient', () => {
             await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.listAlertPolicies.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listAlertPolicies, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listAlertPolicies.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                         expectedHeaderRequestParams
+                    ) 
             );
         });
 
         it('uses async iteration with listAlertPolicies without error', async () => {
             const client = new alertpolicyserviceModule.v3.AlertPolicyServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListAlertPoliciesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListAlertPoliciesRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
               generateSampleMessage(new protos.google.monitoring.v3.AlertPolicy()),
@@ -691,10 +834,11 @@ describe('v3.AlertPolicyServiceClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listAlertPolicies.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listAlertPolicies.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -704,9 +848,14 @@ describe('v3.AlertPolicyServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.monitoring.v3.ListAlertPoliciesRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";const expectedError = new Error('expected');
+            const request = generateSampleMessage(
+              new protos.google.monitoring.v3.ListAlertPoliciesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.monitoring.v3.ListAlertPoliciesRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedError = new Error('expected');
             client.descriptors.page.listAlertPolicies.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listAlertPoliciesAsync(request);
             await assert.rejects(async () => {
@@ -718,10 +867,11 @@ describe('v3.AlertPolicyServiceClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listAlertPolicies.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listAlertPolicies.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });

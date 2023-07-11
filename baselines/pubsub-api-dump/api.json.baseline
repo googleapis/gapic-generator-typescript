@@ -3,17 +3,18 @@
   "publishName": "pubsub",
   "naming": {
     "name": "Pubsub",
-    "productName": "Pubsub",
     "namespace": [
       "google"
     ],
     "version": "v1",
+    "productName": "Pubsub",
     "protoPackage": "google.pubsub.v1"
   },
   "hostname": "pubsub.googleapis.com",
   "port": "443",
   "services": [
     {
+      "name": "Publisher",
       "method": [
         {
           "inputInterface": ".google.pubsub.v1.Topic",
@@ -35,7 +36,8 @@
             ],
             ".google.api.http": {
               "put": "/v1/{name=projects/*/topics/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -118,7 +120,8 @@
           "options": {
             ".google.api.http": {
               "patch": "/v1/{topic.name=projects/*/topics/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -170,7 +173,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{topic=projects/*/topics/*}:publish",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -216,7 +220,8 @@
               "topic"
             ],
             ".google.api.http": {
-              "get": "/v1/{topic=projects/*/topics/*}"
+              "get": "/v1/{topic=projects/*/topics/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -256,7 +261,8 @@
               "project"
             ],
             ".google.api.http": {
-              "get": "/v1/{project=projects/*}/topics"
+              "get": "/v1/{project=projects/*}/topics",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -312,7 +318,8 @@
               "topic"
             ],
             ".google.api.http": {
-              "get": "/v1/{topic=projects/*/topics/*}/subscriptions"
+              "get": "/v1/{topic=projects/*/topics/*}/subscriptions",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -372,7 +379,8 @@
               "topic"
             ],
             ".google.api.http": {
-              "get": "/v1/{topic=projects/*/topics/*}/snapshots"
+              "get": "/v1/{topic=projects/*/topics/*}/snapshots",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -430,7 +438,8 @@
               "topic"
             ],
             ".google.api.http": {
-              "delete": "/v1/{topic=projects/*/topics/*}"
+              "delete": "/v1/{topic=projects/*/topics/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -468,7 +477,8 @@
           "outputType": ".google.pubsub.v1.DetachSubscriptionResponse",
           "options": {
             ".google.api.http": {
-              "post": "/v1/{subscription=projects/*/subscriptions/*}:detach"
+              "post": "/v1/{subscription=projects/*/subscriptions/*}:detach",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -489,13 +499,14 @@
           ]
         }
       ],
-      "name": "Publisher",
       "options": {
         ".google.api.defaultHost": "pubsub.googleapis.com",
         ".google.api.oauthScopes": "https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/pubsub"
       },
       "packageName": "google.pubsub.v1",
-      "iamService": false,
+      "protoFile": "google/pubsub/v1/pubsub.proto",
+      "IAMPolicyMixin": 0,
+      "LocationMixin": 0,
       "comments": [
         " The service that an application uses to manipulate topics, and to send",
         " messages to a topic."
@@ -704,7 +715,16 @@
             "paramType": "TYPE_STRING",
             "comments": [
               " The syntax of the proto file.",
-              " The supported values are \"proto2\" and \"proto3\"."
+              " The supported values are \"proto2\", \"proto3\", and \"editions\".",
+              "",
+              " If `edition` is present, this value must be \"editions\"."
+            ]
+          },
+          "FileDescriptorProto:edition": {
+            "paramName": "edition",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " The edition of the proto file, which is an opaque string."
             ]
           },
           "DescriptorProto:name": {
@@ -816,8 +836,7 @@
               " For numeric types, contains the original text representation of the value.",
               " For booleans, \"true\" or \"false\".",
               " For strings, contains the default text contents (not escaped in any way).",
-              " For bytes, contains the C escaped value.  All bytes >= 128 are escaped.",
-              " TODO(kenton):  Base-64 encode?"
+              " For bytes, contains the C escaped value.  All bytes >= 128 are escaped."
             ]
           },
           "FieldDescriptorProto:oneof_index": {
@@ -993,21 +1012,21 @@
             "paramName": "java_outer_classname",
             "paramType": "TYPE_STRING",
             "comments": [
-              " If set, all the classes from the .proto file are wrapped in a single",
-              " outer class with the given name.  This applies to both Proto1",
-              " (equivalent to the old \"--one_java_file\" option) and Proto2 (where",
-              " a .proto always translates to a single class, but you may want to",
-              " explicitly choose the class name)."
+              " Controls the name of the wrapper Java class generated for the .proto file.",
+              " That class will always contain the .proto file's getDescriptor() method as",
+              " well as any top-level extensions defined in the .proto file.",
+              " If java_multiple_files is disabled, then all the other classes from the",
+              " .proto file will be nested inside the single wrapper outer class."
             ]
           },
           "FileOptions:java_multiple_files": {
             "paramName": "java_multiple_files",
             "paramType": "TYPE_BOOL",
             "comments": [
-              " If set true, then the Java code generator will generate a separate .java",
+              " If enabled, then the Java code generator will generate a separate .java",
               " file for each top-level message, enum, and service defined in the .proto",
-              " file.  Thus, these types will *not* be nested inside the outer class",
-              " named by java_outer_classname.  However, the outer class will still be",
+              " file.  Thus, these types will *not* be nested inside the wrapper class",
+              " named by java_outer_classname.  However, the wrapper class will still be",
               " generated to contain the file's getDescriptor() method as well as any",
               " top-level extensions defined in the file."
             ]
@@ -1211,6 +1230,10 @@
             "paramName": "map_entry",
             "paramType": "TYPE_BOOL",
             "comments": [
+              " NOTE: Do not set the option in .proto files. Always use the maps syntax",
+              " instead. The option should only be implicitly set by the proto compiler",
+              " parser.",
+              "",
               " Whether the message is an automatically generated map entry type for the",
               " maps field.",
               "",
@@ -1227,11 +1250,23 @@
               " Implementations may choose not to generate the map_entry=true message, but",
               " use a native map in the target language to hold the keys and values.",
               " The reflection APIs in such implementations still need to work as",
-              " if the field is a repeated message field.",
+              " if the field is a repeated message field."
+            ]
+          },
+          "MessageOptions:deprecated_legacy_json_field_conflicts": {
+            "paramName": "deprecated_legacy_json_field_conflicts",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " Enable the legacy handling of JSON field name conflicts.  This lowercases",
+              " and strips underscored from the fields before comparison in proto3 only.",
+              " The new behavior takes `json_name` into account and applies to proto2 as",
+              " well.",
               "",
-              " NOTE: Do not set the option in .proto files. Always use the maps syntax",
-              " instead. The option should only be implicitly set by the proto compiler",
-              " parser."
+              " This should only be used as a temporary measure against broken builds due",
+              " to the change in behavior for JSON field name conflicts.",
+              "",
+              " TODO(b/261750190) This is legacy behavior we plan to remove once downstream",
+              " teams have had time to migrate."
             ]
           },
           "MessageOptions:uninterpreted_option": {
@@ -1300,7 +1335,6 @@
               " call from multiple threads concurrently, while non-const methods continue",
               " to require exclusive access.",
               "",
-              "",
               " Note that implementations may choose not to check required fields within",
               " a lazy sub-message.  That is, calling IsInitialized() on the outer message",
               " may return true even if the inner message has missing required fields.",
@@ -1310,7 +1344,19 @@
               " must be consistent about it.  That is, for any particular sub-message, the",
               " implementation must either *always* check its required fields, or *never*",
               " check its required fields, regardless of whether or not the message has",
-              " been parsed."
+              " been parsed.",
+              "",
+              " As of May 2022, lazy verifies the contents of the byte stream during",
+              " parsing.  An invalid byte stream will cause the overall parsing to fail."
+            ]
+          },
+          "FieldOptions:unverified_lazy": {
+            "paramName": "unverified_lazy",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " unverified_lazy does no correctness checks on the byte stream. This should",
+              " only be used where lazy with verification is prohibitive for performance",
+              " reasons."
             ]
           },
           "FieldOptions:deprecated": {
@@ -1329,6 +1375,24 @@
             "comments": [
               " For Google-internal migration only. Do not use."
             ]
+          },
+          "FieldOptions:debug_redact": {
+            "paramName": "debug_redact",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " Indicate that the field value should not be printed out when using debug",
+              " formats, e.g. when the field contains sensitive credentials."
+            ]
+          },
+          "FieldOptions:retention": {
+            "paramName": "retention",
+            "paramType": ".google.protobuf.FieldOptions.OptionRetention",
+            "comments": []
+          },
+          "FieldOptions:target": {
+            "paramName": "target",
+            "paramType": ".google.protobuf.FieldOptions.OptionTargetType",
+            "comments": []
           },
           "FieldOptions:uninterpreted_option": {
             "paramName": "uninterpreted_option",
@@ -1360,6 +1424,18 @@
               " Depending on the target platform, this can emit Deprecated annotations",
               " for the enum, or it will be completely ignored; in the very least, this",
               " is a formalization for deprecating enums."
+            ]
+          },
+          "EnumOptions:deprecated_legacy_json_field_conflicts": {
+            "paramName": "deprecated_legacy_json_field_conflicts",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " Enable the legacy handling of JSON field name conflicts.  This lowercases",
+              " and strips underscored from the fields before comparison in proto3 only.",
+              " The new behavior takes `json_name` into account and applies to proto2 as",
+              " well.",
+              " TODO(b/261750190) Remove this legacy behavior once downstream teams have",
+              " had time to migrate."
             ]
           },
           "EnumOptions:uninterpreted_option": {
@@ -1520,6 +1596,316 @@
               " of its generating .proto file."
             ]
           },
+          "Duration:seconds": {
+            "paramName": "seconds",
+            "paramType": "TYPE_INT64",
+            "comments": [
+              " Signed seconds of the span of time. Must be from -315,576,000,000",
+              " to +315,576,000,000 inclusive. Note: these bounds are computed from:",
+              " 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years"
+            ]
+          },
+          "Duration:nanos": {
+            "paramName": "nanos",
+            "paramType": "TYPE_INT32",
+            "comments": [
+              " Signed fractions of a second at nanosecond resolution of the span",
+              " of time. Durations less than one second are represented with a 0",
+              " `seconds` field and a positive or negative `nanos` field. For durations",
+              " of one second or more, a non-zero value for the `nanos` field must be",
+              " of the same sign as the `seconds` field. Must be from -999,999,999",
+              " to +999,999,999 inclusive."
+            ]
+          },
+          "CommonLanguageSettings:reference_docs_uri": {
+            "paramName": "reference_docs_uri",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Link to automatically generated reference documentation.  Example:",
+              " https://cloud.google.com/nodejs/docs/reference/asset/latest"
+            ]
+          },
+          "CommonLanguageSettings:destinations": {
+            "paramName": "destinations",
+            "paramType": "TYPE_ENUM[]",
+            "comments": [
+              " The destination where API teams want this client library to be published."
+            ]
+          },
+          "ClientLibrarySettings:version": {
+            "paramName": "version",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Version of the API to apply these settings to."
+            ]
+          },
+          "ClientLibrarySettings:launch_stage": {
+            "paramName": "launch_stage",
+            "paramType": ".google.api.LaunchStage",
+            "comments": [
+              " Launch stage of this version of the API."
+            ]
+          },
+          "ClientLibrarySettings:rest_numeric_enums": {
+            "paramName": "rest_numeric_enums",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " When using transport=rest, the client request will encode enums as",
+              " numbers rather than strings."
+            ]
+          },
+          "ClientLibrarySettings:java_settings": {
+            "paramName": "java_settings",
+            "paramType": ".google.api.JavaSettings",
+            "comments": [
+              " Settings for legacy Java features, supported in the Service YAML."
+            ]
+          },
+          "ClientLibrarySettings:cpp_settings": {
+            "paramName": "cpp_settings",
+            "paramType": ".google.api.CppSettings",
+            "comments": [
+              " Settings for C++ client libraries."
+            ]
+          },
+          "ClientLibrarySettings:php_settings": {
+            "paramName": "php_settings",
+            "paramType": ".google.api.PhpSettings",
+            "comments": [
+              " Settings for PHP client libraries."
+            ]
+          },
+          "ClientLibrarySettings:python_settings": {
+            "paramName": "python_settings",
+            "paramType": ".google.api.PythonSettings",
+            "comments": [
+              " Settings for Python client libraries."
+            ]
+          },
+          "ClientLibrarySettings:node_settings": {
+            "paramName": "node_settings",
+            "paramType": ".google.api.NodeSettings",
+            "comments": [
+              " Settings for Node client libraries."
+            ]
+          },
+          "ClientLibrarySettings:dotnet_settings": {
+            "paramName": "dotnet_settings",
+            "paramType": ".google.api.DotnetSettings",
+            "comments": [
+              " Settings for .NET client libraries."
+            ]
+          },
+          "ClientLibrarySettings:ruby_settings": {
+            "paramName": "ruby_settings",
+            "paramType": ".google.api.RubySettings",
+            "comments": [
+              " Settings for Ruby client libraries."
+            ]
+          },
+          "ClientLibrarySettings:go_settings": {
+            "paramName": "go_settings",
+            "paramType": ".google.api.GoSettings",
+            "comments": [
+              " Settings for Go client libraries."
+            ]
+          },
+          "Publishing:method_settings": {
+            "paramName": "method_settings",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " A list of API method settings, e.g. the behavior for methods that use the",
+              " long-running operation pattern."
+            ]
+          },
+          "Publishing:new_issue_uri": {
+            "paramName": "new_issue_uri",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Link to a place that API users can report issues.  Example:",
+              " https://issuetracker.google.com/issues/new?component=190865&template=1161103"
+            ]
+          },
+          "Publishing:documentation_uri": {
+            "paramName": "documentation_uri",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Link to product home page.  Example:",
+              " https://cloud.google.com/asset-inventory/docs/overview"
+            ]
+          },
+          "Publishing:api_short_name": {
+            "paramName": "api_short_name",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Used as a tracking tag when collecting data about the APIs developer",
+              " relations artifacts like docs, packages delivered to package managers,",
+              " etc.  Example: \"speech\"."
+            ]
+          },
+          "Publishing:github_label": {
+            "paramName": "github_label",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " GitHub label to apply to issues and pull requests opened for this API."
+            ]
+          },
+          "Publishing:codeowner_github_teams": {
+            "paramName": "codeowner_github_teams",
+            "paramType": "TYPE_STRING[]",
+            "comments": [
+              " GitHub teams to be added to CODEOWNERS in the directory in GitHub",
+              " containing source code for the client libraries for this API."
+            ]
+          },
+          "Publishing:doc_tag_prefix": {
+            "paramName": "doc_tag_prefix",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " A prefix used in sample code when demarking regions to be included in",
+              " documentation."
+            ]
+          },
+          "Publishing:organization": {
+            "paramName": "organization",
+            "paramType": ".google.api.ClientLibraryOrganization",
+            "comments": [
+              " For whom the client library is being published."
+            ]
+          },
+          "Publishing:library_settings": {
+            "paramName": "library_settings",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " Client library settings.  If the same version string appears multiple",
+              " times in this list, then the last one wins.  Settings from earlier",
+              " settings with the same version string are discarded."
+            ]
+          },
+          "JavaSettings:library_package": {
+            "paramName": "library_package",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " The package name to use in Java. Clobbers the java_package option",
+              " set in the protobuf. This should be used **only** by APIs",
+              " who have already set the language_settings.java.package_name\" field",
+              " in gapic.yaml. API teams should use the protobuf java_package option",
+              " where possible.",
+              "",
+              " Example of a YAML configuration::",
+              "",
+              "  publishing:",
+              "    java_settings:",
+              "      library_package: com.google.cloud.pubsub.v1"
+            ]
+          },
+          "JavaSettings:service_class_names": {
+            "paramName": "service_class_names",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " Configure the Java class name to use instead of the service's for its",
+              " corresponding generated GAPIC client. Keys are fully-qualified",
+              " service names as they appear in the protobuf (including the full",
+              " the language_settings.java.interface_names\" field in gapic.yaml. API",
+              " teams should otherwise use the service name as it appears in the",
+              " protobuf.",
+              "",
+              " Example of a YAML configuration::",
+              "",
+              "  publishing:",
+              "    java_settings:",
+              "      service_class_names:",
+              "        - google.pubsub.v1.Publisher: TopicAdmin",
+              "        - google.pubsub.v1.Subscriber: SubscriptionAdmin"
+            ]
+          },
+          "JavaSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "CppSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "PhpSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "PythonSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "NodeSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "DotnetSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "RubySettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "GoSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "MethodSettings:selector": {
+            "paramName": "selector",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " The fully qualified name of the method, for which the options below apply.",
+              " This is used to find the method to apply the options."
+            ]
+          },
+          "MethodSettings:long_running": {
+            "paramName": "long_running",
+            "paramType": ".google.api.MethodSettings.LongRunning",
+            "comments": [
+              " Describes settings to use for long-running operations when generating",
+              " API methods for RPCs. Complements RPCs that use the annotations in",
+              " google/longrunning/operations.proto.",
+              "",
+              " Example of a YAML configuration::",
+              "",
+              "  publishing:",
+              "    method_behavior:",
+              "      - selector: CreateAdDomain",
+              "        long_running:",
+              "          initial_poll_delay:",
+              "            seconds: 60 # 1 minute",
+              "          poll_delay_multiplier: 1.5",
+              "          max_poll_delay:",
+              "            seconds: 360 # 6 minutes",
+              "          total_poll_timeout:",
+              "             seconds: 54000 # 90 minutes"
+            ]
+          },
           "ResourceDescriptor:type": {
             "paramName": "type",
             "paramType": "TYPE_STRING",
@@ -1663,27 +2049,6 @@
               "         child_type: \"logging.googleapis.com/LogEntry\"",
               "       };",
               "     }"
-            ]
-          },
-          "Duration:seconds": {
-            "paramName": "seconds",
-            "paramType": "TYPE_INT64",
-            "comments": [
-              " Signed seconds of the span of time. Must be from -315,576,000,000",
-              " to +315,576,000,000 inclusive. Note: these bounds are computed from:",
-              " 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years"
-            ]
-          },
-          "Duration:nanos": {
-            "paramName": "nanos",
-            "paramType": "TYPE_INT32",
-            "comments": [
-              " Signed fractions of a second at nanosecond resolution of the span",
-              " of time. Durations less than one second are represented with a 0",
-              " `seconds` field and a positive or negative `nanos` field. For durations",
-              " of one second or more, a non-zero value for the `nanos` field must be",
-              " of the same sign as the `seconds` field. Must be from -999,999,999",
-              " to +999,999,999 inclusive."
             ]
           },
           "FieldMask:paths": {
@@ -3434,27 +3799,51 @@
             "comments": [
               " Specifies the format of the policy.",
               "",
-              " Valid values are 0, 1, and 3. Requests specifying an invalid value will be",
-              " rejected.",
+              " Valid values are `0`, `1`, and `3`. Requests that specify an invalid value",
+              " are rejected.",
               "",
-              " Operations affecting conditional bindings must specify version 3. This can",
-              " be either setting a conditional policy, modifying a conditional binding,",
-              " or removing a binding (conditional or unconditional) from the stored",
-              " conditional policy.",
-              " Operations on non-conditional policies may specify any valid value or",
-              " leave the field unset.",
+              " Any operation that affects conditional role bindings must specify version",
+              " `3`. This requirement applies to the following operations:",
               "",
-              " If no etag is provided in the call to `setIamPolicy`, version compliance",
-              " checks against the stored policy is skipped."
+              " * Getting a policy that includes a conditional role binding",
+              " * Adding a conditional role binding to a policy",
+              " * Changing a conditional role binding in a policy",
+              " * Removing any role binding, with or without a condition, from a policy",
+              "   that includes conditions",
+              "",
+              " **Important:** If you use IAM Conditions, you must include the `etag` field",
+              " whenever you call `setIamPolicy`. If you omit this field, then IAM allows",
+              " you to overwrite a version `3` policy with a version `1` policy, and all of",
+              " the conditions in the version `3` policy are lost.",
+              "",
+              " If a policy does not include any conditions, operations on that policy may",
+              " specify any valid version or leave the field unset.",
+              "",
+              " To learn which resources support conditions in their IAM policies, see the",
+              " [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies)."
             ]
           },
           "Policy:bindings": {
             "paramName": "bindings",
             "paramType": "TYPE_MESSAGE[]",
             "comments": [
-              " Associates a list of `members` to a `role`. Optionally may specify a",
-              " `condition` that determines when binding is in effect.",
-              " `bindings` with no members will result in an error."
+              " Associates a list of `members`, or principals, with a `role`. Optionally,",
+              " may specify a `condition` that determines how and when the `bindings` are",
+              " applied. Each of the `bindings` must contain at least one principal.",
+              "",
+              " The `bindings` in a `Policy` can refer to up to 1,500 principals; up to 250",
+              " of these principals can be Google groups. Each occurrence of a principal",
+              " counts towards these limits. For example, if the `bindings` grant 50",
+              " different roles to `user:alice@example.com`, and not to any other",
+              " principal, then you can add another 1,450 principals to the `bindings` in",
+              " the `Policy`."
+            ]
+          },
+          "Policy:audit_configs": {
+            "paramName": "audit_configs",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " Specifies cloud audit logging configuration for this policy."
             ]
           },
           "Policy:etag": {
@@ -3469,17 +3858,17 @@
               " systems are expected to put that etag in the request to `setIamPolicy` to",
               " ensure that their change will be applied to the same version of the policy.",
               "",
-              " If no `etag` is provided in the call to `setIamPolicy`, then the existing",
-              " policy is overwritten. Due to blind-set semantics of an etag-less policy,",
-              " 'setIamPolicy' will not fail even if the incoming policy version does not",
-              " meet the requirements for modifying the stored policy."
+              " **Important:** If you use IAM Conditions, you must include the `etag` field",
+              " whenever you call `setIamPolicy`. If you omit this field, then IAM allows",
+              " you to overwrite a version `3` policy with a version `1` policy, and all of",
+              " the conditions in the version `3` policy are lost."
             ]
           },
           "Binding:role": {
             "paramName": "role",
             "paramType": "TYPE_STRING",
             "comments": [
-              " Role that is assigned to `members`.",
+              " Role that is assigned to the list of `members`, or principals.",
               " For example, `roles/viewer`, `roles/editor`, or `roles/owner`."
             ]
           },
@@ -3487,7 +3876,7 @@
             "paramName": "members",
             "paramType": "TYPE_STRING[]",
             "comments": [
-              " Specifies the identities requesting access for a Cloud Platform resource.",
+              " Specifies the principals requesting access for a Cloud Platform resource.",
               " `members` can have the following values:",
               "",
               " * `allUsers`: A special identifier that represents anyone who is",
@@ -3506,6 +3895,26 @@
               " * `group:{emailid}`: An email address that represents a Google group.",
               "    For example, `admins@example.com`.",
               "",
+              " * `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus unique",
+              "    identifier) representing a user that has been recently deleted. For",
+              "    example, `alice@example.com?uid=123456789012345678901`. If the user is",
+              "    recovered, this value reverts to `user:{emailid}` and the recovered user",
+              "    retains the role in the binding.",
+              "",
+              " * `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address (plus",
+              "    unique identifier) representing a service account that has been recently",
+              "    deleted. For example,",
+              "    `my-other-app@appspot.gserviceaccount.com?uid=123456789012345678901`.",
+              "    If the service account is undeleted, this value reverts to",
+              "    `serviceAccount:{emailid}` and the undeleted service account retains the",
+              "    role in the binding.",
+              "",
+              " * `deleted:group:{emailid}?uid={uniqueid}`: An email address (plus unique",
+              "    identifier) representing a Google group that has been recently",
+              "    deleted. For example, `admins@example.com?uid=123456789012345678901`. If",
+              "    the group is recovered, this value reverts to `group:{emailid}` and the",
+              "    recovered group retains the role in the binding.",
+              "",
               "",
               " * `domain:{domain}`: The G Suite domain (primary) that represents all the",
               "    users of that domain. For example, `google.com` or `example.com`.",
@@ -3518,9 +3927,49 @@
             "paramType": ".google.type.Expr",
             "comments": [
               " The condition that is associated with this binding.",
-              " NOTE: An unsatisfied condition will not allow user access via current",
-              " binding. Different bindings, including their conditions, are examined",
-              " independently."
+              "",
+              " If the condition evaluates to `true`, then this binding applies to the",
+              " current request.",
+              "",
+              " If the condition evaluates to `false`, then this binding does not apply to",
+              " the current request. However, a different role binding might grant the same",
+              " role to one or more of the principals in this binding.",
+              "",
+              " To learn which resources support conditions in their IAM policies, see the",
+              " [IAM",
+              " documentation](https://cloud.google.com/iam/help/conditions/resource-policies)."
+            ]
+          },
+          "AuditConfig:service": {
+            "paramName": "service",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Specifies a service that will be enabled for audit logging.",
+              " For example, `storage.googleapis.com`, `cloudsql.googleapis.com`.",
+              " `allServices` is a special value that covers all services."
+            ]
+          },
+          "AuditConfig:audit_log_configs": {
+            "paramName": "audit_log_configs",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " The configuration for logging of each type of permission."
+            ]
+          },
+          "AuditLogConfig:log_type": {
+            "paramName": "log_type",
+            "paramType": ".google.iam.v1.AuditLogConfig.LogType",
+            "comments": [
+              " The log type that this config enables."
+            ]
+          },
+          "AuditLogConfig:exempted_members": {
+            "paramName": "exempted_members",
+            "paramType": "TYPE_STRING[]",
+            "comments": [
+              " Specifies the identities that do not cause logging for this type of",
+              " permission.",
+              " Follows the same format of [Binding.members][google.iam.v1.Binding.members]."
             ]
           },
           "PolicyDelta:binding_deltas": {
@@ -3738,6 +4187,42 @@
         }
       },
       "retryableCodeMap": {
+        "codeEnumMapping": {
+          "0": "OK",
+          "1": "CANCELLED",
+          "2": "UNKNOWN",
+          "3": "INVALID_ARGUMENT",
+          "4": "DEADLINE_EXCEEDED",
+          "5": "NOT_FOUND",
+          "6": "ALREADY_EXISTS",
+          "7": "PERMISSION_DENIED",
+          "8": "RESOURCE_EXHAUSTED",
+          "9": "FAILED_PRECONDITION",
+          "10": "ABORTED",
+          "11": "OUT_OF_RANGE",
+          "12": "UNIMPLEMENTED",
+          "13": "INTERNAL",
+          "14": "UNAVAILABLE",
+          "15": "DATA_LOSS",
+          "16": "UNAUTHENTICATED",
+          "OK": "0",
+          "CANCELLED": "1",
+          "UNKNOWN": "2",
+          "INVALID_ARGUMENT": "3",
+          "DEADLINE_EXCEEDED": "4",
+          "NOT_FOUND": "5",
+          "ALREADY_EXISTS": "6",
+          "PERMISSION_DENIED": "7",
+          "RESOURCE_EXHAUSTED": "8",
+          "FAILED_PRECONDITION": "9",
+          "ABORTED": "10",
+          "OUT_OF_RANGE": "11",
+          "UNIMPLEMENTED": "12",
+          "INTERNAL": "13",
+          "UNAVAILABLE": "14",
+          "DATA_LOSS": "15",
+          "UNAUTHENTICATED": "16"
+        },
         "uniqueCodesNamesMap": {
           "": "non_idempotent",
           "deadline_exceeded_unavailable": "idempotent"
@@ -3762,25 +4247,6 @@
             "max_rpc_timeout_millis": 60000,
             "total_timeout_millis": 600000
           }
-        },
-        "codeEnumMapping": {
-          "0": "OK",
-          "1": "CANCELLED",
-          "2": "UNKNOWN",
-          "3": "INVALID_ARGUMENT",
-          "4": "DEADLINE_EXCEEDED",
-          "5": "NOT_FOUND",
-          "6": "ALREADY_EXISTS",
-          "7": "PERMISSION_DENIED",
-          "8": "RESOURCE_EXHAUSTED",
-          "9": "FAILED_PRECONDITION",
-          "10": "ABORTED",
-          "11": "OUT_OF_RANGE",
-          "12": "UNIMPLEMENTED",
-          "13": "INTERNAL",
-          "14": "UNAVAILABLE",
-          "15": "DATA_LOSS",
-          "16": "UNAUTHENTICATED"
         }
       },
       "grpcServiceConfig": {},
@@ -3807,7 +4273,8 @@
             ],
             ".google.api.http": {
               "put": "/v1/{name=projects/*/topics/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -3890,7 +4357,8 @@
           "options": {
             ".google.api.http": {
               "patch": "/v1/{topic.name=projects/*/topics/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -3942,7 +4410,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{topic=projects/*/topics/*}:publish",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -3988,7 +4457,8 @@
               "topic"
             ],
             ".google.api.http": {
-              "get": "/v1/{topic=projects/*/topics/*}"
+              "get": "/v1/{topic=projects/*/topics/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4030,7 +4500,8 @@
               "topic"
             ],
             ".google.api.http": {
-              "delete": "/v1/{topic=projects/*/topics/*}"
+              "delete": "/v1/{topic=projects/*/topics/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4068,7 +4539,8 @@
           "outputType": ".google.pubsub.v1.DetachSubscriptionResponse",
           "options": {
             ".google.api.http": {
-              "post": "/v1/{subscription=projects/*/subscriptions/*}:detach"
+              "post": "/v1/{subscription=projects/*/subscriptions/*}:detach",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4090,6 +4562,7 @@
         }
       ],
       "longRunning": [],
+      "diregapicLRO": [],
       "streaming": [],
       "clientStreaming": [],
       "serverStreaming": [],
@@ -4115,7 +4588,8 @@
               "project"
             ],
             ".google.api.http": {
-              "get": "/v1/{project=projects/*}/topics"
+              "get": "/v1/{project=projects/*}/topics",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4171,7 +4645,8 @@
               "topic"
             ],
             ".google.api.http": {
-              "get": "/v1/{topic=projects/*/topics/*}/subscriptions"
+              "get": "/v1/{topic=projects/*/topics/*}/subscriptions",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4231,7 +4706,8 @@
               "topic"
             ],
             ".google.api.http": {
-              "get": "/v1/{topic=projects/*/topics/*}/snapshots"
+              "get": "/v1/{topic=projects/*/topics/*}/snapshots",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4280,10 +4756,10 @@
           "params": [
             "project"
           ],
+          "type": "cloudresourcemanager.googleapis.com/Project",
           "pattern": [
             "projects/{project}"
-          ],
-          "type": "cloudresourcemanager.googleapis.com/Project"
+          ]
         },
         {
           "name": "project_topic",
@@ -4302,10 +4778,10 @@
             "project",
             "schema"
           ],
+          "type": "pubsub.googleapis.com/Schema",
           "pattern": [
             "projects/{project}/schemas/{schema}"
-          ],
-          "type": "pubsub.googleapis.com/Schema"
+          ]
         },
         {
           "name": "Snapshot",
@@ -4313,10 +4789,10 @@
             "project",
             "snapshot"
           ],
+          "type": "pubsub.googleapis.com/Snapshot",
           "pattern": [
             "projects/{project}/snapshots/{snapshot}"
-          ],
-          "type": "pubsub.googleapis.com/Snapshot"
+          ]
         },
         {
           "name": "Subscription",
@@ -4324,14 +4800,15 @@
             "project",
             "subscription"
           ],
+          "type": "pubsub.googleapis.com/Subscription",
           "pattern": [
             "projects/{project}/subscriptions/{subscription}"
-          ],
-          "type": "pubsub.googleapis.com/Subscription"
+          ]
         }
       ]
     },
     {
+      "name": "SchemaService",
       "method": [
         {
           "inputInterface": ".google.pubsub.v1.CreateSchemaRequest",
@@ -4352,7 +4829,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{parent=projects/*}/schemas",
-              "body": "schema"
+              "body": "schema",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4413,7 +4891,8 @@
               "name"
             ],
             ".google.api.http": {
-              "get": "/v1/{name=projects/*/schemas/*}"
+              "get": "/v1/{name=projects/*/schemas/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4462,7 +4941,8 @@
               "parent"
             ],
             ".google.api.http": {
-              "get": "/v1/{parent=projects/*}/schemas"
+              "get": "/v1/{parent=projects/*}/schemas",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4525,7 +5005,8 @@
               "name"
             ],
             ".google.api.http": {
-              "delete": "/v1/{name=projects/*/schemas/*}"
+              "delete": "/v1/{name=projects/*/schemas/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4564,7 +5045,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{parent=projects/*}/schemas:validate",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4608,7 +5090,8 @@
           "options": {
             ".google.api.http": {
               "post": "/v1/{parent=projects/*}/schemas:validateMessage",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -4659,13 +5142,14 @@
           ]
         }
       ],
-      "name": "SchemaService",
       "options": {
         ".google.api.defaultHost": "pubsub.googleapis.com",
         ".google.api.oauthScopes": "https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/pubsub"
       },
       "packageName": "google.pubsub.v1",
-      "iamService": false,
+      "protoFile": "google/pubsub/v1/schema.proto",
+      "IAMPolicyMixin": 0,
+      "LocationMixin": 0,
       "comments": [
         " Service for doing schema-related operations."
       ],
@@ -4873,7 +5357,16 @@
             "paramType": "TYPE_STRING",
             "comments": [
               " The syntax of the proto file.",
-              " The supported values are \"proto2\" and \"proto3\"."
+              " The supported values are \"proto2\", \"proto3\", and \"editions\".",
+              "",
+              " If `edition` is present, this value must be \"editions\"."
+            ]
+          },
+          "FileDescriptorProto:edition": {
+            "paramName": "edition",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " The edition of the proto file, which is an opaque string."
             ]
           },
           "DescriptorProto:name": {
@@ -4985,8 +5478,7 @@
               " For numeric types, contains the original text representation of the value.",
               " For booleans, \"true\" or \"false\".",
               " For strings, contains the default text contents (not escaped in any way).",
-              " For bytes, contains the C escaped value.  All bytes >= 128 are escaped.",
-              " TODO(kenton):  Base-64 encode?"
+              " For bytes, contains the C escaped value.  All bytes >= 128 are escaped."
             ]
           },
           "FieldDescriptorProto:oneof_index": {
@@ -5162,21 +5654,21 @@
             "paramName": "java_outer_classname",
             "paramType": "TYPE_STRING",
             "comments": [
-              " If set, all the classes from the .proto file are wrapped in a single",
-              " outer class with the given name.  This applies to both Proto1",
-              " (equivalent to the old \"--one_java_file\" option) and Proto2 (where",
-              " a .proto always translates to a single class, but you may want to",
-              " explicitly choose the class name)."
+              " Controls the name of the wrapper Java class generated for the .proto file.",
+              " That class will always contain the .proto file's getDescriptor() method as",
+              " well as any top-level extensions defined in the .proto file.",
+              " If java_multiple_files is disabled, then all the other classes from the",
+              " .proto file will be nested inside the single wrapper outer class."
             ]
           },
           "FileOptions:java_multiple_files": {
             "paramName": "java_multiple_files",
             "paramType": "TYPE_BOOL",
             "comments": [
-              " If set true, then the Java code generator will generate a separate .java",
+              " If enabled, then the Java code generator will generate a separate .java",
               " file for each top-level message, enum, and service defined in the .proto",
-              " file.  Thus, these types will *not* be nested inside the outer class",
-              " named by java_outer_classname.  However, the outer class will still be",
+              " file.  Thus, these types will *not* be nested inside the wrapper class",
+              " named by java_outer_classname.  However, the wrapper class will still be",
               " generated to contain the file's getDescriptor() method as well as any",
               " top-level extensions defined in the file."
             ]
@@ -5380,6 +5872,10 @@
             "paramName": "map_entry",
             "paramType": "TYPE_BOOL",
             "comments": [
+              " NOTE: Do not set the option in .proto files. Always use the maps syntax",
+              " instead. The option should only be implicitly set by the proto compiler",
+              " parser.",
+              "",
               " Whether the message is an automatically generated map entry type for the",
               " maps field.",
               "",
@@ -5396,11 +5892,23 @@
               " Implementations may choose not to generate the map_entry=true message, but",
               " use a native map in the target language to hold the keys and values.",
               " The reflection APIs in such implementations still need to work as",
-              " if the field is a repeated message field.",
+              " if the field is a repeated message field."
+            ]
+          },
+          "MessageOptions:deprecated_legacy_json_field_conflicts": {
+            "paramName": "deprecated_legacy_json_field_conflicts",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " Enable the legacy handling of JSON field name conflicts.  This lowercases",
+              " and strips underscored from the fields before comparison in proto3 only.",
+              " The new behavior takes `json_name` into account and applies to proto2 as",
+              " well.",
               "",
-              " NOTE: Do not set the option in .proto files. Always use the maps syntax",
-              " instead. The option should only be implicitly set by the proto compiler",
-              " parser."
+              " This should only be used as a temporary measure against broken builds due",
+              " to the change in behavior for JSON field name conflicts.",
+              "",
+              " TODO(b/261750190) This is legacy behavior we plan to remove once downstream",
+              " teams have had time to migrate."
             ]
           },
           "MessageOptions:uninterpreted_option": {
@@ -5469,7 +5977,6 @@
               " call from multiple threads concurrently, while non-const methods continue",
               " to require exclusive access.",
               "",
-              "",
               " Note that implementations may choose not to check required fields within",
               " a lazy sub-message.  That is, calling IsInitialized() on the outer message",
               " may return true even if the inner message has missing required fields.",
@@ -5479,7 +5986,19 @@
               " must be consistent about it.  That is, for any particular sub-message, the",
               " implementation must either *always* check its required fields, or *never*",
               " check its required fields, regardless of whether or not the message has",
-              " been parsed."
+              " been parsed.",
+              "",
+              " As of May 2022, lazy verifies the contents of the byte stream during",
+              " parsing.  An invalid byte stream will cause the overall parsing to fail."
+            ]
+          },
+          "FieldOptions:unverified_lazy": {
+            "paramName": "unverified_lazy",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " unverified_lazy does no correctness checks on the byte stream. This should",
+              " only be used where lazy with verification is prohibitive for performance",
+              " reasons."
             ]
           },
           "FieldOptions:deprecated": {
@@ -5498,6 +6017,24 @@
             "comments": [
               " For Google-internal migration only. Do not use."
             ]
+          },
+          "FieldOptions:debug_redact": {
+            "paramName": "debug_redact",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " Indicate that the field value should not be printed out when using debug",
+              " formats, e.g. when the field contains sensitive credentials."
+            ]
+          },
+          "FieldOptions:retention": {
+            "paramName": "retention",
+            "paramType": ".google.protobuf.FieldOptions.OptionRetention",
+            "comments": []
+          },
+          "FieldOptions:target": {
+            "paramName": "target",
+            "paramType": ".google.protobuf.FieldOptions.OptionTargetType",
+            "comments": []
           },
           "FieldOptions:uninterpreted_option": {
             "paramName": "uninterpreted_option",
@@ -5529,6 +6066,18 @@
               " Depending on the target platform, this can emit Deprecated annotations",
               " for the enum, or it will be completely ignored; in the very least, this",
               " is a formalization for deprecating enums."
+            ]
+          },
+          "EnumOptions:deprecated_legacy_json_field_conflicts": {
+            "paramName": "deprecated_legacy_json_field_conflicts",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " Enable the legacy handling of JSON field name conflicts.  This lowercases",
+              " and strips underscored from the fields before comparison in proto3 only.",
+              " The new behavior takes `json_name` into account and applies to proto2 as",
+              " well.",
+              " TODO(b/261750190) Remove this legacy behavior once downstream teams have",
+              " had time to migrate."
             ]
           },
           "EnumOptions:uninterpreted_option": {
@@ -5689,6 +6238,316 @@
               " of its generating .proto file."
             ]
           },
+          "Duration:seconds": {
+            "paramName": "seconds",
+            "paramType": "TYPE_INT64",
+            "comments": [
+              " Signed seconds of the span of time. Must be from -315,576,000,000",
+              " to +315,576,000,000 inclusive. Note: these bounds are computed from:",
+              " 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years"
+            ]
+          },
+          "Duration:nanos": {
+            "paramName": "nanos",
+            "paramType": "TYPE_INT32",
+            "comments": [
+              " Signed fractions of a second at nanosecond resolution of the span",
+              " of time. Durations less than one second are represented with a 0",
+              " `seconds` field and a positive or negative `nanos` field. For durations",
+              " of one second or more, a non-zero value for the `nanos` field must be",
+              " of the same sign as the `seconds` field. Must be from -999,999,999",
+              " to +999,999,999 inclusive."
+            ]
+          },
+          "CommonLanguageSettings:reference_docs_uri": {
+            "paramName": "reference_docs_uri",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Link to automatically generated reference documentation.  Example:",
+              " https://cloud.google.com/nodejs/docs/reference/asset/latest"
+            ]
+          },
+          "CommonLanguageSettings:destinations": {
+            "paramName": "destinations",
+            "paramType": "TYPE_ENUM[]",
+            "comments": [
+              " The destination where API teams want this client library to be published."
+            ]
+          },
+          "ClientLibrarySettings:version": {
+            "paramName": "version",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Version of the API to apply these settings to."
+            ]
+          },
+          "ClientLibrarySettings:launch_stage": {
+            "paramName": "launch_stage",
+            "paramType": ".google.api.LaunchStage",
+            "comments": [
+              " Launch stage of this version of the API."
+            ]
+          },
+          "ClientLibrarySettings:rest_numeric_enums": {
+            "paramName": "rest_numeric_enums",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " When using transport=rest, the client request will encode enums as",
+              " numbers rather than strings."
+            ]
+          },
+          "ClientLibrarySettings:java_settings": {
+            "paramName": "java_settings",
+            "paramType": ".google.api.JavaSettings",
+            "comments": [
+              " Settings for legacy Java features, supported in the Service YAML."
+            ]
+          },
+          "ClientLibrarySettings:cpp_settings": {
+            "paramName": "cpp_settings",
+            "paramType": ".google.api.CppSettings",
+            "comments": [
+              " Settings for C++ client libraries."
+            ]
+          },
+          "ClientLibrarySettings:php_settings": {
+            "paramName": "php_settings",
+            "paramType": ".google.api.PhpSettings",
+            "comments": [
+              " Settings for PHP client libraries."
+            ]
+          },
+          "ClientLibrarySettings:python_settings": {
+            "paramName": "python_settings",
+            "paramType": ".google.api.PythonSettings",
+            "comments": [
+              " Settings for Python client libraries."
+            ]
+          },
+          "ClientLibrarySettings:node_settings": {
+            "paramName": "node_settings",
+            "paramType": ".google.api.NodeSettings",
+            "comments": [
+              " Settings for Node client libraries."
+            ]
+          },
+          "ClientLibrarySettings:dotnet_settings": {
+            "paramName": "dotnet_settings",
+            "paramType": ".google.api.DotnetSettings",
+            "comments": [
+              " Settings for .NET client libraries."
+            ]
+          },
+          "ClientLibrarySettings:ruby_settings": {
+            "paramName": "ruby_settings",
+            "paramType": ".google.api.RubySettings",
+            "comments": [
+              " Settings for Ruby client libraries."
+            ]
+          },
+          "ClientLibrarySettings:go_settings": {
+            "paramName": "go_settings",
+            "paramType": ".google.api.GoSettings",
+            "comments": [
+              " Settings for Go client libraries."
+            ]
+          },
+          "Publishing:method_settings": {
+            "paramName": "method_settings",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " A list of API method settings, e.g. the behavior for methods that use the",
+              " long-running operation pattern."
+            ]
+          },
+          "Publishing:new_issue_uri": {
+            "paramName": "new_issue_uri",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Link to a place that API users can report issues.  Example:",
+              " https://issuetracker.google.com/issues/new?component=190865&template=1161103"
+            ]
+          },
+          "Publishing:documentation_uri": {
+            "paramName": "documentation_uri",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Link to product home page.  Example:",
+              " https://cloud.google.com/asset-inventory/docs/overview"
+            ]
+          },
+          "Publishing:api_short_name": {
+            "paramName": "api_short_name",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Used as a tracking tag when collecting data about the APIs developer",
+              " relations artifacts like docs, packages delivered to package managers,",
+              " etc.  Example: \"speech\"."
+            ]
+          },
+          "Publishing:github_label": {
+            "paramName": "github_label",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " GitHub label to apply to issues and pull requests opened for this API."
+            ]
+          },
+          "Publishing:codeowner_github_teams": {
+            "paramName": "codeowner_github_teams",
+            "paramType": "TYPE_STRING[]",
+            "comments": [
+              " GitHub teams to be added to CODEOWNERS in the directory in GitHub",
+              " containing source code for the client libraries for this API."
+            ]
+          },
+          "Publishing:doc_tag_prefix": {
+            "paramName": "doc_tag_prefix",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " A prefix used in sample code when demarking regions to be included in",
+              " documentation."
+            ]
+          },
+          "Publishing:organization": {
+            "paramName": "organization",
+            "paramType": ".google.api.ClientLibraryOrganization",
+            "comments": [
+              " For whom the client library is being published."
+            ]
+          },
+          "Publishing:library_settings": {
+            "paramName": "library_settings",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " Client library settings.  If the same version string appears multiple",
+              " times in this list, then the last one wins.  Settings from earlier",
+              " settings with the same version string are discarded."
+            ]
+          },
+          "JavaSettings:library_package": {
+            "paramName": "library_package",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " The package name to use in Java. Clobbers the java_package option",
+              " set in the protobuf. This should be used **only** by APIs",
+              " who have already set the language_settings.java.package_name\" field",
+              " in gapic.yaml. API teams should use the protobuf java_package option",
+              " where possible.",
+              "",
+              " Example of a YAML configuration::",
+              "",
+              "  publishing:",
+              "    java_settings:",
+              "      library_package: com.google.cloud.pubsub.v1"
+            ]
+          },
+          "JavaSettings:service_class_names": {
+            "paramName": "service_class_names",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " Configure the Java class name to use instead of the service's for its",
+              " corresponding generated GAPIC client. Keys are fully-qualified",
+              " service names as they appear in the protobuf (including the full",
+              " the language_settings.java.interface_names\" field in gapic.yaml. API",
+              " teams should otherwise use the service name as it appears in the",
+              " protobuf.",
+              "",
+              " Example of a YAML configuration::",
+              "",
+              "  publishing:",
+              "    java_settings:",
+              "      service_class_names:",
+              "        - google.pubsub.v1.Publisher: TopicAdmin",
+              "        - google.pubsub.v1.Subscriber: SubscriptionAdmin"
+            ]
+          },
+          "JavaSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "CppSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "PhpSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "PythonSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "NodeSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "DotnetSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "RubySettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "GoSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "MethodSettings:selector": {
+            "paramName": "selector",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " The fully qualified name of the method, for which the options below apply.",
+              " This is used to find the method to apply the options."
+            ]
+          },
+          "MethodSettings:long_running": {
+            "paramName": "long_running",
+            "paramType": ".google.api.MethodSettings.LongRunning",
+            "comments": [
+              " Describes settings to use for long-running operations when generating",
+              " API methods for RPCs. Complements RPCs that use the annotations in",
+              " google/longrunning/operations.proto.",
+              "",
+              " Example of a YAML configuration::",
+              "",
+              "  publishing:",
+              "    method_behavior:",
+              "      - selector: CreateAdDomain",
+              "        long_running:",
+              "          initial_poll_delay:",
+              "            seconds: 60 # 1 minute",
+              "          poll_delay_multiplier: 1.5",
+              "          max_poll_delay:",
+              "            seconds: 360 # 6 minutes",
+              "          total_poll_timeout:",
+              "             seconds: 54000 # 90 minutes"
+            ]
+          },
           "ResourceDescriptor:type": {
             "paramName": "type",
             "paramType": "TYPE_STRING",
@@ -5832,27 +6691,6 @@
               "         child_type: \"logging.googleapis.com/LogEntry\"",
               "       };",
               "     }"
-            ]
-          },
-          "Duration:seconds": {
-            "paramName": "seconds",
-            "paramType": "TYPE_INT64",
-            "comments": [
-              " Signed seconds of the span of time. Must be from -315,576,000,000",
-              " to +315,576,000,000 inclusive. Note: these bounds are computed from:",
-              " 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years"
-            ]
-          },
-          "Duration:nanos": {
-            "paramName": "nanos",
-            "paramType": "TYPE_INT32",
-            "comments": [
-              " Signed fractions of a second at nanosecond resolution of the span",
-              " of time. Durations less than one second are represented with a 0",
-              " `seconds` field and a positive or negative `nanos` field. For durations",
-              " of one second or more, a non-zero value for the `nanos` field must be",
-              " of the same sign as the `seconds` field. Must be from -999,999,999",
-              " to +999,999,999 inclusive."
             ]
           },
           "FieldMask:paths": {
@@ -7603,27 +8441,51 @@
             "comments": [
               " Specifies the format of the policy.",
               "",
-              " Valid values are 0, 1, and 3. Requests specifying an invalid value will be",
-              " rejected.",
+              " Valid values are `0`, `1`, and `3`. Requests that specify an invalid value",
+              " are rejected.",
               "",
-              " Operations affecting conditional bindings must specify version 3. This can",
-              " be either setting a conditional policy, modifying a conditional binding,",
-              " or removing a binding (conditional or unconditional) from the stored",
-              " conditional policy.",
-              " Operations on non-conditional policies may specify any valid value or",
-              " leave the field unset.",
+              " Any operation that affects conditional role bindings must specify version",
+              " `3`. This requirement applies to the following operations:",
               "",
-              " If no etag is provided in the call to `setIamPolicy`, version compliance",
-              " checks against the stored policy is skipped."
+              " * Getting a policy that includes a conditional role binding",
+              " * Adding a conditional role binding to a policy",
+              " * Changing a conditional role binding in a policy",
+              " * Removing any role binding, with or without a condition, from a policy",
+              "   that includes conditions",
+              "",
+              " **Important:** If you use IAM Conditions, you must include the `etag` field",
+              " whenever you call `setIamPolicy`. If you omit this field, then IAM allows",
+              " you to overwrite a version `3` policy with a version `1` policy, and all of",
+              " the conditions in the version `3` policy are lost.",
+              "",
+              " If a policy does not include any conditions, operations on that policy may",
+              " specify any valid version or leave the field unset.",
+              "",
+              " To learn which resources support conditions in their IAM policies, see the",
+              " [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies)."
             ]
           },
           "Policy:bindings": {
             "paramName": "bindings",
             "paramType": "TYPE_MESSAGE[]",
             "comments": [
-              " Associates a list of `members` to a `role`. Optionally may specify a",
-              " `condition` that determines when binding is in effect.",
-              " `bindings` with no members will result in an error."
+              " Associates a list of `members`, or principals, with a `role`. Optionally,",
+              " may specify a `condition` that determines how and when the `bindings` are",
+              " applied. Each of the `bindings` must contain at least one principal.",
+              "",
+              " The `bindings` in a `Policy` can refer to up to 1,500 principals; up to 250",
+              " of these principals can be Google groups. Each occurrence of a principal",
+              " counts towards these limits. For example, if the `bindings` grant 50",
+              " different roles to `user:alice@example.com`, and not to any other",
+              " principal, then you can add another 1,450 principals to the `bindings` in",
+              " the `Policy`."
+            ]
+          },
+          "Policy:audit_configs": {
+            "paramName": "audit_configs",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " Specifies cloud audit logging configuration for this policy."
             ]
           },
           "Policy:etag": {
@@ -7638,17 +8500,17 @@
               " systems are expected to put that etag in the request to `setIamPolicy` to",
               " ensure that their change will be applied to the same version of the policy.",
               "",
-              " If no `etag` is provided in the call to `setIamPolicy`, then the existing",
-              " policy is overwritten. Due to blind-set semantics of an etag-less policy,",
-              " 'setIamPolicy' will not fail even if the incoming policy version does not",
-              " meet the requirements for modifying the stored policy."
+              " **Important:** If you use IAM Conditions, you must include the `etag` field",
+              " whenever you call `setIamPolicy`. If you omit this field, then IAM allows",
+              " you to overwrite a version `3` policy with a version `1` policy, and all of",
+              " the conditions in the version `3` policy are lost."
             ]
           },
           "Binding:role": {
             "paramName": "role",
             "paramType": "TYPE_STRING",
             "comments": [
-              " Role that is assigned to `members`.",
+              " Role that is assigned to the list of `members`, or principals.",
               " For example, `roles/viewer`, `roles/editor`, or `roles/owner`."
             ]
           },
@@ -7656,7 +8518,7 @@
             "paramName": "members",
             "paramType": "TYPE_STRING[]",
             "comments": [
-              " Specifies the identities requesting access for a Cloud Platform resource.",
+              " Specifies the principals requesting access for a Cloud Platform resource.",
               " `members` can have the following values:",
               "",
               " * `allUsers`: A special identifier that represents anyone who is",
@@ -7675,6 +8537,26 @@
               " * `group:{emailid}`: An email address that represents a Google group.",
               "    For example, `admins@example.com`.",
               "",
+              " * `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus unique",
+              "    identifier) representing a user that has been recently deleted. For",
+              "    example, `alice@example.com?uid=123456789012345678901`. If the user is",
+              "    recovered, this value reverts to `user:{emailid}` and the recovered user",
+              "    retains the role in the binding.",
+              "",
+              " * `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address (plus",
+              "    unique identifier) representing a service account that has been recently",
+              "    deleted. For example,",
+              "    `my-other-app@appspot.gserviceaccount.com?uid=123456789012345678901`.",
+              "    If the service account is undeleted, this value reverts to",
+              "    `serviceAccount:{emailid}` and the undeleted service account retains the",
+              "    role in the binding.",
+              "",
+              " * `deleted:group:{emailid}?uid={uniqueid}`: An email address (plus unique",
+              "    identifier) representing a Google group that has been recently",
+              "    deleted. For example, `admins@example.com?uid=123456789012345678901`. If",
+              "    the group is recovered, this value reverts to `group:{emailid}` and the",
+              "    recovered group retains the role in the binding.",
+              "",
               "",
               " * `domain:{domain}`: The G Suite domain (primary) that represents all the",
               "    users of that domain. For example, `google.com` or `example.com`.",
@@ -7687,9 +8569,49 @@
             "paramType": ".google.type.Expr",
             "comments": [
               " The condition that is associated with this binding.",
-              " NOTE: An unsatisfied condition will not allow user access via current",
-              " binding. Different bindings, including their conditions, are examined",
-              " independently."
+              "",
+              " If the condition evaluates to `true`, then this binding applies to the",
+              " current request.",
+              "",
+              " If the condition evaluates to `false`, then this binding does not apply to",
+              " the current request. However, a different role binding might grant the same",
+              " role to one or more of the principals in this binding.",
+              "",
+              " To learn which resources support conditions in their IAM policies, see the",
+              " [IAM",
+              " documentation](https://cloud.google.com/iam/help/conditions/resource-policies)."
+            ]
+          },
+          "AuditConfig:service": {
+            "paramName": "service",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Specifies a service that will be enabled for audit logging.",
+              " For example, `storage.googleapis.com`, `cloudsql.googleapis.com`.",
+              " `allServices` is a special value that covers all services."
+            ]
+          },
+          "AuditConfig:audit_log_configs": {
+            "paramName": "audit_log_configs",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " The configuration for logging of each type of permission."
+            ]
+          },
+          "AuditLogConfig:log_type": {
+            "paramName": "log_type",
+            "paramType": ".google.iam.v1.AuditLogConfig.LogType",
+            "comments": [
+              " The log type that this config enables."
+            ]
+          },
+          "AuditLogConfig:exempted_members": {
+            "paramName": "exempted_members",
+            "paramType": "TYPE_STRING[]",
+            "comments": [
+              " Specifies the identities that do not cause logging for this type of",
+              " permission.",
+              " Follows the same format of [Binding.members][google.iam.v1.Binding.members]."
             ]
           },
           "PolicyDelta:binding_deltas": {
@@ -7907,6 +8829,42 @@
         }
       },
       "retryableCodeMap": {
+        "codeEnumMapping": {
+          "0": "OK",
+          "1": "CANCELLED",
+          "2": "UNKNOWN",
+          "3": "INVALID_ARGUMENT",
+          "4": "DEADLINE_EXCEEDED",
+          "5": "NOT_FOUND",
+          "6": "ALREADY_EXISTS",
+          "7": "PERMISSION_DENIED",
+          "8": "RESOURCE_EXHAUSTED",
+          "9": "FAILED_PRECONDITION",
+          "10": "ABORTED",
+          "11": "OUT_OF_RANGE",
+          "12": "UNIMPLEMENTED",
+          "13": "INTERNAL",
+          "14": "UNAVAILABLE",
+          "15": "DATA_LOSS",
+          "16": "UNAUTHENTICATED",
+          "OK": "0",
+          "CANCELLED": "1",
+          "UNKNOWN": "2",
+          "INVALID_ARGUMENT": "3",
+          "DEADLINE_EXCEEDED": "4",
+          "NOT_FOUND": "5",
+          "ALREADY_EXISTS": "6",
+          "PERMISSION_DENIED": "7",
+          "RESOURCE_EXHAUSTED": "8",
+          "FAILED_PRECONDITION": "9",
+          "ABORTED": "10",
+          "OUT_OF_RANGE": "11",
+          "UNIMPLEMENTED": "12",
+          "INTERNAL": "13",
+          "UNAVAILABLE": "14",
+          "DATA_LOSS": "15",
+          "UNAUTHENTICATED": "16"
+        },
         "uniqueCodesNamesMap": {
           "": "non_idempotent",
           "deadline_exceeded_unavailable": "idempotent"
@@ -7931,25 +8889,6 @@
             "max_rpc_timeout_millis": 60000,
             "total_timeout_millis": 600000
           }
-        },
-        "codeEnumMapping": {
-          "0": "OK",
-          "1": "CANCELLED",
-          "2": "UNKNOWN",
-          "3": "INVALID_ARGUMENT",
-          "4": "DEADLINE_EXCEEDED",
-          "5": "NOT_FOUND",
-          "6": "ALREADY_EXISTS",
-          "7": "PERMISSION_DENIED",
-          "8": "RESOURCE_EXHAUSTED",
-          "9": "FAILED_PRECONDITION",
-          "10": "ABORTED",
-          "11": "OUT_OF_RANGE",
-          "12": "UNIMPLEMENTED",
-          "13": "INTERNAL",
-          "14": "UNAVAILABLE",
-          "15": "DATA_LOSS",
-          "16": "UNAUTHENTICATED"
         }
       },
       "grpcServiceConfig": {},
@@ -7975,7 +8914,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{parent=projects/*}/schemas",
-              "body": "schema"
+              "body": "schema",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8036,7 +8976,8 @@
               "name"
             ],
             ".google.api.http": {
-              "get": "/v1/{name=projects/*/schemas/*}"
+              "get": "/v1/{name=projects/*/schemas/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8083,7 +9024,8 @@
               "name"
             ],
             ".google.api.http": {
-              "delete": "/v1/{name=projects/*/schemas/*}"
+              "delete": "/v1/{name=projects/*/schemas/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8122,7 +9064,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{parent=projects/*}/schemas:validate",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8166,7 +9109,8 @@
           "options": {
             ".google.api.http": {
               "post": "/v1/{parent=projects/*}/schemas:validateMessage",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8218,6 +9162,7 @@
         }
       ],
       "longRunning": [],
+      "diregapicLRO": [],
       "streaming": [],
       "clientStreaming": [],
       "serverStreaming": [],
@@ -8243,7 +9188,8 @@
               "parent"
             ],
             ".google.api.http": {
-              "get": "/v1/{parent=projects/*}/schemas"
+              "get": "/v1/{parent=projects/*}/schemas",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8301,10 +9247,10 @@
           "params": [
             "project"
           ],
+          "type": "cloudresourcemanager.googleapis.com/Project",
           "pattern": [
             "projects/{project}"
-          ],
-          "type": "cloudresourcemanager.googleapis.com/Project"
+          ]
         },
         {
           "name": "project_topic",
@@ -8323,10 +9269,10 @@
             "project",
             "schema"
           ],
+          "type": "pubsub.googleapis.com/Schema",
           "pattern": [
             "projects/{project}/schemas/{schema}"
-          ],
-          "type": "pubsub.googleapis.com/Schema"
+          ]
         },
         {
           "name": "Snapshot",
@@ -8334,10 +9280,10 @@
             "project",
             "snapshot"
           ],
+          "type": "pubsub.googleapis.com/Snapshot",
           "pattern": [
             "projects/{project}/snapshots/{snapshot}"
-          ],
-          "type": "pubsub.googleapis.com/Snapshot"
+          ]
         },
         {
           "name": "Subscription",
@@ -8345,14 +9291,15 @@
             "project",
             "subscription"
           ],
+          "type": "pubsub.googleapis.com/Subscription",
           "pattern": [
             "projects/{project}/subscriptions/{subscription}"
-          ],
-          "type": "pubsub.googleapis.com/Subscription"
+          ]
         }
       ]
     },
     {
+      "name": "Subscriber",
       "method": [
         {
           "inputInterface": ".google.pubsub.v1.Subscription",
@@ -8383,7 +9330,8 @@
             ],
             ".google.api.http": {
               "put": "/v1/{name=projects/*/subscriptions/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8572,7 +9520,8 @@
               "subscription"
             ],
             ".google.api.http": {
-              "get": "/v1/{subscription=projects/*/subscriptions/*}"
+              "get": "/v1/{subscription=projects/*/subscriptions/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8609,7 +9558,8 @@
           "options": {
             ".google.api.http": {
               "patch": "/v1/{subscription.name=projects/*/subscriptions/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8658,7 +9608,8 @@
               "project"
             ],
             ".google.api.http": {
-              "get": "/v1/{project=projects/*}/subscriptions"
+              "get": "/v1/{project=projects/*}/subscriptions",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8716,7 +9667,8 @@
               "subscription"
             ],
             ".google.api.http": {
-              "delete": "/v1/{subscription=projects/*/subscriptions/*}"
+              "delete": "/v1/{subscription=projects/*/subscriptions/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8759,7 +9711,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:modifyAckDeadline",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8827,7 +9780,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:acknowledge",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -8878,7 +9832,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:pull",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -9076,7 +10031,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:modifyPushConfig",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -9131,7 +10087,8 @@
               "snapshot"
             ],
             ".google.api.http": {
-              "get": "/v1/{snapshot=projects/*/snapshots/*}"
+              "get": "/v1/{snapshot=projects/*/snapshots/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -9175,7 +10132,8 @@
               "project"
             ],
             ".google.api.http": {
-              "get": "/v1/{project=projects/*}/snapshots"
+              "get": "/v1/{project=projects/*}/snapshots",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -9245,7 +10203,8 @@
             ],
             ".google.api.http": {
               "put": "/v1/{name=projects/*/snapshots/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -9314,7 +10273,8 @@
           "options": {
             ".google.api.http": {
               "patch": "/v1/{snapshot.name=projects/*/snapshots/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -9369,7 +10329,8 @@
               "snapshot"
             ],
             ".google.api.http": {
-              "delete": "/v1/{snapshot=projects/*/snapshots/*}"
+              "delete": "/v1/{snapshot=projects/*/snapshots/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -9411,7 +10372,8 @@
           "options": {
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:seek",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -9457,13 +10419,14 @@
           ]
         }
       ],
-      "name": "Subscriber",
       "options": {
         ".google.api.defaultHost": "pubsub.googleapis.com",
         ".google.api.oauthScopes": "https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/pubsub"
       },
       "packageName": "google.pubsub.v1",
-      "iamService": false,
+      "protoFile": "google/pubsub/v1/pubsub.proto",
+      "IAMPolicyMixin": 0,
+      "LocationMixin": 0,
       "comments": [
         " The service that an application uses to manipulate subscriptions and to",
         " consume messages from a subscription via the `Pull` method or by",
@@ -9673,7 +10636,16 @@
             "paramType": "TYPE_STRING",
             "comments": [
               " The syntax of the proto file.",
-              " The supported values are \"proto2\" and \"proto3\"."
+              " The supported values are \"proto2\", \"proto3\", and \"editions\".",
+              "",
+              " If `edition` is present, this value must be \"editions\"."
+            ]
+          },
+          "FileDescriptorProto:edition": {
+            "paramName": "edition",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " The edition of the proto file, which is an opaque string."
             ]
           },
           "DescriptorProto:name": {
@@ -9785,8 +10757,7 @@
               " For numeric types, contains the original text representation of the value.",
               " For booleans, \"true\" or \"false\".",
               " For strings, contains the default text contents (not escaped in any way).",
-              " For bytes, contains the C escaped value.  All bytes >= 128 are escaped.",
-              " TODO(kenton):  Base-64 encode?"
+              " For bytes, contains the C escaped value.  All bytes >= 128 are escaped."
             ]
           },
           "FieldDescriptorProto:oneof_index": {
@@ -9962,21 +10933,21 @@
             "paramName": "java_outer_classname",
             "paramType": "TYPE_STRING",
             "comments": [
-              " If set, all the classes from the .proto file are wrapped in a single",
-              " outer class with the given name.  This applies to both Proto1",
-              " (equivalent to the old \"--one_java_file\" option) and Proto2 (where",
-              " a .proto always translates to a single class, but you may want to",
-              " explicitly choose the class name)."
+              " Controls the name of the wrapper Java class generated for the .proto file.",
+              " That class will always contain the .proto file's getDescriptor() method as",
+              " well as any top-level extensions defined in the .proto file.",
+              " If java_multiple_files is disabled, then all the other classes from the",
+              " .proto file will be nested inside the single wrapper outer class."
             ]
           },
           "FileOptions:java_multiple_files": {
             "paramName": "java_multiple_files",
             "paramType": "TYPE_BOOL",
             "comments": [
-              " If set true, then the Java code generator will generate a separate .java",
+              " If enabled, then the Java code generator will generate a separate .java",
               " file for each top-level message, enum, and service defined in the .proto",
-              " file.  Thus, these types will *not* be nested inside the outer class",
-              " named by java_outer_classname.  However, the outer class will still be",
+              " file.  Thus, these types will *not* be nested inside the wrapper class",
+              " named by java_outer_classname.  However, the wrapper class will still be",
               " generated to contain the file's getDescriptor() method as well as any",
               " top-level extensions defined in the file."
             ]
@@ -10180,6 +11151,10 @@
             "paramName": "map_entry",
             "paramType": "TYPE_BOOL",
             "comments": [
+              " NOTE: Do not set the option in .proto files. Always use the maps syntax",
+              " instead. The option should only be implicitly set by the proto compiler",
+              " parser.",
+              "",
               " Whether the message is an automatically generated map entry type for the",
               " maps field.",
               "",
@@ -10196,11 +11171,23 @@
               " Implementations may choose not to generate the map_entry=true message, but",
               " use a native map in the target language to hold the keys and values.",
               " The reflection APIs in such implementations still need to work as",
-              " if the field is a repeated message field.",
+              " if the field is a repeated message field."
+            ]
+          },
+          "MessageOptions:deprecated_legacy_json_field_conflicts": {
+            "paramName": "deprecated_legacy_json_field_conflicts",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " Enable the legacy handling of JSON field name conflicts.  This lowercases",
+              " and strips underscored from the fields before comparison in proto3 only.",
+              " The new behavior takes `json_name` into account and applies to proto2 as",
+              " well.",
               "",
-              " NOTE: Do not set the option in .proto files. Always use the maps syntax",
-              " instead. The option should only be implicitly set by the proto compiler",
-              " parser."
+              " This should only be used as a temporary measure against broken builds due",
+              " to the change in behavior for JSON field name conflicts.",
+              "",
+              " TODO(b/261750190) This is legacy behavior we plan to remove once downstream",
+              " teams have had time to migrate."
             ]
           },
           "MessageOptions:uninterpreted_option": {
@@ -10269,7 +11256,6 @@
               " call from multiple threads concurrently, while non-const methods continue",
               " to require exclusive access.",
               "",
-              "",
               " Note that implementations may choose not to check required fields within",
               " a lazy sub-message.  That is, calling IsInitialized() on the outer message",
               " may return true even if the inner message has missing required fields.",
@@ -10279,7 +11265,19 @@
               " must be consistent about it.  That is, for any particular sub-message, the",
               " implementation must either *always* check its required fields, or *never*",
               " check its required fields, regardless of whether or not the message has",
-              " been parsed."
+              " been parsed.",
+              "",
+              " As of May 2022, lazy verifies the contents of the byte stream during",
+              " parsing.  An invalid byte stream will cause the overall parsing to fail."
+            ]
+          },
+          "FieldOptions:unverified_lazy": {
+            "paramName": "unverified_lazy",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " unverified_lazy does no correctness checks on the byte stream. This should",
+              " only be used where lazy with verification is prohibitive for performance",
+              " reasons."
             ]
           },
           "FieldOptions:deprecated": {
@@ -10298,6 +11296,24 @@
             "comments": [
               " For Google-internal migration only. Do not use."
             ]
+          },
+          "FieldOptions:debug_redact": {
+            "paramName": "debug_redact",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " Indicate that the field value should not be printed out when using debug",
+              " formats, e.g. when the field contains sensitive credentials."
+            ]
+          },
+          "FieldOptions:retention": {
+            "paramName": "retention",
+            "paramType": ".google.protobuf.FieldOptions.OptionRetention",
+            "comments": []
+          },
+          "FieldOptions:target": {
+            "paramName": "target",
+            "paramType": ".google.protobuf.FieldOptions.OptionTargetType",
+            "comments": []
           },
           "FieldOptions:uninterpreted_option": {
             "paramName": "uninterpreted_option",
@@ -10329,6 +11345,18 @@
               " Depending on the target platform, this can emit Deprecated annotations",
               " for the enum, or it will be completely ignored; in the very least, this",
               " is a formalization for deprecating enums."
+            ]
+          },
+          "EnumOptions:deprecated_legacy_json_field_conflicts": {
+            "paramName": "deprecated_legacy_json_field_conflicts",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " Enable the legacy handling of JSON field name conflicts.  This lowercases",
+              " and strips underscored from the fields before comparison in proto3 only.",
+              " The new behavior takes `json_name` into account and applies to proto2 as",
+              " well.",
+              " TODO(b/261750190) Remove this legacy behavior once downstream teams have",
+              " had time to migrate."
             ]
           },
           "EnumOptions:uninterpreted_option": {
@@ -10489,6 +11517,316 @@
               " of its generating .proto file."
             ]
           },
+          "Duration:seconds": {
+            "paramName": "seconds",
+            "paramType": "TYPE_INT64",
+            "comments": [
+              " Signed seconds of the span of time. Must be from -315,576,000,000",
+              " to +315,576,000,000 inclusive. Note: these bounds are computed from:",
+              " 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years"
+            ]
+          },
+          "Duration:nanos": {
+            "paramName": "nanos",
+            "paramType": "TYPE_INT32",
+            "comments": [
+              " Signed fractions of a second at nanosecond resolution of the span",
+              " of time. Durations less than one second are represented with a 0",
+              " `seconds` field and a positive or negative `nanos` field. For durations",
+              " of one second or more, a non-zero value for the `nanos` field must be",
+              " of the same sign as the `seconds` field. Must be from -999,999,999",
+              " to +999,999,999 inclusive."
+            ]
+          },
+          "CommonLanguageSettings:reference_docs_uri": {
+            "paramName": "reference_docs_uri",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Link to automatically generated reference documentation.  Example:",
+              " https://cloud.google.com/nodejs/docs/reference/asset/latest"
+            ]
+          },
+          "CommonLanguageSettings:destinations": {
+            "paramName": "destinations",
+            "paramType": "TYPE_ENUM[]",
+            "comments": [
+              " The destination where API teams want this client library to be published."
+            ]
+          },
+          "ClientLibrarySettings:version": {
+            "paramName": "version",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Version of the API to apply these settings to."
+            ]
+          },
+          "ClientLibrarySettings:launch_stage": {
+            "paramName": "launch_stage",
+            "paramType": ".google.api.LaunchStage",
+            "comments": [
+              " Launch stage of this version of the API."
+            ]
+          },
+          "ClientLibrarySettings:rest_numeric_enums": {
+            "paramName": "rest_numeric_enums",
+            "paramType": "TYPE_BOOL",
+            "comments": [
+              " When using transport=rest, the client request will encode enums as",
+              " numbers rather than strings."
+            ]
+          },
+          "ClientLibrarySettings:java_settings": {
+            "paramName": "java_settings",
+            "paramType": ".google.api.JavaSettings",
+            "comments": [
+              " Settings for legacy Java features, supported in the Service YAML."
+            ]
+          },
+          "ClientLibrarySettings:cpp_settings": {
+            "paramName": "cpp_settings",
+            "paramType": ".google.api.CppSettings",
+            "comments": [
+              " Settings for C++ client libraries."
+            ]
+          },
+          "ClientLibrarySettings:php_settings": {
+            "paramName": "php_settings",
+            "paramType": ".google.api.PhpSettings",
+            "comments": [
+              " Settings for PHP client libraries."
+            ]
+          },
+          "ClientLibrarySettings:python_settings": {
+            "paramName": "python_settings",
+            "paramType": ".google.api.PythonSettings",
+            "comments": [
+              " Settings for Python client libraries."
+            ]
+          },
+          "ClientLibrarySettings:node_settings": {
+            "paramName": "node_settings",
+            "paramType": ".google.api.NodeSettings",
+            "comments": [
+              " Settings for Node client libraries."
+            ]
+          },
+          "ClientLibrarySettings:dotnet_settings": {
+            "paramName": "dotnet_settings",
+            "paramType": ".google.api.DotnetSettings",
+            "comments": [
+              " Settings for .NET client libraries."
+            ]
+          },
+          "ClientLibrarySettings:ruby_settings": {
+            "paramName": "ruby_settings",
+            "paramType": ".google.api.RubySettings",
+            "comments": [
+              " Settings for Ruby client libraries."
+            ]
+          },
+          "ClientLibrarySettings:go_settings": {
+            "paramName": "go_settings",
+            "paramType": ".google.api.GoSettings",
+            "comments": [
+              " Settings for Go client libraries."
+            ]
+          },
+          "Publishing:method_settings": {
+            "paramName": "method_settings",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " A list of API method settings, e.g. the behavior for methods that use the",
+              " long-running operation pattern."
+            ]
+          },
+          "Publishing:new_issue_uri": {
+            "paramName": "new_issue_uri",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Link to a place that API users can report issues.  Example:",
+              " https://issuetracker.google.com/issues/new?component=190865&template=1161103"
+            ]
+          },
+          "Publishing:documentation_uri": {
+            "paramName": "documentation_uri",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Link to product home page.  Example:",
+              " https://cloud.google.com/asset-inventory/docs/overview"
+            ]
+          },
+          "Publishing:api_short_name": {
+            "paramName": "api_short_name",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Used as a tracking tag when collecting data about the APIs developer",
+              " relations artifacts like docs, packages delivered to package managers,",
+              " etc.  Example: \"speech\"."
+            ]
+          },
+          "Publishing:github_label": {
+            "paramName": "github_label",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " GitHub label to apply to issues and pull requests opened for this API."
+            ]
+          },
+          "Publishing:codeowner_github_teams": {
+            "paramName": "codeowner_github_teams",
+            "paramType": "TYPE_STRING[]",
+            "comments": [
+              " GitHub teams to be added to CODEOWNERS in the directory in GitHub",
+              " containing source code for the client libraries for this API."
+            ]
+          },
+          "Publishing:doc_tag_prefix": {
+            "paramName": "doc_tag_prefix",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " A prefix used in sample code when demarking regions to be included in",
+              " documentation."
+            ]
+          },
+          "Publishing:organization": {
+            "paramName": "organization",
+            "paramType": ".google.api.ClientLibraryOrganization",
+            "comments": [
+              " For whom the client library is being published."
+            ]
+          },
+          "Publishing:library_settings": {
+            "paramName": "library_settings",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " Client library settings.  If the same version string appears multiple",
+              " times in this list, then the last one wins.  Settings from earlier",
+              " settings with the same version string are discarded."
+            ]
+          },
+          "JavaSettings:library_package": {
+            "paramName": "library_package",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " The package name to use in Java. Clobbers the java_package option",
+              " set in the protobuf. This should be used **only** by APIs",
+              " who have already set the language_settings.java.package_name\" field",
+              " in gapic.yaml. API teams should use the protobuf java_package option",
+              " where possible.",
+              "",
+              " Example of a YAML configuration::",
+              "",
+              "  publishing:",
+              "    java_settings:",
+              "      library_package: com.google.cloud.pubsub.v1"
+            ]
+          },
+          "JavaSettings:service_class_names": {
+            "paramName": "service_class_names",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " Configure the Java class name to use instead of the service's for its",
+              " corresponding generated GAPIC client. Keys are fully-qualified",
+              " service names as they appear in the protobuf (including the full",
+              " the language_settings.java.interface_names\" field in gapic.yaml. API",
+              " teams should otherwise use the service name as it appears in the",
+              " protobuf.",
+              "",
+              " Example of a YAML configuration::",
+              "",
+              "  publishing:",
+              "    java_settings:",
+              "      service_class_names:",
+              "        - google.pubsub.v1.Publisher: TopicAdmin",
+              "        - google.pubsub.v1.Subscriber: SubscriptionAdmin"
+            ]
+          },
+          "JavaSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "CppSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "PhpSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "PythonSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "NodeSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "DotnetSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "RubySettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "GoSettings:common": {
+            "paramName": "common",
+            "paramType": ".google.api.CommonLanguageSettings",
+            "comments": [
+              " Some settings."
+            ]
+          },
+          "MethodSettings:selector": {
+            "paramName": "selector",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " The fully qualified name of the method, for which the options below apply.",
+              " This is used to find the method to apply the options."
+            ]
+          },
+          "MethodSettings:long_running": {
+            "paramName": "long_running",
+            "paramType": ".google.api.MethodSettings.LongRunning",
+            "comments": [
+              " Describes settings to use for long-running operations when generating",
+              " API methods for RPCs. Complements RPCs that use the annotations in",
+              " google/longrunning/operations.proto.",
+              "",
+              " Example of a YAML configuration::",
+              "",
+              "  publishing:",
+              "    method_behavior:",
+              "      - selector: CreateAdDomain",
+              "        long_running:",
+              "          initial_poll_delay:",
+              "            seconds: 60 # 1 minute",
+              "          poll_delay_multiplier: 1.5",
+              "          max_poll_delay:",
+              "            seconds: 360 # 6 minutes",
+              "          total_poll_timeout:",
+              "             seconds: 54000 # 90 minutes"
+            ]
+          },
           "ResourceDescriptor:type": {
             "paramName": "type",
             "paramType": "TYPE_STRING",
@@ -10632,27 +11970,6 @@
               "         child_type: \"logging.googleapis.com/LogEntry\"",
               "       };",
               "     }"
-            ]
-          },
-          "Duration:seconds": {
-            "paramName": "seconds",
-            "paramType": "TYPE_INT64",
-            "comments": [
-              " Signed seconds of the span of time. Must be from -315,576,000,000",
-              " to +315,576,000,000 inclusive. Note: these bounds are computed from:",
-              " 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years"
-            ]
-          },
-          "Duration:nanos": {
-            "paramName": "nanos",
-            "paramType": "TYPE_INT32",
-            "comments": [
-              " Signed fractions of a second at nanosecond resolution of the span",
-              " of time. Durations less than one second are represented with a 0",
-              " `seconds` field and a positive or negative `nanos` field. For durations",
-              " of one second or more, a non-zero value for the `nanos` field must be",
-              " of the same sign as the `seconds` field. Must be from -999,999,999",
-              " to +999,999,999 inclusive."
             ]
           },
           "FieldMask:paths": {
@@ -12403,27 +13720,51 @@
             "comments": [
               " Specifies the format of the policy.",
               "",
-              " Valid values are 0, 1, and 3. Requests specifying an invalid value will be",
-              " rejected.",
+              " Valid values are `0`, `1`, and `3`. Requests that specify an invalid value",
+              " are rejected.",
               "",
-              " Operations affecting conditional bindings must specify version 3. This can",
-              " be either setting a conditional policy, modifying a conditional binding,",
-              " or removing a binding (conditional or unconditional) from the stored",
-              " conditional policy.",
-              " Operations on non-conditional policies may specify any valid value or",
-              " leave the field unset.",
+              " Any operation that affects conditional role bindings must specify version",
+              " `3`. This requirement applies to the following operations:",
               "",
-              " If no etag is provided in the call to `setIamPolicy`, version compliance",
-              " checks against the stored policy is skipped."
+              " * Getting a policy that includes a conditional role binding",
+              " * Adding a conditional role binding to a policy",
+              " * Changing a conditional role binding in a policy",
+              " * Removing any role binding, with or without a condition, from a policy",
+              "   that includes conditions",
+              "",
+              " **Important:** If you use IAM Conditions, you must include the `etag` field",
+              " whenever you call `setIamPolicy`. If you omit this field, then IAM allows",
+              " you to overwrite a version `3` policy with a version `1` policy, and all of",
+              " the conditions in the version `3` policy are lost.",
+              "",
+              " If a policy does not include any conditions, operations on that policy may",
+              " specify any valid version or leave the field unset.",
+              "",
+              " To learn which resources support conditions in their IAM policies, see the",
+              " [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies)."
             ]
           },
           "Policy:bindings": {
             "paramName": "bindings",
             "paramType": "TYPE_MESSAGE[]",
             "comments": [
-              " Associates a list of `members` to a `role`. Optionally may specify a",
-              " `condition` that determines when binding is in effect.",
-              " `bindings` with no members will result in an error."
+              " Associates a list of `members`, or principals, with a `role`. Optionally,",
+              " may specify a `condition` that determines how and when the `bindings` are",
+              " applied. Each of the `bindings` must contain at least one principal.",
+              "",
+              " The `bindings` in a `Policy` can refer to up to 1,500 principals; up to 250",
+              " of these principals can be Google groups. Each occurrence of a principal",
+              " counts towards these limits. For example, if the `bindings` grant 50",
+              " different roles to `user:alice@example.com`, and not to any other",
+              " principal, then you can add another 1,450 principals to the `bindings` in",
+              " the `Policy`."
+            ]
+          },
+          "Policy:audit_configs": {
+            "paramName": "audit_configs",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " Specifies cloud audit logging configuration for this policy."
             ]
           },
           "Policy:etag": {
@@ -12438,17 +13779,17 @@
               " systems are expected to put that etag in the request to `setIamPolicy` to",
               " ensure that their change will be applied to the same version of the policy.",
               "",
-              " If no `etag` is provided in the call to `setIamPolicy`, then the existing",
-              " policy is overwritten. Due to blind-set semantics of an etag-less policy,",
-              " 'setIamPolicy' will not fail even if the incoming policy version does not",
-              " meet the requirements for modifying the stored policy."
+              " **Important:** If you use IAM Conditions, you must include the `etag` field",
+              " whenever you call `setIamPolicy`. If you omit this field, then IAM allows",
+              " you to overwrite a version `3` policy with a version `1` policy, and all of",
+              " the conditions in the version `3` policy are lost."
             ]
           },
           "Binding:role": {
             "paramName": "role",
             "paramType": "TYPE_STRING",
             "comments": [
-              " Role that is assigned to `members`.",
+              " Role that is assigned to the list of `members`, or principals.",
               " For example, `roles/viewer`, `roles/editor`, or `roles/owner`."
             ]
           },
@@ -12456,7 +13797,7 @@
             "paramName": "members",
             "paramType": "TYPE_STRING[]",
             "comments": [
-              " Specifies the identities requesting access for a Cloud Platform resource.",
+              " Specifies the principals requesting access for a Cloud Platform resource.",
               " `members` can have the following values:",
               "",
               " * `allUsers`: A special identifier that represents anyone who is",
@@ -12475,6 +13816,26 @@
               " * `group:{emailid}`: An email address that represents a Google group.",
               "    For example, `admins@example.com`.",
               "",
+              " * `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus unique",
+              "    identifier) representing a user that has been recently deleted. For",
+              "    example, `alice@example.com?uid=123456789012345678901`. If the user is",
+              "    recovered, this value reverts to `user:{emailid}` and the recovered user",
+              "    retains the role in the binding.",
+              "",
+              " * `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address (plus",
+              "    unique identifier) representing a service account that has been recently",
+              "    deleted. For example,",
+              "    `my-other-app@appspot.gserviceaccount.com?uid=123456789012345678901`.",
+              "    If the service account is undeleted, this value reverts to",
+              "    `serviceAccount:{emailid}` and the undeleted service account retains the",
+              "    role in the binding.",
+              "",
+              " * `deleted:group:{emailid}?uid={uniqueid}`: An email address (plus unique",
+              "    identifier) representing a Google group that has been recently",
+              "    deleted. For example, `admins@example.com?uid=123456789012345678901`. If",
+              "    the group is recovered, this value reverts to `group:{emailid}` and the",
+              "    recovered group retains the role in the binding.",
+              "",
               "",
               " * `domain:{domain}`: The G Suite domain (primary) that represents all the",
               "    users of that domain. For example, `google.com` or `example.com`.",
@@ -12487,9 +13848,49 @@
             "paramType": ".google.type.Expr",
             "comments": [
               " The condition that is associated with this binding.",
-              " NOTE: An unsatisfied condition will not allow user access via current",
-              " binding. Different bindings, including their conditions, are examined",
-              " independently."
+              "",
+              " If the condition evaluates to `true`, then this binding applies to the",
+              " current request.",
+              "",
+              " If the condition evaluates to `false`, then this binding does not apply to",
+              " the current request. However, a different role binding might grant the same",
+              " role to one or more of the principals in this binding.",
+              "",
+              " To learn which resources support conditions in their IAM policies, see the",
+              " [IAM",
+              " documentation](https://cloud.google.com/iam/help/conditions/resource-policies)."
+            ]
+          },
+          "AuditConfig:service": {
+            "paramName": "service",
+            "paramType": "TYPE_STRING",
+            "comments": [
+              " Specifies a service that will be enabled for audit logging.",
+              " For example, `storage.googleapis.com`, `cloudsql.googleapis.com`.",
+              " `allServices` is a special value that covers all services."
+            ]
+          },
+          "AuditConfig:audit_log_configs": {
+            "paramName": "audit_log_configs",
+            "paramType": "TYPE_MESSAGE[]",
+            "comments": [
+              " The configuration for logging of each type of permission."
+            ]
+          },
+          "AuditLogConfig:log_type": {
+            "paramName": "log_type",
+            "paramType": ".google.iam.v1.AuditLogConfig.LogType",
+            "comments": [
+              " The log type that this config enables."
+            ]
+          },
+          "AuditLogConfig:exempted_members": {
+            "paramName": "exempted_members",
+            "paramType": "TYPE_STRING[]",
+            "comments": [
+              " Specifies the identities that do not cause logging for this type of",
+              " permission.",
+              " Follows the same format of [Binding.members][google.iam.v1.Binding.members]."
             ]
           },
           "PolicyDelta:binding_deltas": {
@@ -12707,6 +14108,42 @@
         }
       },
       "retryableCodeMap": {
+        "codeEnumMapping": {
+          "0": "OK",
+          "1": "CANCELLED",
+          "2": "UNKNOWN",
+          "3": "INVALID_ARGUMENT",
+          "4": "DEADLINE_EXCEEDED",
+          "5": "NOT_FOUND",
+          "6": "ALREADY_EXISTS",
+          "7": "PERMISSION_DENIED",
+          "8": "RESOURCE_EXHAUSTED",
+          "9": "FAILED_PRECONDITION",
+          "10": "ABORTED",
+          "11": "OUT_OF_RANGE",
+          "12": "UNIMPLEMENTED",
+          "13": "INTERNAL",
+          "14": "UNAVAILABLE",
+          "15": "DATA_LOSS",
+          "16": "UNAUTHENTICATED",
+          "OK": "0",
+          "CANCELLED": "1",
+          "UNKNOWN": "2",
+          "INVALID_ARGUMENT": "3",
+          "DEADLINE_EXCEEDED": "4",
+          "NOT_FOUND": "5",
+          "ALREADY_EXISTS": "6",
+          "PERMISSION_DENIED": "7",
+          "RESOURCE_EXHAUSTED": "8",
+          "FAILED_PRECONDITION": "9",
+          "ABORTED": "10",
+          "OUT_OF_RANGE": "11",
+          "UNIMPLEMENTED": "12",
+          "INTERNAL": "13",
+          "UNAVAILABLE": "14",
+          "DATA_LOSS": "15",
+          "UNAUTHENTICATED": "16"
+        },
         "uniqueCodesNamesMap": {
           "": "non_idempotent",
           "deadline_exceeded_unavailable": "idempotent"
@@ -12731,25 +14168,6 @@
             "max_rpc_timeout_millis": 60000,
             "total_timeout_millis": 600000
           }
-        },
-        "codeEnumMapping": {
-          "0": "OK",
-          "1": "CANCELLED",
-          "2": "UNKNOWN",
-          "3": "INVALID_ARGUMENT",
-          "4": "DEADLINE_EXCEEDED",
-          "5": "NOT_FOUND",
-          "6": "ALREADY_EXISTS",
-          "7": "PERMISSION_DENIED",
-          "8": "RESOURCE_EXHAUSTED",
-          "9": "FAILED_PRECONDITION",
-          "10": "ABORTED",
-          "11": "OUT_OF_RANGE",
-          "12": "UNIMPLEMENTED",
-          "13": "INTERNAL",
-          "14": "UNAVAILABLE",
-          "15": "DATA_LOSS",
-          "16": "UNAUTHENTICATED"
         }
       },
       "grpcServiceConfig": {},
@@ -12785,7 +14203,8 @@
             ],
             ".google.api.http": {
               "put": "/v1/{name=projects/*/subscriptions/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -12974,7 +14393,8 @@
               "subscription"
             ],
             ".google.api.http": {
-              "get": "/v1/{subscription=projects/*/subscriptions/*}"
+              "get": "/v1/{subscription=projects/*/subscriptions/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13011,7 +14431,8 @@
           "options": {
             ".google.api.http": {
               "patch": "/v1/{subscription.name=projects/*/subscriptions/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13062,7 +14483,8 @@
               "subscription"
             ],
             ".google.api.http": {
-              "delete": "/v1/{subscription=projects/*/subscriptions/*}"
+              "delete": "/v1/{subscription=projects/*/subscriptions/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13105,7 +14527,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:modifyAckDeadline",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13173,7 +14596,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:acknowledge",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13224,7 +14648,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:pull",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13292,7 +14717,8 @@
             ],
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:modifyPushConfig",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13347,7 +14773,8 @@
               "snapshot"
             ],
             ".google.api.http": {
-              "get": "/v1/{snapshot=projects/*/snapshots/*}"
+              "get": "/v1/{snapshot=projects/*/snapshots/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13401,7 +14828,8 @@
             ],
             ".google.api.http": {
               "put": "/v1/{name=projects/*/snapshots/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13470,7 +14898,8 @@
           "options": {
             ".google.api.http": {
               "patch": "/v1/{snapshot.name=projects/*/snapshots/*}",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13525,7 +14954,8 @@
               "snapshot"
             ],
             ".google.api.http": {
-              "delete": "/v1/{snapshot=projects/*/snapshots/*}"
+              "delete": "/v1/{snapshot=projects/*/snapshots/*}",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13567,7 +14997,8 @@
           "options": {
             ".google.api.http": {
               "post": "/v1/{subscription=projects/*/subscriptions/*}:seek",
-              "body": "*"
+              "body": "*",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13614,6 +15045,7 @@
         }
       ],
       "longRunning": [],
+      "diregapicLRO": [],
       "streaming": [
         {
           "streaming": "BIDI_STREAMING",
@@ -13901,7 +15333,8 @@
               "project"
             ],
             ".google.api.http": {
-              "get": "/v1/{project=projects/*}/subscriptions"
+              "get": "/v1/{project=projects/*}/subscriptions",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -13961,7 +15394,8 @@
               "project"
             ],
             ".google.api.http": {
-              "get": "/v1/{project=projects/*}/snapshots"
+              "get": "/v1/{project=projects/*}/snapshots",
+              "additionalBindings": []
             }
           },
           "paramComment": [
@@ -14010,10 +15444,10 @@
           "params": [
             "project"
           ],
+          "type": "cloudresourcemanager.googleapis.com/Project",
           "pattern": [
             "projects/{project}"
-          ],
-          "type": "cloudresourcemanager.googleapis.com/Project"
+          ]
         },
         {
           "name": "project_topic",
@@ -14032,10 +15466,10 @@
             "project",
             "schema"
           ],
+          "type": "pubsub.googleapis.com/Schema",
           "pattern": [
             "projects/{project}/schemas/{schema}"
-          ],
-          "type": "pubsub.googleapis.com/Schema"
+          ]
         },
         {
           "name": "Snapshot",
@@ -14043,10 +15477,10 @@
             "project",
             "snapshot"
           ],
+          "type": "pubsub.googleapis.com/Snapshot",
           "pattern": [
             "projects/{project}/snapshots/{snapshot}"
-          ],
-          "type": "pubsub.googleapis.com/Snapshot"
+          ]
         },
         {
           "name": "Subscription",
@@ -14054,12 +15488,15 @@
             "project",
             "subscription"
           ],
+          "type": "pubsub.googleapis.com/Subscription",
           "pattern": [
             "projects/{project}/subscriptions/{subscription}"
-          ],
-          "type": "pubsub.googleapis.com/Subscription"
+          ]
         }
       ]
     }
-  ]
+  ],
+  "diregapic": false,
+  "handwrittenLayer": false,
+  "legacyProtoLoad": false
 }

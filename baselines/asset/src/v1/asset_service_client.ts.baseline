@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 // ** All changes to this file may be overwritten. **
 
 /* global window */
-import * as gax from 'google-gax';
-import {Callback, CallOptions, Descriptors, ClientOptions, LROperation} from 'google-gax';
+import type * as gax from 'google-gax';
+import type {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOptions, LROperation} from 'google-gax';
 
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
@@ -28,7 +28,6 @@ import jsonProtos = require('../../protos/protos.json');
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
 import * as gapicConfig from './asset_service_client_config.json';
-import { operationsProtos } from 'google-gax';
 const version = require('../../../package.json').version;
 
 /**
@@ -39,6 +38,7 @@ const version = require('../../../package.json').version;
 export class AssetServiceClient {
   private _terminated = false;
   private _opts: ClientOptions;
+  private _providedCustomServicePath: boolean;
   private _gaxModule: typeof gax | typeof gax.fallback;
   private _gaxGrpc: gax.GrpcClient | gax.fallback.GrpcClient;
   private _protos: {};
@@ -50,6 +50,7 @@ export class AssetServiceClient {
     longrunning: {},
     batching: {},
   };
+  warn: (code: string, message: string, warnType?: string) => void;
   innerApiCalls: {[name: string]: Function};
   pathTemplates: {[name: string]: gax.PathTemplate};
   operationsClient: gax.OperationsClient;
@@ -60,7 +61,7 @@ export class AssetServiceClient {
    *
    * @param {object} [options] - The configuration object.
    * The options accepted by the constructor are described in detail
-   * in [this document](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#creating-the-client-instance).
+   * in [this document](https://github.com/googleapis/gax-nodejs/blob/main/client-libraries.md#creating-the-client-instance).
    * The common options are:
    * @param {object} [options.credentials] - Credentials object.
    * @param {string} [options.credentials.client_email]
@@ -83,16 +84,23 @@ export class AssetServiceClient {
    *     API remote host.
    * @param {gax.ClientConfig} [options.clientConfig] - Client configuration override.
    *     Follows the structure of {@link gapicConfig}.
-   * @param {boolean} [options.fallback] - Use HTTP fallback mode.
-   *     In fallback mode, a special browser-compatible transport implementation is used
-   *     instead of gRPC transport. In browser context (if the `window` object is defined)
-   *     the fallback mode is enabled automatically; set `options.fallback` to `false`
-   *     if you need to override this behavior.
+   * @param {boolean | "rest"} [options.fallback] - Use HTTP fallback mode.
+   *     Pass "rest" to use HTTP/1.1 REST API instead of gRPC.
+   *     For more information, please check the
+   *     {@link https://github.com/googleapis/gax-nodejs/blob/main/client-libraries.md#http11-rest-api-mode documentation}.
+   * @param {gax} [gaxInstance]: loaded instance of `google-gax`. Useful if you
+   *     need to avoid loading the default gRPC version and want to use the fallback
+   *     HTTP implementation. Load only fallback version and pass it to the constructor:
+   *     ```
+   *     const gax = require('google-gax/build/src/fallback'); // avoids loading google-gax with gRPC
+   *     const client = new AssetServiceClient({fallback: 'rest'}, gax);
+   *     ```
    */
-  constructor(opts?: ClientOptions) {
+  constructor(opts?: ClientOptions, gaxInstance?: typeof gax | typeof gax.fallback) {
     // Ensure that options include all the required fields.
     const staticMembers = this.constructor as typeof AssetServiceClient;
     const servicePath = opts?.servicePath || opts?.apiEndpoint || staticMembers.servicePath;
+    this._providedCustomServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
     const port = opts?.port || staticMembers.port;
     const clientConfig = opts?.clientConfig ?? {};
     const fallback = opts?.fallback ?? (typeof window !== 'undefined' && typeof window?.fetch === 'function');
@@ -103,8 +111,13 @@ export class AssetServiceClient {
       opts['scopes'] = staticMembers.scopes;
     }
 
+    // Load google-gax module synchronously if needed
+    if (!gaxInstance) {
+      gaxInstance = require('google-gax') as typeof gax;
+    }
+
     // Choose either gRPC or proto-over-HTTP implementation of google-gax.
-    this._gaxModule = opts.fallback ? gax.fallback : gax;
+    this._gaxModule = opts.fallback ? gaxInstance.fallback : gaxInstance;
 
     // Create a `gaxGrpc` object, with any grpc-specific options sent to the client.
     this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
@@ -114,6 +127,12 @@ export class AssetServiceClient {
 
     // Save the auth object to the client, for use by other methods.
     this.auth = (this._gaxGrpc.auth as gax.GoogleAuth);
+
+    // Set useJWTAccessWithScope on the auth object.
+    this.auth.useJWTAccessWithScope = true;
+
+    // Set defaultServicePath on the auth object.
+    this.auth.defaultServicePath = staticMembers.servicePath;
 
     // Set the default scopes in auth client if needed.
     if (servicePath === staticMembers.servicePath) {
@@ -157,15 +176,18 @@ export class AssetServiceClient {
     };
 
     const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
-
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.
-
-    this.operationsClient = this._gaxModule.lro({
+    const lroOptions: GrpcClientOptions = {
       auth: this.auth,
       grpc: 'grpc' in this._gaxGrpc ? this._gaxGrpc.grpc : undefined
-    }).operationsClient(opts);
+    };
+    if (opts.fallback === 'rest') {
+      lroOptions.protoJson = protoFilesRoot;
+      lroOptions.httpRules = [];
+    }
+    this.operationsClient = this._gaxModule.lro(lroOptions).operationsClient(opts);
     const exportAssetsResponse = protoFilesRoot.lookup(
       '.google.cloud.asset.v1.ExportAssetsResponse') as gax.protobuf.Type;
     const exportAssetsMetadata = protoFilesRoot.lookup(
@@ -187,6 +209,9 @@ export class AssetServiceClient {
     // of calling the API is handled in `google-gax`, with this code
     // merely providing the destination and request information.
     this.innerApiCalls = {};
+
+    // Add a warn function to the client constructor so it can be easily tested.
+    this.warn = this._gaxModule.warn;
   }
 
   /**
@@ -213,7 +238,7 @@ export class AssetServiceClient {
           (this._protos as protobuf.Root).lookupService('google.cloud.asset.v1.AssetService') :
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this._protos as any).google.cloud.asset.v1.AssetService,
-        this._opts) as Promise<{[method: string]: Function}>;
+        this._opts, this._providedCustomServicePath) as Promise<{[method: string]: Function}>;
 
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
@@ -238,7 +263,8 @@ export class AssetServiceClient {
       const apiCall = this._gaxModule.createApiCall(
         callPromise,
         this._defaults[methodName],
-        descriptor
+        descriptor,
+        this._opts.fallback
       );
 
       this.innerApiCalls[methodName] = apiCall;
@@ -301,26 +327,6 @@ export class AssetServiceClient {
   // -------------------
   // -- Service calls --
   // -------------------
-  batchGetAssetsHistory(
-      request?: protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.cloud.asset.v1.IBatchGetAssetsHistoryResponse,
-        protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest|undefined, {}|undefined
-      ]>;
-  batchGetAssetsHistory(
-      request: protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest,
-      options: CallOptions,
-      callback: Callback<
-          protos.google.cloud.asset.v1.IBatchGetAssetsHistoryResponse,
-          protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest|null|undefined,
-          {}|null|undefined>): void;
-  batchGetAssetsHistory(
-      request: protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest,
-      callback: Callback<
-          protos.google.cloud.asset.v1.IBatchGetAssetsHistoryResponse,
-          protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Batch gets the update history of assets that overlap a time window.
  * For RESOURCE content, this API outputs history with asset in both
@@ -359,13 +365,32 @@ export class AssetServiceClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [BatchGetAssetsHistoryResponse]{@link google.cloud.asset.v1.BatchGetAssetsHistoryResponse}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   The first element of the array is an object representing {@link protos.google.cloud.asset.v1.BatchGetAssetsHistoryResponse|BatchGetAssetsHistoryResponse}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
  *   for more details and examples.
- * @example
- * const [response] = await client.batchGetAssetsHistory(request);
+ * @example <caption>include:samples/generated/v1/asset_service.batch_get_assets_history.js</caption>
+ * region_tag:cloudasset_v1_generated_AssetService_BatchGetAssetsHistory_async
  */
+  batchGetAssetsHistory(
+      request?: protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.cloud.asset.v1.IBatchGetAssetsHistoryResponse,
+        protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest|undefined, {}|undefined
+      ]>;
+  batchGetAssetsHistory(
+      request: protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.cloud.asset.v1.IBatchGetAssetsHistoryResponse,
+          protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest|null|undefined,
+          {}|null|undefined>): void;
+  batchGetAssetsHistory(
+      request: protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest,
+      callback: Callback<
+          protos.google.cloud.asset.v1.IBatchGetAssetsHistoryResponse,
+          protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest|null|undefined,
+          {}|null|undefined>): void;
   batchGetAssetsHistory(
       request?: protos.google.cloud.asset.v1.IBatchGetAssetsHistoryRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -394,32 +419,12 @@ export class AssetServiceClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.batchGetAssetsHistory(request, options, callback);
   }
-  createFeed(
-      request?: protos.google.cloud.asset.v1.ICreateFeedRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.cloud.asset.v1.IFeed,
-        protos.google.cloud.asset.v1.ICreateFeedRequest|undefined, {}|undefined
-      ]>;
-  createFeed(
-      request: protos.google.cloud.asset.v1.ICreateFeedRequest,
-      options: CallOptions,
-      callback: Callback<
-          protos.google.cloud.asset.v1.IFeed,
-          protos.google.cloud.asset.v1.ICreateFeedRequest|null|undefined,
-          {}|null|undefined>): void;
-  createFeed(
-      request: protos.google.cloud.asset.v1.ICreateFeedRequest,
-      callback: Callback<
-          protos.google.cloud.asset.v1.IFeed,
-          protos.google.cloud.asset.v1.ICreateFeedRequest|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Creates a feed in a parent project/folder/organization to listen to its
  * asset updates.
@@ -444,13 +449,32 @@ export class AssetServiceClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Feed]{@link google.cloud.asset.v1.Feed}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   The first element of the array is an object representing {@link protos.google.cloud.asset.v1.Feed|Feed}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
  *   for more details and examples.
- * @example
- * const [response] = await client.createFeed(request);
+ * @example <caption>include:samples/generated/v1/asset_service.create_feed.js</caption>
+ * region_tag:cloudasset_v1_generated_AssetService_CreateFeed_async
  */
+  createFeed(
+      request?: protos.google.cloud.asset.v1.ICreateFeedRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.cloud.asset.v1.IFeed,
+        protos.google.cloud.asset.v1.ICreateFeedRequest|undefined, {}|undefined
+      ]>;
+  createFeed(
+      request: protos.google.cloud.asset.v1.ICreateFeedRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.cloud.asset.v1.IFeed,
+          protos.google.cloud.asset.v1.ICreateFeedRequest|null|undefined,
+          {}|null|undefined>): void;
+  createFeed(
+      request: protos.google.cloud.asset.v1.ICreateFeedRequest,
+      callback: Callback<
+          protos.google.cloud.asset.v1.IFeed,
+          protos.google.cloud.asset.v1.ICreateFeedRequest|null|undefined,
+          {}|null|undefined>): void;
   createFeed(
       request?: protos.google.cloud.asset.v1.ICreateFeedRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -479,32 +503,12 @@ export class AssetServiceClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.createFeed(request, options, callback);
   }
-  getFeed(
-      request?: protos.google.cloud.asset.v1.IGetFeedRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.cloud.asset.v1.IFeed,
-        protos.google.cloud.asset.v1.IGetFeedRequest|undefined, {}|undefined
-      ]>;
-  getFeed(
-      request: protos.google.cloud.asset.v1.IGetFeedRequest,
-      options: CallOptions,
-      callback: Callback<
-          protos.google.cloud.asset.v1.IFeed,
-          protos.google.cloud.asset.v1.IGetFeedRequest|null|undefined,
-          {}|null|undefined>): void;
-  getFeed(
-      request: protos.google.cloud.asset.v1.IGetFeedRequest,
-      callback: Callback<
-          protos.google.cloud.asset.v1.IFeed,
-          protos.google.cloud.asset.v1.IGetFeedRequest|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Gets details about an asset feed.
  *
@@ -518,13 +522,32 @@ export class AssetServiceClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Feed]{@link google.cloud.asset.v1.Feed}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   The first element of the array is an object representing {@link protos.google.cloud.asset.v1.Feed|Feed}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
  *   for more details and examples.
- * @example
- * const [response] = await client.getFeed(request);
+ * @example <caption>include:samples/generated/v1/asset_service.get_feed.js</caption>
+ * region_tag:cloudasset_v1_generated_AssetService_GetFeed_async
  */
+  getFeed(
+      request?: protos.google.cloud.asset.v1.IGetFeedRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.cloud.asset.v1.IFeed,
+        protos.google.cloud.asset.v1.IGetFeedRequest|undefined, {}|undefined
+      ]>;
+  getFeed(
+      request: protos.google.cloud.asset.v1.IGetFeedRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.cloud.asset.v1.IFeed,
+          protos.google.cloud.asset.v1.IGetFeedRequest|null|undefined,
+          {}|null|undefined>): void;
+  getFeed(
+      request: protos.google.cloud.asset.v1.IGetFeedRequest,
+      callback: Callback<
+          protos.google.cloud.asset.v1.IFeed,
+          protos.google.cloud.asset.v1.IGetFeedRequest|null|undefined,
+          {}|null|undefined>): void;
   getFeed(
       request?: protos.google.cloud.asset.v1.IGetFeedRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -553,12 +576,30 @@ export class AssetServiceClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.getFeed(request, options, callback);
   }
+/**
+ * Lists all asset feeds in a parent project/folder/organization.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.parent
+ *   Required. The parent project/folder/organization whose feeds are to be
+ *   listed. It can only be using project/folder/organization number (such as
+ *   "folders/12345")", or a project ID (such as "projects/my-project-id").
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing {@link protos.google.cloud.asset.v1.ListFeedsResponse|ListFeedsResponse}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1/asset_service.list_feeds.js</caption>
+ * region_tag:cloudasset_v1_generated_AssetService_ListFeeds_async
+ */
   listFeeds(
       request?: protos.google.cloud.asset.v1.IListFeedsRequest,
       options?: CallOptions):
@@ -579,25 +620,6 @@ export class AssetServiceClient {
           protos.google.cloud.asset.v1.IListFeedsResponse,
           protos.google.cloud.asset.v1.IListFeedsRequest|null|undefined,
           {}|null|undefined>): void;
-/**
- * Lists all asset feeds in a parent project/folder/organization.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.parent
- *   Required. The parent project/folder/organization whose feeds are to be
- *   listed. It can only be using project/folder/organization number (such as
- *   "folders/12345")", or a project ID (such as "projects/my-project-id").
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [ListFeedsResponse]{@link google.cloud.asset.v1.ListFeedsResponse}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
- *   for more details and examples.
- * @example
- * const [response] = await client.listFeeds(request);
- */
   listFeeds(
       request?: protos.google.cloud.asset.v1.IListFeedsRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -626,32 +648,12 @@ export class AssetServiceClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.listFeeds(request, options, callback);
   }
-  updateFeed(
-      request?: protos.google.cloud.asset.v1.IUpdateFeedRequest,
-      options?: CallOptions):
-      Promise<[
-        protos.google.cloud.asset.v1.IFeed,
-        protos.google.cloud.asset.v1.IUpdateFeedRequest|undefined, {}|undefined
-      ]>;
-  updateFeed(
-      request: protos.google.cloud.asset.v1.IUpdateFeedRequest,
-      options: CallOptions,
-      callback: Callback<
-          protos.google.cloud.asset.v1.IFeed,
-          protos.google.cloud.asset.v1.IUpdateFeedRequest|null|undefined,
-          {}|null|undefined>): void;
-  updateFeed(
-      request: protos.google.cloud.asset.v1.IUpdateFeedRequest,
-      callback: Callback<
-          protos.google.cloud.asset.v1.IFeed,
-          protos.google.cloud.asset.v1.IUpdateFeedRequest|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Updates an asset feed configuration.
  *
@@ -670,13 +672,32 @@ export class AssetServiceClient {
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Feed]{@link google.cloud.asset.v1.Feed}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
+ *   The first element of the array is an object representing {@link protos.google.cloud.asset.v1.Feed|Feed}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
  *   for more details and examples.
- * @example
- * const [response] = await client.updateFeed(request);
+ * @example <caption>include:samples/generated/v1/asset_service.update_feed.js</caption>
+ * region_tag:cloudasset_v1_generated_AssetService_UpdateFeed_async
  */
+  updateFeed(
+      request?: protos.google.cloud.asset.v1.IUpdateFeedRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.cloud.asset.v1.IFeed,
+        protos.google.cloud.asset.v1.IUpdateFeedRequest|undefined, {}|undefined
+      ]>;
+  updateFeed(
+      request: protos.google.cloud.asset.v1.IUpdateFeedRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.cloud.asset.v1.IFeed,
+          protos.google.cloud.asset.v1.IUpdateFeedRequest|null|undefined,
+          {}|null|undefined>): void;
+  updateFeed(
+      request: protos.google.cloud.asset.v1.IUpdateFeedRequest,
+      callback: Callback<
+          protos.google.cloud.asset.v1.IFeed,
+          protos.google.cloud.asset.v1.IUpdateFeedRequest|null|undefined,
+          {}|null|undefined>): void;
   updateFeed(
       request?: protos.google.cloud.asset.v1.IUpdateFeedRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -705,12 +726,31 @@ export class AssetServiceClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'feed.name': request.feed!.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'feed.name': request.feed!.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.updateFeed(request, options, callback);
   }
+/**
+ * Deletes an asset feed.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.name
+ *   Required. The name of the feed and it must be in the format of:
+ *   projects/project_number/feeds/feed_id
+ *   folders/folder_number/feeds/feed_id
+ *   organizations/organization_number/feeds/feed_id
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing {@link protos.google.protobuf.Empty|Empty}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1/asset_service.delete_feed.js</caption>
+ * region_tag:cloudasset_v1_generated_AssetService_DeleteFeed_async
+ */
   deleteFeed(
       request?: protos.google.cloud.asset.v1.IDeleteFeedRequest,
       options?: CallOptions):
@@ -731,26 +771,6 @@ export class AssetServiceClient {
           protos.google.protobuf.IEmpty,
           protos.google.cloud.asset.v1.IDeleteFeedRequest|null|undefined,
           {}|null|undefined>): void;
-/**
- * Deletes an asset feed.
- *
- * @param {Object} request
- *   The request object that will be sent.
- * @param {string} request.name
- *   Required. The name of the feed and it must be in the format of:
- *   projects/project_number/feeds/feed_id
- *   folders/folder_number/feeds/feed_id
- *   organizations/organization_number/feeds/feed_id
- * @param {object} [options]
- *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
- * @returns {Promise} - The promise which resolves to an array.
- *   The first element of the array is an object representing [Empty]{@link google.protobuf.Empty}.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods)
- *   for more details and examples.
- * @example
- * const [response] = await client.deleteFeed(request);
- */
   deleteFeed(
       request?: protos.google.cloud.asset.v1.IDeleteFeedRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -779,37 +799,17 @@ export class AssetServiceClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'name': request.name || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'name': request.name ?? '',
     });
     this.initialize();
     return this.innerApiCalls.deleteFeed(request, options, callback);
   }
 
-  exportAssets(
-      request?: protos.google.cloud.asset.v1.IExportAssetsRequest,
-      options?: CallOptions):
-      Promise<[
-        LROperation<protos.google.cloud.asset.v1.IExportAssetsResponse, protos.google.cloud.asset.v1.IExportAssetsRequest>,
-        protos.google.longrunning.IOperation|undefined, {}|undefined
-      ]>;
-  exportAssets(
-      request: protos.google.cloud.asset.v1.IExportAssetsRequest,
-      options: CallOptions,
-      callback: Callback<
-          LROperation<protos.google.cloud.asset.v1.IExportAssetsResponse, protos.google.cloud.asset.v1.IExportAssetsRequest>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
-  exportAssets(
-      request: protos.google.cloud.asset.v1.IExportAssetsRequest,
-      callback: Callback<
-          LROperation<protos.google.cloud.asset.v1.IExportAssetsResponse, protos.google.cloud.asset.v1.IExportAssetsRequest>,
-          protos.google.longrunning.IOperation|null|undefined,
-          {}|null|undefined>): void;
 /**
  * Exports assets with time and resource types to a given Cloud Storage
  * location. The output format is newline-delimited JSON.
- * This API implements the {@link google.longrunning.Operation|google.longrunning.Operation} API allowing you
+ * This API implements the {@link protos.google.longrunning.Operation|google.longrunning.Operation} API allowing you
  * to keep track of the export.
  *
  * @param {Object} request
@@ -843,13 +843,31 @@ export class AssetServiceClient {
  *   The first element of the array is an object representing
  *   a long running operation. Its `promise()` method returns a promise
  *   you can `await` for.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const [operation] = await client.exportAssets(request);
- * const [response] = await operation.promise();
+ * @example <caption>include:samples/generated/v1/asset_service.export_assets.js</caption>
+ * region_tag:cloudasset_v1_generated_AssetService_ExportAssets_async
  */
+  exportAssets(
+      request?: protos.google.cloud.asset.v1.IExportAssetsRequest,
+      options?: CallOptions):
+      Promise<[
+        LROperation<protos.google.cloud.asset.v1.IExportAssetsResponse, protos.google.cloud.asset.v1.IExportAssetsRequest>,
+        protos.google.longrunning.IOperation|undefined, {}|undefined
+      ]>;
+  exportAssets(
+      request: protos.google.cloud.asset.v1.IExportAssetsRequest,
+      options: CallOptions,
+      callback: Callback<
+          LROperation<protos.google.cloud.asset.v1.IExportAssetsResponse, protos.google.cloud.asset.v1.IExportAssetsRequest>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
+  exportAssets(
+      request: protos.google.cloud.asset.v1.IExportAssetsRequest,
+      callback: Callback<
+          LROperation<protos.google.cloud.asset.v1.IExportAssetsResponse, protos.google.cloud.asset.v1.IExportAssetsRequest>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>): void;
   exportAssets(
       request?: protos.google.cloud.asset.v1.IExportAssetsRequest,
       optionsOrCallback?: CallOptions|Callback<
@@ -878,8 +896,8 @@ export class AssetServiceClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     options.otherArgs.headers[
       'x-goog-request-params'
-    ] = gax.routingHeader.fromParams({
-      'parent': request.parent || '',
+    ] = this._gaxModule.routingHeader.fromParams({
+      'parent': request.parent ?? '',
     });
     this.initialize();
     return this.innerApiCalls.exportAssets(request, options, callback);
@@ -890,19 +908,15 @@ export class AssetServiceClient {
  *   The operation name that will be passed.
  * @returns {Promise} - The promise which resolves to an object.
  *   The decoded operation object has result and metadata field to get information from.
- *   Please see the
- *   [documentation](https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations)
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#long-running-operations | documentation }
  *   for more details and examples.
- * @example
- * const decodedOperation = await checkExportAssetsProgress(name);
- * console.log(decodedOperation.result);
- * console.log(decodedOperation.done);
- * console.log(decodedOperation.metadata);
+ * @example <caption>include:samples/generated/v1/asset_service.export_assets.js</caption>
+ * region_tag:cloudasset_v1_generated_AssetService_ExportAssets_async
  */
   async checkExportAssetsProgress(name: string): Promise<LROperation<protos.google.cloud.asset.v1.ExportAssetsResponse, protos.google.cloud.asset.v1.ExportAssetsRequest>>{
-    const request = new operationsProtos.google.longrunning.GetOperationRequest({name});
+    const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
-    const decodeOperation = new gax.Operation(operation, this.descriptors.longrunning.exportAssets, gax.createDefaultBackoffSettings());
+    const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.exportAssets, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos.google.cloud.asset.v1.ExportAssetsResponse, protos.google.cloud.asset.v1.ExportAssetsRequest>;
   }
   // --------------------
@@ -1024,11 +1038,11 @@ export class AssetServiceClient {
    * @returns {Promise} A promise that resolves when the client is closed.
    */
   close(): Promise<void> {
-    this.initialize();
-    if (!this._terminated) {
-      return this.assetServiceStub!.then(stub => {
+    if (this.assetServiceStub && !this._terminated) {
+      return this.assetServiceStub.then(stub => {
         this._terminated = true;
         stub.close();
+        this.operationsClient.close();
       });
     }
     return Promise.resolve();

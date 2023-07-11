@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,12 +20,25 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as translationserviceModule from '../src';
 
 import {PassThrough} from 'stream';
 
 import {protobuf, LROperation, operationsProtos} from 'google-gax';
+
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -103,126 +116,145 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v3beta1.TranslationServiceClient', () => {
-    it('has servicePath', () => {
-        const servicePath = translationserviceModule.v3beta1.TranslationServiceClient.servicePath;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = translationserviceModule.v3beta1.TranslationServiceClient.apiEndpoint;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = translationserviceModule.v3beta1.TranslationServiceClient.port;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new translationserviceModule.v3beta1.TranslationServiceClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = translationserviceModule.v3beta1.TranslationServiceClient.servicePath;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('has apiEndpoint', () => {
+            const apiEndpoint = translationserviceModule.v3beta1.TranslationServiceClient.apiEndpoint;
+            assert(apiEndpoint);
         });
-        assert.strictEqual(client.translationServiceStub, undefined);
-        await client.initialize();
-        assert(client.translationServiceStub);
-    });
 
-    it('has close method', () => {
-        const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('has port', () => {
+            const port = translationserviceModule.v3beta1.TranslationServiceClient.port;
+            assert(port);
+            assert(typeof port === 'number');
         });
-        client.close();
-    });
 
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('should create a client with no option', () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient();
+            assert(client);
         });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
 
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('should create a client with gRPC fallback', () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+                fallback: true,
+            });
+            assert(client);
         });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.translationServiceStub, undefined);
+            await client.initialize();
+            assert(client.translationServiceStub);
+        });
+
+        it('has close method for the initialized client', done => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            assert(client.translationServiceStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.translationServiceStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('translateText', () => {
         it('invokes translateText without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.TranslateTextRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.translation.v3beta1.TranslateTextResponse());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.TranslateTextRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.TranslateTextRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.TranslateTextResponse()
+            );
             client.innerApiCalls.translateText = stubSimpleCall(expectedResponse);
             const [response] = await client.translateText(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.translateText as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.translateText as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.translateText as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes translateText without error using callback', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.TranslateTextRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.translation.v3beta1.TranslateTextResponse());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.TranslateTextRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.TranslateTextRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.TranslateTextResponse()
+            );
             client.innerApiCalls.translateText = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.translateText(
@@ -237,76 +269,100 @@ describe('v3beta1.TranslationServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.translateText as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.translateText as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.translateText as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes translateText with error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.TranslateTextRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.TranslateTextRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.TranslateTextRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.translateText = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.translateText(request), expectedError);
-            assert((client.innerApiCalls.translateText as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.translateText as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.translateText as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes translateText with closed client', async () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.TranslateTextRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.TranslateTextRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.translateText(request), expectedError);
         });
     });
 
     describe('detectLanguage', () => {
         it('invokes detectLanguage without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.DetectLanguageRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.translation.v3beta1.DetectLanguageResponse());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DetectLanguageRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.DetectLanguageRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DetectLanguageResponse()
+            );
             client.innerApiCalls.detectLanguage = stubSimpleCall(expectedResponse);
             const [response] = await client.detectLanguage(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.detectLanguage as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.detectLanguage as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.detectLanguage as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes detectLanguage without error using callback', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.DetectLanguageRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.translation.v3beta1.DetectLanguageResponse());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DetectLanguageRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.DetectLanguageRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DetectLanguageResponse()
+            );
             client.innerApiCalls.detectLanguage = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.detectLanguage(
@@ -321,76 +377,100 @@ describe('v3beta1.TranslationServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.detectLanguage as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.detectLanguage as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.detectLanguage as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes detectLanguage with error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.DetectLanguageRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DetectLanguageRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.DetectLanguageRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.detectLanguage = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.detectLanguage(request), expectedError);
-            assert((client.innerApiCalls.detectLanguage as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.detectLanguage as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.detectLanguage as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes detectLanguage with closed client', async () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DetectLanguageRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.DetectLanguageRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.detectLanguage(request), expectedError);
         });
     });
 
     describe('getSupportedLanguages', () => {
         it('invokes getSupportedLanguages without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.translation.v3beta1.SupportedLanguages());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.SupportedLanguages()
+            );
             client.innerApiCalls.getSupportedLanguages = stubSimpleCall(expectedResponse);
             const [response] = await client.getSupportedLanguages(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getSupportedLanguages as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getSupportedLanguages as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getSupportedLanguages as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getSupportedLanguages without error using callback', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.translation.v3beta1.SupportedLanguages());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.SupportedLanguages()
+            );
             client.innerApiCalls.getSupportedLanguages = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getSupportedLanguages(
@@ -405,76 +485,100 @@ describe('v3beta1.TranslationServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getSupportedLanguages as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getSupportedLanguages as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getSupportedLanguages as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getSupportedLanguages with error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getSupportedLanguages = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getSupportedLanguages(request), expectedError);
-            assert((client.innerApiCalls.getSupportedLanguages as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getSupportedLanguages as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getSupportedLanguages as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes getSupportedLanguages with closed client', async () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.GetSupportedLanguagesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getSupportedLanguages(request), expectedError);
         });
     });
 
     describe('getGlossary', () => {
         it('invokes getGlossary without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.GetGlossaryRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.GetGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.GetGlossaryRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.Glossary()
+            );
             client.innerApiCalls.getGlossary = stubSimpleCall(expectedResponse);
             const [response] = await client.getGlossary(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getGlossary without error using callback', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.GetGlossaryRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.GetGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.GetGlossaryRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.Glossary()
+            );
             client.innerApiCalls.getGlossary = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getGlossary(
@@ -489,77 +593,101 @@ describe('v3beta1.TranslationServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.getGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes getGlossary with error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.GetGlossaryRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.GetGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.GetGlossaryRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getGlossary = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getGlossary(request), expectedError);
-            assert((client.innerApiCalls.getGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.getGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes getGlossary with closed client', async () => {
+            const client = new translationserviceModule.v3beta1.TranslationServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.GetGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.GetGlossaryRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getGlossary(request), expectedError);
         });
     });
 
     describe('batchTranslateText', () => {
         it('invokes batchTranslateText without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.BatchTranslateTextRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.BatchTranslateTextRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.BatchTranslateTextRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.batchTranslateText = stubLongRunningCall(expectedResponse);
             const [operation] = await client.batchTranslateText(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.batchTranslateText as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.batchTranslateText as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.batchTranslateText as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes batchTranslateText without error using callback', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.BatchTranslateTextRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.BatchTranslateTextRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.BatchTranslateTextRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.batchTranslateText = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.batchTranslateText(
@@ -577,64 +705,72 @@ describe('v3beta1.TranslationServiceClient', () => {
             const operation = await promise as LROperation<protos.google.cloud.translation.v3beta1.IBatchTranslateResponse, protos.google.cloud.translation.v3beta1.IBatchTranslateMetadata>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.batchTranslateText as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.batchTranslateText as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.batchTranslateText as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes batchTranslateText with call error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.BatchTranslateTextRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.BatchTranslateTextRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.BatchTranslateTextRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.batchTranslateText = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.batchTranslateText(request), expectedError);
-            assert((client.innerApiCalls.batchTranslateText as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.batchTranslateText as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.batchTranslateText as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes batchTranslateText with LRO error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.BatchTranslateTextRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.BatchTranslateTextRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.BatchTranslateTextRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.batchTranslateText = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.batchTranslateText(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.batchTranslateText as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.batchTranslateText as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.batchTranslateText as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkBatchTranslateTextProgress without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -648,8 +784,8 @@ describe('v3beta1.TranslationServiceClient', () => {
 
         it('invokes checkBatchTranslateTextProgress with error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
             const expectedError = new Error('expected');
@@ -664,46 +800,48 @@ describe('v3beta1.TranslationServiceClient', () => {
     describe('createGlossary', () => {
         it('invokes createGlossary without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.CreateGlossaryRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.CreateGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.CreateGlossaryRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.createGlossary = stubLongRunningCall(expectedResponse);
             const [operation] = await client.createGlossary(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createGlossary without error using callback', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.CreateGlossaryRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.CreateGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.CreateGlossaryRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.createGlossary = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.createGlossary(
@@ -721,64 +859,72 @@ describe('v3beta1.TranslationServiceClient', () => {
             const operation = await promise as LROperation<protos.google.cloud.translation.v3beta1.IGlossary, protos.google.cloud.translation.v3beta1.ICreateGlossaryMetadata>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.createGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.createGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createGlossary with call error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.CreateGlossaryRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.CreateGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.CreateGlossaryRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createGlossary = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.createGlossary(request), expectedError);
-            assert((client.innerApiCalls.createGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes createGlossary with LRO error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.CreateGlossaryRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.CreateGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.CreateGlossaryRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createGlossary = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.createGlossary(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.createGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.createGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.createGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkCreateGlossaryProgress without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -792,8 +938,8 @@ describe('v3beta1.TranslationServiceClient', () => {
 
         it('invokes checkCreateGlossaryProgress with error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
             const expectedError = new Error('expected');
@@ -808,46 +954,48 @@ describe('v3beta1.TranslationServiceClient', () => {
     describe('deleteGlossary', () => {
         it('invokes deleteGlossary without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.DeleteGlossaryRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DeleteGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.DeleteGlossaryRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.deleteGlossary = stubLongRunningCall(expectedResponse);
             const [operation] = await client.deleteGlossary(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteGlossary without error using callback', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.DeleteGlossaryRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DeleteGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.DeleteGlossaryRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.deleteGlossary = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.deleteGlossary(
@@ -865,64 +1013,72 @@ describe('v3beta1.TranslationServiceClient', () => {
             const operation = await promise as LROperation<protos.google.cloud.translation.v3beta1.IDeleteGlossaryResponse, protos.google.cloud.translation.v3beta1.IDeleteGlossaryMetadata>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.deleteGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.deleteGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteGlossary with call error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.DeleteGlossaryRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DeleteGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.DeleteGlossaryRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteGlossary = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.deleteGlossary(request), expectedError);
-            assert((client.innerApiCalls.deleteGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes deleteGlossary with LRO error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.DeleteGlossaryRequest());
-            request.name = '';
-            const expectedHeaderRequestParams = "name=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.DeleteGlossaryRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.DeleteGlossaryRequest', ['name']);
+            request.name = defaultValue1;
+            const expectedHeaderRequestParams = `name=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteGlossary = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.deleteGlossary(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.deleteGlossary as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.deleteGlossary as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.deleteGlossary as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes checkDeleteGlossaryProgress without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -936,8 +1092,8 @@ describe('v3beta1.TranslationServiceClient', () => {
 
         it('invokes checkDeleteGlossaryProgress with error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
             const expectedError = new Error('expected');
@@ -956,17 +1112,13 @@ describe('v3beta1.TranslationServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.ListGlossariesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.ListGlossariesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.ListGlossariesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
@@ -974,8 +1126,12 @@ describe('v3beta1.TranslationServiceClient', () => {
             client.innerApiCalls.listGlossaries = stubSimpleCall(expectedResponse);
             const [response] = await client.listGlossaries(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listGlossaries as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listGlossaries as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listGlossaries as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listGlossaries without error using callback', async () => {
@@ -984,17 +1140,13 @@ describe('v3beta1.TranslationServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.ListGlossariesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.ListGlossariesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.ListGlossariesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
@@ -1013,8 +1165,12 @@ describe('v3beta1.TranslationServiceClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.listGlossaries as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
+            const actualRequest = (client.innerApiCalls.listGlossaries as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listGlossaries as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listGlossaries with error', async () => {
@@ -1023,21 +1179,22 @@ describe('v3beta1.TranslationServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.ListGlossariesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
-            const expectedOptions = {
-                otherArgs: {
-                    headers: {
-                        'x-goog-request-params': expectedHeaderRequestParams,
-                    },
-                },
-            };
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.ListGlossariesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.ListGlossariesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listGlossaries = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listGlossaries(request), expectedError);
-            assert((client.innerApiCalls.listGlossaries as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+            const actualRequest = (client.innerApiCalls.listGlossaries as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.listGlossaries as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
         });
 
         it('invokes listGlossariesStream without error', async () => {
@@ -1046,9 +1203,13 @@ describe('v3beta1.TranslationServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.ListGlossariesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.ListGlossariesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.ListGlossariesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
@@ -1072,10 +1233,11 @@ describe('v3beta1.TranslationServiceClient', () => {
             assert.deepStrictEqual(responses, expectedResponse);
             assert((client.descriptors.page.listGlossaries.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listGlossaries, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listGlossaries.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -1085,9 +1247,13 @@ describe('v3beta1.TranslationServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.ListGlossariesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.ListGlossariesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.ListGlossariesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
             const expectedError = new Error('expected');
             client.descriptors.page.listGlossaries.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listGlossariesStream(request);
@@ -1106,22 +1272,28 @@ describe('v3beta1.TranslationServiceClient', () => {
             await assert.rejects(promise, expectedError);
             assert((client.descriptors.page.listGlossaries.createStream as SinonStub)
                 .getCall(0).calledWith(client.innerApiCalls.listGlossaries, request));
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listGlossaries.createStream as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                         expectedHeaderRequestParams
+                    ) 
             );
         });
 
         it('uses async iteration with listGlossaries without error', async () => {
             const client = new translationserviceModule.v3beta1.TranslationServiceClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.ListGlossariesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.ListGlossariesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.ListGlossariesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedResponse = [
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
               generateSampleMessage(new protos.google.cloud.translation.v3beta1.Glossary()),
@@ -1136,10 +1308,11 @@ describe('v3beta1.TranslationServiceClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listGlossaries.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listGlossaries.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
 
@@ -1149,9 +1322,14 @@ describe('v3beta1.TranslationServiceClient', () => {
                 projectId: 'bogus',
             });
             client.initialize();
-            const request = generateSampleMessage(new protos.google.cloud.translation.v3beta1.ListGlossariesRequest());
-            request.parent = '';
-            const expectedHeaderRequestParams = "parent=";const expectedError = new Error('expected');
+            const request = generateSampleMessage(
+              new protos.google.cloud.translation.v3beta1.ListGlossariesRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.translation.v3beta1.ListGlossariesRequest', ['parent']);
+            request.parent = defaultValue1;
+            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedError = new Error('expected');
             client.descriptors.page.listGlossaries.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listGlossariesAsync(request);
             await assert.rejects(async () => {
@@ -1163,10 +1341,11 @@ describe('v3beta1.TranslationServiceClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.listGlossaries.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
-            assert.strictEqual(
+            assert(
                 (client.descriptors.page.listGlossaries.asyncIterate as SinonStub)
-                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'],
-                expectedHeaderRequestParams
+                    .getCall(0).args[2].otherArgs.headers['x-goog-request-params'].includes(
+                        expectedHeaderRequestParams
+                    )
             );
         });
     });

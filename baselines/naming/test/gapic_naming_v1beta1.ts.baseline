@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,12 +20,25 @@ import * as protos from '../protos/protos';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {SinonStub} from 'sinon';
-import { describe, it } from 'mocha';
+import {describe, it} from 'mocha';
 import * as namingModule from '../src';
 
 import {PassThrough} from 'stream';
 
 import {protobuf, LROperation, operationsProtos} from 'google-gax';
+
+// Dynamically loaded proto JSON is needed to get the type information
+// to fill in default values for request objects
+const root = protobuf.Root.fromJSON(require('../protos/protos.json')).resolveAll();
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getTypeDefaultValue(typeName: string, fields: string[]) {
+    let type = root.lookupType(typeName) as protobuf.Type;
+    for (const field of fields.slice(0, -1)) {
+        type = type.fields[field]?.resolvedType as protobuf.Type;
+    }
+    return type.fields[fields[fields.length - 1]]?.defaultValue;
+}
 
 function generateSampleMessage<T extends object>(instance: T) {
     const filledObject = (instance.constructor as typeof protobuf.Message)
@@ -103,110 +116,131 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 }
 
 describe('v1beta1.NamingClient', () => {
-    it('has servicePath', () => {
-        const servicePath = namingModule.v1beta1.NamingClient.servicePath1;
-        assert(servicePath);
-    });
-
-    it('has apiEndpoint', () => {
-        const apiEndpoint = namingModule.v1beta1.NamingClient.apiEndpoint1;
-        assert(apiEndpoint);
-    });
-
-    it('has port', () => {
-        const port = namingModule.v1beta1.NamingClient.port1;
-        assert(port);
-        assert(typeof port === 'number');
-    });
-
-    it('should create a client with no option', () => {
-        const client = new namingModule.v1beta1.NamingClient();
-        assert(client);
-    });
-
-    it('should create a client with gRPC fallback', () => {
-        const client = new namingModule.v1beta1.NamingClient({
-            fallback: true,
+    describe('Common methods', () => {
+        it('has servicePath', () => {
+            const servicePath = namingModule.v1beta1.NamingClient.servicePath1;
+            assert(servicePath);
         });
-        assert(client);
-    });
 
-    it('has initialize method and supports deferred initialization', async () => {
-        const client = new namingModule.v1beta1.NamingClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('has apiEndpoint', () => {
+            const apiEndpoint = namingModule.v1beta1.NamingClient.apiEndpoint1;
+            assert(apiEndpoint);
         });
-        assert.strictEqual(client.namingStub, undefined);
-        await client.initialize1();
-        assert(client.namingStub);
-    });
 
-    it('has close method', () => {
-        const client = new namingModule.v1beta1.NamingClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('has port', () => {
+            const port = namingModule.v1beta1.NamingClient.port1;
+            assert(port);
+            assert(typeof port === 'number');
         });
-        client.close();
-    });
 
-    it('has getProjectId method', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new namingModule.v1beta1.NamingClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('should create a client with no option', () => {
+            const client = new namingModule.v1beta1.NamingClient();
+            assert(client);
         });
-        client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
-        const result = await client.getProjectId1();
-        assert.strictEqual(result, fakeProjectId);
-        assert((client.auth.getProjectId as SinonStub).calledWithExactly());
-    });
 
-    it('has getProjectId method with callback', async () => {
-        const fakeProjectId = 'fake-project-id';
-        const client = new namingModule.v1beta1.NamingClient({
-            credentials: { client_email: 'bogus', private_key: 'bogus' },
-            projectId: 'bogus',
+        it('should create a client with gRPC fallback', () => {
+            const client = new namingModule.v1beta1.NamingClient({
+                fallback: true,
+            });
+            assert(client);
         });
-        client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
-        const promise = new Promise((resolve, reject) => {
-            client.getProjectId1((err?: Error|null, projectId?: string|null) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(projectId);
-                }
+
+        it('has initialize method and supports deferred initialization', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.namingStub, undefined);
+            await client.initialize1();
+            assert(client.namingStub);
+        });
+
+        it('has close method for the initialized client', done => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            assert(client.namingStub);
+            client.close().then(() => {
+                done();
             });
         });
-        const result = await promise;
-        assert.strictEqual(result, fakeProjectId);
+
+        it('has close method for the non-initialized client', done => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            assert.strictEqual(client.namingStub, undefined);
+            client.close().then(() => {
+                done();
+            });
+        });
+
+        it('has getProjectId method', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().resolves(fakeProjectId);
+            const result = await client.getProjectId1();
+            assert.strictEqual(result, fakeProjectId);
+            assert((client.auth.getProjectId as SinonStub).calledWithExactly());
+        });
+
+        it('has getProjectId method with callback', async () => {
+            const fakeProjectId = 'fake-project-id';
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.auth.getProjectId = sinon.stub().callsArgWith(0, null, fakeProjectId);
+            const promise = new Promise((resolve, reject) => {
+                client.getProjectId1((err?: Error|null, projectId?: string|null) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(projectId);
+                    }
+                });
+            });
+            const result = await promise;
+            assert.strictEqual(result, fakeProjectId);
+        });
     });
 
     describe('paginatedMethodStream', () => {
         it('invokes paginatedMethodStream without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.paginatedMethodStream = stubSimpleCall(expectedResponse);
             const [response] = await client.paginatedMethodStream(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.paginatedMethodStream as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes paginatedMethodStream without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.paginatedMethodStream = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.paginatedMethodStream(
@@ -221,52 +255,67 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.paginatedMethodStream as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes paginatedMethodStream with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.paginatedMethodStream = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.paginatedMethodStream(request), expectedError);
-            assert((client.innerApiCalls.paginatedMethodStream as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes paginatedMethodStream with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.paginatedMethodStream(request), expectedError);
         });
     });
 
     describe('paginatedMethodAsync', () => {
         it('invokes paginatedMethodAsync without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.paginatedMethodAsync = stubSimpleCall(expectedResponse);
             const [response] = await client.paginatedMethodAsync(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.paginatedMethodAsync as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes paginatedMethodAsync without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.paginatedMethodAsync = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.paginatedMethodAsync(
@@ -281,52 +330,67 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.paginatedMethodAsync as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes paginatedMethodAsync with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.paginatedMethodAsync = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.paginatedMethodAsync(request), expectedError);
-            assert((client.innerApiCalls.paginatedMethodAsync as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes paginatedMethodAsync with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.paginatedMethodAsync(request), expectedError);
         });
     });
 
     describe('checkLongRunningProgress', () => {
         it('invokes checkLongRunningProgress without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.checkLongRunningProgress = stubSimpleCall(expectedResponse);
             const [response] = await client.checkLongRunningProgress(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.checkLongRunningProgress as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes checkLongRunningProgress without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.checkLongRunningProgress = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.checkLongRunningProgress(
@@ -341,52 +405,67 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.checkLongRunningProgress as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes checkLongRunningProgress with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.checkLongRunningProgress = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.checkLongRunningProgress(request), expectedError);
-            assert((client.innerApiCalls.checkLongRunningProgress as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes checkLongRunningProgress with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.checkLongRunningProgress(request), expectedError);
         });
     });
 
     describe('initialize', () => {
         it('invokes initialize without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.initialize = stubSimpleCall(expectedResponse);
             const [response] = await client.initialize(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.initialize as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes initialize without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.initialize = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.initialize(
@@ -401,52 +480,67 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.initialize as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes initialize with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.initialize = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.initialize(request), expectedError);
-            assert((client.innerApiCalls.initialize as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes initialize with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.initialize(request), expectedError);
         });
     });
 
     describe('servicePath', () => {
         it('invokes servicePath without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.servicePath = stubSimpleCall(expectedResponse);
             const [response] = await client.servicePath(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.servicePath as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes servicePath without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.servicePath = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.servicePath(
@@ -461,52 +555,67 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.servicePath as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes servicePath with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.servicePath = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.servicePath(request), expectedError);
-            assert((client.innerApiCalls.servicePath as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes servicePath with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.servicePath(request), expectedError);
         });
     });
 
     describe('apiEndpoint', () => {
         it('invokes apiEndpoint without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.apiEndpoint = stubSimpleCall(expectedResponse);
             const [response] = await client.apiEndpoint(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.apiEndpoint as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes apiEndpoint without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.apiEndpoint = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.apiEndpoint(
@@ -521,52 +630,67 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.apiEndpoint as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes apiEndpoint with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.apiEndpoint = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.apiEndpoint(request), expectedError);
-            assert((client.innerApiCalls.apiEndpoint as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes apiEndpoint with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.apiEndpoint(request), expectedError);
         });
     });
 
     describe('port', () => {
         it('invokes port without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.port = stubSimpleCall(expectedResponse);
             const [response] = await client.port(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.port as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes port without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.port = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.port(
@@ -581,52 +705,67 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.port as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes port with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.port = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.port(request), expectedError);
-            assert((client.innerApiCalls.port as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes port with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.port(request), expectedError);
         });
     });
 
     describe('scopes', () => {
         it('invokes scopes without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.scopes = stubSimpleCall(expectedResponse);
             const [response] = await client.scopes(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.scopes as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes scopes without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.scopes = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.scopes(
@@ -641,52 +780,67 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.scopes as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes scopes with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.scopes = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.scopes(request), expectedError);
-            assert((client.innerApiCalls.scopes as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes scopes with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.scopes(request), expectedError);
         });
     });
 
     describe('getProjectId', () => {
         it('invokes getProjectId without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.getProjectId = stubSimpleCall(expectedResponse);
             const [response] = await client.getProjectId(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getProjectId as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes getProjectId without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.protobuf.Empty());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             client.innerApiCalls.getProjectId = stubSimpleCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.getProjectId(
@@ -701,53 +855,218 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.getProjectId as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes getProjectId with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.getProjectId = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getProjectId(request), expectedError);
-            assert((client.innerApiCalls.getProjectId as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
+        });
+
+        it('invokes getProjectId with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getProjectId(request), expectedError);
+        });
+    });
+
+    describe('getReservedWord', () => {
+        it('invokes getReservedWord without error', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.GetReservedWordRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.naming.v1beta1.ReservedWord()
+            );
+            client.innerApiCalls.getReservedWord = stubSimpleCall(expectedResponse);
+            const [response] = await client.getReservedWord(request);
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+
+        it('invokes getReservedWord without error using callback', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.GetReservedWordRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.naming.v1beta1.ReservedWord()
+            );
+            client.innerApiCalls.getReservedWord = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.getReservedWord(
+                    request,
+                    (err?: Error|null, result?: protos.google.naming.v1beta1.IReservedWord|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+
+        it('invokes getReservedWord with error', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.GetReservedWordRequest()
+            );
+            const expectedError = new Error('expected');
+            client.innerApiCalls.getReservedWord = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.getReservedWord(request), expectedError);
+        });
+
+        it('invokes getReservedWord with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.GetReservedWordRequest()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getReservedWord(request), expectedError);
+        });
+    });
+
+    describe('createABCDESomething', () => {
+        it('invokes createABCDESomething without error', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            client.innerApiCalls.createAbcdeSomething = stubSimpleCall(expectedResponse);
+            const [response] = await client.createABCDESomething(request);
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+
+        it('invokes createABCDESomething without error using callback', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            client.innerApiCalls.createAbcdeSomething = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.createABCDESomething(
+                    request,
+                    (err?: Error|null, result?: protos.google.protobuf.IEmpty|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+
+        it('invokes createABCDESomething with error', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('expected');
+            client.innerApiCalls.createAbcdeSomething = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.createABCDESomething(request), expectedError);
+        });
+
+        it('invokes createABCDESomething with closed client', async () => {
+            const client = new namingModule.v1beta1.NamingClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize1();
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.createABCDESomething(request), expectedError);
         });
     });
 
     describe('longRunning', () => {
         it('invokes longRunning without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.longRunning = stubLongRunningCall(expectedResponse);
             const [operation] = await client.longRunning(request);
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.longRunning as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes longRunning without error using callback', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
-            const expectedResponse = generateSampleMessage(new protos.google.longrunning.Operation());
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.longrunning.Operation()
+            );
             client.innerApiCalls.longRunning = stubLongRunningCallWithCallback(expectedResponse);
             const promise = new Promise((resolve, reject) => {
                  client.longRunning(
@@ -765,48 +1084,46 @@ describe('v1beta1.NamingClient', () => {
             const operation = await promise as LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IEmpty>;
             const [response] = await operation.promise();
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.longRunning as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes longRunning with call error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.longRunning = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.longRunning(request), expectedError);
-            assert((client.innerApiCalls.longRunning as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes longRunning with LRO error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.protobuf.Empty());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.longRunning = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.longRunning(request);
             await assert.rejects(operation.promise(), expectedError);
-            assert((client.innerApiCalls.longRunning as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes checkLongRunningProgress1 without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const expectedResponse = generateSampleMessage(new operationsProtos.google.longrunning.Operation());
+            const expectedResponse = generateSampleMessage(
+              new operationsProtos.google.longrunning.Operation()
+            );
             expectedResponse.name = 'test';
             expectedResponse.response = {type_url: 'url', value: Buffer.from('')};
             expectedResponse.metadata = {type_url: 'url', value: Buffer.from('')}
@@ -820,8 +1137,8 @@ describe('v1beta1.NamingClient', () => {
 
         it('invokes checkLongRunningProgress1 with error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
             const expectedError = new Error('expected');
@@ -840,9 +1157,9 @@ describe('v1beta1.NamingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.naming.v1beta1.PaginatedMethodRequest());
-            const expectedOptions = {};
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.PaginatedMethodRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.protobuf.Empty()),
               generateSampleMessage(new protos.google.protobuf.Empty()),
               generateSampleMessage(new protos.google.protobuf.Empty()),
@@ -850,8 +1167,6 @@ describe('v1beta1.NamingClient', () => {
             client.innerApiCalls.paginatedMethod = stubSimpleCall(expectedResponse);
             const [response] = await client.paginatedMethod(request);
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.paginatedMethod as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes paginatedMethod without error using callback', async () => {
@@ -860,9 +1175,9 @@ describe('v1beta1.NamingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.naming.v1beta1.PaginatedMethodRequest());
-            const expectedOptions = {};
-            const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.PaginatedMethodRequest()
+            );const expectedResponse = [
               generateSampleMessage(new protos.google.protobuf.Empty()),
               generateSampleMessage(new protos.google.protobuf.Empty()),
               generateSampleMessage(new protos.google.protobuf.Empty()),
@@ -881,8 +1196,6 @@ describe('v1beta1.NamingClient', () => {
             });
             const response = await promise;
             assert.deepStrictEqual(response, expectedResponse);
-            assert((client.innerApiCalls.paginatedMethod as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions /*, callback defined above */));
         });
 
         it('invokes paginatedMethod with error', async () => {
@@ -891,13 +1204,12 @@ describe('v1beta1.NamingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.naming.v1beta1.PaginatedMethodRequest());
-            const expectedOptions = {};
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.PaginatedMethodRequest()
+            );
             const expectedError = new Error('expected');
             client.innerApiCalls.paginatedMethod = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.paginatedMethod(request), expectedError);
-            assert((client.innerApiCalls.paginatedMethod as SinonStub)
-                .getCall(0).calledWith(request, expectedOptions, undefined));
         });
 
         it('invokes paginatedMethodStream1 without error', async () => {
@@ -906,7 +1218,9 @@ describe('v1beta1.NamingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.naming.v1beta1.PaginatedMethodRequest());
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.PaginatedMethodRequest()
+            );
             const expectedResponse = [
               generateSampleMessage(new protos.google.protobuf.Empty()),
               generateSampleMessage(new protos.google.protobuf.Empty()),
@@ -938,7 +1252,9 @@ describe('v1beta1.NamingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.naming.v1beta1.PaginatedMethodRequest());
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.PaginatedMethodRequest()
+            );
             const expectedError = new Error('expected');
             client.descriptors.page.paginatedMethod.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.paginatedMethodStream1(request);
@@ -961,11 +1277,14 @@ describe('v1beta1.NamingClient', () => {
 
         it('uses async iteration with paginatedMethod without error', async () => {
             const client = new namingModule.v1beta1.NamingClient({
-                credentials: {client_email: 'bogus', private_key: 'bogus'},
-                projectId: 'bogus',
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.naming.v1beta1.PaginatedMethodRequest());const expectedResponse = [
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.PaginatedMethodRequest()
+            );
+            const expectedResponse = [
               generateSampleMessage(new protos.google.protobuf.Empty()),
               generateSampleMessage(new protos.google.protobuf.Empty()),
               generateSampleMessage(new protos.google.protobuf.Empty()),
@@ -988,7 +1307,10 @@ describe('v1beta1.NamingClient', () => {
                 projectId: 'bogus',
             });
             client.initialize1();
-            const request = generateSampleMessage(new protos.google.naming.v1beta1.PaginatedMethodRequest());const expectedError = new Error('expected');
+            const request = generateSampleMessage(
+              new protos.google.naming.v1beta1.PaginatedMethodRequest()
+            );
+            const expectedError = new Error('expected');
             client.descriptors.page.paginatedMethod.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.paginatedMethodAsync1(request);
             await assert.rejects(async () => {
@@ -1000,6 +1322,85 @@ describe('v1beta1.NamingClient', () => {
             assert.deepStrictEqual(
                 (client.descriptors.page.paginatedMethod.asyncIterate as SinonStub)
                     .getCall(0).args[1], request);
+        });
+    });
+
+    describe('Path templates', () => {
+
+        describe('projectExport', () => {
+            const fakePath = "/rendered/path/projectExport";
+            const expectedParameters = {
+                project: "projectValue",
+                export: "exportValue",
+            };
+            const client = new namingModule.v1beta1.NamingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize1();
+            client.pathTemplates.projectExportPathTemplate.render =
+                sinon.stub().returns(fakePath);
+            client.pathTemplates.projectExportPathTemplate.match =
+                sinon.stub().returns(expectedParameters);
+
+            it('projectExportPath', () => {
+                const result = client.projectExportPath("projectValue", "exportValue");
+                assert.strictEqual(result, fakePath);
+                assert((client.pathTemplates.projectExportPathTemplate.render as SinonStub)
+                    .getCall(-1).calledWith(expectedParameters));
+            });
+
+            it('matchProjectFromProjectExportName', () => {
+                const result = client.matchProjectFromProjectExportName(fakePath);
+                assert.strictEqual(result, "projectValue");
+                assert((client.pathTemplates.projectExportPathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
+
+            it('matchExportFromProjectExportName', () => {
+                const result = client.matchExportFromProjectExportName(fakePath);
+                assert.strictEqual(result, "exportValue");
+                assert((client.pathTemplates.projectExportPathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
+        });
+
+        describe('projectPackage', () => {
+            const fakePath = "/rendered/path/projectPackage";
+            const expectedParameters = {
+                project: "projectValue",
+                package: "packageValue",
+            };
+            const client = new namingModule.v1beta1.NamingClient({
+                credentials: {client_email: 'bogus', private_key: 'bogus'},
+                projectId: 'bogus',
+            });
+            client.initialize1();
+            client.pathTemplates.projectPackagePathTemplate.render =
+                sinon.stub().returns(fakePath);
+            client.pathTemplates.projectPackagePathTemplate.match =
+                sinon.stub().returns(expectedParameters);
+
+            it('projectPackagePath', () => {
+                const result = client.projectPackagePath("projectValue", "packageValue");
+                assert.strictEqual(result, fakePath);
+                assert((client.pathTemplates.projectPackagePathTemplate.render as SinonStub)
+                    .getCall(-1).calledWith(expectedParameters));
+            });
+
+            it('matchProjectFromProjectPackageName', () => {
+                const result = client.matchProjectFromProjectPackageName(fakePath);
+                assert.strictEqual(result, "projectValue");
+                assert((client.pathTemplates.projectPackagePathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
+
+            it('matchPackageFromProjectPackageName', () => {
+                const result = client.matchPackageFromProjectPackageName(fakePath);
+                assert.strictEqual(result, "packageValue");
+                assert((client.pathTemplates.projectPackagePathTemplate.match as SinonStub)
+                    .getCall(-1).calledWith(fakePath));
+            });
         });
     });
 });
