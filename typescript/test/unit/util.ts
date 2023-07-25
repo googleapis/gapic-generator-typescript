@@ -21,7 +21,7 @@ import {
   isDigit,
   processPathTemplate,
 } from '../../src/util.js';
-import {protobuf} from 'google-gax';
+import protobuf from 'protobufjs';
 import protoJson from '../../../protos/protos.json' assert { type: 'json' };
 import type * as protos from '../../../protos/index.js';
 
