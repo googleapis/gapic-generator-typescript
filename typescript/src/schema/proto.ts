@@ -25,7 +25,7 @@ import {
 import {BundleConfig} from '../bundle.js';
 import {Options} from './naming.js';
 import {ServiceYaml} from '../serviceyaml.js';
-import {protobuf} from 'google-gax';
+import protobuf from 'protobufjs';
 import protoJson from '../../../protos/protos.json' assert { type: 'json' };
 
 const COMMON_PROTO_LIST = [
