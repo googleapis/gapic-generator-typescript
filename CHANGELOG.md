@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.0.0](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.7...v4.0.0) (2023-07-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* correct IAM return types ([#1407](https://github.com/googleapis/gapic-generator-typescript/issues/1407))
+
+### Bug Fixes
+
+* Correct IAM return types ([#1407](https://github.com/googleapis/gapic-generator-typescript/issues/1407)) ([945e90f](https://github.com/googleapis/gapic-generator-typescript/commit/945e90f18aaffc6db93d296ee000d45ee68ebe72))
+* Depend on protobufjs directly, update typescript, gts ([#1411](https://github.com/googleapis/gapic-generator-typescript/issues/1411)) ([fc4f5d9](https://github.com/googleapis/gapic-generator-typescript/commit/fc4f5d9f193e73d20f31d55a99e12d31686d0b2a))
+* **deps:** Update dependency google-gax to ^4.0.2 ([#1414](https://github.com/googleapis/gapic-generator-typescript/issues/1414)) ([cdc7249](https://github.com/googleapis/gapic-generator-typescript/commit/cdc7249d0fde29c5023e0f793cf6ed36f0ad3530))
+
 ## [3.0.7](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.6...v3.0.7) (2023-06-01)
 
 
