@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.0.0...v4.0.1) (2023-08-07)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^4.0.3 ([#1417](https://github.com/googleapis/gapic-generator-typescript/issues/1417)) ([f253cf7](https://github.com/googleapis/gapic-generator-typescript/commit/f253cf7d5ff0b4e7a77939828cb30b1c1bece9fe))
+* Disable retry-request for stream closed test ([#1421](https://github.com/googleapis/gapic-generator-typescript/issues/1421)) ([2a35f78](https://github.com/googleapis/gapic-generator-typescript/commit/2a35f78799e95e76c52d0248afb30a852a027ad4))
+
 ## [4.0.0](https://github.com/googleapis/gapic-generator-typescript/compare/v3.0.7...v4.0.0) (2023-07-26)
 
 
