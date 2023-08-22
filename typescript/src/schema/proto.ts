@@ -25,6 +25,7 @@ import {
 import {BundleConfig} from '../bundle.js';
 import {Options} from './naming.js';
 import {ServiceYaml} from '../serviceyaml.js';
+<<<<<<< HEAD
 import {protobuf} from 'google-gax';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -32,6 +33,10 @@ import * as url from 'url';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const protoJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'protos/protos.json'), 'utf8'));
+=======
+import protobuf from 'protobufjs';
+import protoJson from '../../../protos/protos.json' assert { type: 'json' };
+>>>>>>> fc4f5d9f (fix: depend on protobufjs directly, update typescript, gts (#1411))
 
 const COMMON_PROTO_LIST = [
   'google.api',

@@ -1,4 +1,7 @@
-import {protobuf as $protobuf} from "google-gax";
+import * as $protobuf from "protobufjs";
+
+// Note: this file was manually edited to remove references to Long which are not needed in this project.
+
 /** Namespace grpc. */
 export namespace grpc {
 

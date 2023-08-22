@@ -17,7 +17,7 @@ import * as fs from 'fs';
 import * as util from 'util';
 import * as yaml from 'js-yaml';
 import * as serializer from 'proto3-json-serializer';
-import {protobuf} from 'google-gax';
+import protobuf from 'protobufjs';
 import type * as protos from '../../protos/index.js';
 import * as url from 'url';
 import {API} from './schema/api.js';
