@@ -21,14 +21,9 @@ import {
   isDigit,
   processPathTemplate,
 } from '../../src/util.js';
-<<<<<<< HEAD
-=======
-import protobuf from 'protobufjs';
-import protoJson from '../../../protos/protos.json' assert { type: 'json' };
-import type * as protos from '../../../protos/index.js';
->>>>>>> fc4f5d9f (fix: depend on protobufjs directly, update typescript, gts (#1411))
 
 import protobuf from 'protobufjs';
+
 import type * as protos from '../../../protos/index.js';
 import * as fs from 'fs';
 import * as path from 'path';
