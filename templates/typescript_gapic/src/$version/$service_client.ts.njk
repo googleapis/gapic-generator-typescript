@@ -123,8 +123,7 @@ export class {{ service.name }}Client {
    * @param {gax.ClientConfig} [options.clientConfig] - Client configuration override.
    *     Follows the structure of {@link gapicConfig}.
 {%- if not api.legacyProtoLoad %}
-   * @param {boolean | "rest"} [options.fallback] - Use HTTP fallback mode.
-   *     Pass "rest" to use HTTP/1.1 REST API instead of gRPC.
+   * @param {boolean} [options.fallback] - Use HTTP/1.1 REST mode.
    *     For more information, please check the
    *     {@link https://github.com/googleapis/gax-nodejs/blob/main/client-libraries.md#http11-rest-api-mode documentation}.
    * @param {gax} [gaxInstance]: loaded instance of `google-gax`. Useful if you
@@ -132,7 +131,7 @@ export class {{ service.name }}Client {
    *     HTTP implementation. Load only fallback version and pass it to the constructor:
    *     ```
    *     const gax = require('google-gax/build/src/fallback'); // avoids loading google-gax with gRPC
-   *     const client = new {{ service.name }}Client({fallback: 'rest'}, gax);
+   *     const client = new {{ service.name }}Client({fallback: true}, gax);
    *     ```
 {%- endif %}
    */
@@ -144,11 +143,11 @@ export class {{ service.name }}Client {
     const port = opts?.port || staticMembers.{{ id.get("port") }};
     const clientConfig = opts?.clientConfig ?? {};
     {%- if api.rest %}
-    // Implicitely set 'rest' value for the apis use rest as transport (eg. googleapis-discovery apis).
+    // Implicitly enable HTTP transport for the APIs that use REST as transport (e.g. Google Cloud Compute).
     if (!opts) {
-      opts = {fallback: 'rest'};
+      opts = {fallback: true};
     } else {
-      opts.fallback = opts.fallback ?? 'rest';
+      opts.fallback = opts.fallback ?? true;
     }
     {%- endif %}
     {%- if api.legacyProtoLoad %}
@@ -226,7 +225,7 @@ export class {{ service.name }}Client {
 {%- else %}
     if (!opts.fallback) {
       clientHeader.push(`grpc/${this._gaxGrpc.grpcVersion}`);
-    } else if (opts.fallback === 'rest' ) {
+    } else {
       clientHeader.push(`rest/${this._gaxGrpc.grpcVersion}`);
     }
 {%- endif %}
@@ -282,7 +281,7 @@ export class {{ service.name }}Client {
 {%- set streamingJoiner = joiner() %}
 {%- for method in service.streaming %}
       {{- streamingJoiner() }}
-      {{ method.name.toCamelCase() }}: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.{{ method.streaming }}, opts.fallback === 'rest')
+      {{ method.name.toCamelCase() }}: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.{{ method.streaming }}, !!opts.fallback)
 {%- endfor %}
     };
 {%- endif %}
@@ -307,7 +306,7 @@ export class {{ service.name }}Client {
       grpc: 'grpc' in this._gaxGrpc ? this._gaxGrpc.grpc : undefined
     };
 {%- if not api.legacyProtoLoad %}
-    if (opts.fallback === 'rest') {
+    if (opts.fallback) {
       lroOptions.protoJson = protoFilesRoot;
       lroOptions.httpRules = {{ util.toHttpRules(service.httpRules) }};
     }
