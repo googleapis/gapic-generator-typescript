@@ -97,9 +97,8 @@ export class API {
     this.legacyProtoLoad = options.legacyProtoLoad ?? false;
     this.restNumericEnums = options.restNumericEnums ?? false;
 
-    const [allResourceDatabase, resourceDatabase] = getResourceDatabase(
-      fileDescriptors
-    );
+    const [allResourceDatabase, resourceDatabase] =
+      getResourceDatabase(fileDescriptors);
 
     const allMessages: MessagesMap = {};
     for (const fd of fileDescriptors) {
@@ -135,7 +134,8 @@ export class API {
     for (const fd of protosWithService) {
       servicesList.push(...fd.service!);
     }
-    const servicesWithDefaultHost: protos.google.protobuf.IServiceDescriptorProto[] = [];
+    const servicesWithDefaultHost: protos.google.protobuf.IServiceDescriptorProto[] =
+      [];
     for (const service of servicesList) {
       if (!service.options || !service.options['.google.api.defaultHost']) {
         throw new Error(
@@ -152,9 +152,8 @@ export class API {
         servicesWithDefaultHost.push(service);
       }
     }
-    servicesWithDefaultHost.sort(
-      (service1, service2) =>
-        service1.name!.localeCompare(service2.name!)
+    servicesWithDefaultHost.sort((service1, service2) =>
+      service1.name!.localeCompare(service2.name!)
     );
 
     const serviceNamesList: string[] = [];

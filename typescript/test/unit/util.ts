@@ -22,7 +22,7 @@ import {
   processPathTemplate,
 } from '../../src/util.js';
 import protobuf from 'protobufjs';
-import protoJson from '../../../protos/protos.json' assert { type: 'json' };
+import protoJson from '../../../protos/protos.json' assert {type: 'json'};
 import type * as protos from '../../../protos/index.js';
 
 describe('src/util.ts', () => {
@@ -46,37 +46,45 @@ describe('src/util.ts', () => {
     const Duration = root.lookupType('google.protobuf.Duration');
 
     it('should convert Duration to whole seconds', () => {
-      const duration = Duration.toObject(Duration.fromObject({
-        seconds: 10,
-        nanos: 0,
-      })) as protos.google.protobuf.Duration;
+      const duration = Duration.toObject(
+        Duration.fromObject({
+          seconds: 10,
+          nanos: 0,
+        })
+      ) as protos.google.protobuf.Duration;
       const result = seconds(duration);
       assert.strictEqual(result, 10);
     });
 
     it('should convert Duration to fractional seconds', () => {
-      const duration = Duration.toObject(Duration.fromObject({
-        seconds: 5,
-        nanos: 500000000,
-      })) as protos.google.protobuf.Duration;
+      const duration = Duration.toObject(
+        Duration.fromObject({
+          seconds: 5,
+          nanos: 500000000,
+        })
+      ) as protos.google.protobuf.Duration;
       const result = seconds(duration);
       assert.strictEqual(result, 5.5);
     });
 
     it('should convert Duration to whole milliseconds', () => {
-      const duration = Duration.toObject(Duration.fromObject({
-        seconds: 10,
-        nanos: 0,
-      })) as protos.google.protobuf.Duration;
+      const duration = Duration.toObject(
+        Duration.fromObject({
+          seconds: 10,
+          nanos: 0,
+        })
+      ) as protos.google.protobuf.Duration;
       const result = milliseconds(duration);
       assert.strictEqual(result, 10000);
     });
 
     it('should convert Duration to fractional milliseconds', () => {
-      const duration = Duration.toObject(Duration.fromObject({
-        seconds: 5,
-        nanos: 500000000,
-      })) as protos.google.protobuf.Duration;
+      const duration = Duration.toObject(
+        Duration.fromObject({
+          seconds: 5,
+          nanos: 500000000,
+        })
+      ) as protos.google.protobuf.Duration;
       const result = milliseconds(duration);
       assert.strictEqual(result, 5500);
     });

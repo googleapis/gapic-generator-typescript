@@ -60,12 +60,14 @@ async function createSnippetIndexMetadata(
   api: API,
   basePath: string
 ): Promise<protos.google.cloud.tools.snippetgen.snippetindex.v1.IIndex> {
-  const clientLibrary: protos.google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary = {
-    name: `nodejs-${api.naming.productName.toKebabCase()}`,
-    version: '0.1.0',
-    language: ('TYPESCRIPT' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
-    apis: [{id: api.naming.protoPackage, version: api.naming.version}],
-  };
+  const clientLibrary: protos.google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary =
+    {
+      name: `nodejs-${api.naming.productName.toKebabCase()}`,
+      version: '0.1.0',
+      language:
+        'TYPESCRIPT' as unknown as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
+      apis: [{id: api.naming.protoPackage, version: api.naming.version}],
+    };
 
   const snippets = await createSnippetMetadata(api, basePath);
   return {clientLibrary, snippets};
@@ -75,14 +77,19 @@ async function createSnippetMetadata(
   api: API,
   basePath: string
 ): Promise<protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[]> {
-  const snippets: protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] = [];
+  const snippets: protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] =
+    [];
 
   for (const service of api.services) {
     for (const method of service.method) {
-      const paramNameAndTypes: protos.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter[] = [];
+      const paramNameAndTypes: protos.google.cloud.tools.snippetgen.snippetindex.v1.ClientMethod.IParameter[] =
+        [];
 
       for (const paramComment of method.paramComment ?? []) {
-        paramNameAndTypes.push({name: paramComment.paramName, type: paramComment.paramType});
+        paramNameAndTypes.push({
+          name: paramComment.paramName,
+          type: paramComment.paramType,
+        });
       }
 
       const startRegionTag = await countRegionTagLines(
@@ -101,18 +108,20 @@ async function createSnippetMetadata(
           api.naming.version
         }_generated_${service.name}_${method.name}_async`,
         title: `${api.mainServiceName} ${method?.name?.toCamelCase()} Sample`,
-        origin: ('API_DEFINITION' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin,
+        origin:
+          'API_DEFINITION' as unknown as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Origin,
         description: method.comments.join(''),
         canonical: api.handwrittenLayer ? false : true,
         file: '$service.$method.js'
           .replace(/\$service/, service.name!.toSnakeCase())
           .replace(/\$method/, method.name!.toSnakeCase()),
-        language: ('JAVASCRIPT' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
+        language:
+          'JAVASCRIPT' as unknown as protos.google.cloud.tools.snippetgen.snippetindex.v1.Language,
         segments: [
           {
             start,
             end,
-            type: ('FULL' as unknown) as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType,
+            type: 'FULL' as unknown as protos.google.cloud.tools.snippetgen.snippetindex.v1.Snippet.Segment.SegmentType,
           },
         ],
         clientMethod: {
@@ -197,7 +206,8 @@ function renderFile(
       }
     }
   }
-  const output = {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
+  const output =
+    {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
   output.name = targetFilename;
   output.content = processed;
   return output;
@@ -209,7 +219,8 @@ async function processOneTemplate(
   api: API,
   id: Namer
 ) {
-  const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
+  const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] =
+    [];
   const relativeTemplateName = templateFilename.substr(basePath.length + 1);
   let outputFilename = relativeTemplateName.replace(/\.njk$/, '');
 
@@ -228,7 +239,8 @@ async function processOneTemplate(
       .replace(/\$apiNamingProtoPackage/, api.naming.protoPackage);
 
     const jsonMetadata = await createSnippetIndexMetadata(api, basePath);
-    const output = {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
+    const output =
+      {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
     output.name = pushFilename;
     output.content = JSON.stringify(jsonMetadata, null, '  ') + '\n';
 
@@ -286,8 +298,7 @@ async function loadNamerPlugin(basePath: string) {
     },
   };
   if (fs.existsSync(namerLocation)) {
-    let namer: Namer;
-    namer = (await import(namerLocation)).default as Namer;
+    const namer: Namer = (await import(namerLocation)).default as Namer;
     const {register, get} = namer;
     id.register = register;
     id.get = get;
@@ -304,7 +315,8 @@ export async function processTemplates(basePath: string, api: API) {
   const id = await loadNamerPlugin(basePath);
 
   const templateFiles = await recursiveFileList(basePath, /^(?!_[^_]).*\.njk$/);
-  const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] = [];
+  const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] =
+    [];
   for (const templateFilename of templateFiles) {
     const generatedFiles = await processOneTemplate(
       basePath,

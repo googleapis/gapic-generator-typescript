@@ -19,7 +19,7 @@ import * as yaml from 'js-yaml';
 import * as serializer from 'proto3-json-serializer';
 import protobuf from 'protobufjs';
 import type * as protos from '../../protos/index.js';
-import protoJson from '../../protos/protos.json' assert { type: 'json' };
+import protoJson from '../../protos/protos.json' assert {type: 'json'};
 import * as url from 'url';
 
 import {API} from './schema/api.js';
@@ -124,13 +124,19 @@ export class Generator {
       const json = JSON.parse(content.toString());
       const ServiceConfig = this.root.lookupType('ServiceConfig');
       if (!ServiceConfig) {
-        throw new Error('INTERNAL ERROR: Cannot find ServiceConfig type in proto JSON');
+        throw new Error(
+          'INTERNAL ERROR: Cannot find ServiceConfig type in proto JSON'
+        );
       }
       const deserialized = serializer.fromProto3JSON(ServiceConfig, json);
       if (!deserialized) {
-        throw new Error('ERROR: Cannot parse the content of gRPC service config');
+        throw new Error(
+          'ERROR: Cannot parse the content of gRPC service config'
+        );
       }
-      this.grpcServiceConfig = ServiceConfig.toObject(deserialized) as protos.grpc.service_config.ServiceConfig;
+      this.grpcServiceConfig = ServiceConfig.toObject(
+        deserialized
+      ) as protos.grpc.service_config.ServiceConfig;
     }
   }
 
@@ -237,9 +243,13 @@ export class Generator {
     const inputBuffer = await getStdin();
     const CodeGeneratorRequest = this.root.lookupType('CodeGeneratorRequest');
     if (!CodeGeneratorRequest) {
-      throw new Error('INTERNAL ERROR: Cannot find CodeGeneratorRequest type in proto JSON');
+      throw new Error(
+        'INTERNAL ERROR: Cannot find CodeGeneratorRequest type in proto JSON'
+      );
     }
-    this.request = CodeGeneratorRequest.toObject(CodeGeneratorRequest.decode(inputBuffer)) as protos.google.protobuf.compiler.CodeGeneratorRequest;
+    this.request = CodeGeneratorRequest.toObject(
+      CodeGeneratorRequest.decode(inputBuffer)
+    ) as protos.google.protobuf.compiler.CodeGeneratorRequest;
     if (!this.request.protoFile) {
       throw new Error('ERROR: No input files given to the protoc plugin.');
     }
@@ -271,7 +281,8 @@ export class Generator {
     if (!File) {
       throw new Error('INTERNAL ERROR: Cannot find File type in proto JSON');
     }
-    const protoList = {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
+    const protoList =
+      {} as protos.google.protobuf.compiler.CodeGeneratorResponse.File;
     protoList.name = 'proto.list';
     protoList.content = protoFilenames.join('\n') + '\n';
     this.response.file.push(protoList);
@@ -280,22 +291,29 @@ export class Generator {
   private buildAPIObject(): API {
     const protoPackagesToGenerate = new Set<string>();
 
-    const fdsWithServicesToGenerate: protos.google.protobuf.IFileDescriptorProto[] = [];
+    const fdsWithServicesToGenerate: protos.google.protobuf.IFileDescriptorProto[] =
+      [];
     for (const fd of this.request.protoFile) {
-      if (this.request.fileToGenerate.includes(fd.name!) &&
-          fd.service &&
-          fd.service.length > 0) {
+      if (
+        this.request.fileToGenerate.includes(fd.name!) &&
+        fd.service &&
+        fd.service.length > 0
+      ) {
         fdsWithServicesToGenerate.push(fd);
       }
     }
-    const withoutIgnored = API.filterOutIgnoredServices(fdsWithServicesToGenerate);
+    const withoutIgnored = API.filterOutIgnoredServices(
+      fdsWithServicesToGenerate
+    );
     for (const fd of withoutIgnored) {
       protoPackagesToGenerate.add(fd.package || '');
     }
     const packageNamesToGenerate = Array.from(protoPackagesToGenerate);
     const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
     if (packageName === '') {
-      throw new Error('ERROR: Protos do not define any service, client library cannot be generated.');
+      throw new Error(
+        'ERROR: Protos do not define any service, client library cannot be generated.'
+      );
     }
     const api = new API(this.request.protoFile, packageName, {
       grpcServiceConfig: this.grpcServiceConfig,

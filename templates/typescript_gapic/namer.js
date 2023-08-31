@@ -69,24 +69,27 @@ const TYPESCRIPT_RESERVED_WORDS = new Set([
   'var',
   'void',
   'while',
-  'with'
+  'with',
 ]);
 
 /**
  * Check if the word is a Typescript reserved word. https://github.com/microsoft/TypeScript/issues/2536
  */
 function isReservedWord(word) {
-  if (STRICT_MODE_RESERVED_WORDS.has(word) || TYPESCRIPT_RESERVED_WORDS.has(word)) {
+  if (
+    STRICT_MODE_RESERVED_WORDS.has(word) ||
+    TYPESCRIPT_RESERVED_WORDS.has(word)
+  ) {
     return true;
   }
-  return false
+  return false;
 }
 
 /**
  * Initialize local names storage.
  */
 function initialize() {
-  if (typeof get.names === "undefined") {
+  if (typeof get.names === 'undefined') {
     get.names = new Set();
   }
 }
@@ -103,7 +106,7 @@ function get(name) {
 
   // Rename if the name is in Typescript reserved words.
   if (isReservedWord(name)) {
-    name = name.concat('Param')
+    name = name.concat('Param');
   }
 
   let counter = 0;
@@ -129,4 +132,5 @@ function register(name) {
   return '';
 }
 
+// eslint-disable-next-line no-undef
 module.exports = {register, get};

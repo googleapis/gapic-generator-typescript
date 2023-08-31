@@ -82,9 +82,11 @@ export class RetryableCodeMap {
     const allCodes = Object.keys(Code);
     for (const code of allCodes) {
       this.codeEnumMapping[
-        ((Code as unknown) as {
-          [key: string]: protos.google.rpc.Code;
-        })[code].toString()
+        (
+          Code as unknown as {
+            [key: string]: protos.google.rpc.Code;
+          }
+        )[code].toString()
       ] = code;
     }
     // generate some pre-defined code sets for compatibility with existing configs
