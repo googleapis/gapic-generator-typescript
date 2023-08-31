@@ -5,9 +5,9 @@ def gapic_generator_typescript_repositories():
   maybe(
     http_archive,
     name = "aspect_rules_js",
-    sha256 = "bdbd6df52fc7963f55281fe0a140e21de8ec587ab711a8a2fff0715b6710a4f8",
-    strip_prefix = "rules_js-1.32.0",
-    url = "https://github.com/aspect-build/rules_js/archive/refs/tags/v1.32.0.tar.gz",
+    sha256 = "7ab2fbe6d79fb3909ad2bf6dcacfae39adcb31c514efa239dd730b4f147c8097",
+    strip_prefix = "rules_js-1.32.1",
+    url = "https://github.com/aspect-build/rules_js/archive/refs/tags/v1.32.1.tar.gz",
   )
 
   maybe(
@@ -21,11 +21,11 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "rules_proto",
-      sha256 = "5d4cd6780634eb2ecafa091df8be8009d395f70a02f722e07e063883dd8af861",
-      strip_prefix = "rules_proto-493169c1199dc21b9da860f7040a4502aa174676",
+      sha256 = "36e4de702036d31b649f96519676509c4027dc10cc3c97f0335c199b305d45b7",
+      strip_prefix = "rules_proto-8aa1e67c09bc8df20df33886909d44129cfb7e63",
       urls = [
-          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/493169c1199dc21b9da860f7040a4502aa174676.tar.gz",
-          "https://github.com/bazelbuild/rules_proto/archive/493169c1199dc21b9da860f7040a4502aa174676.tar.gz",
+          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/8aa1e67c09bc8df20df33886909d44129cfb7e63.tar.gz",
+          "https://github.com/bazelbuild/rules_proto/archive/8aa1e67c09bc8df20df33886909d44129cfb7e63.tar.gz",
       ],
   )
 
@@ -40,9 +40,9 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "com_google_protobuf",
-      sha256 = "0930b1a6eb840a2295dfcb13bb5736d1292c3e0d61a90391181399327be7d8f1",
-      strip_prefix = "protobuf-24.1",
-      urls = ["https://github.com/protocolbuffers/protobuf/archive/v24.1.tar.gz"],
+      sha256 = "39b52572da90ad54c883a828cb2ca68e5ac918aa75d36c3e55c9c76b94f0a4f7",
+      strip_prefix = "protobuf-24.2",
+      urls = ["https://github.com/protocolbuffers/protobuf/archive/v24.2.tar.gz"],
   )
 
 # This is the version of Node.js that would run the generator, it's unrelated to the versions supported by the generated libraries
