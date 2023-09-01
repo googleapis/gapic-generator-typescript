@@ -393,7 +393,8 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method = [
         {} as protos.google.protobuf.MethodDescriptorProto,
       ];
-      fd.service[0].method[0] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[0].name = 'Test';
       fd.service[0].method[0].outputType =
         '.google.cloud.showcase.v1beta1.TestOutput';
@@ -425,13 +426,17 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method = [
         {} as protos.google.protobuf.MethodDescriptorProto,
       ];
-      fd.service[0].method[0] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[0].name = 'SearchJobs';
-      fd.service[0].method[1] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[1] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[1].name = 'SearchProfiles';
-      fd.service[0].method[2] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[2] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[2].name = 'SearchJobsForAlert';
-      fd.service[0].method[3] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[3] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[3].name = 'ListJobs';
       fd.service[0].method[3].outputType =
         '.google.cloud.talent.v4beta1.ListJobsOutput';
@@ -448,15 +453,18 @@ describe('src/schema/proto.ts', () => {
       fd.messageType[0].field = [
         {} as protos.google.protobuf.FieldDescriptorProto,
       ];
-      fd.messageType[0].field[0] = {} as protos.google.protobuf.FieldDescriptorProto;
+      fd.messageType[0].field[0] =
+        {} as protos.google.protobuf.FieldDescriptorProto;
       fd.messageType[0].field[0].name = 'next_page_token';
       fd.messageType[0].field[0].label = 3; // LABEL_REPEATED
       fd.messageType[1].field = [
         {} as protos.google.protobuf.FieldDescriptorProto,
       ];
-      fd.messageType[1].field[0] = {} as protos.google.protobuf.FieldDescriptorProto;
+      fd.messageType[1].field[0] =
+        {} as protos.google.protobuf.FieldDescriptorProto;
       fd.messageType[1].field[0].name = 'page_size';
-      fd.messageType[1].field[1] = {} as protos.google.protobuf.FieldDescriptorProto;
+      fd.messageType[1].field[1] =
+        {} as protos.google.protobuf.FieldDescriptorProto;
       fd.messageType[1].field[1].name = 'page_token';
       const options: Options = {
         grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
@@ -523,7 +531,8 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method = [
         {} as protos.google.protobuf.MethodDescriptorProto,
       ];
-      fd.service[0].method[0] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[0].name = 'Test';
       fd.service[0].method[0].outputType =
         '.google.cloud.showcase.v1beta1.TestOutput';
@@ -554,7 +563,8 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method = [
         {} as protos.google.protobuf.MethodDescriptorProto,
       ];
-      fd.service[0].method[0] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[0].name = 'Test';
       fd.service[0].method[0].outputType = '.google.longrunning.Operation';
       const options: Options = {
@@ -583,13 +593,15 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method = [
         {} as protos.google.protobuf.MethodDescriptorProto,
       ];
-      fd.service[0].method[0] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[0].name = 'Test';
       fd.service[0].method[0].outputType = '.google.longrunning.Operation';
       const options: Options = {
         grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
       };
-      fd.service[0].method[0].options = {} as protos.google.protobuf.MethodOptions;
+      fd.service[0].method[0].options =
+        {} as protos.google.protobuf.MethodOptions;
       fd.service[0].method[0].options['.google.longrunning.operationInfo'] = {};
       const allMessages: MessagesMap = {};
       const commentsMap = new CommentsMap([fd]);
@@ -651,7 +663,8 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method = [
         {} as protos.google.protobuf.MethodDescriptorProto,
       ];
-      fd.service[0].method[0] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[0].name = 'List';
       fd.service[0].method[0].outputType =
         '.google.cloud.showcase.v1beta1.AddressList';
@@ -668,7 +681,8 @@ describe('src/schema/proto.ts', () => {
       fd.messageType[0].field = [
         {} as protos.google.protobuf.FieldDescriptorProto,
       ];
-      fd.messageType[0].field[0] = {} as protos.google.protobuf.FieldDescriptorProto;
+      fd.messageType[0].field[0] =
+        {} as protos.google.protobuf.FieldDescriptorProto;
       fd.messageType[0].field[0].name = 'next_page_token';
       fd.messageType[0].field[0].label = 3; // LABEL_REPEATED
       fd.messageType[0].field[0].type = 11; // TYPE_MESSAGE
@@ -677,9 +691,11 @@ describe('src/schema/proto.ts', () => {
       fd.messageType[1].field = [
         {} as protos.google.protobuf.FieldDescriptorProto,
       ];
-      fd.messageType[1].field[0] = {} as protos.google.protobuf.FieldDescriptorProto;
+      fd.messageType[1].field[0] =
+        {} as protos.google.protobuf.FieldDescriptorProto;
       fd.messageType[1].field[0].name = 'max_results';
-      fd.messageType[1].field[1] = {} as protos.google.protobuf.FieldDescriptorProto;
+      fd.messageType[1].field[1] =
+        {} as protos.google.protobuf.FieldDescriptorProto;
       fd.messageType[1].field[1].name = 'page_token';
       const options: Options = {
         grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
@@ -728,7 +744,8 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method = [
         {} as protos.google.protobuf.MethodDescriptorProto,
       ];
-      fd.service[0].method[0] = {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[0].name = 'List';
       fd.service[0].method[0].outputType =
         '.google.cloud.showcase.v1beta1.AddressList';
@@ -745,15 +762,18 @@ describe('src/schema/proto.ts', () => {
       fd.messageType[0].field = [
         {} as protos.google.protobuf.FieldDescriptorProto,
       ];
-      fd.messageType[0].field[0] = {} as protos.google.protobuf.FieldDescriptorProto;
+      fd.messageType[0].field[0] =
+        {} as protos.google.protobuf.FieldDescriptorProto;
       fd.messageType[0].field[0].name = 'next_page_token';
       fd.messageType[0].field[0].label = 3; // LABEL_REPEATED
       fd.messageType[1].field = [
         {} as protos.google.protobuf.FieldDescriptorProto,
       ];
-      fd.messageType[1].field[0] = {} as protos.google.protobuf.FieldDescriptorProto;
+      fd.messageType[1].field[0] =
+        {} as protos.google.protobuf.FieldDescriptorProto;
       fd.messageType[1].field[0].name = 'max_results';
-      fd.messageType[1].field[1] = {} as protos.google.protobuf.FieldDescriptorProto;
+      fd.messageType[1].field[1] =
+        {} as protos.google.protobuf.FieldDescriptorProto;
       fd.messageType[1].field[1].name = 'page_token';
       const options: Options = {
         grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,

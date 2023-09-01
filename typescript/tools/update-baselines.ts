@@ -34,7 +34,7 @@ const baselineZip = path.join(
   'bazel-testlogs',
   'unit_tests',
   'test.outputs',
-  'outputs.zip',
+  'outputs.zip'
 );
 
 function getBaselineDirectory(library: string): string {

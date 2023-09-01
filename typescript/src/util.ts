@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as fs from 'fs';
-import * as fsp from 'fs/promises';
-import * as path from 'path';
 import type * as protos from '../../protos/index.js';
 
 export function commonPrefix(strings: string[]): string {
