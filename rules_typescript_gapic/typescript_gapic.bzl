@@ -43,6 +43,8 @@ def typescript_gapic_library(
     plugin_args_dict["metadata"] = "true"
   if transport:
     plugin_args_dict["transport"] = transport
+  if format:
+    plugin_args_dict["transport"] = format
   if diregapic:
     plugin_args_dict["diregapic"] = "true"
   if handwritten_layer:

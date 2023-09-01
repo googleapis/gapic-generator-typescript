@@ -146,6 +146,7 @@ async function main(processArgv: string[]) {
   const validation = (argv.validation as string | undefined) ?? 'true';
   const metadata = argv.metadata as boolean | undefined;
   const transport = argv.transport as string | undefined;
+  const format = argv.transport as string | string[] | undefined;
   const diregapic = argv.diregapic as boolean | undefined;
   const handwrittenLayer = argv.handwrittenLayer as boolean | undefined;
   const legacyProtoLoad = argv.legacyProtoLoad as boolean | undefined;

@@ -88,6 +88,7 @@ export class Generator {
   mixinsOverride?: string[];
 
   private root: protobuf.Root;
+  format: any;
 
   constructor() {
     this.root = protobuf.Root.fromJSON(protoJson);
@@ -212,6 +213,12 @@ export class Generator {
   private readHandwrittenLayer() {
     if (this.paramMap['handwritten-layer'] === 'true') {
       this.handwrittenLayer = true;
+    }
+  }
+
+  private readFormat() {
+    if (this.paramMap['format'] === 'esm') {
+      this.format = esm;
     }
   }
 

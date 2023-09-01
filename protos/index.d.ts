@@ -1,7 +1,5 @@
 import * as $protobuf from "protobufjs";
-
-// Note: this file was manually edited to remove references to Long which are not needed in this project.
-
+import Long = require("long");
 /** Namespace grpc. */
 export namespace grpc {
 
