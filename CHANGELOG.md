@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.3](https://github.com/googleapis/gapic-generator-typescript/compare/v4.0.2...v4.0.3) (2023-08-23)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency protobufjs to v7.2.5 ([#1432](https://github.com/googleapis/gapic-generator-typescript/issues/1432)) ([6dc1006](https://github.com/googleapis/gapic-generator-typescript/commit/6dc1006bfebf878283bc5af426d0c4fb392d00cb))
+* Simplify HTTP REST fallback setup ([#1434](https://github.com/googleapis/gapic-generator-typescript/issues/1434)) ([a82d0bd](https://github.com/googleapis/gapic-generator-typescript/commit/a82d0bd75a1ce13d3bbe268fe988ee6e8629f057))
+
 ## [4.0.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.0.1...v4.0.2) (2023-08-07)
 
 

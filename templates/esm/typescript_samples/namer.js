@@ -24,7 +24,7 @@
  * Initialize local names storage.
  */
 function initialize() {
-  if (typeof get.names === "undefined") {
+  if (typeof get.names === 'undefined') {
     get.names = new Set();
   }
 }
@@ -62,4 +62,5 @@ function register(name) {
   return '';
 }
 
+// eslint-disable-next-line no-undef
 module.exports = {register, get};

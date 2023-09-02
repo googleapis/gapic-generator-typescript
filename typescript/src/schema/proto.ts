@@ -243,26 +243,29 @@ function pagingField(
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
-    inputType && inputType.field && inputType.field.some(field => field.name === 'page_token');
+    inputType &&
+    inputType.field &&
+    inputType.field.some(field => field.name === 'page_token');
   // Support paginated methods defined in Discovery-based APIs,
   // where it uses "max_results" to define the maximum number of
   // paginated resources to return.
   const hasPageSize =
-    inputType && inputType.field &&
+    inputType &&
+    inputType.field &&
     inputType.field.some(
       field =>
         field.name === 'page_size' ||
         (diregapic && field.name === 'max_results')
     );
   const hasNextPageToken =
-    outputType && outputType.field &&
+    outputType &&
+    outputType.field &&
     outputType.field.some(field => field.name === 'next_page_token');
   if (!hasPageToken || !hasPageSize || !hasNextPageToken) {
     return undefined;
   }
   const repeatedFields = outputType.field!.filter(
-    field =>
-      field.label === 3 // LABEL_REPEATED
+    field => field.label === 3 // LABEL_REPEATED
   );
   if (repeatedFields.length === 0) {
     return undefined;
@@ -292,7 +295,9 @@ function pagingField(
       repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n')
     );
     // TODO: an option to ignore errors
-    throw new Error(`ERROR: Pagination settings for ${method.name} violate https://google.aip.dev/158`);
+    throw new Error(
+      `ERROR: Pagination settings for ${method.name} violate https://google.aip.dev/158`
+    );
   }
   return repeatedFields[0];
 }
@@ -414,13 +419,15 @@ function getMethodConfig(
       }
     }
   } else {
-    console.warn("Warning: cannot parse gRPC service config: methodConfig is not an array.");
+    console.warn(
+      'Warning: cannot parse gRPC service config: methodConfig is not an array.'
+    );
   }
   const root = protobuf.Root.fromJSON(protoJson);
   const MethodConfig = root.lookupType('MethodConfig');
-  const result = MethodConfig.toObject(MethodConfig.fromObject(
-    exactMatch || serviceMatch || {}
-  )) as protos.grpc.service_config.MethodConfig;
+  const result = MethodConfig.toObject(
+    MethodConfig.fromObject(exactMatch || serviceMatch || {})
+  ) as protos.grpc.service_config.MethodConfig;
   return result;
 }
 
@@ -511,8 +518,8 @@ function augmentMethod(
         const inputType = parameters.allMessages[method.inputType!];
         const repeatedFields = inputType.field!.filter(
           field =>
-            field.label === 3 // LABEL_REPEATED
-            && field.name === bc.batchDescriptor.batched_field
+            field.label === 3 && // LABEL_REPEATED
+            field.name === bc.batchDescriptor.batched_field
         );
         if (!repeatedFields[0].typeName) {
           throw new Error(
@@ -538,9 +545,10 @@ function augmentMethod(
     method.paramComment = paramComment;
   }
   if (method.methodConfig.retryPolicy?.retryableStatusCodes) {
-    method.retryableCodesName = parameters.service.retryableCodeMap.getRetryableCodesName(
-      method.methodConfig.retryPolicy.retryableStatusCodes
-    );
+    method.retryableCodesName =
+      parameters.service.retryableCodeMap.getRetryableCodesName(
+        method.methodConfig.retryPolicy.retryableStatusCodes
+      );
   }
   if (method.methodConfig.retryPolicy) {
     // converting retry parameters to the syntax google-gax supports
@@ -569,9 +577,8 @@ function augmentMethod(
       defaultParameters.max_rpc_timeout_millis;
     retryParams.total_timeout_millis = defaultParameters.total_timeout_millis;
 
-    method.retryParamsName = parameters.service.retryableCodeMap.getParamsName(
-      retryParams
-    );
+    method.retryParamsName =
+      parameters.service.retryableCodeMap.getParamsName(retryParams);
   }
   if (method.methodConfig.timeout) {
     method.timeoutMillis = milliseconds(method.methodConfig.timeout);
@@ -785,17 +792,18 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.bundleConfigs = parameters.options.bundleConfigs?.filter(
     bc => bc.serviceName === parameters.service.name
   );
-  augmentedService.method = augmentedService.method?.map(method =>
-    augmentMethod(
-      {
-        allMessages: parameters.allMessages,
-        localMessages: parameters.localMessages,
-        service: augmentedService,
-        diregapic: parameters.options.diregapic,
-      },
-      method
-    )
-  ) ?? [];
+  augmentedService.method =
+    augmentedService.method?.map(method =>
+      augmentMethod(
+        {
+          allMessages: parameters.allMessages,
+          localMessages: parameters.localMessages,
+          service: augmentedService,
+          diregapic: parameters.options.diregapic,
+        },
+        method
+      )
+    ) ?? [];
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
     method => method.bundleConfig
   );
@@ -839,9 +847,8 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.hostname = '';
   augmentedService.port = 0;
   if (augmentedService.options?.['.google.api.defaultHost']) {
-    const match = augmentedService.options['.google.api.defaultHost'].match(
-      /^(.*):(\d+)$/
-    );
+    const match =
+      augmentedService.options['.google.api.defaultHost'].match(/^(.*):(\d+)$/);
     if (match) {
       augmentedService.hostname = match[1];
       augmentedService.port = Number.parseInt(match[2], 10);
@@ -849,9 +856,8 @@ function augmentService(parameters: AugmentServiceParameters) {
   }
   augmentedService.oauthScopes = [];
   if (augmentedService.options?.['.google.api.oauthScopes']) {
-    augmentedService.oauthScopes = augmentedService.options[
-      '.google.api.oauthScopes'
-    ].split(',');
+    augmentedService.oauthScopes =
+      augmentedService.options['.google.api.oauthScopes'].split(',');
   }
 
   // Build a list of resources referenced by this service
@@ -875,10 +881,11 @@ function augmentService(parameters: AugmentServiceParameters) {
       const resourceReference =
         fieldDescriptor.options?.['.google.api.resourceReference'];
       // 1. If this resource reference has .child_type, figure out if we have any known parent resources.
-      const parentResources = parameters.allResourceDatabase.getParentResourcesByChildType(
-        resourceReference?.childType,
-        errorLocation
-      );
+      const parentResources =
+        parameters.allResourceDatabase.getParentResourcesByChildType(
+          resourceReference?.childType,
+          errorLocation
+        );
       for (const resource of parentResources) {
         uniqueResources[resource.name] = resource;
       }
@@ -893,9 +900,8 @@ function augmentService(parameters: AugmentServiceParameters) {
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
       // look up pattern map for all resources.
       for (const pattern of resourceByType!.pattern!) {
-        const resourceByPattern = parameters.allResourceDatabase.getResourceByPattern(
-          pattern
-        );
+        const resourceByPattern =
+          parameters.allResourceDatabase.getResourceByPattern(pattern);
         if (!resourceByPattern) continue;
         uniqueResources[resourceByPattern.name] = resourceByPattern;
       }
