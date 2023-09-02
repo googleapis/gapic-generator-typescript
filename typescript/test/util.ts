@@ -46,6 +46,7 @@ export interface BaselineOptions {
   diregapic?: boolean;
   restNumericEnums?: boolean;
   mixins?: string;
+  format?: string;
 }
 
 const cwd = process.cwd();
@@ -136,6 +137,9 @@ export function runBaselineTest(options: BaselineOptions) {
     }
     if (options.transport && options.transport === 'rest') {
       commandLine += ' --transport=rest';
+    }
+    if (options.format) {
+      commandLine += ` --format="${options.format}"`;
     }
     if (options.diregapic) {
       commandLine += ' --diregapic';

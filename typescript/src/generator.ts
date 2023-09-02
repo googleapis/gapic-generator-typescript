@@ -86,9 +86,9 @@ export class Generator {
   legacyProtoLoad?: boolean;
   restNumericEnums?: boolean;
   mixinsOverride?: string[];
+  format: string | string[];
 
   private root: protobuf.Root;
-  format: any;
 
   constructor() {
     this.root = protobuf.Root.fromJSON(protoJson);
@@ -217,8 +217,8 @@ export class Generator {
   }
 
   private readFormat() {
-    if (this.paramMap['format'] === 'esm') {
-      this.format = esm;
+    if (this.paramMap['format']) {
+      this.format = this.paramMap['format'].split(';');
     }
   }
 
@@ -264,6 +264,7 @@ export class Generator {
       this.readHandwrittenLayer();
       this.readLegacyProtoLoad();
       this.readRestNumericEnums();
+      this.readFormat();
     }
   }
 
@@ -322,7 +323,10 @@ export class Generator {
 
   async processTemplates(api: API) {
     for (const template of this.templates) {
-      const location = path.join(templatesDirectory, template);
+      let location = path.join(templatesDirectory, 'cjs', template);
+      if (this.format && (this.format === 'esm' || this.format.includes('esm'))) {
+        location = path.join(templatesDirectory, 'esm', template);
+      }
       if (!fs.existsSync(location)) {
         throw new Error(`Template directory ${location} does not exist.`);
       }
