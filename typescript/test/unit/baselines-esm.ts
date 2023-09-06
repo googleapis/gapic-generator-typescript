@@ -21,7 +21,7 @@ describe('Baseline tests: ESM', () => {
     outputDir: '.test-out-dlp-esm',
     protoPath: 'google/privacy/dlp/v2/*.proto',
     useCommonProto: true,
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -29,7 +29,7 @@ describe('Baseline tests: ESM', () => {
     outputDir: '.test-out-tasks-esm',
     protoPath: 'google/cloud/tasks/v2/*.proto',
     useCommonProto: false,
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -40,7 +40,7 @@ describe('Baseline tests: ESM', () => {
     grpcServiceConfig:
       'google/cloud/texttospeech/v1/texttospeech_grpc_service_config.json',
     packageName: '@google-cloud/text-to-speech',
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -49,7 +49,7 @@ describe('Baseline tests: ESM', () => {
     protoPath: 'google/cloud/kms/v1/*.proto',
     useCommonProto: false,
     serviceYaml: 'google/cloud/kms/v1/cloudkms_v1.yaml',
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -58,7 +58,7 @@ describe('Baseline tests: ESM', () => {
     protoPath: 'google/monitoring/v3/*.proto',
     useCommonProto: false,
     mainServiceName: 'monitoring',
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -67,7 +67,7 @@ describe('Baseline tests: ESM', () => {
     protoPath: 'google/cloud/redis/v1beta1/*.proto',
     useCommonProto: true,
     mixins: 'google.longrunning.Operations',
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -81,7 +81,7 @@ describe('Baseline tests: ESM', () => {
     metadata: true,
     restNumericEnums: true,
     mixins: 'none',
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -91,7 +91,7 @@ describe('Baseline tests: ESM', () => {
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
     legacyProtoLoad: true,
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -103,7 +103,7 @@ describe('Baseline tests: ESM', () => {
     grpcServiceConfig:
       'google/cloud/asset/v1/cloudasset_grpc_service_config.json',
     packageName: '@google-cloud/asset',
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -111,7 +111,7 @@ describe('Baseline tests: ESM', () => {
     outputDir: '.test-out-translate-esm',
     protoPath: 'google/cloud/translate/v3beta1/*.proto',
     useCommonProto: true,
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -119,7 +119,7 @@ describe('Baseline tests: ESM', () => {
     outputDir: '.test-out-bigquery-storage-esm',
     protoPath: 'google/cloud/bigquery/storage/v1beta1/*.proto',
     useCommonProto: false,
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -130,7 +130,7 @@ describe('Baseline tests: ESM', () => {
     bundleConfig: 'google/logging/v2/logging_gapic.yaml',
     mainServiceName: 'LoggingService',
     grpcServiceConfig: 'google/logging/v2/logging_grpc_service_config.json',
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -138,7 +138,7 @@ describe('Baseline tests: ESM', () => {
     outputDir: '.test-out-videointelligence-esm',
     protoPath: 'google/cloud/videointelligence/v1/*.proto',
     useCommonProto: true,
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -148,7 +148,7 @@ describe('Baseline tests: ESM', () => {
     useCommonProto: false,
     mainServiceName: 'ShowcaseService',
     template: 'typescript_gapic',
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -157,7 +157,7 @@ describe('Baseline tests: ESM', () => {
     protoPath: 'google/naming/v1beta1/*.proto',
     useCommonProto: false,
     metadata: true,
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -167,7 +167,7 @@ describe('Baseline tests: ESM', () => {
     useCommonProto: true,
     metadata: false,
     template: 'api_dump',
-    format: 'esm'
+    format: 'esm',
   });
 
   // Adding new baseline test for deprecated service and methods
@@ -177,7 +177,7 @@ describe('Baseline tests: ESM', () => {
     protoPath: 'google/deprecatedtest/v1/*.proto',
     useCommonProto: true,
     metadata: false,
-    format: 'esm'
+    format: 'esm',
   });
 
   runBaselineTest({
@@ -187,7 +187,7 @@ describe('Baseline tests: ESM', () => {
     useCommonProto: false,
     packageName: '@google-cloud/compute',
     diregapic: true,
-    format: 'esm'
+    format: 'esm',
   });
 
   // Adding new baseline test to test routing annotation
@@ -197,6 +197,6 @@ describe('Baseline tests: ESM', () => {
     protoPath: 'google/routingtest/v1/*.proto',
     useCommonProto: true,
     metadata: false,
-    format: 'esm'
+    format: 'esm',
   });
 });

@@ -31,7 +31,12 @@ import * as path from 'path';
 import * as url from 'url';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
-const protoJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'protos/protos.json'), 'utf8'));
+const protoJson = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, '..', '..', '..', 'protos/protos.json'),
+    'utf8'
+  )
+);
 
 const COMMON_PROTO_LIST = [
   'google.api',

@@ -25,7 +25,6 @@ import protobuf from 'protobufjs';
 import protoJson from '../../../protos/protos.json' assert {type: 'json'};
 import type * as protos from '../../../protos/index.js';
 
-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as url from 'url';

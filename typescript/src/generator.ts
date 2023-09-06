@@ -341,7 +341,10 @@ export class Generator {
   async processTemplates(api: API) {
     for (const template of this.templates) {
       let location = path.join(templatesDirectory, 'cjs', template);
-      if (this.format && (this.format === 'esm' || this.format.includes('esm'))) {
+      if (
+        this.format &&
+        (this.format === 'esm' || this.format.includes('esm'))
+      ) {
         location = path.join(templatesDirectory, 'esm', template);
       }
       if (!fs.existsSync(location)) {
