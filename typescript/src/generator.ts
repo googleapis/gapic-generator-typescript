@@ -85,7 +85,7 @@ export class Generator {
   legacyProtoLoad?: boolean;
   restNumericEnums?: boolean;
   mixinsOverride?: string[];
-  format: string | string[];
+  format?: string | string[];
 
   private root: protobuf.Root;
 

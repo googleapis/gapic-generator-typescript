@@ -107,7 +107,7 @@ async function main(processArgv: string[]) {
     )
     .describe(
       'format',
-      'Default format is cjs. Set format=["cjs","esm"] to produce in dual format.'
+      'Default format is cjs. Semicolon-separated list of formats, i.e., format=cjs;esm or just format=esm to produce in dual format.'
     )
     .describe(
       'diregapic',
