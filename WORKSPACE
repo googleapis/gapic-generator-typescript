@@ -28,7 +28,6 @@ nodejs_register_toolchains(
 )
 
 load("@aspect_rules_js//npm:npm_import.bzl", "npm_translate_lock", "pnpm_repository")
-
 npm_translate_lock(
     name = "npm",
     pnpm_lock = "//:pnpm-lock.yaml",
