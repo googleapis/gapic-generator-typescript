@@ -16,6 +16,9 @@ rules_proto_toolchains()
 load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
 rules_js_dependencies()
 
+load("@gapic-tools//:repositories.bzl", "rules_js_dependencies")
+rules_js_dependencies()
+
 load("@aspect_rules_ts//ts:repositories.bzl", "rules_ts_dependencies")
 rules_ts_dependencies(
     ts_version_from = "//:package.json",
