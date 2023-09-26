@@ -114,7 +114,13 @@ async function main() {
 
     console.log(`Updating baseline for ${library}...`);
     console.log(`  - rm -rf "${baselineDir}"...`);
-    await fsp.rm(baselineDir, {recursive: true});
+    try {
+      await fsp.rm(baselineDir, {recursive: true});
+    } catch (err) {
+      console.log(
+        `Not removing baseline ${baselineDir} because it does not exist`
+      );
+    }
     console.log(`  - copying files from ${dir}...`);
     await copyBaseline(library, path.join(root, dir));
     console.log('done!');
