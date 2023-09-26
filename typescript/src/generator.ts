@@ -21,7 +21,6 @@ import protobuf from 'protobufjs';
 import type * as protos from '../../protos/index.js';
 import protoJson from '../../protos/protos.json' assert {type: 'json'};
 import * as url from 'url';
-
 import {API} from './schema/api.js';
 import {processTemplates} from './templater.js';
 import {BundleConfigClient, BundleConfig} from './bundle.js';
@@ -86,6 +85,7 @@ export class Generator {
   legacyProtoLoad?: boolean;
   restNumericEnums?: boolean;
   mixinsOverride?: string[];
+  format?: string | string[];
 
   private root: protobuf.Root;
 
@@ -221,6 +221,12 @@ export class Generator {
     }
   }
 
+  private readFormat() {
+    if (this.paramMap['format']) {
+      this.format = this.paramMap['format'].split(';');
+    }
+  }
+
   private readLegacyProtoLoad() {
     if (this.paramMap['legacy-proto-load'] === 'true') {
       this.legacyProtoLoad = true;
@@ -267,6 +273,7 @@ export class Generator {
       this.readHandwrittenLayer();
       this.readLegacyProtoLoad();
       this.readRestNumericEnums();
+      this.readFormat();
     }
   }
 
@@ -333,7 +340,13 @@ export class Generator {
 
   async processTemplates(api: API) {
     for (const template of this.templates) {
-      const location = path.join(templatesDirectory, template);
+      let location = path.join(templatesDirectory, 'cjs', template);
+      if (
+        this.format &&
+        (this.format === 'esm' || this.format.includes('esm'))
+      ) {
+        location = path.join(templatesDirectory, 'esm', template);
+      }
       if (!fs.existsSync(location)) {
         throw new Error(`Template directory ${location} does not exist.`);
       }
