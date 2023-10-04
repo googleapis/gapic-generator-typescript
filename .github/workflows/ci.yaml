@@ -104,6 +104,42 @@ jobs:
         npm run compile
         npm run system-test
         npm run docs
+  lib-tests-esm:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+        lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech, showcase-legacy, compute, logging]
+    steps:
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: artifacts
+        path: ~/artifacts
+
+    - name: Prepare ${{ matrix.lib-name }} library to test
+      run: |
+        unzip ~/artifacts/outputs.zip '.test-out-${{ matrix.lib-name }}-esm/*' -d library
+        mv library/.test-out-${{ matrix.lib-name }}-esm library/${{ matrix.lib-name }}
+
+    - name: Test ${{ matrix.lib-name }} library
+      run: |
+        cd library/${{ matrix.lib-name }}
+        pwd
+        npm install
+        npm test
+        npm run fix
+        # Second compile to make sure "gts fix" did not break the code, it happens!
+        rm -rf build
+        npm run compile
+        npm run system-test
+        npm run docs
   lint:
     runs-on: ubuntu-latest
     steps:
