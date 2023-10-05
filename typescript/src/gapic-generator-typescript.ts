@@ -34,7 +34,7 @@ async function main(processArgv: string[]) {
   const googleGaxPath = path.dirname(
     require.resolve('google-gax/build/src/index.js')
   ); // ...../google-gax/build/src
-  console.log(googleGaxPath); 
+
   const googleGaxProtosDir = path.join(
     googleGaxPath,
     '..',
