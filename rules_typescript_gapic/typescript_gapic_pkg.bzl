@@ -14,7 +14,6 @@
 
 load("@rules_gapic//:gapic_pkg.bzl", "construct_package_dir_paths")
 
-
 def _typescript_gapic_src_pkg_impl(ctx):
     proto_srcs = []
     gapic_srcs = []
@@ -37,7 +36,6 @@ def _typescript_gapic_src_pkg_impl(ctx):
         mkdir -p "{package_dir_path}/protos/$dirname"
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
     done
-    rm -f "{package_dir_path}/proto.list"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
     rm -rf "{package_dir_path}"
     """.format(
@@ -53,11 +51,24 @@ def _typescript_gapic_src_pkg_impl(ctx):
         command = script,
         outputs = [ctx.outputs.pkg],
     )
+    ctx.actions.run(
+        inputs = proto_srcs + gapic_srcs,
+        executable = ctx.executable.compile_protos,
+        arguments = ["src"],
+        outputs = [ctx.outputs.pkg],
+        progress_message = "HELLOOOO"
+    )
 
 _typescript_gapic_src_pkg = rule(
     attrs = {
         "deps": attr.label_list(allow_files = True, mandatory = True),
         "package_dir": attr.string(mandatory = True),
+        "compile_protos": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+            default = Label(":compile_protos"),
+        ),
     },
     outputs = {"pkg": "%{name}.tar.gz"},
     implementation = _typescript_gapic_src_pkg_impl,

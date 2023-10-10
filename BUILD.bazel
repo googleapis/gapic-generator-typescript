@@ -1,11 +1,26 @@
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_test")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
-
+load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
 
 package(default_visibility = ["//visibility:public"])
 
 npm_link_all_packages(name = "node_modules")
+
+copy_to_bin(
+    # Name of the rule.
+    name = "gapic_tools",
+    # A list of labels
+    srcs = glob(["node_modules/gapic-tools/build/src/compileProtos.js"]),
+)
+
+
+copy_to_bin(
+    # Name of the rule.
+    name = "google_gax",
+    # A list of labels
+    srcs = glob(["node_modules/google_gax/build/protos/*.*"]),
+)
 
 filegroup(
     name = "templates",
@@ -40,8 +55,6 @@ npm_runtime_dependencies = [
     "//:node_modules/yargs",
     "//:node_modules/google-gax",
 ]
-
-exports_files(["node_modules/gapic-tools/build/src/compileProtos.js"])
 
 npm_test_dependencies = npm_runtime_dependencies + [
     "//:node_modules/espower-typescript",
@@ -125,11 +138,6 @@ js_binary(
     },
 )
 
-js_binary(
-    name = "compile_protos",
-    entry_point = "//:node_modules/gapic-tools/build/src/compileProtos.js"
-)
-
 js_test(
     name = "unit_tests",
     entry_point = "typescript/test/unit-test-runner.js",
@@ -146,3 +154,4 @@ js_test(
         "NODE_OPTIONS": "--no-warnings", # disable ExperimentalWarning about loading JSON modules
     },
 )
+
