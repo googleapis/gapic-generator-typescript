@@ -106,6 +106,10 @@ async function main(processArgv: string[]) {
       'Default transport is gRPC. Set transport=rest for gRPC or non-gRPC API requires REST transport with http annotation in proto3 files.'
     )
     .describe(
+      'format',
+      'Default format is cjs. Semicolon-separated list of formats, i.e., format=cjs;esm or just format=esm to produce in dual format.'
+    )
+    .describe(
       'diregapic',
       'DIREGAPIC represents Discovery Rest GAPICs. Set to true for GCE API or non-gRPC APIs with a Discovery doc description.'
     )
@@ -146,6 +150,7 @@ async function main(processArgv: string[]) {
   const validation = (argv.validation as string | undefined) ?? 'true';
   const metadata = argv.metadata as boolean | undefined;
   const transport = argv.transport as string | undefined;
+  const format = argv.format as string | string[] | undefined;
   const diregapic = argv.diregapic as boolean | undefined;
   const handwrittenLayer = argv.handwrittenLayer as boolean | undefined;
   const legacyProtoLoad = argv.legacyProtoLoad as boolean | undefined;
@@ -223,6 +228,9 @@ async function main(processArgv: string[]) {
   }
   if (transport && transport === 'rest') {
     protocCommand.push('--typescript_gapic_opt="transport=rest"');
+  }
+  if (format) {
+    protocCommand.push(`--typescript_gapic_opt="format=${format}"`);
   }
   if (legacyProtoLoad) {
     protocCommand.push('--typescript_gapic_opt="legacy-proto-load"');
