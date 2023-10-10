@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@rules_gapic//:gapic_pkg.bzl", "construct_package_dir_paths")
+load("@node_modules/gapic_tools", "compile_protos")
 
 def _typescript_gapic_src_pkg_impl(ctx):
     proto_srcs = []

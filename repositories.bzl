@@ -39,7 +39,7 @@ def gapic_generator_typescript_repositories():
 
   maybe(
       http_archive,
-      name = "gapic-tools",
+      name = "gapic_tools",
       urls = ["https://github.com/googleapis/gax-nodejs/archive/tags/gapic-tools-v0.2.0.tar.gz"],
   )
 
