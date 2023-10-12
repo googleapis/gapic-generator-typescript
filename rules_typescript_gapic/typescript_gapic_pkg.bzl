@@ -64,7 +64,7 @@ _typescript_gapic_src_pkg = rule(
             executable = True,
             cfg = "exec",
             allow_files = True,
-            default = ":compile_protos",
+            default = "//:node_modules/gapic-tools/build/src/compileProtos.js",
         ),
     },
     outputs = {"pkg": "%{name}.tar.gz"},
