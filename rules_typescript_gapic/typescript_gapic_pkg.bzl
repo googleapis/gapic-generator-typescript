@@ -27,6 +27,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
     paths = construct_package_dir_paths(ctx.attr.package_dir, ctx.outputs.pkg, ctx.label.name)
 
     script = """
+    echo "HELLOOOO??"
     echo -e "{gapic_srcs}" | while read gapic_src; do
         mkdir -p "{package_dir_path}"
         unzip -q -o "$gapic_src" -d "{package_dir_path}"
@@ -36,6 +37,8 @@ def _typescript_gapic_src_pkg_impl(ctx):
         mkdir -p "{package_dir_path}/protos/$dirname"
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
     done
+    echo -e "{compile_protos}"
+    "{compile_protos}" "src"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
     rm -rf "{package_dir_path}"
     """.format(
@@ -44,19 +47,13 @@ def _typescript_gapic_src_pkg_impl(ctx):
         package_dir_path = paths.package_dir_path,
         package_dir = paths.package_dir,
         pkg = ctx.outputs.pkg.path,
+        compile_protos = ctx.executable.compile_protos.path
     )
 
     ctx.actions.run_shell(
         inputs = proto_srcs + gapic_srcs,
         command = script,
         outputs = [ctx.outputs.pkg],
-    )
-    ctx.actions.run(
-        inputs = proto_srcs + gapic_srcs,
-        executable = ctx.executable.compile_protos,
-        arguments = ["src"],
-        outputs = [ctx.outputs.pkg],
-        progress_message = "HELLOOOO"
     )
 
 _typescript_gapic_src_pkg = rule(
@@ -67,7 +64,7 @@ _typescript_gapic_src_pkg = rule(
             executable = True,
             cfg = "exec",
             allow_files = True,
-            default = Label(":compile_protos"),
+            default = ":compile_protos",
         ),
     },
     outputs = {"pkg": "%{name}.tar.gz"},

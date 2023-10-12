@@ -1,12 +1,13 @@
 load("@aspect_rules_js//js:defs.bzl", "js_binary")
+load("@npm//:defs.bzl", "npm_link_targets", "npm_link_all_packages")
+
+npm_link_all_packages(name = "node_modules")
+
+exports_files(["node_modules/gapic-tools/build/src/compileProtos.js"])
 
 js_binary(
     name = "compile_protos",
-    entry_point = "//:gapic_tools",
+    data = glob(["node_modules/gapic-tools/build/src/*.*"]),
+    entry_point = "@gapic_generator_typescript//rules_typescript_gapic:node_modules/gapic-tools/build/src/compileProtos.js",
     visibility = ["//visibility:public"]
-)
-
-filegroup(
-    name = "gax_protos",
-    srcs = ["//:google_gax"]
 )
