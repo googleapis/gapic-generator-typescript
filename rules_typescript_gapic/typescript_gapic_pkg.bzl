@@ -39,8 +39,12 @@ def _typescript_gapic_src_pkg_impl(ctx):
     done
     echo -e "{compile_protos}"
     head "{compile_protos}"
-    "{compile_protos}" "src"
+    "{compile_protos}" "{package_dir_path}"/"src"
+    echo -e "{compile_protos}" "{package_dir_path}"/"src"git 
     pwd
+    echo "{package_dir_path}"
+    echo "{package_dir}"
+    echo "{pkg}"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
     rm -rf "{package_dir_path}"
     """.format(
@@ -53,7 +57,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
     )
 
     ctx.actions.run_shell(
-        inputs = proto_srcs + gapic_srcs,
+        inputs = proto_srcs + gapic_srcs + [ctx.executable.compile_protos],
         command = script,
         outputs = [ctx.outputs.pkg],
     )
@@ -66,7 +70,7 @@ _typescript_gapic_src_pkg = rule(
             executable = True,
             cfg = "exec",
             allow_files = True,
-            default = "//:node_modules/gapic-tools/build/src/compileProtos.js",
+            default = Label("//:compile_protos_binary"),
         ),
     },
     outputs = {"pkg": "%{name}.tar.gz"},
