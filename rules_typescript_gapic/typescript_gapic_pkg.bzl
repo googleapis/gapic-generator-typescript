@@ -36,15 +36,17 @@ def _typescript_gapic_src_pkg_impl(ctx):
         mkdir -p "{package_dir_path}/protos/$dirname"
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
     done
-    "{compile_protos}" "{package_dir_path}"/"src"
+    "{compile_protos}" "{package_dir_path}"/"src" --out-dir "{package_dir_path}" "{esm}"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
+    rm -rf "{package_dir_path}"
     """.format(
         gapic_srcs = "\\n".join([f.path for f in gapic_srcs]),
         proto_srcs = "\\n".join([f.path for f in proto_srcs]),
         package_dir_path = paths.package_dir_path,
         package_dir = paths.package_dir,
         pkg = ctx.outputs.pkg.path,
-        compile_protos = ctx.executable.compile_protos.path
+        compile_protos = ctx.executable.compile_protos.path,
+        esm = ctx.attr.esm
     )
 
     ctx.actions.run_shell(
@@ -63,17 +65,23 @@ _typescript_gapic_src_pkg = rule(
             allow_files = True,
             default = Label("//:compile_protos_binary"),
         ),
+        "esm": attr.string(default = "")
     },
     outputs = {"pkg": "%{name}.tar.gz"},
     implementation = _typescript_gapic_src_pkg_impl,
 )
 
-def typescript_gapic_assembly_pkg(name, deps, assembly_name = None):
+def typescript_gapic_assembly_pkg(name, deps, assembly_name = None, format = None):
     package_dir = name
     if assembly_name:
         package_dir = "%s-%s" % (assembly_name, name)
+    esm = ""
+    if format and ("esm" in format) or (format == "esm"):
+        esm = "--esm"
     _typescript_gapic_src_pkg(
         name = name,
         deps = deps,
         package_dir = package_dir,
+        esm = esm,
     )
+
