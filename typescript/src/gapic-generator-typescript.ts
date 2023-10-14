@@ -251,16 +251,13 @@ async function main(processArgv: string[]) {
 
   // create protos folder to copy proto file
   const copyProtoDir = path.join(outputDir, 'protos');
-  console.log(`copyProtoDir: ${copyProtoDir}`)
   if (!fs.existsSync(copyProtoDir)) {
     fs.mkdirSync(copyProtoDir);
   }
   // copy proto file to generated folder
   const protoList = path.join(outputDir, 'proto.list');
-  console.log(`protoList: ${protoList}`)
   const protoFilesSet = new Set(protoFiles);
   const protoListContent = (await fsp.readFile(protoList)).toString();
-  console.log(`protoListContent: ${protoListContent}`)
   const protoListLines = protoListContent.split('\n');
   for (const proto of protoListLines) {
     for (const dir of protoDirs) {
