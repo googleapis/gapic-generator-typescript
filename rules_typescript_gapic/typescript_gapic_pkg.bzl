@@ -40,13 +40,13 @@ def _typescript_gapic_src_pkg_impl(ctx):
     echo -e "{compile_protos}"
     head "{compile_protos}"
     "{compile_protos}" "{package_dir_path}"/"src"
-    echo -e "{compile_protos}" "{package_dir_path}"/"src"git 
+    echo -e "{compile_protos}" "{package_dir_path}"/"src" 
     pwd
+    ls -a "{package_dir_path}"/"src"
     echo "{package_dir_path}"
     echo "{package_dir}"
     echo "{pkg}"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
-    rm -rf "{package_dir_path}"
     """.format(
         gapic_srcs = "\\n".join([f.path for f in gapic_srcs]),
         proto_srcs = "\\n".join([f.path for f in proto_srcs]),
