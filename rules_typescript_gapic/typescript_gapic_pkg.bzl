@@ -27,7 +27,6 @@ def _typescript_gapic_src_pkg_impl(ctx):
     paths = construct_package_dir_paths(ctx.attr.package_dir, ctx.outputs.pkg, ctx.label.name)
 
     script = """
-    echo "HELLOOOO??"
     echo -e "{gapic_srcs}" | while read gapic_src; do
         mkdir -p "{package_dir_path}"
         unzip -q -o "$gapic_src" -d "{package_dir_path}"
@@ -37,15 +36,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
         mkdir -p "{package_dir_path}/protos/$dirname"
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
     done
-    echo -e "{compile_protos}"
-    head "{compile_protos}"
     "{compile_protos}" "{package_dir_path}"/"src"
-    echo -e "{compile_protos}" "{package_dir_path}"/"src" 
-    pwd
-    ls -a "{package_dir_path}"/"src"
-    echo "{package_dir_path}"
-    echo "{package_dir}"
-    echo "{pkg}"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
     """.format(
         gapic_srcs = "\\n".join([f.path for f in gapic_srcs]),
