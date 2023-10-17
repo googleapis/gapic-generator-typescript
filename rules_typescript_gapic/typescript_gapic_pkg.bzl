@@ -36,10 +36,12 @@ def _typescript_gapic_src_pkg_impl(ctx):
         mkdir -p "{package_dir_path}/protos/$dirname"
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
     done
-    "{compile_protos}" "{package_dir_path}"/"src" --out-dir "{package_dir_path}" "{esm}"
-    rm -f "{package_dir_path}/proto.list"
+    pwd
+    echo "{compile_protos}"
+    COMPILE_PROTOS_PATH=$(realpath "{compile_protos}")
+    echo -e $COMPILE_PROTOS_PATH
+    $COMPILE_PROTOS_PATH "{package_dir_path}"/"src"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
-    rm -rf "{package_dir_path}"
     """.format(
         gapic_srcs = "\\n".join([f.path for f in gapic_srcs]),
         proto_srcs = "\\n".join([f.path for f in proto_srcs]),

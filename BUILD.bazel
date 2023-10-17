@@ -1,11 +1,10 @@
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_test")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
-load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
+npm_link_all_packages(name = "node_modules")
+load("@npm//:gapic-tools/package_json.bzl", gapic_tools_bin = "bin")
 
 package(default_visibility = ["//visibility:public"])
-
-npm_link_all_packages(name = "node_modules")
 
 filegroup(
     name = "templates",
@@ -40,7 +39,6 @@ npm_runtime_dependencies = [
     "//:node_modules/proto3-json-serializer",
     "//:node_modules/yargs",
     "//:node_modules/google-gax",
-    "//:node_modules/gapic-tools",
 ]
 
 npm_test_dependencies = npm_runtime_dependencies + [
@@ -94,16 +92,18 @@ js_library(
         ":compile",
     ],
 )
-load("@npm//:gapic-tools/package_json.bzl", gapic_tools_bin = "bin")
 
-gapic_tools_bin.compileProtos_binary(
+js_binary(
     name = "compile_protos_binary",
-    env = {
-        "BAZEL_BINDIR": ".", # required by the JS rules if we need to use them in the build process
-    },
-    visibility = ["//visibility:public"]
-)  
-exports_files(["gapic-tools/package_json.bzl"])
+    entry_point = "//:node_modules/gapic-tools/build/src/compileProtos.js",
+    visibility = ["//visibility:public"],
+     data = [
+        ":library",
+        ":templates",
+        ":protos",
+    ],
+)
+
 
 js_binary(
     name = "protoc_plugin",
@@ -112,11 +112,10 @@ js_binary(
         ":library",
         ":templates",
         ":protos",
-        ":compile_protos_binary"
     ],
     env = {
         "BAZEL_BINDIR": ".", # required by the JS rules if we need to use them in the build process
-        "NODE_OPTIONS": "--no-warnings", # disable ExperimentalWarning about loading JSON modules
+        "NODE_OPTIONS": "--no-warnings", # disable ExperimentalWarning about loading JSON modules,
     },
     visibility = ["//visibility:public"]
 )
