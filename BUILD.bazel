@@ -93,16 +93,15 @@ js_library(
     ],
 )
 
-js_binary(
+gapic_tools_bin.compileProtos_binary(
     name = "compile_protos_binary",
-    entry_point = "//:node_modules/gapic-tools/build/src/compileProtos.js",
+    env = {
+        "BAZEL_BINDIR": ".",
+    },
     visibility = ["//visibility:public"],
-     data = [
-        ":library",
-        ":templates",
-        ":protos",
-    ],
-)
+)  
+
+exports_files(["gapic-tools/package_json.bzl"])
 
 
 js_binary(
@@ -112,6 +111,7 @@ js_binary(
         ":library",
         ":templates",
         ":protos",
+        ":compile_protos_binary",
     ],
     env = {
         "BAZEL_BINDIR": ".", # required by the JS rules if we need to use them in the build process
