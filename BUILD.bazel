@@ -1,9 +1,11 @@
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_test")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
-npm_link_all_packages(name = "node_modules")
+load("@npm//:gapic-tools/package_json.bzl", gapic_tools_bin = "bin")
 
 package(default_visibility = ["//visibility:public"])
+
+npm_link_all_packages(name = "node_modules")
 
 filegroup(
     name = "templates",
@@ -91,15 +93,14 @@ js_library(
     ],
 )
 
-js_binary(
+gapic_tools_bin.compileProtos_binary(
     name = "compile_protos_binary",
-    entry_point = "//:node_modules/gapic-tools/build/src/compileProtos.js",
-    visibility = ["//visibility:public"],
     data = ["//:node_modules/protobufjs-cli"],
-        env = {
-        "BAZEL_BINDIR": ".", # required by the JS rules if we need to use them in the build process
+    env = {
+        "BAZEL_BINDIR": ".",
     },
-)
+    visibility = ["//visibility:public"],
+)  
 
 
 js_binary(
