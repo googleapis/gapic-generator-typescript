@@ -38,8 +38,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
     COMPILE_PROTOS=$(realpath "{compile_protos}")
     CWD=$(pwd)
     cd "{package_dir_path}"
-    IS_ESM=$(find . -name "esm")
-    if [ -z $IS_ESM ]; then $COMPILE_PROTOS "src"; else $COMPILE_PROTOS "src" "--esm" ; fi
+    if [ -e esm/src ]; then $COMPILE_PROTOS "esm/src" "--esm"; else $COMPILE_PROTOS "src"; fi
     cd $CWD
     rm -f "{package_dir_path}/proto.list"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
