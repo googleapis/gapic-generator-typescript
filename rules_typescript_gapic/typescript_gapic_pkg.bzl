@@ -27,6 +27,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
     paths = construct_package_dir_paths(ctx.attr.package_dir, ctx.outputs.pkg, ctx.label.name)
 
     script = """
+    set -e pipefail
     echo -e "{gapic_srcs}" | while read gapic_src; do
         mkdir -p "{package_dir_path}"
         unzip -q -o "$gapic_src" -d "{package_dir_path}"
