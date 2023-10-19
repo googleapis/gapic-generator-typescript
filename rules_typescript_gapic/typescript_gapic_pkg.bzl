@@ -50,23 +50,23 @@ def _typescript_gapic_src_pkg_impl(ctx):
     """.format(
         package_dir_path = paths.package_dir_path,
         package_dir = paths.package_dir,
-        pkg = ctx.outputs.pkg.path,
+        pkg = paths.package_dir_path,
     )
 
     ctx.actions.run_shell(
         inputs = proto_srcs + gapic_srcs + [ctx.executable.compile_protos],
         command = pre_script,
-        outputs = [paths.package_dir_path],
+        outputs = DirectoryExpander.expand(paths.package_dir_path),
     )
 
     ctx.actions.run(
-        inputs = [paths.package_dir_path],
+        inputs = DirectoryExpander.expand(paths.package_dir_path) + [ctx.executable.compile_protos],
         executable = ctx.executable.compile_protos,
-        outputs = [ctx.outputs.pkg],
+        outputs = DirectoryExpander.expand(paths.package_dir_path),
     )
 
     ctx.actions.run_shell(
-        inputs = [paths.package_dir_path],
+        inputs = DirectoryExpander.expand(paths.package_dir_path),
         command = post_script,
         outputs = [ctx.outputs.pkg]
     )
