@@ -2,10 +2,8 @@ load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_test")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
 npm_link_all_packages(name = "node_modules")
-load("@npm//:gapic-tools/package_json.bzl", gapic_tools_bin = "bin")
-toolchain_type(name = "toolchain_type")
+
 package(default_visibility = ["//visibility:public"])
-load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
 
 filegroup(
     name = "templates",
@@ -112,13 +110,11 @@ js_binary(
         ":library",
         ":templates",
         ":protos",
-        ":compile_protos_binary",
     ],
     env = {
         "BAZEL_BINDIR": ".", # required by the JS rules if we need to use them in the build process
         "NODE_OPTIONS": "--no-warnings", # disable ExperimentalWarning about loading JSON modules
     },
-    visibility = ["//visibility:public"]
 )
 
 js_binary(

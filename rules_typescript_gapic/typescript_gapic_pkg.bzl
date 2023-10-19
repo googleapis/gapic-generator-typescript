@@ -52,7 +52,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
     )
 
     ctx.actions.run_shell(
-        inputs = proto_srcs + gapic_srcs + [ctx.executable.compile_protos],
+        inputs = proto_srcs + gapic_srcs,
         command = script,
         outputs = [ctx.outputs.pkg],
         tools = [ctx.executable.compile_protos],
@@ -74,7 +74,7 @@ _typescript_gapic_src_pkg = rule(
     implementation = _typescript_gapic_src_pkg_impl,
 )
 
-def typescript_gapic_assembly_pkg(name, deps, assembly_name = None, format = None):
+def typescript_gapic_assembly_pkg(name, deps, assembly_name = None):
     package_dir = name
     if assembly_name:
         package_dir = "%s-%s" % (assembly_name, name)

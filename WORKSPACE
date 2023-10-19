@@ -41,9 +41,3 @@ npm_translate_lock(
 load("@npm//:repositories.bzl", "npm_repositories")
 npm_repositories()
 pnpm_repository(name = "pnpm")
-
-new_local_repository(
-    name = "gapic_tools",
-    path = "//:node_modules/gapic-tools",
-    build_file = "gapic_tools.BUILD",
-)
