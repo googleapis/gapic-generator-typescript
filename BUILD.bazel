@@ -3,8 +3,9 @@ load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_test")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
 npm_link_all_packages(name = "node_modules")
 load("@npm//:gapic-tools/package_json.bzl", gapic_tools_bin = "bin")
-
+toolchain_type(name = "toolchain_type")
 package(default_visibility = ["//visibility:public"])
+load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
 
 filegroup(
     name = "templates",
@@ -93,15 +94,12 @@ js_library(
     ],
 )
 
-gapic_tools_bin.compileProtos_binary(
+js_binary(
     name = "compile_protos_binary",
-    env = {
-        "BAZEL_BINDIR": ".",
-    },
+    entry_point = "//:node_modules/gapic-tools/build/src/compileProtos.js",
     visibility = ["//visibility:public"],
-)  
-
-exports_files(["gapic-tools/package_json.bzl"])
+    data = npm_runtime_dependencies,
+)
 
 
 js_binary(
@@ -115,7 +113,7 @@ js_binary(
     ],
     env = {
         "BAZEL_BINDIR": ".", # required by the JS rules if we need to use them in the build process
-        "NODE_OPTIONS": "--no-warnings", # disable ExperimentalWarning about loading JSON modules,
+        "NODE_OPTIONS": "--no-warnings", # disable ExperimentalWarning about loading JSON modules
     },
     visibility = ["//visibility:public"]
 )
@@ -153,3 +151,7 @@ js_test(
     },
 )
 
+copy_to_bin(
+    name = "compile_protos_entry",
+    srcs = [":compile_protos_binary"],
+)

@@ -20,6 +20,12 @@ def gapic_generator_typescript_repositories():
 
   maybe(
       http_archive,
+      name = "gapic-tools",
+      urls = ["https://github.com/googleapis/gax-nodejs/archive/tags/gapic-tools-v0.2.0.tar.gz"],
+  )
+
+  maybe(
+      http_archive,
       name = "rules_proto",
       sha256 = "7ba0b77a37016b1d888e125456a1dc21eb63c17f17676289918de0798aab2a3c",
       strip_prefix = "rules_proto-bb745f946a0b033dc50b7671bea10c9395e53e4d",

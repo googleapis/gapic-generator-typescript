@@ -13,7 +13,6 @@
 # limitations under the License.
 
 load("@rules_gapic//:gapic_pkg.bzl", "construct_package_dir_paths")
-
 def _typescript_gapic_src_pkg_impl(ctx):
     runfiles = ctx.runfiles(files = [ctx.executable.compile_protos])
     proto_srcs = []
@@ -38,9 +37,8 @@ def _typescript_gapic_src_pkg_impl(ctx):
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
     done
     pwd
-    cd ../../../../../../ && find . -name ".runfiles"
     echo "{compile_protos}"
-    
+    echo "$(execpath {compile_protos})"
     "{compile_protos}" "{package_dir_path}"/"src"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
     """.format(
