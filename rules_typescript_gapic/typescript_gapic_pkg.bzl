@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@rules_gapic//:gapic_pkg.bzl", "construct_package_dir_paths")
+
 def _typescript_gapic_src_pkg_impl(ctx):
     proto_srcs = []
     gapic_srcs = []
@@ -42,6 +43,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
     cd $CWD
     rm -f "{package_dir_path}/proto.list"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
+    rm -rf "{package_dir_path}"
     """.format(
         gapic_srcs = "\\n".join([f.path for f in gapic_srcs]),
         proto_srcs = "\\n".join([f.path for f in proto_srcs]),
@@ -57,7 +59,6 @@ def _typescript_gapic_src_pkg_impl(ctx):
         outputs = [ctx.outputs.pkg],
         tools = [ctx.executable.compile_protos],
     )
-
 
 _typescript_gapic_src_pkg = rule(
     attrs = {
@@ -83,4 +84,3 @@ def typescript_gapic_assembly_pkg(name, deps, assembly_name = None):
         deps = deps,
         package_dir = package_dir,
     )
-
