@@ -14,7 +14,6 @@
 
 load("@rules_gapic//:gapic_pkg.bzl", "construct_package_dir_paths")
 def _typescript_gapic_src_pkg_impl(ctx):
-    runfiles = ctx.runfiles(files = [ctx.executable.compile_protos])
     proto_srcs = []
     gapic_srcs = []
 
@@ -26,7 +25,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
 
     paths = construct_package_dir_paths(ctx.attr.package_dir, ctx.outputs.pkg, ctx.label.name)
 
-    pre_script = """
+    script = """
     echo -e "{gapic_srcs}" | while read gapic_src; do
         mkdir -p "{package_dir_path}"
         unzip -q -o "$gapic_src" -d "{package_dir_path}"
@@ -36,6 +35,14 @@ def _typescript_gapic_src_pkg_impl(ctx):
         mkdir -p "{package_dir_path}/protos/$dirname"
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
     done
+    COMPILE_PROTOS=$(realpath "{compile_protos}")
+    CWD=$(pwd)
+    cd "{package_dir_path}"
+    $COMPILE_PROTOS "src"
+    cd $CWD
+    rm -f "{package_dir_path}/proto.list"
+    tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
+    rm -rf "{package_dir_path}"
     """.format(
         gapic_srcs = "\\n".join([f.path for f in gapic_srcs]),
         proto_srcs = "\\n".join([f.path for f in proto_srcs]),
@@ -43,35 +50,16 @@ def _typescript_gapic_src_pkg_impl(ctx):
         package_dir = paths.package_dir,
         pkg = ctx.outputs.pkg.path,
         compile_protos = ctx.executable.compile_protos.path,
-    )
-
-    post_script = """
-    tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
-    """.format(
-        package_dir_path = paths.package_dir_path,
-        package_dir = paths.package_dir,
-        pkg = paths.package_dir_path,
+        esm = ctx.attr.esm
     )
 
     ctx.actions.run_shell(
         inputs = proto_srcs + gapic_srcs + [ctx.executable.compile_protos],
-        command = pre_script,
-        outputs = DirectoryExpander.expand(paths.package_dir_path),
+        command = script,
+        outputs = [ctx.outputs.pkg],
+        tools = [ctx.executable.compile_protos],
     )
 
-    ctx.actions.run(
-        inputs = DirectoryExpander.expand(paths.package_dir_path) + [ctx.executable.compile_protos],
-        executable = ctx.executable.compile_protos,
-        outputs = DirectoryExpander.expand(paths.package_dir_path),
-    )
-
-    ctx.actions.run_shell(
-        inputs = DirectoryExpander.expand(paths.package_dir_path),
-        command = post_script,
-        outputs = [ctx.outputs.pkg]
-    )
-
-    return DefaultInfo(runfiles = runfiles)
 
 _typescript_gapic_src_pkg = rule(
     attrs = {
