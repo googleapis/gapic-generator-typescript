@@ -26,7 +26,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
 
     paths = construct_package_dir_paths(ctx.attr.package_dir, ctx.outputs.pkg, ctx.label.name)
 
-    script = """
+    pre_script = """
     echo -e "{gapic_srcs}" | while read gapic_src; do
         mkdir -p "{package_dir_path}"
         unzip -q -o "$gapic_src" -d "{package_dir_path}"
@@ -36,11 +36,6 @@ def _typescript_gapic_src_pkg_impl(ctx):
         mkdir -p "{package_dir_path}/protos/$dirname"
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
     done
-    pwd
-    echo "{compile_protos}"
-    echo "$(execpath {compile_protos})"
-    "{compile_protos}" "{package_dir_path}"/"src"
-    tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
     """.format(
         gapic_srcs = "\\n".join([f.path for f in gapic_srcs]),
         proto_srcs = "\\n".join([f.path for f in proto_srcs]),
@@ -48,12 +43,31 @@ def _typescript_gapic_src_pkg_impl(ctx):
         package_dir = paths.package_dir,
         pkg = ctx.outputs.pkg.path,
         compile_protos = ctx.executable.compile_protos.path,
-        esm = ctx.attr.esm
+    )
+
+    post_script = """
+    tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
+    """.format(
+        package_dir_path = paths.package_dir_path,
+        package_dir = paths.package_dir,
+        pkg = ctx.outputs.pkg.path,
     )
 
     ctx.actions.run_shell(
-        inputs = proto_srcs + gapic_srcs + [ctx.executable.compile_protos] + (ctx.runfiles(files = [ctx.executable.compile_protos])).files.to_list(),
-        command = script,
+        inputs = proto_srcs + gapic_srcs + [ctx.executable.compile_protos],
+        command = pre_script,
+        outputs = [paths.package_dir_path],
+    )
+
+    ctx.actions.run(
+        inputs = [paths.package_dir_path],
+        executable = ctx.executable.compile_protos,
+        outputs = [ctx.outputs.pkg],
+    )
+
+    ctx.actions.run_shell(
+        inputs = [paths.package_dir_path],
+        command = post_script,
         outputs = [ctx.outputs.pkg]
     )
 
