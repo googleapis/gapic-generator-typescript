@@ -56,7 +56,9 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
 const gapicConfig = JSON.parse(fs.readFileSync(path.join(dirname, '{{ service.name.toSnakeCase() }}_client_config.json'),'utf8'));
+{%- if not api.legacyProtoLoad %}
 const jsonProtos = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', 'protos/protos.json'), 'utf8'));
+{%- endif %}
 const version = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', '..', 'package.json'), 'utf8')).version;
 
 /**
@@ -248,7 +250,7 @@ export class {{ service.name }}Client {
     // Load the applicable protos.
 {%- if api.legacyProtoLoad %}
     this._protos = this._gaxGrpc.loadProto(
-      path.join(__dirname, '..', '..', 'protos'),
+      path.join(dirname, '..', '..', '..', 'protos'),
       '{{ service.protoFile }}'
     );
 {%- else %}
@@ -303,7 +305,7 @@ export class {{ service.name }}Client {
 
     let protoFilesRoot = new this._gaxModule.GoogleProtoFilesRoot();
     protoFilesRoot = this._gaxModule.protobuf.loadSync(
-      path.join(__dirname, '..', '..', 'protos', '{{ service.protoFile }}'),
+      path.join(dirname, '..', '..', '..', 'protos', '{{ service.protoFile }}'),
       protoFilesRoot) as (typeof protoFilesRoot);
 {%- else %}
 
