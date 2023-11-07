@@ -27,6 +27,7 @@ def _typescript_gapic_src_pkg_impl(ctx):
     paths = construct_package_dir_paths(ctx.attr.package_dir, ctx.outputs.pkg, ctx.label.name)
 
     script = """
+    set -e pipefail
     echo -e "{gapic_srcs}" | while read gapic_src; do
         mkdir -p "{package_dir_path}"
         unzip -q -o "$gapic_src" -d "{package_dir_path}"
@@ -36,6 +37,11 @@ def _typescript_gapic_src_pkg_impl(ctx):
         mkdir -p "{package_dir_path}/protos/$dirname"
         cp -f "$proto_src" "{package_dir_path}/protos/$dirname"
     done
+    COMPILE_PROTOS=$(realpath "{compile_protos}")
+    CWD=$(pwd)
+    cd "{package_dir_path}"
+    if [ -e esm/src ]; then $COMPILE_PROTOS "esm/src" "--esm"; else $COMPILE_PROTOS "src"; fi
+    cd $CWD
     rm -f "{package_dir_path}/proto.list"
     tar cfz "{pkg}" -C "{package_dir_path}/.." "{package_dir}"
     rm -rf "{package_dir_path}"
@@ -45,18 +51,26 @@ def _typescript_gapic_src_pkg_impl(ctx):
         package_dir_path = paths.package_dir_path,
         package_dir = paths.package_dir,
         pkg = ctx.outputs.pkg.path,
+        compile_protos = ctx.executable.compile_protos.path,
     )
 
     ctx.actions.run_shell(
         inputs = proto_srcs + gapic_srcs,
         command = script,
         outputs = [ctx.outputs.pkg],
+        tools = [ctx.executable.compile_protos],
     )
 
 _typescript_gapic_src_pkg = rule(
     attrs = {
         "deps": attr.label_list(allow_files = True, mandatory = True),
         "package_dir": attr.string(mandatory = True),
+        "compile_protos": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+            default = Label("//:compile_protos_binary"),
+        ),
     },
     outputs = {"pkg": "%{name}.tar.gz"},
     implementation = _typescript_gapic_src_pkg_impl,
