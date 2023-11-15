@@ -17,6 +17,8 @@ limitations under the License.
 -#}
 {% import "../../../../../_license.njk" as license -%}
 {{license.license(commonParameters.copyrightYear)}}
+
+/* eslint-disable node/no-missing-require, no-unused-vars, no-undef */
 import {
   {%- set serviceJoiner = joiner(", ") -%}
   {%- for service in api.services %}
@@ -25,18 +27,9 @@ import {
   {%- endfor -%}
 } from '{{ api.publishName }}';
 
-// check that the client class type name can be used
-{%- for service in api.services %}
-function doStuffWith{{ service.name.toPascalCase() + 'Client' }}(client: {{ service.name.toPascalCase() + 'Client' }}) {
-  client.close();
-}
-{%- endfor %}
-
 function main() {
 {%- for service in api.services %}
-  // check that the client instance can be created
-  const {{ service.name.toCamelCase() }}Client = new {{ service.name.toPascalCase() + 'Client' }}();
-  doStuffWith{{ service.name.toPascalCase() + 'Client' }}({{ service.name.toCamelCase() }}Client);
+  const {{ service.name.toCamelCase() }}Client = new {{ api.naming.productName.toKebabCase() }}.{{ service.name.toPascalCase() + 'Client' }}();
 {%- endfor %}
 }
 
