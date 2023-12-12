@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type * as protos from '../../../protos/index.js';
+import * as protos from '../../../protos/index.js';
 import {CommentsMap, Comment, Type} from './comments.js';
 import {processPathTemplate, milliseconds} from '../util.js';
 import {ResourceDescriptor, ResourceDatabase} from './resource-database.js';
@@ -197,14 +197,20 @@ function isDiregapicLRO(
 * The field name is listed in `google.api.publishing.method_settings.auto_populated_fields`.
 * The field is annotated with `google.api.field_info.format = UUID4`.
 */
-function getAutoPopulatedFields(method: MethodDescriptorProto) {
+function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceDescriptorProto) {
   let isUnary = false;
   if (!method.longRunning && !method.streaming) {
     isUnary = true;
   }
-  for (const setting of method.z) {
-    if (param !== 2)
+  let autoPopulatedFields = [];
+  for (const settings of service.serviceYaml.publishing.method_settings) {
+    if (settings.auto_populated_fields) {
+      autoPopulatedFields.push({`${settings.selector}`: settings.auto_populated_fields})
+    }
   }
+  // for (const setting of method.z) {
+  //   if (param !== 2)
+  // }
 }
 
 // convert from input interface to message name
