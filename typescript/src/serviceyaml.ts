@@ -24,7 +24,7 @@ export interface ServiceYaml {
   // TODO (alicejli): Dynamic routing headers will eventually be part of the ServiceYaml
   // Refactor reading the annotation from the proto to the serviceYaml file once that is implemented.
   http: Http;
-  publishing: {
+  publishing?: {
     method_settings?: MethodSettings[]
   }
 }

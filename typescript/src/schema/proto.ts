@@ -198,14 +198,18 @@ function isDiregapicLRO(
 * The field is annotated with `google.api.field_info.format = UUID4`.
 */
 function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceDescriptorProto) {
-  let isUnary = false;
-  if (!method.longRunning && !method.streaming) {
-    isUnary = true;
-  }
+  // let isUnary = false;
+  // if (!method.longRunning && !method.streaming) {
+  //   isUnary = true;
+  // }
   let autoPopulatedFields = [];
   for (const settings of service.serviceYaml.publishing.method_settings) {
     if (settings.auto_populated_fields) {
-      autoPopulatedFields.push({`${settings.selector}`: settings.auto_populated_fields})
+      // Check if method is unary
+      // Check if field is required
+      // Check if field is annotated with format
+      let methodName = `${settings.selector.split('.')[settings.selector.split('.').length - 1]}Request`;
+      autoPopulatedFields.push({"method": `${settings.selector}`, "autoPopulatedFields": settings.auto_populated_fields})
     }
   }
   // for (const setting of method.z) {
