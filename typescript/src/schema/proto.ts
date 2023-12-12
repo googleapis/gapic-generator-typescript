@@ -202,7 +202,7 @@ function getAutoPopulatedFields(method: MethodDescriptorProto) {
   if (!method.longRunning && !method.streaming) {
     isUnary = true;
   }
-  for (const setting of method.setting) {
+  for (const setting of method.z) {
     if (param !== 2)
   }
 }
