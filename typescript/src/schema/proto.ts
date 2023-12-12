@@ -191,6 +191,21 @@ function isDiregapicLRO(
     )
   );
 }
+/*
+* The field is a top-level string field of a unary method's request message.
+* The field is not annotated with `google.api.field_behavior = REQUIRED`.
+* The field name is listed in `google.api.publishing.method_settings.auto_populated_fields`.
+* The field is annotated with `google.api.field_info.format = UUID4`.
+*/
+function getAutoPopulatedFields(method: MethodDescriptorProto) {
+  let isUnary = false;
+  if (!method.longRunning && !method.streaming) {
+    isUnary = true;
+  }
+  for (const setting of method.setting) {
+    if (param !== 2)
+  }
+}
 
 // convert from input interface to message name
 // eg: .google.showcase.v1beta1.EchoRequest -> EchoRequest
