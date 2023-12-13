@@ -27,6 +27,7 @@ import {Options} from './naming.js';
 import {ServiceYaml} from '../serviceyaml.js';
 import protobuf from 'protobufjs';
 import protoJson from '../../../protos/protos.json' assert {type: 'json'};
+import { string } from 'yargs';
 
 const COMMON_PROTO_LIST = [
   'google.api',
@@ -202,19 +203,37 @@ function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceD
   // if (!method.longRunning && !method.streaming) {
   //   isUnary = true;
   // }
-  let autoPopulatedFields = [];
+  let methodsAndAutoPopulatedFields: {methodTitle: string; autoPopulatedFields: string[]}[] = [];
+  let isUnary = false;
+  let isRequired = true;
+  let isUUID = false;
   for (const settings of service.serviceYaml.publishing.method_settings) {
     if (settings.auto_populated_fields) {
       // Check if method is unary
-      // Check if field is required
-      // Check if field is annotated with format
-      let methodName = `${settings.selector.split('.')[settings.selector.split('.').length - 1]}Request`;
-      autoPopulatedFields.push({"method": `${settings.selector}`, "autoPopulatedFields": settings.auto_populated_fields})
+      let methodName = `${settings.selector.split('.')[settings.selector.split('.').length - 1]}`;
+      if (methodName === method.name) {
+        if (!method.streaming) {
+          isUnary = true;
+        }
+      }
+      for (const param of method.paramComment) {
+        for (const field of settings.auto_populated_fields) {
+          if (param.paramName === field) {
+            // Check if field is required
+            // Check if field is annotated with format
+            if (param.fieldBehavior !== 2 && param.fieldInfo.format === 1) {
+              if (Object.values(methodsAndAutoPopulatedFields).includes(method.name)) {
+                methodsAndAutoPopulatedFields.autoPopulatedFields.push(field);
+              } else {
+                methodsAndAutoPopulatedFields.methodTitle.push(method);
+              }
+              autoPopulatedFields.push({"method": method, "autoPopulatedFields": field})
+            }
+          }
+        }
+      }
     }
   }
-  // for (const setting of method.z) {
-  //   if (param !== 2)
-  // }
 }
 
 // convert from input interface to message name

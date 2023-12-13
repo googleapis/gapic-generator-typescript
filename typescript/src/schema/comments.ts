@@ -44,6 +44,7 @@ export interface Comment {
   comments: string[];
   // LABEL_OPTIONAL = 1, LABEL_REQUIRED = 2
   fieldBehavior?: protos.google.api.FieldBehavior;
+  fieldInfo?: protos.google.api.FieldInfo;
 }
 
 // For service, one item will be <serviceName, comment>
