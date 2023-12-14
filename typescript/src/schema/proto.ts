@@ -193,21 +193,18 @@ function isDiregapicLRO(
   );
 }
 /*
+* For a given method and service, returns any fields that are available
+* for autopopulation given the restrictions below.
 * The field is a top-level string field of a unary method's request message.
 * The field is not annotated with `google.api.field_behavior = REQUIRED`.
 * The field name is listed in `google.api.publishing.method_settings.auto_populated_fields`.
 * The field is annotated with `google.api.field_info.format = UUID4`.
 */
 function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceDescriptorProto) {
-  // let isUnary = false;
-  // if (!method.longRunning && !method.streaming) {
-  //   isUnary = true;
-  // }
-  let methodsAndAutoPopulatedFields: {methodTitle: string; autoPopulatedFields: string[]}[] = [];
+  let autoPopulatedFields: string[] = [];
   let isUnary = false;
-  let isRequired = true;
-  let isUUID = false;
-  for (const settings of service.serviceYaml.publishing.method_settings) {
+  if (service.serviceYaml) {
+  for (const settings of service.serviceYaml?.publishing?.method_settings) {
     if (settings.auto_populated_fields) {
       // Check if method is unary
       let methodName = `${settings.selector.split('.')[settings.selector.split('.').length - 1]}`;
@@ -216,24 +213,22 @@ function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceD
           isUnary = true;
         }
       }
+      if (Array.isArray(method.paramComment)) {
       for (const param of method.paramComment) {
         for (const field of settings.auto_populated_fields) {
           if (param.paramName === field) {
             // Check if field is required
             // Check if field is annotated with format
-            if (param.fieldBehavior !== 2 && param.fieldInfo.format === 1) {
-              if (Object.values(methodsAndAutoPopulatedFields).includes(method.name)) {
-                methodsAndAutoPopulatedFields.autoPopulatedFields.push(field);
-              } else {
-                methodsAndAutoPopulatedFields.methodTitle.push(method);
-              }
-              autoPopulatedFields.push({"method": method, "autoPopulatedFields": field})
+            if (isUnary && param.fieldBehavior !== 2 && param.fieldInfo.format === 1) {
+              autoPopulatedFields.push(field)
             }
           }
         }
       }
     }
+    }
   }
+}
 }
 
 // convert from input interface to message name
@@ -496,6 +491,10 @@ function augmentMethod(
         parameters.service.packageName,
         method,
         parameters.diregapic
+      ),
+      getAutoPopulatedFields: getAutoPopulatedFields(
+        method,
+        parameters.service!
       ),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(

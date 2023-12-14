@@ -64,18 +64,18 @@ describe('Baseline tests', () => {
   //   mixins: 'google.longrunning.Operations',
   // });
 
-  // runBaselineTest({
-  //   baselineName: 'showcase',
-  //   outputDir: '.test-out-showcase',
-  //   protoPath: 'google/showcase/v1beta1/*.proto',
-  //   useCommonProto: false,
-  //   mainServiceName: 'ShowcaseService',
-  //   serviceYaml: 'google/showcase/v1beta1/showcase_v1beta1.yaml',
-  //   template: 'typescript_gapic;typescript_packing_test',
-  //   metadata: true,
-  //   restNumericEnums: true,
-  //   mixins: 'none',
-  // });
+  runBaselineTest({
+    baselineName: 'showcase',
+    outputDir: '.test-out-showcase',
+    protoPath: 'google/showcase/v1beta1/*.proto',
+    useCommonProto: false,
+    mainServiceName: 'ShowcaseService',
+    serviceYaml: 'google/showcase/v1beta1/showcase_v1beta1.yaml',
+    template: 'typescript_gapic;typescript_packing_test',
+    metadata: true,
+    restNumericEnums: true,
+    mixins: 'none',
+  });
 
   // runBaselineTest({
   //   baselineName: 'showcase-legacy',
@@ -154,14 +154,14 @@ describe('Baseline tests', () => {
   //   template: 'api_dump',
   // });
 
-  runBaselineTest({
-    baselineName: 'showcase-api-dump',
-    outputDir: '.test-out-showcase-api-dump',
-    protoPath: 'google/showcase/v1beta1/*.proto',
-    useCommonProto: true,
-    metadata: false,
-    template: 'api_dump',
-  });
+  // runBaselineTest({
+  //   baselineName: 'showcase-api-testing',
+  //   outputDir: '.test-out-showcase-api-testing',
+  //   protoPath: 'google/showcase/v1beta1/*.proto',
+  //   useCommonProto: true,
+  //   metadata: false,
+  //   template: 'typescript_gapic',
+  // });
   // Adding new baseline test for deprecated service and methods
   // runBaselineTest({
   //   baselineName: 'deprecatedtest',
