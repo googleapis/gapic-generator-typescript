@@ -15,7 +15,7 @@
 import {describe} from 'mocha';
 import {runBaselineTest} from '../util.js';
 
-describe.skip('Baseline tests: ESM', () => {
+describe('Baseline tests: ESM', () => {
   runBaselineTest({
     baselineName: 'dlp-esm',
     outputDir: '.test-out-dlp-esm',

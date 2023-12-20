@@ -38,6 +38,7 @@ const COMMON_PROTO_LIST = [
 
 export interface MethodDescriptorProto
   extends protos.google.protobuf.IMethodDescriptorProto {
+  getAutoPopulatedFields: unknown;
   longRunning?: protos.google.longrunning.IOperationInfo;
   longRunningResponseType?: string;
   longRunningMetadataType?: string;
@@ -75,6 +76,7 @@ export interface MethodDescriptorProto
 
 export interface ServiceDescriptorProto
   extends protos.google.protobuf.IServiceDescriptorProto {
+  getAutoPopulatedFields: MethodDescriptorProto[];
   packageName: string;
   method: MethodDescriptorProto[];
   simpleMethods: MethodDescriptorProto[];
@@ -854,6 +856,9 @@ function augmentService(parameters: AugmentServiceParameters) {
   );
   augmentedService.diregapicLRO = augmentedService.method.filter(
     method => method.isDiregapicLRO
+  );
+  augmentedService.getAutoPopulatedFields = augmentedService.method.filter(
+    method => method.getAutoPopulatedFields
   );
   augmentedService.streaming = augmentedService.method.filter(
     method => method.streaming
