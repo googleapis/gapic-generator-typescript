@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallba
 import {Transform} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import crypto from 'crypto';
 /**
  * Client JSON configuration object, loaded from
  * `src/v1beta1/testing_client_config.json`.
@@ -394,8 +395,8 @@ export class TestingClient {
         protos.google.showcase.v1beta1.ISession,
         protos.google.showcase.v1beta1.ICreateSessionRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -460,8 +461,8 @@ export class TestingClient {
         protos.google.showcase.v1beta1.ISession,
         protos.google.showcase.v1beta1.IGetSessionRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -531,8 +532,8 @@ export class TestingClient {
         protos.google.protobuf.IEmpty,
         protos.google.showcase.v1beta1.IDeleteSessionRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -604,8 +605,8 @@ export class TestingClient {
         protos.google.showcase.v1beta1.IReportSessionResponse,
         protos.google.showcase.v1beta1.IReportSessionRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -680,8 +681,8 @@ export class TestingClient {
         protos.google.protobuf.IEmpty,
         protos.google.showcase.v1beta1.IDeleteTestRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -758,8 +759,8 @@ export class TestingClient {
         protos.google.showcase.v1beta1.IVerifyTestResponse,
         protos.google.showcase.v1beta1.IVerifyTestRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -838,7 +839,7 @@ export class TestingClient {
         protos.google.showcase.v1beta1.IListSessionsResponse
       ]>|void {
     request = request || {};
-    
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -878,7 +879,7 @@ export class TestingClient {
       options?: CallOptions):
     Transform{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -919,7 +920,7 @@ export class TestingClient {
       options?: CallOptions):
     AsyncIterable<protos.google.showcase.v1beta1.ISession>{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -992,7 +993,7 @@ export class TestingClient {
         protos.google.showcase.v1beta1.IListTestsResponse
       ]>|void {
     request = request || {};
-    
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -1039,7 +1040,7 @@ export class TestingClient {
       options?: CallOptions):
     Transform{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -1087,7 +1088,7 @@ export class TestingClient {
       options?: CallOptions):
     AsyncIterable<protos.google.showcase.v1beta1.ITest>{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};

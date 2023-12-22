@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallba
 import {Transform} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import crypto from 'crypto';
 /**
  * Client JSON configuration object, loaded from
  * `src/v1beta1/identity_client_config.json`.
@@ -389,8 +390,8 @@ export class IdentityClient {
         protos.google.showcase.v1beta1.IUser,
         protos.google.showcase.v1beta1.ICreateUserRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -455,8 +456,8 @@ export class IdentityClient {
         protos.google.showcase.v1beta1.IUser,
         protos.google.showcase.v1beta1.IGetUserRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -529,8 +530,8 @@ export class IdentityClient {
         protos.google.showcase.v1beta1.IUser,
         protos.google.showcase.v1beta1.IUpdateUserRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -600,8 +601,8 @@ export class IdentityClient {
         protos.google.protobuf.IEmpty,
         protos.google.showcase.v1beta1.IDeleteUserRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -683,7 +684,7 @@ export class IdentityClient {
         protos.google.showcase.v1beta1.IListUsersResponse
       ]>|void {
     request = request || {};
-    
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -726,7 +727,7 @@ export class IdentityClient {
       options?: CallOptions):
     Transform{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -770,7 +771,7 @@ export class IdentityClient {
       options?: CallOptions):
     AsyncIterable<protos.google.showcase.v1beta1.IUser>{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};

@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOption
 import {Transform, PassThrough} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import crypto from 'crypto';
 /**
  * Client JSON configuration object, loaded from
  * `src/v1beta1/messaging_client_config.json`.
@@ -440,8 +441,8 @@ export class MessagingClient {
         protos.google.showcase.v1beta1.IRoom,
         protos.google.showcase.v1beta1.ICreateRoomRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -506,8 +507,8 @@ export class MessagingClient {
         protos.google.showcase.v1beta1.IRoom,
         protos.google.showcase.v1beta1.IGetRoomRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -580,8 +581,8 @@ export class MessagingClient {
         protos.google.showcase.v1beta1.IRoom,
         protos.google.showcase.v1beta1.IUpdateRoomRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -651,8 +652,8 @@ export class MessagingClient {
         protos.google.protobuf.IEmpty,
         protos.google.showcase.v1beta1.IDeleteRoomRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -727,8 +728,8 @@ export class MessagingClient {
         protos.google.showcase.v1beta1.IBlurb,
         protos.google.showcase.v1beta1.ICreateBlurbRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -798,8 +799,8 @@ export class MessagingClient {
         protos.google.showcase.v1beta1.IBlurb,
         protos.google.showcase.v1beta1.IGetBlurbRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -872,8 +873,8 @@ export class MessagingClient {
         protos.google.showcase.v1beta1.IBlurb,
         protos.google.showcase.v1beta1.IUpdateBlurbRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -943,8 +944,8 @@ export class MessagingClient {
         protos.google.protobuf.IEmpty,
         protos.google.showcase.v1beta1.IDeleteBlurbRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -989,7 +990,6 @@ export class MessagingClient {
       options?: CallOptions):
     gax.CancellableStream{
     request = request || {};
-    
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -1139,7 +1139,7 @@ export class MessagingClient {
         protos.google.longrunning.IOperation|undefined, {}|undefined
       ]>|void {
     request = request || {};
-    
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -1237,7 +1237,7 @@ export class MessagingClient {
         protos.google.showcase.v1beta1.IListRoomsResponse
       ]>|void {
     request = request || {};
-    
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -1280,7 +1280,7 @@ export class MessagingClient {
       options?: CallOptions):
     Transform{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -1324,7 +1324,7 @@ export class MessagingClient {
       options?: CallOptions):
     AsyncIterable<protos.google.showcase.v1beta1.IRoom>{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -1402,7 +1402,7 @@ export class MessagingClient {
         protos.google.showcase.v1beta1.IListBlurbsResponse
       ]>|void {
     request = request || {};
-    
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -1453,7 +1453,7 @@ export class MessagingClient {
       options?: CallOptions):
     Transform{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -1505,7 +1505,7 @@ export class MessagingClient {
       options?: CallOptions):
     AsyncIterable<protos.google.showcase.v1beta1.IBlurb>{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};

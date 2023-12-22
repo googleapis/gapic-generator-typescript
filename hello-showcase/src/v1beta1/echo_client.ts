@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOption
 import {Transform, PassThrough} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import crypto from 'crypto';
 /**
  * Client JSON configuration object, loaded from
  * `src/v1beta1/echo_client_config.json`.
@@ -394,8 +395,10 @@ export class EchoClient {
 /**
  * @param {Object} request
  *   The request object that will be sent.
- * @param {string} request.requestId
+ * @param {string} request.contentId
  *   The content to be echoed by the server.
+ * @param {string} request.requestId
+ *   A random request_id to test autopopulation
  * @param {google.rpc.Status} request.error
  *   The error to be thrown by the server.
  * @param {google.showcase.v1beta1.Severity} request.severity
@@ -447,8 +450,10 @@ export class EchoClient {
         protos.google.showcase.v1beta1.IEchoResponse,
         protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+    if (!request.requestId) {
+      request.requestId = crypto.randomUUID();
+    }
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -607,8 +612,8 @@ export class EchoClient {
         protos.google.showcase.v1beta1.IPagedExpandResponse,
         protos.google.showcase.v1beta1.IPagedExpandLegacyRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -680,8 +685,8 @@ export class EchoClient {
         protos.google.showcase.v1beta1.IBlockResponse,
         protos.google.showcase.v1beta1.IBlockRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -721,7 +726,6 @@ export class EchoClient {
       options?: CallOptions):
     gax.CancellableStream{
     request = request || {};
-    
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -859,7 +863,7 @@ export class EchoClient {
         protos.google.longrunning.IOperation|undefined, {}|undefined
       ]>|void {
     request = request || {};
-    
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -952,7 +956,7 @@ export class EchoClient {
         protos.google.showcase.v1beta1.IPagedExpandResponse
       ]>|void {
     request = request || {};
-    
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -994,7 +998,7 @@ export class EchoClient {
       options?: CallOptions):
     Transform{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
@@ -1037,7 +1041,7 @@ export class EchoClient {
       options?: CallOptions):
     AsyncIterable<protos.google.showcase.v1beta1.IEchoResponse>{
     request = request || {};
-    
+
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};

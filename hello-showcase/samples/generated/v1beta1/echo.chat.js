@@ -31,6 +31,10 @@ function main() {
   /**
    *  The content to be echoed by the server.
    */
+  // const contentId = 'abc123'
+  /**
+   *  A random request_id to test autopopulation
+   */
   // const requestId = 'abc123'
   /**
    *  The error to be thrown by the server.

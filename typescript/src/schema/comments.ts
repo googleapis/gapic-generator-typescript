@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { format } from 'path';
 import type * as protos from '../../../protos/index.js';
 
 // Copied from FieldDescriptorProto to simplify the build
@@ -158,6 +159,12 @@ export class CommentsMap {
                     const fieldBehavior =
                       options['.google.api.fieldBehavior'][0];
                     fieldComment.fieldBehavior = fieldBehavior;
+                  }
+                  if (options && options['.google.api.fieldInfo'] && options['.google.api.fieldInfo']['format']) {
+                    const fieldInfo =
+                      options['.google.api.fieldInfo'];
+                    fieldComment.fieldInfo = fieldInfo as protos.google.api.FieldInfo;
+                    
                   }
                   const key = messageType + ':' + field.name;
                   commentsMap[key] = fieldComment;

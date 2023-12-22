@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, IamClient, IamPr
 
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import crypto from 'crypto';
 /**
  * Client JSON configuration object, loaded from
  * `src/v1beta1/compliance_client_config.json`.
@@ -396,8 +397,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IRepeatResponse,
         protos.google.showcase.v1beta1.IRepeatRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -477,8 +478,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IRepeatResponse,
         protos.google.showcase.v1beta1.IRepeatRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -557,8 +558,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IRepeatResponse,
         protos.google.showcase.v1beta1.IRepeatRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -638,8 +639,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IRepeatResponse,
         protos.google.showcase.v1beta1.IRepeatRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -726,8 +727,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IRepeatResponse,
         protos.google.showcase.v1beta1.IRepeatRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -812,8 +813,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IRepeatResponse,
         protos.google.showcase.v1beta1.IRepeatRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -897,8 +898,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IRepeatResponse,
         protos.google.showcase.v1beta1.IRepeatRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -976,8 +977,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IRepeatResponse,
         protos.google.showcase.v1beta1.IRepeatRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -1047,8 +1048,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IEnumResponse,
         protos.google.showcase.v1beta1.IEnumRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -1120,8 +1121,8 @@ export class ComplianceClient {
         protos.google.showcase.v1beta1.IEnumResponse,
         protos.google.showcase.v1beta1.IEnumResponse|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;

@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, IamClient, IamPr
 
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import crypto from 'crypto';
 /**
  * Client JSON configuration object, loaded from
  * `src/v1beta1/sequence_service_client_config.json`.
@@ -378,8 +379,8 @@ export class SequenceServiceClient {
         protos.google.showcase.v1beta1.ISequence,
         protos.google.showcase.v1beta1.ICreateSequenceRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -443,8 +444,8 @@ export class SequenceServiceClient {
         protos.google.showcase.v1beta1.ISequenceReport,
         protos.google.showcase.v1beta1.IGetSequenceReportRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -513,8 +514,8 @@ export class SequenceServiceClient {
         protos.google.protobuf.IEmpty,
         protos.google.showcase.v1beta1.IAttemptSequenceRequest|undefined, {}|undefined
       ]>|void {
-    request = request || {};
-    
+    request = request || {}; 
+
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;

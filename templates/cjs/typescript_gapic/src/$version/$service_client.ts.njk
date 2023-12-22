@@ -47,6 +47,7 @@ import * as path from 'path';
 {%- else %}
 import jsonProtos = require('../../protos/protos.json');
 {%- endif %}
+import crypto from 'crypto';
 /**
  * Client JSON configuration object, loaded from
  * `src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`.
@@ -591,12 +592,10 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
 {%- endif %}
       ]>|void {
-    request = request || {};
-    {# {% for field in method.getAutoPopulatedFields %}
-    if (!request.{{ field }}) {
-      request.{{ field }} = crypto.randomUUID();
-    }
-    {%- endfor %} #}
+    request = request || {}; 
+{% for field in method.autoPopulatedFields %}    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = crypto.randomUUID();
+    } {%- endfor %}
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -661,11 +660,6 @@ export class {{ service.name }}Client {
       options?: CallOptions):
     gax.CancellableStream{
     request = request || {};
-    {# {% for field in method.getAutoPopulatedFields %}
-    if (!request.{{ field }}) {
-      request.{{ field }} = crypto.randomUUID();
-    }
-    {%- endfor %} #}
     {{ util.buildHeaderRequestParam(method) }}
     this.{{ id.get("initialize") }}();
     {%- if method.options and method.options.deprecated %}
@@ -766,11 +760,9 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
       ]>|void {
     request = request || {};
-    {# {% for field in method.getAutoPopulatedFields %}
-    if (!request.{{ field }}) {
-      request.{{ field }} = crypto.randomUUID();
-    }
-    {%- endfor %} #}
+{% for field in method.autoPopulatedFields %}    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = crypto.randomUUID();
+    } {%- endfor %}
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -853,11 +845,9 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.outputInterface) }}
       ]>|void {
     request = request || {};
-    {# {% for field in method.getAutoPopulatedFields %}
-    if (!request.{{ field }}) {
-      request.{{ field }} = crypto.randomUUID();
-    }
-    {%- endfor %} #}
+{% for field in method.autoPopulatedFields %}    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = crypto.randomUUID();
+    } {%- endfor %}
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -885,11 +875,9 @@ export class {{ service.name }}Client {
       options?: CallOptions):
     Transform{
     request = request || {};
-    {# {% for field in method.getAutoPopulatedFields %}
-    if (!request.{{ field }}) {
-      request.{{ field }} = crypto.randomUUID();
-    }
-    {%- endfor %} #}
+{% for field in method.autoPopulatedFields %}    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = crypto.randomUUID();
+    } {%- endfor %}
     {{ util.buildHeaderRequestParam(method) }}
     const defaultCallSettings = this._defaults['{{method.name.toCamelCase(true)}}'];
     const callSettings = defaultCallSettings.merge(options);
@@ -924,11 +912,9 @@ export class {{ service.name }}Client {
     AsyncIterable<{{ util.toInterface(method.pagingResponseType) }}>{
     {%- endif %}
     request = request || {};
-    {# {% for field in method.getAutoPopulatedFields %}
-    if (!request.{{ field }}) {
-      request.{{ field }} = crypto.randomUUID();
-    }
-    {%- endfor %} #}
+{% for field in method.autoPopulatedFields %}    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = crypto.randomUUID();
+    } {%- endfor %}
     {{ util.buildHeaderRequestParam(method) }}
     const defaultCallSettings = this._defaults['{{method.name.toCamelCase(true)}}'];
     const callSettings = defaultCallSettings.merge(options);

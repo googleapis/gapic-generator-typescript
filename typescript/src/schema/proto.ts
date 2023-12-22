@@ -38,7 +38,7 @@ const COMMON_PROTO_LIST = [
 
 export interface MethodDescriptorProto
   extends protos.google.protobuf.IMethodDescriptorProto {
-  getAutoPopulatedFields: unknown;
+  autoPopulatedFields?: string[];
   longRunning?: protos.google.longrunning.IOperationInfo;
   longRunningResponseType?: string;
   longRunningMetadataType?: string;
@@ -202,34 +202,41 @@ function isDiregapicLRO(
 * The field name is listed in `google.api.publishing.method_settings.auto_populated_fields`.
 * The field is annotated with `google.api.field_info.format = UUID4`.
 */
-function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceDescriptorProto) {
+function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceDescriptorProto): string[] {
   let autoPopulatedFields: string[] = [];
   let isUnary = false;
+  let methodMatch = undefined;
   if (service.serviceYaml) {
-  for (const settings of service.serviceYaml?.publishing?.method_settings) {
-    if (settings.auto_populated_fields) {
-      // Check if method is unary
-      let methodName = `${settings.selector.split('.')[settings.selector.split('.').length - 1]}`;
-      if (methodName === method.name) {
+  const settings = service.serviceYaml?.publishing?.method_settings;
+  for (let x = 0; x < settings.length && !methodMatch; x++) {
+    if (settings[x].auto_populated_fields) {
+      let methodName = `${settings[x].selector.split('.')[settings[x].selector.split('.').length - 1]}`;
+      // Check if any method matches the method we're testing
+      if (methodName.trim() === method.name) {
+        methodMatch = settings[x];
+        // Now, check if it's unary
         if (!method.streaming) {
           isUnary = true;
         }
       }
-      if (Array.isArray(method.paramComment)) {
-      for (const param of method.paramComment) {
-        for (const field of settings.auto_populated_fields) {
+    }
+  }
+  // if there's a method match and it's unary, we can test the field-level conditions
+  if (methodMatch && isUnary) {
+      for (const param of Object.values(service.commentsMap.comments)) {
+        for (const field of methodMatch.auto_populated_fields) {
           if (param.paramName === field) {
             // Check if field is required
             // Check if field is annotated with format
-            if (isUnary && param.fieldBehavior !== 2 && param.fieldInfo.format === 1) {
+            const commentsMap = service.commentsMap.getCommentsMap()[`${method.name}Request:${param.paramName}`];
+            if (isUnary && commentsMap.fieldBehavior !== 2 && commentsMap.fieldInfo?.format === 1 && !autoPopulatedFields.includes(field)) {
               autoPopulatedFields.push(field)
             }
           }
         }
-      }
-    }
     }
   }
+  return autoPopulatedFields;
 }
 }
 
@@ -494,7 +501,7 @@ function augmentMethod(
         method,
         parameters.diregapic
       ),
-      getAutoPopulatedFields: getAutoPopulatedFields(
+      autoPopulatedFields: getAutoPopulatedFields(
         method,
         parameters.service!
       ),
@@ -857,9 +864,6 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.diregapicLRO = augmentedService.method.filter(
     method => method.isDiregapicLRO
   );
-  augmentedService.getAutoPopulatedFields = augmentedService.method.filter(
-    method => method.getAutoPopulatedFields
-  );
   augmentedService.streaming = augmentedService.method.filter(
     method => method.streaming
   );
@@ -989,6 +993,7 @@ export class Proto {
     Proto.constructorCallArgs = [];
   }
 
+  autoPopulatedFields: string[];
   filePB2: protos.google.protobuf.IFileDescriptorProto;
   services: ServicesMap = {};
   allMessages: MessagesMap = {};
