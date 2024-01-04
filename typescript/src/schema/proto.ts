@@ -27,7 +27,6 @@ import {Options} from './naming.js';
 import {ServiceYaml} from '../serviceyaml.js';
 import protobuf from 'protobufjs';
 import protoJson from '../../../protos/protos.json' assert {type: 'json'};
-import { string } from 'yargs';
 
 const COMMON_PROTO_LIST = [
   'google.api',
@@ -194,6 +193,8 @@ function isDiregapicLRO(
     )
   );
 }
+// TODO: 1. write test,  2. actually republish proto-files,
+// 3. cleanup extra files
 /*
 * For a given method and service, returns any fields that are available
 * for autopopulation given the restrictions below.
@@ -204,40 +205,33 @@ function isDiregapicLRO(
 */
 function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceDescriptorProto): string[] {
   let autoPopulatedFields: string[] = [];
-  let isUnary = false;
   let methodMatch = undefined;
   if (service.serviceYaml) {
   const settings = service.serviceYaml?.publishing?.method_settings;
-  for (let x = 0; x < settings.length && !methodMatch; x++) {
-    if (settings[x].auto_populated_fields) {
-      let methodName = `${settings[x].selector.split('.')[settings[x].selector.split('.').length - 1]}`;
-      // Check if any method matches the method we're testing
-      if (methodName.trim() === method.name) {
-        methodMatch = settings[x];
-        // Now, check if it's unary
-        if (!method.streaming) {
-          isUnary = true;
+    // Once we've found a match, we can stop looping
+    // This will make it so that the nested loops are more O(n) in practice
+    for (let x = 0; x < settings?.length && !methodMatch; x++) {
+      if (settings[x].auto_populated_fields) {
+        let methodName = `${settings[x].selector.split('.')[settings[x].selector.split('.').length - 1]}`;
+        // Check if any method matches the method we're testing
+        if (methodName.trim() === method.name) {
+          methodMatch = settings[x];
+          // Now, check if it's unary
+          if (!streaming(method)) {
+            // if there's a method match and it's unary, we can test the field-level conditions for that method
+            for (const field of methodMatch.auto_populated_fields) {
+              const commentsMap = service.commentsMap.getCommentsMap()[`${method.name}Request:${field}`];
+              // If the field is not required, and it is marked as UUID, pass it onto the autoPopulatedFields
+              if (commentsMap?.fieldBehavior !== 2 && commentsMap?.fieldInfo?.format === 1) {
+                autoPopulatedFields.push(field)
+              }
+            }
+          }
         }
       }
     }
   }
-  // if there's a method match and it's unary, we can test the field-level conditions
-  if (methodMatch && isUnary) {
-      for (const param of Object.values(service.commentsMap.comments)) {
-        for (const field of methodMatch.auto_populated_fields) {
-          if (param.paramName === field) {
-            // Check if field is required
-            // Check if field is annotated with format
-            const commentsMap = service.commentsMap.getCommentsMap()[`${method.name}Request:${param.paramName}`];
-            if (isUnary && commentsMap.fieldBehavior !== 2 && commentsMap.fieldInfo?.format === 1 && !autoPopulatedFields.includes(field)) {
-              autoPopulatedFields.push(field)
-            }
-          }
-        }
-    }
-  }
   return autoPopulatedFields;
-}
 }
 
 // convert from input interface to message name

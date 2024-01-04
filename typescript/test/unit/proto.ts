@@ -22,11 +22,14 @@ import {
   getHeaderRequestParams,
   getSingleRoutingHeaderParam,
   MessagesMap,
+  MethodDescriptorProto,
   Proto,
 } from '../../src/schema/proto.js';
 import {Options} from '../../src/schema/naming.js';
 import {ResourceDatabase} from '../../src/schema/resource-database.js';
-import {CommentsMap} from '../../src/schema/comments.js';
+import {Comment, Comments, CommentsMap} from '../../src/schema/comments.js';
+import { Http } from '../../src/serviceyaml.js';
+import { Method } from 'protobufjs';
 
 describe('src/schema/proto.ts', () => {
   describe('should get header parameters from http rule', () => {
@@ -650,6 +653,205 @@ describe('src/schema/proto.ts', () => {
         commentsMap: new CommentsMap([fd]),
       });
       assert.strictEqual(proto.diregapic, true);
+    });
+  });
+
+  describe('should return auto populated fields for a given method and service', () => {
+    it('should return any autopopulated fields in service.yaml that are also in the method', () => {
+      const fd = {} as protos.google.protobuf.FileDescriptorProto;
+      fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        {} as protos.google.protobuf.MethodDescriptorProto,
+      ];
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0].name = 'Echo';
+      const proto = new Proto({
+        fd,
+        packageName: 'google.showcase.v1beta1',
+        allMessages: {},
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options: {
+          serviceYaml: {title: 'google.cloud.example', http: {} as Http, apis: ['example'], publishing: {method_settings: [{selector: 'google.showcase.v1beta1.Echo.Echo', auto_populated_fields: ['request_id']}]}},
+          grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+        },
+        commentsMap: {
+          comments: { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 1 } as protos.google.api.FieldInfo } },
+          getCommentsMap: function (): Comments {
+            return { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 1 } } } as unknown as Comments
+          },
+          getServiceComment: function (serviceName: string): string[] {
+            return ['not needed']
+          },
+          getMethodComments: function (serviceName: string, methodName: string): string[] {
+            return ['not needed']
+          },
+          getParamComments: function (messageName: string, fieldName: string): Comment {
+            return { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 1 } } as Comment;
+          }
+        },
+      });
+      // throw new Error(`${JSON.stringify(proto)}`)
+      assert.deepStrictEqual(proto.services["service"].method[0].autoPopulatedFields, ['request_id']);
+    });
+
+    it('should not return autoPopulated fields if they are unary', () => {
+      const fd = {} as protos.google.protobuf.FileDescriptorProto;
+      fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        {} as protos.google.protobuf.MethodDescriptorProto,
+      ];
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0].name = 'Echo';
+      fd.service[0].method[0].serverStreaming = true;
+      const proto = new Proto({
+        fd,
+        packageName: 'google.showcase.v1beta1',
+        allMessages: {},
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options: {
+          serviceYaml: {title: 'google.cloud.example', http: {} as Http, apis: ['example'], publishing: {method_settings: [{selector: 'google.showcase.v1beta1.Echo.Echo', auto_populated_fields: ['request_id']}]}},
+          grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+        },
+        commentsMap: {
+          comments: { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 1 } as protos.google.api.FieldInfo } },
+          getCommentsMap: function (): Comments {
+            return { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 1 } } } as unknown as Comments
+          },
+          getServiceComment: function (serviceName: string): string[] {
+            return ['not needed']
+          },
+          getMethodComments: function (serviceName: string, methodName: string): string[] {
+            return ['not needed']
+          },
+          getParamComments: function (messageName: string, fieldName: string): Comment {
+            return { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 1 } } as Comment;
+          }
+        },
+      });
+      assert.deepStrictEqual(proto.services["service"].method[0].autoPopulatedFields, []);
+    });
+
+    it('should not return autoPopulated fields if the autopopulated fields do not refer to the correct method', () => {
+      const fd = {} as protos.google.protobuf.FileDescriptorProto;
+      fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        {} as protos.google.protobuf.MethodDescriptorProto,
+      ];
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0].name = 'TheWrongMethod';
+      const proto = new Proto({
+        fd,
+        packageName: 'google.showcase.v1beta1',
+        allMessages: {},
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options: {
+          serviceYaml: {title: 'google.cloud.example', http: {} as Http, apis: ['example'], publishing: {method_settings: [{selector: 'google.showcase.v1beta1.Echo.Echo', auto_populated_fields: ['request_id']}]}},
+          grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+        },
+        commentsMap: {
+          comments: { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 1 } as protos.google.api.FieldInfo } },
+          getCommentsMap: function (): Comments {
+            return { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 1 } } } as unknown as Comments
+          },
+          getServiceComment: function (serviceName: string): string[] {
+            return ['not needed']
+          },
+          getMethodComments: function (serviceName: string, methodName: string): string[] {
+            return ['not needed']
+          },
+          getParamComments: function (messageName: string, fieldName: string): Comment {
+            return { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 1 } } as Comment;
+          }
+        },
+      });
+      assert.deepStrictEqual(proto.services["service"].method[0].autoPopulatedFields, []);
+    });
+
+    it('should not return autoPopulated fields if the field is required', () => {
+      const fd = {} as protos.google.protobuf.FileDescriptorProto;
+      fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        {} as protos.google.protobuf.MethodDescriptorProto,
+      ];
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0].name = 'Echo';
+      const proto = new Proto({
+        fd,
+        packageName: 'google.showcase.v1beta1',
+        allMessages: {},
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options: {
+          serviceYaml: {title: 'google.cloud.example', http: {} as Http, apis: ['example'], publishing: {method_settings: [{selector: 'google.showcase.v1beta1.Echo.Echo', auto_populated_fields: ['request_id']}]}},
+          grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+        },
+        commentsMap: {
+          comments: { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 2, "fieldInfo": { "format": 1 } as protos.google.api.FieldInfo } },
+          getCommentsMap: function (): Comments {
+            return { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 2, "fieldInfo": { "format": 1 } } } as unknown as Comments
+          },
+          getServiceComment: function (serviceName: string): string[] {
+            return ['hi!']
+          },
+          getMethodComments: function (serviceName: string, methodName: string): string[] {
+            return ['hi!']
+          },
+          getParamComments: function (messageName: string, fieldName: string): Comment {
+            return { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 2, "fieldInfo": { "format": 1 } } as Comment;
+          }
+        },
+      });
+      assert.deepStrictEqual(proto.services["service"].method[0].autoPopulatedFields, []);
+    });
+
+    it('should not return autoPopulated fields if the format is not UUID', () => {
+      const fd = {} as protos.google.protobuf.FileDescriptorProto;
+      fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        {} as protos.google.protobuf.MethodDescriptorProto,
+      ];
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0].name = 'Echo';
+      const proto = new Proto({
+        fd,
+        packageName: 'google.showcase.v1beta1',
+        allMessages: {},
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options: {
+          serviceYaml: {title: 'google.cloud.example', http: {} as Http, apis: ['example'], publishing: {method_settings: [{selector: 'google.showcase.v1beta1.Echo.Echo', auto_populated_fields: ['request_id']}]}},
+          grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+        },
+        commentsMap: {
+          comments: { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 2 } as protos.google.api.FieldInfo } },
+          getCommentsMap: function (): Comments {
+            return { "EchoRequest:request_id": { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 2 } } } as unknown as Comments
+          },
+          getServiceComment: function (serviceName: string): string[] {
+            return ['hi!']
+          },
+          getMethodComments: function (serviceName: string, methodName: string): string[] {
+            return ['hi!']
+          },
+          getParamComments: function (messageName: string, fieldName: string): Comment {
+            return { "paramName": "request_id", "paramType": "TYPE_STRING", "comments": [" A random request_id to test autopopulation"], "fieldBehavior": 1, "fieldInfo": { "format": 2 } } as Comment;
+          }
+        },
+      });
+      assert.deepStrictEqual(proto.services["service"].method[0].autoPopulatedFields, []);
     });
   });
 
