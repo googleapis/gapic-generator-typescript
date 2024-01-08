@@ -25,12 +25,11 @@ export interface ServiceYaml {
   // Refactor reading the annotation from the proto to the serviceYaml file once that is implemented.
   http: Http;
   publishing?: {
-    method_settings?: MethodSettings[]
-  }
+    method_settings?: MethodSettings[];
+  };
 }
 
 export interface MethodSettings {
-  selector: string,
-  auto_populated_fields?: string[]
+  selector: string;
+  auto_populated_fields?: string[];
 }
-

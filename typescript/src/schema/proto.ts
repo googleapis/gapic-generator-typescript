@@ -196,23 +196,30 @@ function isDiregapicLRO(
 // TODO: 1. write test,  2. actually republish proto-files,
 // 3. cleanup extra files
 /*
-* For a given method and service, returns any fields that are available
-* for autopopulation given the restrictions below.
-* The field is a top-level string field of a unary method's request message.
-* The field is not annotated with `google.api.field_behavior = REQUIRED`.
-* The field name is listed in `google.api.publishing.method_settings.auto_populated_fields`.
-* The field is annotated with `google.api.field_info.format = UUID4`.
-*/
-function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceDescriptorProto): string[] {
-  let autoPopulatedFields: string[] = [];
+ * For a given method and service, returns any fields that are available
+ * for autopopulation given the restrictions below.
+ * The field is a top-level string field of a unary method's request message.
+ * The field is not annotated with `google.api.field_behavior = REQUIRED`.
+ * The field name is listed in `google.api.publishing.method_settings.auto_populated_fields`.
+ * The field is annotated with `google.api.field_info.format = UUID4`.
+ */
+function getAutoPopulatedFields(
+  method: MethodDescriptorProto,
+  service: ServiceDescriptorProto
+): string[] {
+  const autoPopulatedFields: string[] = [];
   let methodMatch = undefined;
   if (service.serviceYaml) {
-  const settings = service.serviceYaml?.publishing?.method_settings;
+    const settings = service.serviceYaml?.publishing?.method_settings;
     // Once we've found a match, we can stop looping
     // This will make it so that the nested loops are more O(n) in practice
     for (let x = 0; x < settings?.length && !methodMatch; x++) {
       if (settings[x].auto_populated_fields) {
-        let methodName = `${settings[x].selector.split('.')[settings[x].selector.split('.').length - 1]}`;
+        const methodName = `${
+          settings[x].selector.split('.')[
+            settings[x].selector.split('.').length - 1
+          ]
+        }`;
         // Check if any method matches the method we're testing
         if (methodName.trim() === method.name) {
           methodMatch = settings[x];
@@ -220,10 +227,16 @@ function getAutoPopulatedFields(method: MethodDescriptorProto, service: ServiceD
           if (!streaming(method)) {
             // if there's a method match and it's unary, we can test the field-level conditions for that method
             for (const field of methodMatch.auto_populated_fields) {
-              const commentsMap = service.commentsMap.getCommentsMap()[`${method.name}Request:${field}`];
+              const commentsMap =
+                service.commentsMap.getCommentsMap()[
+                  `${method.name}Request:${field}`
+                ];
               // If the field is not required, and it is marked as UUID, pass it onto the autoPopulatedFields
-              if (commentsMap?.fieldBehavior !== 2 && commentsMap?.fieldInfo?.format === 1) {
-                autoPopulatedFields.push(field)
+              if (
+                commentsMap?.fieldBehavior !== 2 &&
+                commentsMap?.fieldInfo?.format === 1
+              ) {
+                autoPopulatedFields.push(field);
               }
             }
           }
@@ -495,10 +508,7 @@ function augmentMethod(
         method,
         parameters.diregapic
       ),
-      autoPopulatedFields: getAutoPopulatedFields(
-        method,
-        parameters.service!
-      ),
+      autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
