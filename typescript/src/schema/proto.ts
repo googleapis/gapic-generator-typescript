@@ -193,8 +193,7 @@ function isDiregapicLRO(
     )
   );
 }
-// TODO: 1. write test,  2. actually republish proto-files,
-// 3. cleanup extra files
+
 /*
  * For a given method and service, returns any fields that are available
  * for autopopulation given the restrictions below.
