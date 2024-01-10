@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {format} from 'path';
 import type * as protos from '../../../protos/index.js';
 
 // Copied from FieldDescriptorProto to simplify the build
