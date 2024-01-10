@@ -22,14 +22,12 @@ import {
   getHeaderRequestParams,
   getSingleRoutingHeaderParam,
   MessagesMap,
-  MethodDescriptorProto,
   Proto,
 } from '../../src/schema/proto.js';
 import {Options} from '../../src/schema/naming.js';
 import {ResourceDatabase} from '../../src/schema/resource-database.js';
 import {Comment, Comments, CommentsMap} from '../../src/schema/comments.js';
 import {Http} from '../../src/serviceyaml.js';
-import {Method} from 'protobufjs';
 
 describe('src/schema/proto.ts', () => {
   describe('should get header parameters from http rule', () => {
