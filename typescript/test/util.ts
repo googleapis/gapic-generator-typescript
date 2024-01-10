@@ -147,7 +147,6 @@ export function runBaselineTest(options: BaselineOptions) {
     if (options.mixins) {
       commandLine += ` --mixins="${options.mixins}"`;
     }
-    console.log(commandLine);
     execSync(commandLine);
     assert(equalToBaseline(outputDir, baselineDir));
   });
