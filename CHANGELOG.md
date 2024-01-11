@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.2.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.1.0...v4.2.0) (2023-11-07)
+
+
+### Features
+
+* Move compileProtos from google-gax to generator ([#1484](https://github.com/googleapis/gapic-generator-typescript/issues/1484)) ([b787004](https://github.com/googleapis/gapic-generator-typescript/commit/b787004b92aaa3ceeb21fe5e4563fb6da3914ad9))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency @types/js-yaml to ^4.0.7 ([#1480](https://github.com/googleapis/gapic-generator-typescript/issues/1480)) ([4912acb](https://github.com/googleapis/gapic-generator-typescript/commit/4912acb94ed684d0326ad4defaf6d443379679a9))
+* **deps:** Update dependency google-gax to ^4.0.5 ([#1485](https://github.com/googleapis/gapic-generator-typescript/issues/1485)) ([98f1ec8](https://github.com/googleapis/gapic-generator-typescript/commit/98f1ec876484fcd212ebb675a1d31d8db330e4d2))
+* Small esm fixes and add esm-system tests ([#1475](https://github.com/googleapis/gapic-generator-typescript/issues/1475)) ([c6f9acb](https://github.com/googleapis/gapic-generator-typescript/commit/c6f9acb6722756c4e20cdddb4b49105f14fb6fea))
+
 ## [4.1.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.0.3...v4.1.0) (2023-09-26)
 
 
