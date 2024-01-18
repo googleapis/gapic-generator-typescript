@@ -413,7 +413,7 @@ function getMethodConfig(
         }
       }
     }
-  } else {
+  } else if (grpcServiceConfig.methodConfig) {
     console.warn(
       'Warning: cannot parse gRPC service config: methodConfig is not an array.'
     );
