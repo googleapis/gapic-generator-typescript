@@ -10113,6 +10113,7 @@
              * @property {number} EDITION_PROTO2=998 EDITION_PROTO2 value
              * @property {number} EDITION_PROTO3=999 EDITION_PROTO3 value
              * @property {number} EDITION_2023=1000 EDITION_2023 value
+             * @property {number} EDITION_2024=1001 EDITION_2024 value
              * @property {number} EDITION_1_TEST_ONLY=1 EDITION_1_TEST_ONLY value
              * @property {number} EDITION_2_TEST_ONLY=2 EDITION_2_TEST_ONLY value
              * @property {number} EDITION_99997_TEST_ONLY=99997 EDITION_99997_TEST_ONLY value
@@ -10126,6 +10127,7 @@
                 values[valuesById[998] = "EDITION_PROTO2"] = 998;
                 values[valuesById[999] = "EDITION_PROTO3"] = 999;
                 values[valuesById[1000] = "EDITION_2023"] = 1000;
+                values[valuesById[1001] = "EDITION_2024"] = 1001;
                 values[valuesById[1] = "EDITION_1_TEST_ONLY"] = 1;
                 values[valuesById[2] = "EDITION_2_TEST_ONLY"] = 2;
                 values[valuesById[99997] = "EDITION_99997_TEST_ONLY"] = 99997;
@@ -10568,6 +10570,7 @@
                         case 998:
                         case 999:
                         case 1000:
+                        case 1001:
                         case 1:
                         case 2:
                         case 99997:
@@ -10690,6 +10693,10 @@
                     case "EDITION_2023":
                     case 1000:
                         message.edition = 1000;
+                        break;
+                    case "EDITION_2024":
+                    case 1001:
+                        message.edition = 1001;
                         break;
                     case "EDITION_1_TEST_ONLY":
                     case 1:
@@ -17082,6 +17089,7 @@
                             case 998:
                             case 999:
                             case 1000:
+                            case 1001:
                             case 1:
                             case 2:
                             case 99997:
@@ -17130,6 +17138,10 @@
                         case "EDITION_2023":
                         case 1000:
                             message.edition = 1000;
+                            break;
+                        case "EDITION_2024":
+                        case 1001:
+                            message.edition = 1001;
                             break;
                         case "EDITION_1_TEST_ONLY":
                         case 1:
@@ -20256,6 +20268,7 @@
                         case 998:
                         case 999:
                         case 1000:
+                        case 1001:
                         case 1:
                         case 2:
                         case 99997:
@@ -20272,6 +20285,7 @@
                         case 998:
                         case 999:
                         case 1000:
+                        case 1001:
                         case 1:
                         case 2:
                         case 99997:
@@ -20328,6 +20342,10 @@
                     case 1000:
                         message.minimumEdition = 1000;
                         break;
+                    case "EDITION_2024":
+                    case 1001:
+                        message.minimumEdition = 1001;
+                        break;
                     case "EDITION_1_TEST_ONLY":
                     case 1:
                         message.minimumEdition = 1;
@@ -20375,6 +20393,10 @@
                     case "EDITION_2023":
                     case 1000:
                         message.maximumEdition = 1000;
+                        break;
+                    case "EDITION_2024":
+                    case 1001:
+                        message.maximumEdition = 1001;
                         break;
                     case "EDITION_1_TEST_ONLY":
                     case 1:
@@ -20615,6 +20637,7 @@
                             case 998:
                             case 999:
                             case 1000:
+                            case 1001:
                             case 1:
                             case 2:
                             case 99997:
@@ -20665,6 +20688,10 @@
                         case "EDITION_2023":
                         case 1000:
                             message.edition = 1000;
+                            break;
+                        case "EDITION_2024":
+                        case 1001:
+                            message.edition = 1001;
                             break;
                         case "EDITION_1_TEST_ONLY":
                         case 1:
