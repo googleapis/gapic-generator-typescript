@@ -26,7 +26,13 @@ limitations under the License.
 {% import "../../_operations.njk" as operations -%}
 {% import "../../_namer.njk" as namer -%}
 {{- namer.initialize(id, service) -}}
-import {% if (not api.legacyProtoLoad) and (method.autoPopulatedFields|length === 0)  %}type {% endif %}* as gax from 'google-gax';
+{%- set autoPopulated = false -%}
+{%- for method in service.method -%}
+      {%- if method.autoPopulatedFields|length !== 0 %}
+        {%- set autoPopulated = true -%}
+      {%- endif %}
+{%- endfor -%}
+import {% if (not api.legacyProtoLoad) and (autoPopulated === false)  %}type {% endif %}* as gax from 'google-gax';
 import type {Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.longRunning.length > 0 or service.LongRunningOperationsMixin > 0 %}, GrpcClientOptions{%- endif -%}
 {%- if service.longRunning.length > 0 or service.diregapicLRO.length > 0 %}, LROperation{%- endif -%}
