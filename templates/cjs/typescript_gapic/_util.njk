@@ -358,6 +358,13 @@ request.{{ oneComment.paramName.toCamelCase() }}
 {%- endif %}
 {%- endmacro -%}
 
+{%- macro verifyUUID(method) -%}
+{%- for field in method.autoPopulatedFields %}    
+            assert.match((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
+                .getCall(0).args[0].{{field}}, /[a-z0-9-]{36}/)
+{%- endfor %}
+{%- endmacro -%}
+
 {%- macro verifyHeaderRequestParams(method) -%}
 {%- if method.headerRequestParams.length > 0 or method.dynamicRoutingRequestParams.length > 0 %}
             const actualRequest = (client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
