@@ -75,7 +75,6 @@ export interface MethodDescriptorProto
 
 export interface ServiceDescriptorProto
   extends protos.google.protobuf.IServiceDescriptorProto {
-  getAutoPopulatedFields: MethodDescriptorProto[];
   packageName: string;
   method: MethodDescriptorProto[];
   simpleMethods: MethodDescriptorProto[];
