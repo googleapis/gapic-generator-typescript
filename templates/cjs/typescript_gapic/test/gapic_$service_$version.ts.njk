@@ -316,6 +316,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert.deepStrictEqual(response, expectedResponse);
             {%- endif %}
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
@@ -346,6 +347,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
@@ -364,6 +366,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with closed client', async () => {
@@ -403,6 +406,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
@@ -434,6 +438,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with call error', async () => {
@@ -450,6 +455,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with LRO error', async () => {
@@ -467,6 +473,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ id.get("check" + method.name.toPascalCase() + "Progress") }} without error', async () => {
@@ -750,6 +757,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
@@ -781,6 +789,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- endif %}
             assert.deepStrictEqual(response, expectedResponse);
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
@@ -800,6 +809,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
             {{- util.verifyHeaderRequestParams(method) }}
+            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ id.get(method.name.toCamelCase() + "Stream") }} without error', async () => {
@@ -923,6 +933,10 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     )
             );
 {%- endif %}
+        {%- for field in method.autoPopulatedFields %}    
+            assert.match((client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
+                    .getCall(0).args[1].{{field.toCamelCase()}}, /[a-z0-9-]{36}/)
+        {%- endfor %}
         });
 
         it('uses async iteration with {{ method.name.toCamelCase() }} with error', async () => {
@@ -962,6 +976,10 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                     )
             );
 {%- endif %}
+            {%- for field in method.autoPopulatedFields %}    
+            assert.match((client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate as SinonStub)
+                    .getCall(0).args[1].{{field.toCamelCase()}}, /[a-z0-9-]{36}/)
+            {%- endfor %}
         });
     });
 {%- endif %}
