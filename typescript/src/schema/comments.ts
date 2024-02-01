@@ -44,6 +44,7 @@ export interface Comment {
   comments: string[];
   // LABEL_OPTIONAL = 1, LABEL_REQUIRED = 2
   fieldBehavior?: protos.google.api.FieldBehavior;
+  fieldInfo?: protos.google.api.FieldInfo;
 }
 
 // For service, one item will be <serviceName, comment>
@@ -157,6 +158,15 @@ export class CommentsMap {
                     const fieldBehavior =
                       options['.google.api.fieldBehavior'][0];
                     fieldComment.fieldBehavior = fieldBehavior;
+                  }
+                  if (
+                    options &&
+                    options['.google.api.fieldInfo'] &&
+                    options['.google.api.fieldInfo']['format']
+                  ) {
+                    const fieldInfo = options['.google.api.fieldInfo'];
+                    fieldComment.fieldInfo =
+                      fieldInfo as protos.google.api.FieldInfo;
                   }
                   const key = messageType + ':' + field.name;
                   commentsMap[key] = fieldComment;

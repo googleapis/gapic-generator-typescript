@@ -26,7 +26,13 @@ limitations under the License.
 {% import "../../_operations.njk" as operations -%}
 {% import "../../_namer.njk" as namer -%}
 {{- namer.initialize(id, service) -}}
-import {% if not api.legacyProtoLoad %}type {% endif %}* as gax from 'google-gax';
+{%- set autoPopulated = false -%}
+{%- for method in service.method -%}
+      {%- if method.autoPopulatedFields|length !== 0 %}
+        {%- set autoPopulated = true -%}
+      {%- endif %}
+{%- endfor -%}
+import {% if (not api.legacyProtoLoad) and (autoPopulated === false)  %}type {% endif %}* as gax from 'google-gax';
 import type {Callback, CallOptions, Descriptors, ClientOptions
 {%- if service.longRunning.length > 0 or service.LongRunningOperationsMixin > 0 %}, GrpcClientOptions{%- endif -%}
 {%- if service.longRunning.length > 0 or service.diregapicLRO.length > 0 %}, LROperation{%- endif -%}
@@ -47,6 +53,7 @@ import * as path from 'path';
 {%- else %}
 import jsonProtos = require('../../protos/protos.json');
 {%- endif %}
+
 /**
  * Client JSON configuration object, loaded from
  * `src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`.
@@ -591,7 +598,11 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
 {%- endif %}
       ]>|void {
-    request = request || {};
+    request = request || {}; 
+{%- for field in method.autoPopulatedFields %}   
+    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = gax.makeUUID();
+    } {%- endfor %}
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -756,6 +767,10 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
       ]>|void {
     request = request || {};
+{%- for field in method.autoPopulatedFields %}    
+    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = gax.makeUUID();
+    } {%- endfor %}
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -838,6 +853,10 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.outputInterface) }}
       ]>|void {
     request = request || {};
+{%- for field in method.autoPopulatedFields %}    
+    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = gax.makeUUID();
+    } {%- endfor %}
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;
@@ -865,6 +884,10 @@ export class {{ service.name }}Client {
       options?: CallOptions):
     Transform{
     request = request || {};
+{%- for field in method.autoPopulatedFields %}    
+    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = gax.makeUUID();
+    } {%- endfor %}
     {{ util.buildHeaderRequestParam(method) }}
     const defaultCallSettings = this._defaults['{{method.name.toCamelCase(true)}}'];
     const callSettings = defaultCallSettings.merge(options);
@@ -899,6 +922,10 @@ export class {{ service.name }}Client {
     AsyncIterable<{{ util.toInterface(method.pagingResponseType) }}>{
     {%- endif %}
     request = request || {};
+{%- for field in method.autoPopulatedFields %}    
+    if (!request.{{ field.toCamelCase() }}) {
+      request.{{ field.toCamelCase() }} = gax.makeUUID();
+    } {%- endfor %}
     {{ util.buildHeaderRequestParam(method) }}
     const defaultCallSettings = this._defaults['{{method.name.toCamelCase(true)}}'];
     const callSettings = defaultCallSettings.merge(options);
