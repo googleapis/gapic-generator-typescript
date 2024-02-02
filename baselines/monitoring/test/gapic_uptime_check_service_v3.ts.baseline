@@ -119,6 +119,23 @@ describe('v3.UptimeCheckServiceClient', () => {
             assert.strictEqual(universeDomain, "googleapis.com");
         });
 
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = uptimecheckserviceModule.v3.UptimeCheckServiceClient.servicePath;
+                assert.strictEqual(servicePath, 'monitoring.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = uptimecheckserviceModule.v3.UptimeCheckServiceClient.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'monitoring.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
         it('sets servicePath according to universe domain camelCase', () => {
             const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({universeDomain: 'example.com'});
             const servicePath = client.servicePath;
@@ -130,7 +147,6 @@ describe('v3.UptimeCheckServiceClient', () => {
             const servicePath = client.servicePath;
             assert.strictEqual(servicePath, 'monitoring.example.com');
         });
-
         it('does not allow setting both universeDomain and universe_domain', () => {
             assert.throws(() => { new uptimecheckserviceModule.v3.UptimeCheckServiceClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });

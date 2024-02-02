@@ -232,6 +232,25 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert.strictEqual(universeDomain, "googleapis.com");
         });
 
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static {{ id.get("servicePath") }} is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.{{ id.get("servicePath") }};
+                assert.strictEqual(servicePath, '{{ api.hostName }}');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static {{ id.get("apiEndpoint") }} is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.{{ id.get("apiEndpoint") }};
+                assert.strictEqual(apiEndpoint, '{{ api.hostName }}');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
+
+        {%- if api.hostName.endsWith("googleapis.com") %}
         it('sets servicePath according to universe domain camelCase', () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({universeDomain: 'example.com'});
             const servicePath = client.{{ id.get("servicePath") }};
@@ -244,6 +263,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert.strictEqual(servicePath, '{{ api.shortName }}.example.com');
         });
 
+        {%- endif %}
         it('does not allow setting both universeDomain and universe_domain', () => {
             assert.throws(() => { new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });

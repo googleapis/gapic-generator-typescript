@@ -81,18 +81,23 @@ describe('v1beta1.ComplianceClient', () => {
             assert.strictEqual(universeDomain, "googleapis.com");
         });
 
-        it('sets servicePath according to universe domain camelCase', () => {
-            const client = new complianceModule.v1beta1.ComplianceClient({universeDomain: 'example.com'});
-            const servicePath = client.servicePath;
-            assert.strictEqual(servicePath, 'localhost.example.com');
-        });
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = complianceModule.v1beta1.ComplianceClient.servicePath;
+                assert.strictEqual(servicePath, 'localhost');
+                assert(stub.called);
+                stub.restore();
+            });
 
-        it('sets servicePath according to universe domain snakeCase', () => {
-            const client = new complianceModule.v1beta1.ComplianceClient({universe_domain: 'example.com'});
-            const servicePath = client.servicePath;
-            assert.strictEqual(servicePath, 'localhost.example.com');
-        });
-
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = complianceModule.v1beta1.ComplianceClient.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'localhost');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
         it('does not allow setting both universeDomain and universe_domain', () => {
             assert.throws(() => { new complianceModule.v1beta1.ComplianceClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });

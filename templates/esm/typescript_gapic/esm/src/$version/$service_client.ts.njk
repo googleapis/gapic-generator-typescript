@@ -151,7 +151,11 @@ export class {{ service.name }}Client {
       throw new Error('Please set either universe_domain or universeDomain, but not both.');
     }
     this._universeDomain = opts?.universeDomain ?? opts?.universe_domain ?? 'googleapis.com';
+    {%- if api.hostName.endsWith("googleapis.com") %}
     this._servicePath = '{{ api.shortName }}.' + this._universeDomain;
+    {%- else %}
+    this._servicePath = '{{ api.hostName }}';
+    {%- endif %}
     const servicePath = opts?.servicePath || opts?.apiEndpoint || this._servicePath;
     this._providedCustomServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
     const port = opts?.port || staticMembers.{{ id.get("port") }};
