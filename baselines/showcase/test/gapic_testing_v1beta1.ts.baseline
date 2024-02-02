@@ -102,13 +102,37 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 describe('v1beta1.TestingClient', () => {
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = testingModule.v1beta1.TestingClient.servicePath;
-            assert(servicePath);
+            const client = new testingModule.v1beta1.TestingClient();
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'localhost');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = testingModule.v1beta1.TestingClient.apiEndpoint;
-            assert(apiEndpoint);
+            const client = new testingModule.v1beta1.TestingClient();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'localhost');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new testingModule.v1beta1.TestingClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        it('sets servicePath according to universe domain camelCase', () => {
+            const client = new testingModule.v1beta1.TestingClient({universeDomain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'localhost.example.com');
+        });
+
+        it('sets servicePath according to universe domain snakeCase', () => {
+            const client = new testingModule.v1beta1.TestingClient({universe_domain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'localhost.example.com');
+        });
+
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new testingModule.v1beta1.TestingClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {

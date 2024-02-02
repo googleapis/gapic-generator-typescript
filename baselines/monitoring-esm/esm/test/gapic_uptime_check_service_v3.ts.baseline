@@ -111,13 +111,37 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 describe('v3.UptimeCheckServiceClient', () => {
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = uptimecheckserviceModule.v3.UptimeCheckServiceClient.servicePath;
-            assert(servicePath);
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient();
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'monitoring.googleapis.com');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = uptimecheckserviceModule.v3.UptimeCheckServiceClient.apiEndpoint;
-            assert(apiEndpoint);
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'monitoring.googleapis.com');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        it('sets servicePath according to universe domain camelCase', () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({universeDomain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'monitoring.example.com');
+        });
+
+        it('sets servicePath according to universe domain snakeCase', () => {
+            const client = new uptimecheckserviceModule.v3.UptimeCheckServiceClient({universe_domain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'monitoring.example.com');
+        });
+
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new uptimecheckserviceModule.v3.UptimeCheckServiceClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {

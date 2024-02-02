@@ -64,13 +64,37 @@ function stubSimpleCallWithCallback<ResponseType>(response?: ResponseType, error
 describe('v1beta1.ComplianceClient', () => {
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = complianceModule.v1beta1.ComplianceClient.servicePath;
-            assert(servicePath);
+            const client = new complianceModule.v1beta1.ComplianceClient();
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'localhost');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = complianceModule.v1beta1.ComplianceClient.apiEndpoint;
-            assert(apiEndpoint);
+            const client = new complianceModule.v1beta1.ComplianceClient();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'localhost');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new complianceModule.v1beta1.ComplianceClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        it('sets servicePath according to universe domain camelCase', () => {
+            const client = new complianceModule.v1beta1.ComplianceClient({universeDomain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'localhost.example.com');
+        });
+
+        it('sets servicePath according to universe domain snakeCase', () => {
+            const client = new complianceModule.v1beta1.ComplianceClient({universe_domain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'localhost.example.com');
+        });
+
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new complianceModule.v1beta1.ComplianceClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {

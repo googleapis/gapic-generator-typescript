@@ -118,13 +118,37 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 describe('v1beta1.NamingClient', () => {
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = namingModule.v1beta1.NamingClient.servicePath1;
-            assert(servicePath);
+            const client = new namingModule.v1beta1.NamingClient();
+            const servicePath = client.servicePath1;
+            assert.strictEqual(servicePath, 'localhost');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = namingModule.v1beta1.NamingClient.apiEndpoint1;
-            assert(apiEndpoint);
+            const client = new namingModule.v1beta1.NamingClient();
+            const apiEndpoint = client.apiEndpoint1;
+            assert.strictEqual(apiEndpoint, 'localhost');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new namingModule.v1beta1.NamingClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        it('sets servicePath according to universe domain camelCase', () => {
+            const client = new namingModule.v1beta1.NamingClient({universeDomain: 'example.com'});
+            const servicePath = client.servicePath1;
+            assert.strictEqual(servicePath, 'localhost.example.com');
+        });
+
+        it('sets servicePath according to universe domain snakeCase', () => {
+            const client = new namingModule.v1beta1.NamingClient({universe_domain: 'example.com'});
+            const servicePath = client.servicePath1;
+            assert.strictEqual(servicePath, 'localhost.example.com');
+        });
+
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new namingModule.v1beta1.NamingClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {
