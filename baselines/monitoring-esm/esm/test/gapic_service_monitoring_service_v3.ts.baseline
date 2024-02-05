@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,9 +44,9 @@ const root = protobuf.Root.fromJSON(
 function getTypeDefaultValue(typeName: string, fields: string[]) {
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
-        type = type.fields[field]?.resolvedType as protobuf.Type;
+        type = type?.fields[field]?.resolvedType as protobuf.Type;
     }
-    return type.fields[fields[fields.length - 1]]?.defaultValue;
+    return type?.fields[fields[fields.length - 1]]?.defaultValue ?? null;
 }
 
 function generateSampleMessage<T extends object>(instance: T) {
@@ -111,13 +111,53 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 describe('v3.ServiceMonitoringServiceClient', () => {
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.servicePath;
-            assert(servicePath);
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient();
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'monitoring.googleapis.com');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.apiEndpoint;
-            assert(apiEndpoint);
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'monitoring.googleapis.com');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.servicePath;
+                assert.strictEqual(servicePath, 'monitoring.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'monitoring.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
+        it('sets servicePath according to universe domain camelCase', () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({universeDomain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'monitoring.example.com');
+        });
+
+        it('sets servicePath according to universe domain snakeCase', () => {
+            const client = new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({universe_domain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'monitoring.example.com');
+        });
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new servicemonitoringserviceModule.v3.ServiceMonitoringServiceClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {
@@ -217,7 +257,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.CreateServiceRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.Service()
             );
@@ -244,7 +284,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.CreateServiceRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.Service()
             );
@@ -282,7 +322,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.CreateServiceRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createService = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createService(request), expectedError);
@@ -325,7 +365,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.GetServiceRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.Service()
             );
@@ -352,7 +392,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.GetServiceRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.Service()
             );
@@ -390,7 +430,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.GetServiceRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getService = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getService(request), expectedError);
@@ -434,7 +474,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.UpdateServiceRequest', ['service', 'name']);
             request.service.name = defaultValue1;
-            const expectedHeaderRequestParams = `service.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `service.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.Service()
             );
@@ -462,7 +502,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.UpdateServiceRequest', ['service', 'name']);
             request.service.name = defaultValue1;
-            const expectedHeaderRequestParams = `service.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `service.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.Service()
             );
@@ -501,7 +541,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.UpdateServiceRequest', ['service', 'name']);
             request.service.name = defaultValue1;
-            const expectedHeaderRequestParams = `service.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `service.name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateService = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateService(request), expectedError);
@@ -545,7 +585,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.DeleteServiceRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -572,7 +612,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.DeleteServiceRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -610,7 +650,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.DeleteServiceRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteService = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteService(request), expectedError);
@@ -653,7 +693,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.CreateServiceLevelObjectiveRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.ServiceLevelObjective()
             );
@@ -680,7 +720,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.CreateServiceLevelObjectiveRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.ServiceLevelObjective()
             );
@@ -718,7 +758,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.CreateServiceLevelObjectiveRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createServiceLevelObjective = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createServiceLevelObjective(request), expectedError);
@@ -761,7 +801,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.GetServiceLevelObjectiveRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.ServiceLevelObjective()
             );
@@ -788,7 +828,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.GetServiceLevelObjectiveRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.ServiceLevelObjective()
             );
@@ -826,7 +866,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.GetServiceLevelObjectiveRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getServiceLevelObjective = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getServiceLevelObjective(request), expectedError);
@@ -870,7 +910,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.UpdateServiceLevelObjectiveRequest', ['serviceLevelObjective', 'name']);
             request.serviceLevelObjective.name = defaultValue1;
-            const expectedHeaderRequestParams = `service_level_objective.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `service_level_objective.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.ServiceLevelObjective()
             );
@@ -898,7 +938,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.UpdateServiceLevelObjectiveRequest', ['serviceLevelObjective', 'name']);
             request.serviceLevelObjective.name = defaultValue1;
-            const expectedHeaderRequestParams = `service_level_objective.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `service_level_objective.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.monitoring.v3.ServiceLevelObjective()
             );
@@ -937,7 +977,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.UpdateServiceLevelObjectiveRequest', ['serviceLevelObjective', 'name']);
             request.serviceLevelObjective.name = defaultValue1;
-            const expectedHeaderRequestParams = `service_level_objective.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `service_level_objective.name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateServiceLevelObjective = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateServiceLevelObjective(request), expectedError);
@@ -981,7 +1021,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.DeleteServiceLevelObjectiveRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -1008,7 +1048,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.DeleteServiceLevelObjectiveRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -1046,7 +1086,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.DeleteServiceLevelObjectiveRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteServiceLevelObjective = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteServiceLevelObjective(request), expectedError);
@@ -1089,7 +1129,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
@@ -1117,7 +1157,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
@@ -1156,7 +1196,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listServices = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listServices(request), expectedError);
@@ -1180,7 +1220,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
@@ -1224,7 +1264,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listServices.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listServicesStream(request);
@@ -1263,7 +1303,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
               generateSampleMessage(new protos.google.monitoring.v3.Service()),
@@ -1299,7 +1339,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServicesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listServices.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listServicesAsync(request);
@@ -1334,7 +1374,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
@@ -1362,7 +1402,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
@@ -1401,7 +1441,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listServiceLevelObjectives = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listServiceLevelObjectives(request), expectedError);
@@ -1425,7 +1465,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
@@ -1469,7 +1509,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listServiceLevelObjectives.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listServiceLevelObjectivesStream(request);
@@ -1508,7 +1548,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
               generateSampleMessage(new protos.google.monitoring.v3.ServiceLevelObjective()),
@@ -1544,7 +1584,7 @@ describe('v3.ServiceMonitoringServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.monitoring.v3.ListServiceLevelObjectivesRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listServiceLevelObjectives.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listServiceLevelObjectivesAsync(request);

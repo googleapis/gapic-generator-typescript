@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,9 +44,9 @@ const root = protobuf.Root.fromJSON(
 function getTypeDefaultValue(typeName: string, fields: string[]) {
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
-        type = type.fields[field]?.resolvedType as protobuf.Type;
+        type = type?.fields[field]?.resolvedType as protobuf.Type;
     }
-    return type.fields[fields[fields.length - 1]]?.defaultValue;
+    return type?.fields[fields[fields.length - 1]]?.defaultValue ?? null;
 }
 
 function generateSampleMessage<T extends object>(instance: T) {
@@ -160,13 +160,42 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 describe('v1beta1.MessagingClient', () => {
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = messagingModule.v1beta1.MessagingClient.servicePath;
-            assert(servicePath);
+            const client = new messagingModule.v1beta1.MessagingClient();
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'localhost');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = messagingModule.v1beta1.MessagingClient.apiEndpoint;
-            assert(apiEndpoint);
+            const client = new messagingModule.v1beta1.MessagingClient();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'localhost');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new messagingModule.v1beta1.MessagingClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = messagingModule.v1beta1.MessagingClient.servicePath;
+                assert.strictEqual(servicePath, 'localhost');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = messagingModule.v1beta1.MessagingClient.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'localhost');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new messagingModule.v1beta1.MessagingClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {
@@ -341,7 +370,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.GetRoomRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Room()
             );
@@ -368,7 +397,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.GetRoomRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Room()
             );
@@ -406,7 +435,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.GetRoomRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getRoom = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getRoom(request), expectedError);
@@ -450,7 +479,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.UpdateRoomRequest', ['room', 'name']);
             request.room.name = defaultValue1;
-            const expectedHeaderRequestParams = `room.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `room.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Room()
             );
@@ -478,7 +507,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.UpdateRoomRequest', ['room', 'name']);
             request.room.name = defaultValue1;
-            const expectedHeaderRequestParams = `room.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `room.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Room()
             );
@@ -517,7 +546,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.UpdateRoomRequest', ['room', 'name']);
             request.room.name = defaultValue1;
-            const expectedHeaderRequestParams = `room.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `room.name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateRoom = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateRoom(request), expectedError);
@@ -561,7 +590,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.DeleteRoomRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -588,7 +617,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.DeleteRoomRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -626,7 +655,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.DeleteRoomRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteRoom = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteRoom(request), expectedError);
@@ -669,7 +698,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.CreateBlurbRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Blurb()
             );
@@ -696,7 +725,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.CreateBlurbRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Blurb()
             );
@@ -734,7 +763,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.CreateBlurbRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createBlurb = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createBlurb(request), expectedError);
@@ -777,7 +806,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.GetBlurbRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Blurb()
             );
@@ -804,7 +833,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.GetBlurbRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Blurb()
             );
@@ -842,7 +871,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.GetBlurbRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getBlurb = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getBlurb(request), expectedError);
@@ -886,7 +915,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.UpdateBlurbRequest', ['blurb', 'name']);
             request.blurb.name = defaultValue1;
-            const expectedHeaderRequestParams = `blurb.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `blurb.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Blurb()
             );
@@ -914,7 +943,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.UpdateBlurbRequest', ['blurb', 'name']);
             request.blurb.name = defaultValue1;
-            const expectedHeaderRequestParams = `blurb.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `blurb.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.Blurb()
             );
@@ -953,7 +982,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.UpdateBlurbRequest', ['blurb', 'name']);
             request.blurb.name = defaultValue1;
-            const expectedHeaderRequestParams = `blurb.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `blurb.name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateBlurb = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateBlurb(request), expectedError);
@@ -997,7 +1026,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.DeleteBlurbRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -1024,7 +1053,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.DeleteBlurbRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -1062,7 +1091,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.DeleteBlurbRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteBlurb = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteBlurb(request), expectedError);
@@ -1105,7 +1134,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.SearchBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.longrunning.Operation()
             );
@@ -1133,7 +1162,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.SearchBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.longrunning.Operation()
             );
@@ -1174,7 +1203,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.SearchBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.searchBlurbs = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.searchBlurbs(request), expectedError);
@@ -1198,7 +1227,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.SearchBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.searchBlurbs = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.searchBlurbs(request);
@@ -1259,7 +1288,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.StreamBlurbsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.showcase.v1beta1.StreamBlurbsResponse()
             );
@@ -1295,7 +1324,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.StreamBlurbsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.streamBlurbs = stubServerStreamingCall(undefined, expectedError);
             const stream = client.streamBlurbs(request);
@@ -1660,7 +1689,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
@@ -1688,7 +1717,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
@@ -1727,7 +1756,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listBlurbs = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listBlurbs(request), expectedError);
@@ -1751,7 +1780,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
@@ -1795,7 +1824,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listBlurbs.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listBlurbsStream(request);
@@ -1834,7 +1863,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
               generateSampleMessage(new protos.google.showcase.v1beta1.Blurb()),
@@ -1870,7 +1899,7 @@ describe('v1beta1.MessagingClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.showcase.v1beta1.ListBlurbsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listBlurbs.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listBlurbsAsync(request);

@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,9 +44,9 @@ const root = protobuf.Root.fromJSON(
 function getTypeDefaultValue(typeName: string, fields: string[]) {
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
-        type = type.fields[field]?.resolvedType as protobuf.Type;
+        type = type?.fields[field]?.resolvedType as protobuf.Type;
     }
-    return type.fields[fields[fields.length - 1]]?.defaultValue;
+    return type?.fields[fields[fields.length - 1]]?.defaultValue ?? null;
 }
 
 function generateSampleMessage<T extends object>(instance: T) {
@@ -127,13 +127,53 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 describe('v2.ConfigServiceV2Client', () => {
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = configservicev2Module.v2.ConfigServiceV2Client.servicePath;
-            assert(servicePath);
+            const client = new configservicev2Module.v2.ConfigServiceV2Client();
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'logging.googleapis.com');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = configservicev2Module.v2.ConfigServiceV2Client.apiEndpoint;
-            assert(apiEndpoint);
+            const client = new configservicev2Module.v2.ConfigServiceV2Client();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'logging.googleapis.com');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = configservicev2Module.v2.ConfigServiceV2Client.servicePath;
+                assert.strictEqual(servicePath, 'logging.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = configservicev2Module.v2.ConfigServiceV2Client.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'logging.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
+        it('sets servicePath according to universe domain camelCase', () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({universeDomain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'logging.example.com');
+        });
+
+        it('sets servicePath according to universe domain snakeCase', () => {
+            const client = new configservicev2Module.v2.ConfigServiceV2Client({universe_domain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'logging.example.com');
+        });
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new configservicev2Module.v2.ConfigServiceV2Client({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {
@@ -233,7 +273,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogBucket()
             );
@@ -260,7 +300,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogBucket()
             );
@@ -298,7 +338,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getBucket = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getBucket(request), expectedError);
@@ -341,7 +381,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateBucketRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogBucket()
             );
@@ -368,7 +408,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateBucketRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogBucket()
             );
@@ -406,7 +446,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateBucketRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createBucket = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createBucket(request), expectedError);
@@ -449,7 +489,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogBucket()
             );
@@ -476,7 +516,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogBucket()
             );
@@ -514,7 +554,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateBucket = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateBucket(request), expectedError);
@@ -557,7 +597,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -584,7 +624,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -622,7 +662,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteBucket = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteBucket(request), expectedError);
@@ -665,7 +705,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UndeleteBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -692,7 +732,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UndeleteBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -730,7 +770,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UndeleteBucketRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.undeleteBucket = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.undeleteBucket(request), expectedError);
@@ -773,7 +813,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetViewRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogView()
             );
@@ -800,7 +840,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetViewRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogView()
             );
@@ -838,7 +878,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetViewRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getView = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getView(request), expectedError);
@@ -881,7 +921,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateViewRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogView()
             );
@@ -908,7 +948,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateViewRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogView()
             );
@@ -946,7 +986,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateViewRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createView = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createView(request), expectedError);
@@ -989,7 +1029,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateViewRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogView()
             );
@@ -1016,7 +1056,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateViewRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogView()
             );
@@ -1054,7 +1094,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateViewRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateView = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateView(request), expectedError);
@@ -1097,7 +1137,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteViewRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -1124,7 +1164,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteViewRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -1162,7 +1202,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteViewRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteView = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteView(request), expectedError);
@@ -1205,7 +1245,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetSinkRequest', ['sinkName']);
             request.sinkName = defaultValue1;
-            const expectedHeaderRequestParams = `sink_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `sink_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogSink()
             );
@@ -1232,7 +1272,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetSinkRequest', ['sinkName']);
             request.sinkName = defaultValue1;
-            const expectedHeaderRequestParams = `sink_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `sink_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogSink()
             );
@@ -1270,7 +1310,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetSinkRequest', ['sinkName']);
             request.sinkName = defaultValue1;
-            const expectedHeaderRequestParams = `sink_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `sink_name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getSink = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getSink(request), expectedError);
@@ -1313,7 +1353,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateSinkRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogSink()
             );
@@ -1340,7 +1380,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateSinkRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogSink()
             );
@@ -1378,7 +1418,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateSinkRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createSink = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createSink(request), expectedError);
@@ -1421,7 +1461,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateSinkRequest', ['sinkName']);
             request.sinkName = defaultValue1;
-            const expectedHeaderRequestParams = `sink_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `sink_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogSink()
             );
@@ -1448,7 +1488,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateSinkRequest', ['sinkName']);
             request.sinkName = defaultValue1;
-            const expectedHeaderRequestParams = `sink_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `sink_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogSink()
             );
@@ -1486,7 +1526,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateSinkRequest', ['sinkName']);
             request.sinkName = defaultValue1;
-            const expectedHeaderRequestParams = `sink_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `sink_name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateSink = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateSink(request), expectedError);
@@ -1529,7 +1569,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteSinkRequest', ['sinkName']);
             request.sinkName = defaultValue1;
-            const expectedHeaderRequestParams = `sink_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `sink_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -1556,7 +1596,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteSinkRequest', ['sinkName']);
             request.sinkName = defaultValue1;
-            const expectedHeaderRequestParams = `sink_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `sink_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -1594,7 +1634,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteSinkRequest', ['sinkName']);
             request.sinkName = defaultValue1;
-            const expectedHeaderRequestParams = `sink_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `sink_name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteSink = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteSink(request), expectedError);
@@ -1637,7 +1677,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetExclusionRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogExclusion()
             );
@@ -1664,7 +1704,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetExclusionRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogExclusion()
             );
@@ -1702,7 +1742,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetExclusionRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getExclusion = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getExclusion(request), expectedError);
@@ -1745,7 +1785,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateExclusionRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogExclusion()
             );
@@ -1772,7 +1812,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateExclusionRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogExclusion()
             );
@@ -1810,7 +1850,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateExclusionRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createExclusion = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createExclusion(request), expectedError);
@@ -1853,7 +1893,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateExclusionRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogExclusion()
             );
@@ -1880,7 +1920,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateExclusionRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogExclusion()
             );
@@ -1918,7 +1958,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateExclusionRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateExclusion = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateExclusion(request), expectedError);
@@ -1961,7 +2001,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteExclusionRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -1988,7 +2028,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteExclusionRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -2026,7 +2066,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteExclusionRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteExclusion = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteExclusion(request), expectedError);
@@ -2069,7 +2109,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetCmekSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.CmekSettings()
             );
@@ -2096,7 +2136,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetCmekSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.CmekSettings()
             );
@@ -2134,7 +2174,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetCmekSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getCmekSettings = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getCmekSettings(request), expectedError);
@@ -2177,7 +2217,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateCmekSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.CmekSettings()
             );
@@ -2204,7 +2244,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateCmekSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.CmekSettings()
             );
@@ -2242,7 +2282,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateCmekSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateCmekSettings = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateCmekSettings(request), expectedError);
@@ -2285,7 +2325,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.Settings()
             );
@@ -2312,7 +2352,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.Settings()
             );
@@ -2350,7 +2390,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getSettings = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getSettings(request), expectedError);
@@ -2393,7 +2433,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.Settings()
             );
@@ -2420,7 +2460,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.Settings()
             );
@@ -2458,7 +2498,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateSettingsRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateSettings = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateSettings(request), expectedError);
@@ -2615,7 +2655,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListBucketsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
@@ -2643,7 +2683,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListBucketsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
@@ -2682,7 +2722,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListBucketsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listBuckets = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listBuckets(request), expectedError);
@@ -2706,7 +2746,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListBucketsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
@@ -2750,7 +2790,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListBucketsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listBuckets.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listBucketsStream(request);
@@ -2789,7 +2829,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListBucketsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
               generateSampleMessage(new protos.google.logging.v2.LogBucket()),
@@ -2825,7 +2865,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListBucketsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listBuckets.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listBucketsAsync(request);
@@ -2860,7 +2900,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListViewsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogView()),
               generateSampleMessage(new protos.google.logging.v2.LogView()),
               generateSampleMessage(new protos.google.logging.v2.LogView()),
@@ -2888,7 +2928,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListViewsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogView()),
               generateSampleMessage(new protos.google.logging.v2.LogView()),
               generateSampleMessage(new protos.google.logging.v2.LogView()),
@@ -2927,7 +2967,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListViewsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listViews = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listViews(request), expectedError);
@@ -2951,7 +2991,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListViewsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogView()),
               generateSampleMessage(new protos.google.logging.v2.LogView()),
@@ -2995,7 +3035,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListViewsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listViews.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listViewsStream(request);
@@ -3034,7 +3074,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListViewsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogView()),
               generateSampleMessage(new protos.google.logging.v2.LogView()),
@@ -3070,7 +3110,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListViewsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listViews.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listViewsAsync(request);
@@ -3105,7 +3145,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListSinksRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
@@ -3133,7 +3173,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListSinksRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
@@ -3172,7 +3212,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListSinksRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listSinks = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listSinks(request), expectedError);
@@ -3196,7 +3236,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListSinksRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
@@ -3240,7 +3280,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListSinksRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listSinks.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listSinksStream(request);
@@ -3279,7 +3319,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListSinksRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
               generateSampleMessage(new protos.google.logging.v2.LogSink()),
@@ -3315,7 +3355,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListSinksRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listSinks.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listSinksAsync(request);
@@ -3350,7 +3390,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListExclusionsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
@@ -3378,7 +3418,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListExclusionsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
@@ -3417,7 +3457,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListExclusionsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listExclusions = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listExclusions(request), expectedError);
@@ -3441,7 +3481,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListExclusionsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
@@ -3485,7 +3525,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListExclusionsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listExclusions.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listExclusionsStream(request);
@@ -3524,7 +3564,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListExclusionsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
               generateSampleMessage(new protos.google.logging.v2.LogExclusion()),
@@ -3560,7 +3600,7 @@ describe('v2.ConfigServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListExclusionsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listExclusions.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listExclusionsAsync(request);

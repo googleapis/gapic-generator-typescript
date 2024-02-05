@@ -318,7 +318,7 @@ request.{{ oneComment.paramName.toCamelCase() }}
             {{ chain }}.{{ lastFieldName }} = defaultValue{{ valueCounter }};
 {%- set expectedRequestParams = expectedRequestParams + expectedRequestParamJoiner() +
                                 originalName + requestParam.slice(-1)[0] + "=" +
-                                  "${defaultValue" + valueCounter + "}" -%}
+                                  "${defaultValue" + valueCounter + " ?? '' }" -%}
 {%- endfor %}
 {%- if not skipExpectedVariable %}
             const expectedHeaderRequestParams = `{{ expectedRequestParams | safe }}`;
@@ -356,6 +356,13 @@ request.{{ oneComment.paramName.toCamelCase() }}
             const expectedHeaderRequestParams = '{{ expectedKey }}={{ expectedValue }}';
 {%- endif %}
 {%- endif %}
+{%- endmacro -%}
+
+{%- macro verifyUUID(method) -%}
+{%- for field in method.autoPopulatedFields %}    
+            assert.match((client.innerApiCalls.{{ method.name.toCamelCase(true) }} as SinonStub)
+                .getCall(0).args[0].{{field.toCamelCase()}}, /[a-z0-9-]{36}/)
+{%- endfor %}
 {%- endmacro -%}
 
 {%- macro verifyHeaderRequestParams(method) -%}

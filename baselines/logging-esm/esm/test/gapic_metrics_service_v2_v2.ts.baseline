@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,9 +44,9 @@ const root = protobuf.Root.fromJSON(
 function getTypeDefaultValue(typeName: string, fields: string[]) {
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
-        type = type.fields[field]?.resolvedType as protobuf.Type;
+        type = type?.fields[field]?.resolvedType as protobuf.Type;
     }
-    return type.fields[fields[fields.length - 1]]?.defaultValue;
+    return type?.fields[fields[fields.length - 1]]?.defaultValue ?? null;
 }
 
 function generateSampleMessage<T extends object>(instance: T) {
@@ -111,13 +111,53 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 describe('v2.MetricsServiceV2Client', () => {
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = metricsservicev2Module.v2.MetricsServiceV2Client.servicePath;
-            assert(servicePath);
+            const client = new metricsservicev2Module.v2.MetricsServiceV2Client();
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'logging.googleapis.com');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = metricsservicev2Module.v2.MetricsServiceV2Client.apiEndpoint;
-            assert(apiEndpoint);
+            const client = new metricsservicev2Module.v2.MetricsServiceV2Client();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'logging.googleapis.com');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new metricsservicev2Module.v2.MetricsServiceV2Client();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = metricsservicev2Module.v2.MetricsServiceV2Client.servicePath;
+                assert.strictEqual(servicePath, 'logging.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = metricsservicev2Module.v2.MetricsServiceV2Client.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'logging.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
+        it('sets servicePath according to universe domain camelCase', () => {
+            const client = new metricsservicev2Module.v2.MetricsServiceV2Client({universeDomain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'logging.example.com');
+        });
+
+        it('sets servicePath according to universe domain snakeCase', () => {
+            const client = new metricsservicev2Module.v2.MetricsServiceV2Client({universe_domain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'logging.example.com');
+        });
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new metricsservicev2Module.v2.MetricsServiceV2Client({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {
@@ -217,7 +257,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetLogMetricRequest', ['metricName']);
             request.metricName = defaultValue1;
-            const expectedHeaderRequestParams = `metric_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `metric_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogMetric()
             );
@@ -244,7 +284,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetLogMetricRequest', ['metricName']);
             request.metricName = defaultValue1;
-            const expectedHeaderRequestParams = `metric_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `metric_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogMetric()
             );
@@ -282,7 +322,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.GetLogMetricRequest', ['metricName']);
             request.metricName = defaultValue1;
-            const expectedHeaderRequestParams = `metric_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `metric_name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getLogMetric = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getLogMetric(request), expectedError);
@@ -325,7 +365,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateLogMetricRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogMetric()
             );
@@ -352,7 +392,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateLogMetricRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogMetric()
             );
@@ -390,7 +430,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.CreateLogMetricRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createLogMetric = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createLogMetric(request), expectedError);
@@ -433,7 +473,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateLogMetricRequest', ['metricName']);
             request.metricName = defaultValue1;
-            const expectedHeaderRequestParams = `metric_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `metric_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogMetric()
             );
@@ -460,7 +500,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateLogMetricRequest', ['metricName']);
             request.metricName = defaultValue1;
-            const expectedHeaderRequestParams = `metric_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `metric_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.logging.v2.LogMetric()
             );
@@ -498,7 +538,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.UpdateLogMetricRequest', ['metricName']);
             request.metricName = defaultValue1;
-            const expectedHeaderRequestParams = `metric_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `metric_name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateLogMetric = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateLogMetric(request), expectedError);
@@ -541,7 +581,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteLogMetricRequest', ['metricName']);
             request.metricName = defaultValue1;
-            const expectedHeaderRequestParams = `metric_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `metric_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -568,7 +608,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteLogMetricRequest', ['metricName']);
             request.metricName = defaultValue1;
-            const expectedHeaderRequestParams = `metric_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `metric_name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -606,7 +646,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.DeleteLogMetricRequest', ['metricName']);
             request.metricName = defaultValue1;
-            const expectedHeaderRequestParams = `metric_name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `metric_name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteLogMetric = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteLogMetric(request), expectedError);
@@ -649,7 +689,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListLogMetricsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
@@ -677,7 +717,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListLogMetricsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;const expectedResponse = [
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
@@ -716,7 +756,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListLogMetricsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listLogMetrics = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listLogMetrics(request), expectedError);
@@ -740,7 +780,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListLogMetricsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
@@ -784,7 +824,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListLogMetricsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listLogMetrics.createStream = stubPageStreamingCall(undefined, expectedError);
             const stream = client.listLogMetricsStream(request);
@@ -823,7 +863,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListLogMetricsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = [
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
               generateSampleMessage(new protos.google.logging.v2.LogMetric()),
@@ -859,7 +899,7 @@ describe('v2.MetricsServiceV2Client', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.logging.v2.ListLogMetricsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.descriptors.page.listLogMetrics.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
             const iterable = client.listLogMetricsAsync(request);

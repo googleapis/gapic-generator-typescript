@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type * as protos from '../../../protos/index.js';
+import * as protos from '../../../protos/index.js';
 import {CommentsMap, Comment, Type} from './comments.js';
 import {processPathTemplate, milliseconds} from '../util.js';
 import {ResourceDescriptor, ResourceDatabase} from './resource-database.js';
@@ -37,6 +37,7 @@ const COMMON_PROTO_LIST = [
 
 export interface MethodDescriptorProto
   extends protos.google.protobuf.IMethodDescriptorProto {
+  autoPopulatedFields?: string[];
   longRunning?: protos.google.longrunning.IOperationInfo;
   longRunningResponseType?: string;
   longRunningMetadataType?: string;
@@ -190,6 +191,58 @@ function isDiregapicLRO(
       (method.name === 'Wait' && method.options?.['.google.api.http'].post)
     )
   );
+}
+
+/*
+ * For a given method and service, returns any fields that are available
+ * for autopopulation given the restrictions below.
+ * The field is a top-level string field of a unary method's request message.
+ * The field is not annotated with `google.api.field_behavior = REQUIRED`.
+ * The field name is listed in `google.api.publishing.method_settings.auto_populated_fields`.
+ * The field is annotated with `google.api.field_info.format = UUID4`.
+ */
+function getAutoPopulatedFields(
+  method: MethodDescriptorProto,
+  service: ServiceDescriptorProto
+): string[] {
+  const autoPopulatedFields: string[] = [];
+  let methodMatch = undefined;
+  if (service.serviceYaml) {
+    const settings = service.serviceYaml?.publishing?.method_settings;
+    // Once we've found a match, we can stop looping
+    // This will make it so that the nested loops are more O(n) in practice
+    for (let x = 0; x < settings?.length && !methodMatch; x++) {
+      if (settings[x].auto_populated_fields) {
+        const methodName = `${
+          settings[x].selector.split('.')[
+            settings[x].selector.split('.').length - 1
+          ]
+        }`;
+        // Check if any method matches the method we're testing
+        if (methodName.trim() === method.name) {
+          methodMatch = settings[x];
+          // Now, check if it's unary
+          if (!streaming(method)) {
+            // if there's a method match and it's unary, we can test the field-level conditions for that method
+            for (const field of methodMatch.auto_populated_fields) {
+              const commentsMap =
+                service.commentsMap.getCommentsMap()[
+                  `${method.name}Request:${field}`
+                ];
+              // If the field is not required, and it is marked as UUID, pass it onto the autoPopulatedFields
+              if (
+                commentsMap?.fieldBehavior !== 2 &&
+                commentsMap?.fieldInfo?.format === 1
+              ) {
+                autoPopulatedFields.push(field);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return autoPopulatedFields;
 }
 
 // convert from input interface to message name
@@ -413,7 +466,7 @@ function getMethodConfig(
         }
       }
     }
-  } else {
+  } else if (grpcServiceConfig.methodConfig) {
     console.warn(
       'Warning: cannot parse gRPC service config: methodConfig is not an array.'
     );
@@ -453,6 +506,7 @@ function augmentMethod(
         method,
         parameters.diregapic
       ),
+      autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
@@ -941,6 +995,7 @@ export class Proto {
     Proto.constructorCallArgs = [];
   }
 
+  autoPopulatedFields: string[];
   filePB2: protos.google.protobuf.IFileDescriptorProto;
   services: ServicesMap = {};
   allMessages: MessagesMap = {};

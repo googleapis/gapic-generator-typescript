@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,9 +42,9 @@ const root = protobuf.Root.fromJSON(
 function getTypeDefaultValue(typeName: string, fields: string[]) {
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
-        type = type.fields[field]?.resolvedType as protobuf.Type;
+        type = type?.fields[field]?.resolvedType as protobuf.Type;
     }
-    return type.fields[fields[fields.length - 1]]?.defaultValue;
+    return type?.fields[fields[fields.length - 1]]?.defaultValue ?? null;
 }
 
 function generateSampleMessage<T extends object>(instance: T) {
@@ -80,13 +80,53 @@ function stubLongRunningCallWithCallback<ResponseType>(response?: ResponseType, 
 describe('v1.AssetServiceClient', () => {
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = assetserviceModule.v1.AssetServiceClient.servicePath;
-            assert(servicePath);
+            const client = new assetserviceModule.v1.AssetServiceClient();
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'cloudasset.googleapis.com');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = assetserviceModule.v1.AssetServiceClient.apiEndpoint;
-            assert(apiEndpoint);
+            const client = new assetserviceModule.v1.AssetServiceClient();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'cloudasset.googleapis.com');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new assetserviceModule.v1.AssetServiceClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = assetserviceModule.v1.AssetServiceClient.servicePath;
+                assert.strictEqual(servicePath, 'cloudasset.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = assetserviceModule.v1.AssetServiceClient.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'cloudasset.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
+        it('sets servicePath according to universe domain camelCase', () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({universeDomain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'cloudasset.example.com');
+        });
+
+        it('sets servicePath according to universe domain snakeCase', () => {
+            const client = new assetserviceModule.v1.AssetServiceClient({universe_domain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'cloudasset.example.com');
+        });
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new assetserviceModule.v1.AssetServiceClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {
@@ -186,7 +226,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.BatchGetAssetsHistoryRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.BatchGetAssetsHistoryResponse()
             );
@@ -213,7 +253,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.BatchGetAssetsHistoryRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.BatchGetAssetsHistoryResponse()
             );
@@ -251,7 +291,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.BatchGetAssetsHistoryRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.batchGetAssetsHistory = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.batchGetAssetsHistory(request), expectedError);
@@ -294,7 +334,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.CreateFeedRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.Feed()
             );
@@ -321,7 +361,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.CreateFeedRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.Feed()
             );
@@ -359,7 +399,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.CreateFeedRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.createFeed = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.createFeed(request), expectedError);
@@ -402,7 +442,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.GetFeedRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.Feed()
             );
@@ -429,7 +469,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.GetFeedRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.Feed()
             );
@@ -467,7 +507,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.GetFeedRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.getFeed = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.getFeed(request), expectedError);
@@ -510,7 +550,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.ListFeedsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.ListFeedsResponse()
             );
@@ -537,7 +577,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.ListFeedsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.ListFeedsResponse()
             );
@@ -575,7 +615,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.ListFeedsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.listFeeds = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.listFeeds(request), expectedError);
@@ -619,7 +659,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.UpdateFeedRequest', ['feed', 'name']);
             request.feed.name = defaultValue1;
-            const expectedHeaderRequestParams = `feed.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `feed.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.Feed()
             );
@@ -647,7 +687,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.UpdateFeedRequest', ['feed', 'name']);
             request.feed.name = defaultValue1;
-            const expectedHeaderRequestParams = `feed.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `feed.name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.asset.v1.Feed()
             );
@@ -686,7 +726,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.UpdateFeedRequest', ['feed', 'name']);
             request.feed.name = defaultValue1;
-            const expectedHeaderRequestParams = `feed.name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `feed.name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.updateFeed = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.updateFeed(request), expectedError);
@@ -730,7 +770,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.DeleteFeedRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -757,7 +797,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.DeleteFeedRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.protobuf.Empty()
             );
@@ -795,7 +835,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.DeleteFeedRequest', ['name']);
             request.name = defaultValue1;
-            const expectedHeaderRequestParams = `name=${defaultValue1}`;
+            const expectedHeaderRequestParams = `name=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.deleteFeed = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.deleteFeed(request), expectedError);
@@ -838,7 +878,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.ExportAssetsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.longrunning.Operation()
             );
@@ -866,7 +906,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.ExportAssetsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.longrunning.Operation()
             );
@@ -907,7 +947,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.ExportAssetsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.exportAssets = stubLongRunningCall(undefined, expectedError);
             await assert.rejects(client.exportAssets(request), expectedError);
@@ -931,7 +971,7 @@ describe('v1.AssetServiceClient', () => {
             const defaultValue1 =
               getTypeDefaultValue('.google.cloud.asset.v1.ExportAssetsRequest', ['parent']);
             request.parent = defaultValue1;
-            const expectedHeaderRequestParams = `parent=${defaultValue1}`;
+            const expectedHeaderRequestParams = `parent=${defaultValue1 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.exportAssets = stubLongRunningCall(undefined, undefined, expectedError);
             const [operation] = await client.exportAssets(request);

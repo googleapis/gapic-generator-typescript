@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,9 +42,9 @@ const root = protobuf.Root.fromJSON(
 function getTypeDefaultValue(typeName: string, fields: string[]) {
     let type = root.lookupType(typeName) as protobuf.Type;
     for (const field of fields.slice(0, -1)) {
-        type = type.fields[field]?.resolvedType as protobuf.Type;
+        type = type?.fields[field]?.resolvedType as protobuf.Type;
     }
-    return type.fields[fields[fields.length - 1]]?.defaultValue;
+    return type?.fields[fields[fields.length - 1]]?.defaultValue ?? null;
 }
 
 function generateSampleMessage<T extends object>(instance: T) {
@@ -75,13 +75,53 @@ describe('v1.RegionOperationsClient', () => {
   });
     describe('Common methods', () => {
         it('has servicePath', () => {
-            const servicePath = regionoperationsModule.v1.RegionOperationsClient.servicePath;
-            assert(servicePath);
+            const client = new regionoperationsModule.v1.RegionOperationsClient();
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'compute.googleapis.com');
         });
 
         it('has apiEndpoint', () => {
-            const apiEndpoint = regionoperationsModule.v1.RegionOperationsClient.apiEndpoint;
-            assert(apiEndpoint);
+            const client = new regionoperationsModule.v1.RegionOperationsClient();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'compute.googleapis.com');
+        });
+        
+        it('has universeDomain', () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = regionoperationsModule.v1.RegionOperationsClient.servicePath;
+                assert.strictEqual(servicePath, 'compute.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = regionoperationsModule.v1.RegionOperationsClient.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'compute.googleapis.com');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
+        it('sets servicePath according to universe domain camelCase', () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({universeDomain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'compute.example.com');
+        });
+
+        it('sets servicePath according to universe domain snakeCase', () => {
+            const client = new regionoperationsModule.v1.RegionOperationsClient({universe_domain: 'example.com'});
+            const servicePath = client.servicePath;
+            assert.strictEqual(servicePath, 'compute.example.com');
+        });
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new regionoperationsModule.v1.RegionOperationsClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {
@@ -187,7 +227,7 @@ describe('v1.RegionOperationsClient', () => {
             const defaultValue3 =
               getTypeDefaultValue('.google.cloud.compute.v1.GetRegionOperationRequest', ['operation']);
             request.operation = defaultValue3;
-            const expectedHeaderRequestParams = `project=${defaultValue1}&region=${defaultValue2}&operation=${defaultValue3}`;
+            const expectedHeaderRequestParams = `project=${defaultValue1 ?? '' }&region=${defaultValue2 ?? '' }&operation=${defaultValue3 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.compute.v1.Operation()
             );
@@ -220,7 +260,7 @@ describe('v1.RegionOperationsClient', () => {
             const defaultValue3 =
               getTypeDefaultValue('.google.cloud.compute.v1.GetRegionOperationRequest', ['operation']);
             request.operation = defaultValue3;
-            const expectedHeaderRequestParams = `project=${defaultValue1}&region=${defaultValue2}&operation=${defaultValue3}`;
+            const expectedHeaderRequestParams = `project=${defaultValue1 ?? '' }&region=${defaultValue2 ?? '' }&operation=${defaultValue3 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.compute.v1.Operation()
             );
@@ -264,7 +304,7 @@ describe('v1.RegionOperationsClient', () => {
             const defaultValue3 =
               getTypeDefaultValue('.google.cloud.compute.v1.GetRegionOperationRequest', ['operation']);
             request.operation = defaultValue3;
-            const expectedHeaderRequestParams = `project=${defaultValue1}&region=${defaultValue2}&operation=${defaultValue3}`;
+            const expectedHeaderRequestParams = `project=${defaultValue1 ?? '' }&region=${defaultValue2 ?? '' }&operation=${defaultValue3 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.get = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.get(request), expectedError);
@@ -319,7 +359,7 @@ describe('v1.RegionOperationsClient', () => {
             const defaultValue3 =
               getTypeDefaultValue('.google.cloud.compute.v1.WaitRegionOperationRequest', ['operation']);
             request.operation = defaultValue3;
-            const expectedHeaderRequestParams = `project=${defaultValue1}&region=${defaultValue2}&operation=${defaultValue3}`;
+            const expectedHeaderRequestParams = `project=${defaultValue1 ?? '' }&region=${defaultValue2 ?? '' }&operation=${defaultValue3 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.compute.v1.Operation()
             );
@@ -352,7 +392,7 @@ describe('v1.RegionOperationsClient', () => {
             const defaultValue3 =
               getTypeDefaultValue('.google.cloud.compute.v1.WaitRegionOperationRequest', ['operation']);
             request.operation = defaultValue3;
-            const expectedHeaderRequestParams = `project=${defaultValue1}&region=${defaultValue2}&operation=${defaultValue3}`;
+            const expectedHeaderRequestParams = `project=${defaultValue1 ?? '' }&region=${defaultValue2 ?? '' }&operation=${defaultValue3 ?? '' }`;
             const expectedResponse = generateSampleMessage(
               new protos.google.cloud.compute.v1.Operation()
             );
@@ -396,7 +436,7 @@ describe('v1.RegionOperationsClient', () => {
             const defaultValue3 =
               getTypeDefaultValue('.google.cloud.compute.v1.WaitRegionOperationRequest', ['operation']);
             request.operation = defaultValue3;
-            const expectedHeaderRequestParams = `project=${defaultValue1}&region=${defaultValue2}&operation=${defaultValue3}`;
+            const expectedHeaderRequestParams = `project=${defaultValue1 ?? '' }&region=${defaultValue2 ?? '' }&operation=${defaultValue3 ?? '' }`;
             const expectedError = new Error('expected');
             client.innerApiCalls.wait = stubSimpleCall(undefined, expectedError);
             await assert.rejects(client.wait(request), expectedError);
