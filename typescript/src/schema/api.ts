@@ -27,6 +27,7 @@ export class API {
   naming: Naming;
   protos: ProtosMap;
   hostName?: string;
+  shortName?: string;
   port?: string;
   // This field is for users passing proper publish package name like @google-cloud/text-to-speech.
   publishName: string;
@@ -166,6 +167,7 @@ export class API {
         );
       }
       this.hostName = hostname || this.hostName || 'localhost';
+      this.shortName = this.hostName?.replace(/\.googleapis\.com$/, '');
       this.port = port ?? this.port ?? '443';
       serviceNamesList.push(service.name || this.naming.name);
     }
