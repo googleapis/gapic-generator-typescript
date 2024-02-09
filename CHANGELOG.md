@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.0...v4.4.1) (2024-02-06)
+
+
+### Bug Fixes
+
+* Remove name conflict for APIs that have servicePath ([#1531](https://github.com/googleapis/gapic-generator-typescript/issues/1531)) ([9312781](https://github.com/googleapis/gapic-generator-typescript/commit/93127813253aac41bdd6f88ecda68e11c701b52c))
+
 ## [4.4.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.3.0...v4.4.0) (2024-02-02)
 
 
