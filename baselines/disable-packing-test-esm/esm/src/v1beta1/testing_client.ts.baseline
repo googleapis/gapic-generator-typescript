@@ -37,7 +37,6 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const gapicConfig = JSON.parse(fs.readFileSync(path.join(dirname, 'testing_client_config.json'),'utf8'));
 const jsonProtos = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', 'protos/protos.json'), 'utf8'));
 const version = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', '..', 'package.json'), 'utf8')).version;
-const libName = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', '..', 'package.json'), 'utf8')).name;
 
 /**
  *  A service to facilitate running discrete sets of tests
@@ -170,13 +169,13 @@ export class TestingClient {
     } else if (opts.fallback === 'rest' ) {
       clientHeader.push(`rest/${this._gaxGrpc.grpcVersion}`);
     }
-    if (libName && version) {
-      clientHeader.push(`${libName}/${version}`);
+    if (opts.libName && opts.libVersion) {
+      clientHeader.push(`${opts.libName}/${opts.libVersion}`);
     }
     // Add ESM headers
     const isEsm = true;
-    if (version && isEsm) {
-      clientHeader.push(`${version}-esm`);
+    if (opts.libVersion && isEsm) {
+      clientHeader.push(`${opts.libVersion ?? version}-esm`);
     }
 
     // Load the applicable protos.
