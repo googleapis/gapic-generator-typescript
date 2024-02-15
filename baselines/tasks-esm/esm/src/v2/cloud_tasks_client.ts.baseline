@@ -37,6 +37,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const gapicConfig = JSON.parse(fs.readFileSync(path.join(dirname, 'cloud_tasks_client_config.json'),'utf8'));
 const jsonProtos = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', 'protos/protos.json'), 'utf8'));
 const version = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', '..', 'package.json'), 'utf8')).version;
+const libName = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', '..', 'package.json'), 'utf8')).name;
 
 /**
  *  Cloud Tasks allows developers to manage the execution of background
@@ -169,15 +170,13 @@ export class CloudTasksClient {
     } else if (opts.fallback === 'rest' ) {
       clientHeader.push(`rest/${this._gaxGrpc.grpcVersion}`);
     }
-    if (opts.libName && opts.libVersion) {
-      clientHeader.push(`${opts.libName}/${opts.libVersion}`);
+    if (libName && version) {
+      clientHeader.push(`${libName}/${version}`);
     }
     // Add ESM headers
     const isEsm = true;
-    if (opts.libVersion && isEsm) {
-      clientHeader.push(`${opts.libVersion}-esm`);
-    } else if (opts.libVersion && !isEsm) {
-      clientHeader.push(`${opts.libVersion}-cjs`);
+    if (version && isEsm) {
+      clientHeader.push(`${version}-esm`);
     }
 
     // Load the applicable protos.
