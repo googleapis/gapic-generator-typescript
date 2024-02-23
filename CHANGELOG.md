@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.4.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.1...v4.4.2) (2024-02-23)
+
+
+### Bug Fixes
+
+* Add client library version to headers ([#1538](https://github.com/googleapis/gapic-generator-typescript/issues/1538)) ([df3e409](https://github.com/googleapis/gapic-generator-typescript/commit/df3e409e1577a077f0fc9eb97cbce58bd1e6035e))
+* Allow bundlers to bundle JSON files correctly ([#1545](https://github.com/googleapis/gapic-generator-typescript/issues/1545)) ([f911ac8](https://github.com/googleapis/gapic-generator-typescript/commit/f911ac838d09a1ed0c4e56ea41039a953ed0741c))
+* **deps:** Update dependency google-gax to ^4.3.1 ([#1540](https://github.com/googleapis/gapic-generator-typescript/issues/1540)) ([846c62e](https://github.com/googleapis/gapic-generator-typescript/commit/846c62edc09979215c9643959af86befd2557996))
+* Export types from protos in esm ([#1543](https://github.com/googleapis/gapic-generator-typescript/issues/1543)) ([28f06d6](https://github.com/googleapis/gapic-generator-typescript/commit/28f06d64f55aec7f77a485a0b97119654e00ce0d))
+
 ## [4.4.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.0...v4.4.1) (2024-02-06)
 
 
