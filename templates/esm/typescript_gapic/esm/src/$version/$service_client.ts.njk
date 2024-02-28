@@ -47,6 +47,7 @@ import * as {{ service.name.toSnakeCase() }}_client_config from './{{ service.na
 import fs from 'fs';
 import path from 'path';
 import {fileURLToPath} from 'url';
+import {getJSON} from '../json-helper.cjs';
 // @ts-ignore
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -55,11 +56,17 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
  * `src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`.
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
-const gapicConfig = JSON.parse(fs.readFileSync(path.join(dirname, '{{ service.name.toSnakeCase() }}_client_config.json'),'utf8'));
-{%- if not api.legacyProtoLoad %}
-const jsonProtos = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', 'protos/protos.json'), 'utf8'));
-{%- endif %}
-const version = JSON.parse(fs.readFileSync(path.join(dirname, '..', '..', '..', '..', 'package.json'), 'utf8')).version;
+const gapicConfig = getJSON(
+  path.join(dirname, '{{ service.name.toSnakeCase() }}_client_config.json')
+);
+{% if not api.legacyProtoLoad %}
+const jsonProtos = getJSON(
+  path.join(dirname, '..', '..', '..', 'protos/protos.json')
+);
+{% endif %}
+const version = getJSON(
+  path.join(dirname, '..', '..', '..', '..', 'package.json')
+).version;
 
 /**
 {{- util.printCommentsForService(service) }}
@@ -252,10 +259,8 @@ export class {{ service.name }}Client {
     }
     // Add ESM headers
     const isEsm = true;
-    if (opts.libVersion && isEsm) {
-      clientHeader.push(`${opts.libVersion}-esm`);
-    } else if (opts.libVersion && !isEsm) {
-      clientHeader.push(`${opts.libVersion}-cjs`);
+    if ((opts.libVersion || version) && isEsm) {
+      clientHeader.push(`${opts.libVersion ?? version}-esm`);
     }
 
     // Load the applicable protos.
