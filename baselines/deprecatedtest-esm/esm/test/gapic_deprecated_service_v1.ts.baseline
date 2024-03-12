@@ -63,14 +63,37 @@ function stubSimpleCallWithCallback<ResponseType>(response?: ResponseType, error
 
 describe('v1.DeprecatedServiceClient', () => {
     describe('Common methods', () => {
-        it('has servicePath', () => {
-            const servicePath = deprecatedserviceModule.v1.DeprecatedServiceClient.servicePath;
-            assert(servicePath);
+        it('has apiEndpoint', () => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'localhost');
         });
 
-        it('has apiEndpoint', () => {
-            const apiEndpoint = deprecatedserviceModule.v1.DeprecatedServiceClient.apiEndpoint;
-            assert(apiEndpoint);
+        it('has universeDomain', () => {
+            const client = new deprecatedserviceModule.v1.DeprecatedServiceClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = deprecatedserviceModule.v1.DeprecatedServiceClient.servicePath;
+                assert.strictEqual(servicePath, 'localhost');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = deprecatedserviceModule.v1.DeprecatedServiceClient.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'localhost');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new deprecatedserviceModule.v1.DeprecatedServiceClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {

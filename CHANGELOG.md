@@ -1,5 +1,55 @@
 # Changelog
 
+## [4.4.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.1...v4.4.2) (2024-02-23)
+
+
+### Bug Fixes
+
+* Add client library version to headers ([#1538](https://github.com/googleapis/gapic-generator-typescript/issues/1538)) ([df3e409](https://github.com/googleapis/gapic-generator-typescript/commit/df3e409e1577a077f0fc9eb97cbce58bd1e6035e))
+* Allow bundlers to bundle JSON files correctly ([#1545](https://github.com/googleapis/gapic-generator-typescript/issues/1545)) ([f911ac8](https://github.com/googleapis/gapic-generator-typescript/commit/f911ac838d09a1ed0c4e56ea41039a953ed0741c))
+* **deps:** Update dependency google-gax to ^4.3.1 ([#1540](https://github.com/googleapis/gapic-generator-typescript/issues/1540)) ([846c62e](https://github.com/googleapis/gapic-generator-typescript/commit/846c62edc09979215c9643959af86befd2557996))
+* Export types from protos in esm ([#1543](https://github.com/googleapis/gapic-generator-typescript/issues/1543)) ([28f06d6](https://github.com/googleapis/gapic-generator-typescript/commit/28f06d64f55aec7f77a485a0b97119654e00ce0d))
+
+## [4.4.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.0...v4.4.1) (2024-02-06)
+
+
+### Bug Fixes
+
+* Remove name conflict for APIs that have servicePath ([#1531](https://github.com/googleapis/gapic-generator-typescript/issues/1531)) ([9312781](https://github.com/googleapis/gapic-generator-typescript/commit/93127813253aac41bdd6f88ecda68e11c701b52c))
+
+## [4.4.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.3.0...v4.4.0) (2024-02-02)
+
+
+### Features
+
+* Add UUID autogeneration for fields listed as autoPopulate in service.yaml ([#1511](https://github.com/googleapis/gapic-generator-typescript/issues/1511)) ([e731e91](https://github.com/googleapis/gapic-generator-typescript/commit/e731e912537599540c9efbe158409ab0f78c8882))
+* Implement support for Trusted Private Cloud ([#1529](https://github.com/googleapis/gapic-generator-typescript/issues/1529)) ([74149e1](https://github.com/googleapis/gapic-generator-typescript/commit/74149e1228f5403134ad67c29885f68076ade253))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency proto3-json-serializer to ^2.0.1 ([#1521](https://github.com/googleapis/gapic-generator-typescript/issues/1521)) ([f68039b](https://github.com/googleapis/gapic-generator-typescript/commit/f68039b8932e4489f08e529661eee1d5348755ae))
+* **deps:** Update dependency protobufjs to v7.2.6 ([#1519](https://github.com/googleapis/gapic-generator-typescript/issues/1519)) ([58c2334](https://github.com/googleapis/gapic-generator-typescript/commit/58c23344c6b7d9088ddd225ac32ef90c90ba7acf))
+* Revert new streaming behavior ([#1528](https://github.com/googleapis/gapic-generator-typescript/issues/1528)) ([605e40a](https://github.com/googleapis/gapic-generator-typescript/commit/605e40a44095f1e9f2c0f8466cc6fb1be6815568))
+* **samples:** Remove useless await in async iteration sample ([#1527](https://github.com/googleapis/gapic-generator-typescript/issues/1527)) ([0bdb742](https://github.com/googleapis/gapic-generator-typescript/commit/0bdb74243c6eef89200b35abc0486fd897145d9e))
+
+## [4.3.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.2.0...v4.3.0) (2024-01-18)
+
+
+### Features
+
+* Add system tests to ESM ([#1495](https://github.com/googleapis/gapic-generator-typescript/issues/1495)) ([1b2c036](https://github.com/googleapis/gapic-generator-typescript/commit/1b2c036d63693d9fc9b5f0d7478741d71d92702b))
+* Use ESM types for ESM ([#1503](https://github.com/googleapis/gapic-generator-typescript/issues/1503)) ([d7f9d7a](https://github.com/googleapis/gapic-generator-typescript/commit/d7f9d7a2a9da246f3a26a3fbb21b7f10e9f987a7))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency @types/js-yaml to ^4.0.9 ([#1486](https://github.com/googleapis/gapic-generator-typescript/issues/1486)) ([5de2050](https://github.com/googleapis/gapic-generator-typescript/commit/5de20507cb754997c47606f244b0b72ff207be42))
+* **deps:** Update gapic-tools and gax for new proto ([#1517](https://github.com/googleapis/gapic-generator-typescript/issues/1517)) ([eeb8851](https://github.com/googleapis/gapic-generator-typescript/commit/eeb88514e90eb98b7d0d4be7c86217c0681e8ab8))
+* Fix protos import in index files ([#1498](https://github.com/googleapis/gapic-generator-typescript/issues/1498)) ([eb0e74d](https://github.com/googleapis/gapic-generator-typescript/commit/eb0e74d151c155e3b5ea58a100f09dbeb68df280)), closes [#1496](https://github.com/googleapis/gapic-generator-typescript/issues/1496)
+* Remove log message when methodConfig is undefined ([4173a45](https://github.com/googleapis/gapic-generator-typescript/commit/4173a45491caa232655fcfab6d6c4fb5126400e0))
+* Use new gax streaming retries ([#1518](https://github.com/googleapis/gapic-generator-typescript/issues/1518)) ([8da1195](https://github.com/googleapis/gapic-generator-typescript/commit/8da1195417063a02170db81032badcb526b31952))
+
 ## [4.2.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.1.0...v4.2.0) (2023-11-07)
 
 

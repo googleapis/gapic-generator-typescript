@@ -145,14 +145,37 @@ function stubAsyncIterationCall<ResponseType>(responses?: ResponseType[], error?
 
 describe('v1beta1.EchoClient', () => {
     describe('Common methods', () => {
-        it('has servicePath', () => {
-            const servicePath = echoModule.v1beta1.EchoClient.servicePath;
-            assert(servicePath);
+        it('has apiEndpoint', () => {
+            const client = new echoModule.v1beta1.EchoClient();
+            const apiEndpoint = client.apiEndpoint;
+            assert.strictEqual(apiEndpoint, 'localhost');
         });
 
-        it('has apiEndpoint', () => {
-            const apiEndpoint = echoModule.v1beta1.EchoClient.apiEndpoint;
-            assert(apiEndpoint);
+        it('has universeDomain', () => {
+            const client = new echoModule.v1beta1.EchoClient();
+            const universeDomain = client.universeDomain;
+            assert.strictEqual(universeDomain, "googleapis.com");
+        });
+
+        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+            it('throws DeprecationWarning if static servicePath is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const servicePath = echoModule.v1beta1.EchoClient.servicePath;
+                assert.strictEqual(servicePath, 'localhost');
+                assert(stub.called);
+                stub.restore();
+            });
+
+            it('throws DeprecationWarning if static apiEndpoint is used', () => {
+                const stub = sinon.stub(process, 'emitWarning');
+                const apiEndpoint = echoModule.v1beta1.EchoClient.apiEndpoint;
+                assert.strictEqual(apiEndpoint, 'localhost');
+                assert(stub.called);
+                stub.restore();
+            });
+        }
+        it('does not allow setting both universeDomain and universe_domain', () => {
+            assert.throws(() => { new echoModule.v1beta1.EchoClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });
 
         it('has port', () => {
@@ -661,7 +684,7 @@ describe('v1beta1.EchoClient', () => {
             );
             const expectedError = new Error('The client has already been closed.');
             client.close();
-            const stream = client.expand(request, {retry: {shouldRetryFn: () => { return false; }}});
+            const stream = client.expand(request, {retryRequestOptions: {noResponseRetries: 0}});
             const promise = new Promise((resolve, reject) => {
                 stream.on('data', (response: protos.google.showcase.v1beta1.EchoResponse) => {
                     resolve(response);
