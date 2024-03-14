@@ -141,6 +141,27 @@ describe('v1.KeyManagementServiceClient', () => {
             const servicePath = client.apiEndpoint;
             assert.strictEqual(servicePath, 'cloudkms.example.com');
         });
+
+        if (typeof process !== 'undefined' && 'env' in process) {
+            describe('GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variable', () => {
+                it('sets apiEndpoint from environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new keymanagementserviceModule.v1.KeyManagementServiceClient();
+                    const servicePath = client.apiEndpoint;
+                    assert.strictEqual(servicePath, 'cloudkms.example.com');
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = saved;
+                });
+
+                it('value configured in code has priority over environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new keymanagementserviceModule.v1.KeyManagementServiceClient({universeDomain: 'configured.example.com'});
+                    const servicePath = client.apiEndpoint;
+                    assert.strictEqual(servicePath, 'cloudkms.configured.example.com');
+                });
+            });
+        }
         it('does not allow setting both universeDomain and universe_domain', () => {
             assert.throws(() => { new keymanagementserviceModule.v1.KeyManagementServiceClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });

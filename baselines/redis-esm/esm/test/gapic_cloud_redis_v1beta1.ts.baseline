@@ -166,6 +166,27 @@ describe('v1beta1.CloudRedisClient', () => {
             const servicePath = client.apiEndpoint;
             assert.strictEqual(servicePath, 'redis.example.com');
         });
+
+        if (typeof process !== 'undefined' && 'env' in process) {
+            describe('GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variable', () => {
+                it('sets apiEndpoint from environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new cloudredisModule.v1beta1.CloudRedisClient();
+                    const servicePath = client.apiEndpoint;
+                    assert.strictEqual(servicePath, 'redis.example.com');
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = saved;
+                });
+
+                it('value configured in code has priority over environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new cloudredisModule.v1beta1.CloudRedisClient({universeDomain: 'configured.example.com'});
+                    const servicePath = client.apiEndpoint;
+                    assert.strictEqual(servicePath, 'redis.configured.example.com');
+                });
+            });
+        }
         it('does not allow setting both universeDomain and universe_domain', () => {
             assert.throws(() => { new cloudredisModule.v1beta1.CloudRedisClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });

@@ -257,6 +257,27 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert.strictEqual(servicePath, '{{ api.shortName }}.example.com');
         });
 
+        if (typeof process !== 'undefined' && 'env' in process) {
+            describe('GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variable', () => {
+                it('sets apiEndpoint from environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client();
+                    const servicePath = client.{{ id.get("apiEndpoint") }};
+                    assert.strictEqual(servicePath, '{{ api.shortName }}.example.com');
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = saved;
+                });
+
+                it('value configured in code has priority over environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({universeDomain: 'configured.example.com'});
+                    const servicePath = client.{{ id.get("apiEndpoint") }};
+                    assert.strictEqual(servicePath, '{{ api.shortName }}.configured.example.com');
+                });
+            });
+        }
+
         {%- endif %}
         it('does not allow setting both universeDomain and universe_domain', () => {
             assert.throws(() => { new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({universe_domain: 'example.com', universeDomain: 'example.net'}); });
