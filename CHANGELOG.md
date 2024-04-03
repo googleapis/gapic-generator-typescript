@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.2...v4.5.0) (2024-03-21)
+
+
+### Features
+
+* Support GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variable ([#1558](https://github.com/googleapis/gapic-generator-typescript/issues/1558)) ([884b02e](https://github.com/googleapis/gapic-generator-typescript/commit/884b02e8e1340faf7911b7ea17b5aed135a363db))
+
 ## [4.4.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.1...v4.4.2) (2024-02-23)
 
 
