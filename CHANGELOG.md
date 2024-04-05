@@ -1,5 +1,29 @@
 # Changelog
 
+## [4.5.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.2...v4.5.0) (2024-03-21)
+
+
+### Features
+
+* Support GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variable ([#1558](https://github.com/googleapis/gapic-generator-typescript/issues/1558)) ([884b02e](https://github.com/googleapis/gapic-generator-typescript/commit/884b02e8e1340faf7911b7ea17b5aed135a363db))
+
+## [4.4.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.1...v4.4.2) (2024-02-23)
+
+
+### Bug Fixes
+
+* Add client library version to headers ([#1538](https://github.com/googleapis/gapic-generator-typescript/issues/1538)) ([df3e409](https://github.com/googleapis/gapic-generator-typescript/commit/df3e409e1577a077f0fc9eb97cbce58bd1e6035e))
+* Allow bundlers to bundle JSON files correctly ([#1545](https://github.com/googleapis/gapic-generator-typescript/issues/1545)) ([f911ac8](https://github.com/googleapis/gapic-generator-typescript/commit/f911ac838d09a1ed0c4e56ea41039a953ed0741c))
+* **deps:** Update dependency google-gax to ^4.3.1 ([#1540](https://github.com/googleapis/gapic-generator-typescript/issues/1540)) ([846c62e](https://github.com/googleapis/gapic-generator-typescript/commit/846c62edc09979215c9643959af86befd2557996))
+* Export types from protos in esm ([#1543](https://github.com/googleapis/gapic-generator-typescript/issues/1543)) ([28f06d6](https://github.com/googleapis/gapic-generator-typescript/commit/28f06d64f55aec7f77a485a0b97119654e00ce0d))
+
+## [4.4.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.0...v4.4.1) (2024-02-06)
+
+
+### Bug Fixes
+
+* Remove name conflict for APIs that have servicePath ([#1531](https://github.com/googleapis/gapic-generator-typescript/issues/1531)) ([9312781](https://github.com/googleapis/gapic-generator-typescript/commit/93127813253aac41bdd6f88ecda68e11c701b52c))
+
 ## [4.4.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.3.0...v4.4.0) (2024-02-02)
 
 
