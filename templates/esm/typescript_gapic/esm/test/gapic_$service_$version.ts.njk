@@ -630,18 +630,22 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initResponse(method) }}
-            client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(expectedResponse);
-            const [response] = await client.{{ method.name.toCamelCase() }}(request);
+            client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubServerStreamingCall(expectedResponse);
+            const stream = client.{{ method.name.toCamelCase() }}(request);
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos{{ method.outputInterface }}) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+            });
+            const response = await promise;
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
             {%- endif %}
-            {%- if method.isDiregapicLRO %}
-            assert.deepStrictEqual(response.latestResponse, expectedResponse);
-            {%- else %}
             assert.deepStrictEqual(response, expectedResponse);
-            {%- endif %}
             {{- util.verifyHeaderRequestParams(method) }}
-            {{- util.verifyUUID(method) }}
         });
 
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {

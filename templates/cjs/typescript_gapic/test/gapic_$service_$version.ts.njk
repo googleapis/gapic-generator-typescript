@@ -387,28 +387,6 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {{- util.verifyUUID(method) }}
         });
         
-        it('invokes {{ method.name.toCamelCase() }} without error and gaxServerStreamingRetries enabled', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({gaxServerStreamingRetries: true});
-            {%- if method.options and method.options.deprecated %}
-            const stub = sinon.stub(client, 'warn');
-            {%- endif %}
-            client.{{ id.get("initialize") }}();
-            {{ util.initRequestWithHeaderParam(method) -}}
-            {{ util.initResponse(method) }}
-            client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(expectedResponse);
-            const [response] = await client.{{ method.name.toCamelCase() }}(request);
-            {%- if method.options and method.options.deprecated %}
-            assert(stub.calledOnce);
-            {%- endif %}
-            {%- if method.isDiregapicLRO %}
-            assert.deepStrictEqual(response.latestResponse, expectedResponse);
-            {%- else %}
-            assert.deepStrictEqual(response, expectedResponse);
-            {%- endif %}
-            {{- util.verifyHeaderRequestParams(method) }}
-            {{- util.verifyUUID(method) }}
-        });
-
         it('invokes {{ method.name.toCamelCase() }} without error using callback', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client(
                 {{- util.initClientOptions(api.rest) -}}
@@ -612,6 +590,32 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.{{ id.get("initialize") }}();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubServerStreamingCall(expectedResponse);
+            const stream = client.{{ method.name.toCamelCase() }}(request);
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos{{ method.outputInterface }}) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+            });
+            const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(response, expectedResponse);
+            {{- util.verifyHeaderRequestParams(method) }}
+        });
+
+        it('invokes {{ method.name.toCamelCase() }} without error and gaxServerStreamingRetries enabled', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({gaxServerStreamingRetries: true});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
