@@ -662,6 +662,29 @@ describe('v1beta1.EchoClient', () => {
             assert.deepStrictEqual(response, expectedResponse);
         });
 
+        it('invokes expand without error and gaxServerStreamingRetries enabled', async () => {
+            const client = new echoModule.v1beta1.EchoClient({gaxServerStreamingRetries: true});
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.showcase.v1beta1.ExpandRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.showcase.v1beta1.EchoResponse()
+            );
+            client.innerApiCalls.expand = stubServerStreamingCall(expectedResponse);
+            const stream = client.expand(request);
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos.google.showcase.v1beta1.EchoResponse) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+
         it('invokes expand with error', async () => {
             const client = new echoModule.v1beta1.EchoClient({
               credentials: {client_email: 'bogus', private_key: 'bogus'},
@@ -706,6 +729,12 @@ describe('v1beta1.EchoClient', () => {
                 });
             });
             await assert.rejects(promise, expectedError);
+        });
+        it('should create a client with gaxServerStreamingRetries enabled', () => {
+            const client = new echoModule.v1beta1.EchoClient({
+                gaxServerStreamingRetries: true,
+            });
+            assert(client);
         });
     });
 
