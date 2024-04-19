@@ -415,6 +415,32 @@ describe('src/schema/proto.ts', () => {
       });
       assert.strictEqual(proto.services[fd.service[0].name].protoFile, fd.name);
     });
+
+     it('should return api version if it exists', () => {
+      const fd = {} as protos.google.protobuf.FileDescriptorProto;
+      fd.name = 'google/cloud/showcase/v1beta1/test.proto';
+      fd.package = 'google.cloud.showcase.v1beta1';
+      fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+      fd.service[0].name = 'TestService';
+      fd.service[0].options = {
+        '.google.api.apiVersion': 'v1_20240408',
+      };
+      const options: Options = {
+        grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+      };
+      const allMessages: MessagesMap = {};
+      const commentsMap = new CommentsMap([fd]);
+      const proto = new Proto({
+        fd,
+        packageName: 'google.cloud.showcase.v1beta1',
+        allMessages,
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+        commentsMap,
+      });
+      assert.strictEqual(proto.services['TestService'].apiVersion, 'v1_20240408');
+    });
   });
 
   describe('special work around for talent API', () => {
