@@ -416,7 +416,7 @@ describe('src/schema/proto.ts', () => {
       assert.strictEqual(proto.services[fd.service[0].name].protoFile, fd.name);
     });
 
-     it('should return api version if it exists', () => {
+    it('should return api version if it exists', () => {
       const fd = {} as protos.google.protobuf.FileDescriptorProto;
       fd.name = 'google/cloud/showcase/v1beta1/test.proto';
       fd.package = 'google.cloud.showcase.v1beta1';
@@ -439,7 +439,10 @@ describe('src/schema/proto.ts', () => {
         options,
         commentsMap,
       });
-      assert.strictEqual(proto.services['TestService'].apiVersion, 'v1_20240408');
+      assert.strictEqual(
+        proto.services['TestService'].apiVersion,
+        'v1_20240408'
+      );
     });
   });
 
