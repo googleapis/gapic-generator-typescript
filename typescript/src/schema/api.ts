@@ -62,7 +62,7 @@ export class API {
     fds: protos.google.protobuf.IFileDescriptorProto[]
   ) {
     let filteredProtos = fds.filter(fd => !API.isIgnoredService(fd));
-    // Special cases: google.iam.v1 or google.cloud.location 
+    // Special cases: google.iam.v1 or google.cloud.location
     // can be either a separate service to generate,
     // or a dependency that should be ignored here
     const packages = filteredProtos.reduce((set, fd) => {
