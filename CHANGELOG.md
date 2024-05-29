@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.6.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.0...v4.6.1) (2024-05-29)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^4.3.4 ([#1594](https://github.com/googleapis/gapic-generator-typescript/issues/1594)) ([77a9347](https://github.com/googleapis/gapic-generator-typescript/commit/77a93471a715887708683ecdd11df1310ccfd461))
+* **deps:** Update dependency proto3-json-serializer to ^2.0.2 ([#1596](https://github.com/googleapis/gapic-generator-typescript/issues/1596)) ([4bcdde3](https://github.com/googleapis/gapic-generator-typescript/commit/4bcdde3f60a1f5119d11f29276c63f4ea6144369))
+* Update generator to generate location mixin separately ([#1598](https://github.com/googleapis/gapic-generator-typescript/issues/1598)) ([13854a4](https://github.com/googleapis/gapic-generator-typescript/commit/13854a447df8acfbe6703a2b62052f7338323a87))
+
 ## [4.6.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.5.0...v4.6.0) (2024-05-15)
 
 
