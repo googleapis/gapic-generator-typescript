@@ -91,6 +91,23 @@ describe('src/schema/api.ts', () => {
     ]);
   });
 
+  it('should be able to generate google.cloud.location alone', () => {
+    const fd = {} as protos.google.protobuf.FileDescriptorProto;
+    fd.name = 'google/cloud/location/location.proto';
+    fd.package = 'google.cloud.location';
+    fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+    fd.service[0].name = 'IAMPolicy';
+    fd.service[0].options = {
+      '.google.api.defaultHost': 'cloud.googleapis.com',
+    };
+    const api = new API([fd], 'google.cloud.location', {
+      grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+    });
+    assert.deepStrictEqual(api.filesToGenerate, [
+      'google/cloud/location/location.proto',
+    ]);
+  });
+
   it('should not return common protos in the proto list', () => {
     const fd1 = {} as protos.google.protobuf.FileDescriptorProto;
     fd1.name = 'google/cloud/test/v1/test.proto';
