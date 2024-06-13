@@ -312,8 +312,14 @@ export class {{ service.name }}Client {
     this.descriptors.stream = {
 {%- set streamingJoiner = joiner() %}
 {%- for method in service.streaming %}
+  {%- if method.serverStreaming %}
       {{- streamingJoiner() }}
-      {{ method.name.toCamelCase() }}: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.{{ method.streaming }}, !!opts.fallback, /* gaxStreamingRetries: */ false)
+      {{ method.name.toCamelCase() }}: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.{{ method.streaming }}, !!opts.fallback, !!opts.gaxServerStreamingRetries)
+  {%- endif %}
+  {%- if not method.serverStreaming %}
+    {{- streamingJoiner() }}
+    {{ method.name.toCamelCase() }}: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.{{ method.streaming }}, !!opts.fallback)
+  {%- endif %}
 {%- endfor %}
     };
 {%- endif %}
@@ -396,7 +402,10 @@ export class {{ service.name }}Client {
     // Put together the default options sent with requests.
     this._defaults = this._gaxGrpc.constructSettings(
         '{{ api.naming.protoPackage }}.{{ service.name }}', gapicConfig as gax.ClientConfig,
-        opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
+        opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')
+{%- if service.apiVersion -%}
+       , 'x-goog-api-version': '{{ service.apiVersion }}'
+{%- endif %}});
 
     // Set up a dictionary of "inner API calls"; the core implementation
     // of calling the API is handled in `google-gax`, with this code
