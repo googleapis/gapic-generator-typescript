@@ -5,9 +5,9 @@ def gapic_generator_typescript_repositories():
   maybe(
     http_archive,
     name = "aspect_rules_js",
-    sha256 = "ab56f5e8b001926bef9a23261ff97e70b82b9cc1117a1e4cdc4231c6b8b43568",
-    strip_prefix = "rules_js-1.37.1",
-    url = "https://github.com/aspect-build/rules_js/archive/refs/tags/v1.37.1.tar.gz",
+    sha256 = "fc6887091ee3243661fb532fd3244230b6e193c22566a038c9fd748ca68fb880",
+    strip_prefix = "rules_js-1.42.3",
+    url = "https://github.com/aspect-build/rules_js/archive/refs/tags/v1.42.3.tar.gz",
   )
 
   maybe(
@@ -21,11 +21,11 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "rules_proto",
-      sha256 = "5bc1a7136fc2d37f5162cb61dfc6e168983c7fcded2f9e15e4540daf833f1a1c",
-      strip_prefix = "rules_proto-b1e0e9ae6d6e8719abe70a076d410f4c0797dcf3",
+      sha256 = "f5ae0e582238fcd4ea3d0146a3f5f3db9517f8fe24491eab3c105ace53aad1bb",
+      strip_prefix = "rules_proto-f9b0b880d1e10e18daeeb168cef9d0f8316fdcb5",
       urls = [
-          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/b1e0e9ae6d6e8719abe70a076d410f4c0797dcf3.tar.gz",
-          "https://github.com/bazelbuild/rules_proto/archive/b1e0e9ae6d6e8719abe70a076d410f4c0797dcf3.tar.gz",
+          "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/f9b0b880d1e10e18daeeb168cef9d0f8316fdcb5.tar.gz",
+          "https://github.com/bazelbuild/rules_proto/archive/f9b0b880d1e10e18daeeb168cef9d0f8316fdcb5.tar.gz",
       ],
   )
 

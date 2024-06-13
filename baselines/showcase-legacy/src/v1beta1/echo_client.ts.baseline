@@ -98,7 +98,8 @@ export class EchoClient {
     if (opts?.universe_domain && opts?.universeDomain && opts?.universe_domain !== opts?.universeDomain) {
       throw new Error('Please set either universe_domain or universeDomain, but not both.');
     }
-    this._universeDomain = opts?.universeDomain ?? opts?.universe_domain ?? 'googleapis.com';
+    const universeDomainEnvVar = (typeof process === 'object' && typeof process.env === 'object') ? process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] : undefined;
+    this._universeDomain = opts?.universeDomain ?? opts?.universe_domain ?? universeDomainEnvVar ?? 'googleapis.com';
     this._servicePath = 'localhost';
     const servicePath = opts?.servicePath || opts?.apiEndpoint || this._servicePath;
     this._providedCustomServicePath = !!(opts?.servicePath || opts?.apiEndpoint);
@@ -139,7 +140,7 @@ export class EchoClient {
       `gax/${this._gaxModule.version}`,
       `gapic/${version}`,
     ];
-    if (typeof process !== 'undefined' && 'versions' in process) {
+    if (typeof process === 'object' && 'versions' in process) {
       clientHeader.push(`gl-node/${process.versions.node}`);
     } else {
       clientHeader.push(`gl-web/${this._gaxModule.version}`);
@@ -165,9 +166,9 @@ export class EchoClient {
     // Some of the methods on this service provide streaming responses.
     // Provide descriptors for these.
     this.descriptors.stream = {
-      expand: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.SERVER_STREAMING, !!opts.fallback, /* gaxStreamingRetries: */ false),
-      collect: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.CLIENT_STREAMING, !!opts.fallback, /* gaxStreamingRetries: */ false),
-      chat: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.BIDI_STREAMING, !!opts.fallback, /* gaxStreamingRetries: */ false)
+      expand: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.SERVER_STREAMING, !!opts.fallback, !!opts.gaxServerStreamingRetries),
+    collect: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.CLIENT_STREAMING, !!opts.fallback),
+      chat: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.BIDI_STREAMING, !!opts.fallback, !!opts.gaxServerStreamingRetries)
     };
 
     let protoFilesRoot = new this._gaxModule.GoogleProtoFilesRoot();
@@ -197,7 +198,7 @@ export class EchoClient {
     // Put together the default options sent with requests.
     this._defaults = this._gaxGrpc.constructSettings(
         'google.showcase.v1beta1.Echo', gapicConfig as gax.ClientConfig,
-        opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' ')});
+        opts.clientConfig || {}, {'x-goog-api-client': clientHeader.join(' '), 'x-goog-api-version': 'v1_20240408'});
 
     // Set up a dictionary of "inner API calls"; the core implementation
     // of calling the API is handled in `google-gax`, with this code
@@ -235,7 +236,7 @@ export class EchoClient {
     // Iterate over each of the methods that the service provides
     // and create an API call method for each.
     const echoStubMethods =
-        ['echo', 'expand', 'collect', 'chat', 'pagedExpand', 'pagedExpandLegacy', 'wait', 'block'];
+        ['echo', 'echoErrorDetails', 'expand', 'collect', 'chat', 'pagedExpand', 'pagedExpandLegacy', 'wait', 'block'];
     for (const methodName of echoStubMethods) {
       const callPromise = this.echoStub.then(
         stub => (...args: Array<{}>) => {
@@ -276,24 +277,23 @@ export class EchoClient {
 
   /**
    * The DNS address for this API service.
-   * @deprecated
+   * @deprecated Use the apiEndpoint method of the client instance.
    * @returns {string} The DNS address for this service.
    */
   static get servicePath() {
-    if (typeof process !== undefined && typeof process.emitWarning === 'function') {
+    if (typeof process === 'object' && typeof process.emitWarning === 'function') {
       process.emitWarning('Static servicePath is deprecated, please use the instance method instead.', 'DeprecationWarning');
     }
     return 'localhost';
   }
 
   /**
-   * The DNS address for this API service - same as servicePath,
-   * exists for compatibility reasons.
-   * @deprecated
+   * The DNS address for this API service - same as servicePath.
+   * @deprecated Use the apiEndpoint method of the client instance.
    * @returns {string} The DNS address for this service.
    */
   static get apiEndpoint() {
-    if (typeof process !== undefined && typeof process.emitWarning === 'function') {
+    if (typeof process === 'object' && typeof process.emitWarning === 'function') {
       process.emitWarning('Static apiEndpoint is deprecated, please use the instance method instead.', 'DeprecationWarning');
     }
     return 'localhost';
@@ -301,14 +301,6 @@ export class EchoClient {
 
   /**
    * The DNS address for this API service.
-   * @returns {string} The DNS address for this service.
-   */
-  get servicePath() {
-    return this._servicePath;
-  }
-
-  /**
-   * The DNS address for this API service - same as servicePath().
    * @returns {string} The DNS address for this service.
    */
   get apiEndpoint() {
@@ -359,8 +351,6 @@ export class EchoClient {
  *   The request object that will be sent.
  * @param {string} request.content
  *   The content to be echoed by the server.
- * @param {string} request.requestId
- *   A random request_id to test autopopulation
  * @param {google.rpc.Status} request.error
  *   The error to be thrown by the server.
  * @param {google.showcase.v1beta1.Severity} request.severity
@@ -369,6 +359,10 @@ export class EchoClient {
  *   Optional. This field can be set to test the routing annotation on the Echo method.
  * @param {string} request.otherHeader
  *   Optional. This field can be set to test the routing annotation on the Echo method.
+ * @param {string} request.requestId
+ *   To facilitate testing of https://google.aip.dev/client-libraries/4235
+ * @param {string} request.otherRequestId
+ *   To facilitate testing of https://google.aip.dev/client-libraries/4235
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Promise} - The promise which resolves to an array.
@@ -512,6 +506,80 @@ export class EchoClient {
     );
     this.initialize();
     return this.innerApiCalls.echo(request, options, callback);
+  }
+/**
+ * This method returns error details in a repeated "google.protobuf.Any"
+ * field. This method showcases handling errors thus encoded, particularly
+ * over REST transport. Note that GAPICs only allow the type
+ * "google.protobuf.Any" for field paths ending in "error.details", and, at
+ * run-time, the actual types for these fields must be one of the types in
+ * google/rpc/error_details.proto.
+ *
+ * @param {Object} request
+ *   The request object that will be sent.
+ * @param {string} request.singleDetailText
+ *   Content to return in a singular `*.error.details` field of type
+ *   `google.protobuf.Any`
+ * @param {string[]} request.multiDetailText
+ *   Content to return in a repeated `*.error.details` field of type
+ *   `google.protobuf.Any`
+ * @param {object} [options]
+ *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
+ * @returns {Promise} - The promise which resolves to an array.
+ *   The first element of the array is an object representing {@link protos.google.showcase.v1beta1.EchoErrorDetailsResponse|EchoErrorDetailsResponse}.
+ *   Please see the {@link https://github.com/googleapis/gax-nodejs/blob/master/client-libraries.md#regular-methods | documentation }
+ *   for more details and examples.
+ * @example <caption>include:samples/generated/v1beta1/echo.echo_error_details.js</caption>
+ * region_tag:localhost_v1beta1_generated_Echo_EchoErrorDetails_async
+ */
+  echoErrorDetails(
+      request?: protos.google.showcase.v1beta1.IEchoErrorDetailsRequest,
+      options?: CallOptions):
+      Promise<[
+        protos.google.showcase.v1beta1.IEchoErrorDetailsResponse,
+        protos.google.showcase.v1beta1.IEchoErrorDetailsRequest|undefined, {}|undefined
+      ]>;
+  echoErrorDetails(
+      request: protos.google.showcase.v1beta1.IEchoErrorDetailsRequest,
+      options: CallOptions,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IEchoErrorDetailsResponse,
+          protos.google.showcase.v1beta1.IEchoErrorDetailsRequest|null|undefined,
+          {}|null|undefined>): void;
+  echoErrorDetails(
+      request: protos.google.showcase.v1beta1.IEchoErrorDetailsRequest,
+      callback: Callback<
+          protos.google.showcase.v1beta1.IEchoErrorDetailsResponse,
+          protos.google.showcase.v1beta1.IEchoErrorDetailsRequest|null|undefined,
+          {}|null|undefined>): void;
+  echoErrorDetails(
+      request?: protos.google.showcase.v1beta1.IEchoErrorDetailsRequest,
+      optionsOrCallback?: CallOptions|Callback<
+          protos.google.showcase.v1beta1.IEchoErrorDetailsResponse,
+          protos.google.showcase.v1beta1.IEchoErrorDetailsRequest|null|undefined,
+          {}|null|undefined>,
+      callback?: Callback<
+          protos.google.showcase.v1beta1.IEchoErrorDetailsResponse,
+          protos.google.showcase.v1beta1.IEchoErrorDetailsRequest|null|undefined,
+          {}|null|undefined>):
+      Promise<[
+        protos.google.showcase.v1beta1.IEchoErrorDetailsResponse,
+        protos.google.showcase.v1beta1.IEchoErrorDetailsRequest|undefined, {}|undefined
+      ]>|void {
+    request = request || {};
+    let options: CallOptions;
+    if (typeof optionsOrCallback === 'function' && callback === undefined) {
+      callback = optionsOrCallback;
+      options = {};
+    }
+    else {
+      options = optionsOrCallback as CallOptions;
+    }
+    options = options || {};
+    options.otherArgs = options.otherArgs || {};
+    options.otherArgs.headers = options.otherArgs.headers || {};
+    this.initialize();
+    return this.innerApiCalls.echoErrorDetails(request, options, callback);
   }
 /**
  * This is similar to the PagedExpand except that it uses
@@ -669,6 +737,8 @@ export class EchoClient {
  *   The content that will be split into words and returned on the stream.
  * @param {google.rpc.Status} request.error
  *   The error that is thrown after all words are sent on the stream.
+ * @param {google.protobuf.Duration} request.streamWaitTime
+ *  The wait time between each server streaming messages
  * @param {object} [options]
  *   Call options. See {@link https://googleapis.dev/nodejs/google-gax/latest/interfaces/CallOptions.html|CallOptions} for more details.
  * @returns {Stream}

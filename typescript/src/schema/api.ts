@@ -50,7 +50,6 @@ export class API {
     return (
       fd.package === 'google.longrunning' ||
       fd.package === 'google.cloud' ||
-      fd.package === 'google.cloud.location' ||
       fd.package === 'google.protobuf' ||
       fd.package === 'google.type' ||
       fd.package === 'google.rpc' ||
@@ -63,7 +62,8 @@ export class API {
     fds: protos.google.protobuf.IFileDescriptorProto[]
   ) {
     let filteredProtos = fds.filter(fd => !API.isIgnoredService(fd));
-    // Special case: google.iam.v1 can be either a separate service to generate,
+    // Special cases: google.iam.v1 or google.cloud.location
+    // can be either a separate service to generate,
     // or a dependency that should be ignored here
     const packages = filteredProtos.reduce((set, fd) => {
       set.add(fd.package!);
@@ -72,6 +72,11 @@ export class API {
     if (packages.size > 1 && packages.has('google.iam.v1')) {
       filteredProtos = filteredProtos.filter(
         p => p.package !== 'google.iam.v1'
+      );
+    }
+    if (packages.size > 1 && packages.has('google.cloud.location')) {
+      filteredProtos = filteredProtos.filter(
+        p => p.package !== 'google.cloud.location'
       );
     }
     return filteredProtos;

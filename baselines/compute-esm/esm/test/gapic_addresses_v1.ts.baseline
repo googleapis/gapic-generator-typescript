@@ -121,25 +121,19 @@ describe('v1.AddressesClient', () => {
     sinon.restore();
   });
     describe('Common methods', () => {
-        it('has servicePath', () => {
-            const client = new addressesModule.v1.AddressesClient();
-            const servicePath = client.servicePath;
-            assert.strictEqual(servicePath, 'compute.googleapis.com');
-        });
-
         it('has apiEndpoint', () => {
             const client = new addressesModule.v1.AddressesClient();
             const apiEndpoint = client.apiEndpoint;
             assert.strictEqual(apiEndpoint, 'compute.googleapis.com');
         });
-        
+
         it('has universeDomain', () => {
             const client = new addressesModule.v1.AddressesClient();
             const universeDomain = client.universeDomain;
             assert.strictEqual(universeDomain, "googleapis.com");
         });
 
-        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+        if (typeof process === 'object' && typeof process.emitWarning === 'function') {
             it('throws DeprecationWarning if static servicePath is used', () => {
                 const stub = sinon.stub(process, 'emitWarning');
                 const servicePath = addressesModule.v1.AddressesClient.servicePath;
@@ -156,17 +150,47 @@ describe('v1.AddressesClient', () => {
                 stub.restore();
             });
         }
-        it('sets servicePath according to universe domain camelCase', () => {
+        it('sets apiEndpoint according to universe domain camelCase', () => {
             const client = new addressesModule.v1.AddressesClient({universeDomain: 'example.com'});
-            const servicePath = client.servicePath;
+            const servicePath = client.apiEndpoint;
             assert.strictEqual(servicePath, 'compute.example.com');
         });
 
-        it('sets servicePath according to universe domain snakeCase', () => {
+        it('sets apiEndpoint according to universe domain snakeCase', () => {
             const client = new addressesModule.v1.AddressesClient({universe_domain: 'example.com'});
-            const servicePath = client.servicePath;
+            const servicePath = client.apiEndpoint;
             assert.strictEqual(servicePath, 'compute.example.com');
         });
+
+        if (typeof process === 'object' && 'env' in process) {
+            describe('GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variable', () => {
+                it('sets apiEndpoint from environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new addressesModule.v1.AddressesClient();
+                    const servicePath = client.apiEndpoint;
+                    assert.strictEqual(servicePath, 'compute.example.com');
+                    if (saved) {
+                        process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = saved;
+                    } else {
+                        delete process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    }
+                });
+
+                it('value configured in code has priority over environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new addressesModule.v1.AddressesClient({universeDomain: 'configured.example.com'});
+                    const servicePath = client.apiEndpoint;
+                    assert.strictEqual(servicePath, 'compute.configured.example.com');
+                    if (saved) {
+                        process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = saved;
+                    } else {
+                        delete process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    }
+                });
+            });
+        }
         it('does not allow setting both universeDomain and universe_domain', () => {
             assert.throws(() => { new addressesModule.v1.AddressesClient({universe_domain: 'example.com', universeDomain: 'example.net'}); });
         });

@@ -214,25 +214,19 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
   });
 {%- endif %}
     describe('Common methods', () => {
-        it('has servicePath', () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client();
-            const servicePath = client.{{ id.get("servicePath") }};
-            assert.strictEqual(servicePath, '{{ api.hostName }}');
-        });
-
         it('has apiEndpoint', () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client();
             const apiEndpoint = client.{{ id.get("apiEndpoint") }};
             assert.strictEqual(apiEndpoint, '{{ api.hostName }}');
         });
-        
+
         it('has universeDomain', () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client();
             const universeDomain = client.{{ id.get("universeDomain") }};
             assert.strictEqual(universeDomain, "googleapis.com");
         });
 
-        if (typeof process !== 'undefined' && typeof process.emitWarning === 'function') {
+        if (typeof process === 'object' && typeof process.emitWarning === 'function') {
             it('throws DeprecationWarning if static {{ id.get("servicePath") }} is used', () => {
                 const stub = sinon.stub(process, 'emitWarning');
                 const servicePath = {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client.{{ id.get("servicePath") }};
@@ -251,17 +245,47 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         }
 
         {%- if api.hostName.endsWith("googleapis.com") %}
-        it('sets servicePath according to universe domain camelCase', () => {
+        it('sets apiEndpoint according to universe domain camelCase', () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({universeDomain: 'example.com'});
-            const servicePath = client.{{ id.get("servicePath") }};
+            const servicePath = client.{{ id.get("apiEndpoint") }};
             assert.strictEqual(servicePath, '{{ api.shortName }}.example.com');
         });
 
-        it('sets servicePath according to universe domain snakeCase', () => {
+        it('sets apiEndpoint according to universe domain snakeCase', () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({universe_domain: 'example.com'});
-            const servicePath = client.{{ id.get("servicePath") }};
+            const servicePath = client.{{ id.get("apiEndpoint") }};
             assert.strictEqual(servicePath, '{{ api.shortName }}.example.com');
         });
+
+        if (typeof process === 'object' && 'env' in process) {
+            describe('GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variable', () => {
+                it('sets apiEndpoint from environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client();
+                    const servicePath = client.{{ id.get("apiEndpoint") }};
+                    assert.strictEqual(servicePath, '{{ api.shortName }}.example.com');
+                    if (saved) {
+                        process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = saved;
+                    } else {
+                        delete process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    }
+                });
+
+                it('value configured in code has priority over environment variable', () => {
+                    const saved = process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = 'example.com';
+                    const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({universeDomain: 'configured.example.com'});
+                    const servicePath = client.{{ id.get("apiEndpoint") }};
+                    assert.strictEqual(servicePath, '{{ api.shortName }}.configured.example.com');
+                    if (saved) {
+                        process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'] = saved;
+                    } else {
+                        delete process.env['GOOGLE_CLOUD_UNIVERSE_DOMAIN'];
+                    }
+                });
+            });
+        }
 
         {%- endif %}
         it('does not allow setting both universeDomain and universe_domain', () => {
@@ -590,6 +614,32 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {{- util.verifyHeaderRequestParams(method) }}
         });
 
+        it('invokes {{ method.name.toCamelCase() }} without error and gaxServerStreamingRetries enabled', async () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({gaxServerStreamingRetries: true});
+            {%- if method.options and method.options.deprecated %}
+            const stub = sinon.stub(client, 'warn');
+            {%- endif %}
+            client.{{ id.get("initialize") }}();
+            {{ util.initRequestWithHeaderParam(method) -}}
+            {{ util.initResponse(method) }}
+            client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubServerStreamingCall(expectedResponse);
+            const stream = client.{{ method.name.toCamelCase() }}(request);
+            const promise = new Promise((resolve, reject) => {
+                stream.on('data', (response: protos{{ method.outputInterface }}) => {
+                    resolve(response);
+                });
+                stream.on('error', (err: Error) => {
+                    reject(err);
+                });
+            });
+            const response = await promise;
+            {%- if method.options and method.options.deprecated %}
+            assert(stub.calledOnce);
+            {%- endif %}
+            assert.deepStrictEqual(response, expectedResponse);
+            {{- util.verifyHeaderRequestParams(method) }}
+        });
+
         it('invokes {{ method.name.toCamelCase() }} with error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
             {%- if method.options and method.options.deprecated %}
@@ -638,7 +688,14 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(stub.calledOnce);
             {%- endif %}
         });
+        it('should create a client with gaxServerStreamingRetries enabled', () => {
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({
+                gaxServerStreamingRetries: true,
+            });
+            assert(client);
+        });
     });
+
 {%- endfor %}
 {%- for method in service.bidiStreaming %}
 
