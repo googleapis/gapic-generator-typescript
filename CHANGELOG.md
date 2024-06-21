@@ -1,5 +1,38 @@
 # Changelog
 
+## [4.6.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.0...v4.6.1) (2024-05-29)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^4.3.4 ([#1594](https://github.com/googleapis/gapic-generator-typescript/issues/1594)) ([77a9347](https://github.com/googleapis/gapic-generator-typescript/commit/77a93471a715887708683ecdd11df1310ccfd461))
+* **deps:** Update dependency proto3-json-serializer to ^2.0.2 ([#1596](https://github.com/googleapis/gapic-generator-typescript/issues/1596)) ([4bcdde3](https://github.com/googleapis/gapic-generator-typescript/commit/4bcdde3f60a1f5119d11f29276c63f4ea6144369))
+* Update generator to generate location mixin separately ([#1598](https://github.com/googleapis/gapic-generator-typescript/issues/1598)) ([13854a4](https://github.com/googleapis/gapic-generator-typescript/commit/13854a447df8acfbe6703a2b62052f7338323a87))
+
+## [4.6.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.5.0...v4.6.0) (2024-05-15)
+
+
+### Features
+
+* Add apiVersion to x-goog headers ([#1576](https://github.com/googleapis/gapic-generator-typescript/issues/1576)) ([2ed5cbb](https://github.com/googleapis/gapic-generator-typescript/commit/2ed5cbbf33683a941e3fe30a0e00108c94e295b8))
+* Add new API version to protos ([#1560](https://github.com/googleapis/gapic-generator-typescript/issues/1560)) ([9e2005f](https://github.com/googleapis/gapic-generator-typescript/commit/9e2005f9359f55511bdee6a54e9e4e42aa0eb4d5))
+* Use ClientOptions gaxServerStreamingRetries value ([#1571](https://github.com/googleapis/gapic-generator-typescript/issues/1571)) ([86e68d2](https://github.com/googleapis/gapic-generator-typescript/commit/86e68d2e9bce783a80b6b3dba0e05b393f0fb998))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^4.3.2 ([#1562](https://github.com/googleapis/gapic-generator-typescript/issues/1562)) ([1a5e5ae](https://github.com/googleapis/gapic-generator-typescript/commit/1a5e5ae0a8cab13d4d85344cbda0ce5851c24eff))
+* **deps:** Update dependency google-gax to ^4.3.3 ([#1583](https://github.com/googleapis/gapic-generator-typescript/issues/1583)) ([bb76ca8](https://github.com/googleapis/gapic-generator-typescript/commit/bb76ca80695635d6e101df1f6fef9e59eaaec1e4))
+* **deps:** Update dependency protobufjs to v7.3.0 ([#1588](https://github.com/googleapis/gapic-generator-typescript/issues/1588)) ([3289424](https://github.com/googleapis/gapic-generator-typescript/commit/328942406d4f9e7207f82c9bed1c274374247cd6))
+* Do not use gaxServerStreamingRetries for bidi or client streaming ([#1575](https://github.com/googleapis/gapic-generator-typescript/issues/1575)) ([a69b8b6](https://github.com/googleapis/gapic-generator-typescript/commit/a69b8b6814ac0e33cbcc95d59d4ba85641e267d1))
+
+## [4.5.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.2...v4.5.0) (2024-03-21)
+
+
+### Features
+
+* Support GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variable ([#1558](https://github.com/googleapis/gapic-generator-typescript/issues/1558)) ([884b02e](https://github.com/googleapis/gapic-generator-typescript/commit/884b02e8e1340faf7911b7ea17b5aed135a363db))
+
 ## [4.4.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.4.1...v4.4.2) (2024-02-23)
 
 

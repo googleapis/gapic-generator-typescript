@@ -5,9 +5,9 @@ def gapic_generator_typescript_repositories():
   maybe(
     http_archive,
     name = "aspect_rules_js",
-    sha256 = "46d63efa86b9f87670603022500f3f0a9893b914b401a40183cee59069249052",
-    strip_prefix = "rules_js-1.38.0",
-    url = "https://github.com/aspect-build/rules_js/archive/refs/tags/v1.38.0.tar.gz",
+    sha256 = "fc6887091ee3243661fb532fd3244230b6e193c22566a038c9fd748ca68fb880",
+    strip_prefix = "rules_js-1.42.3",
+    url = "https://github.com/aspect-build/rules_js/archive/refs/tags/v1.42.3.tar.gz",
   )
 
   maybe(
@@ -40,9 +40,9 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "com_google_protobuf",
-      sha256 = "07d69502e58248927b58c7d7e7424135272ba5b2852a753ab6b67e62d2d29355",
-      strip_prefix = "protobuf-24.3",
-      urls = ["https://github.com/protocolbuffers/protobuf/archive/v24.3.tar.gz"],
+      sha256 = "616bb3536ac1fff3fb1a141450fa28b875e985712170ea7f1bfe5e5fc41e2cd8",
+      strip_prefix = "protobuf-24.4",
+      urls = ["https://github.com/protocolbuffers/protobuf/archive/v24.4.tar.gz"],
   )
 
 # This is the version of Node.js that would run the generator, it's unrelated to the versions supported by the generated libraries
