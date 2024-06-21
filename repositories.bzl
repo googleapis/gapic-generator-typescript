@@ -40,9 +40,9 @@ def gapic_generator_typescript_repositories():
   maybe(
       http_archive,
       name = "com_google_protobuf",
-      sha256 = "616bb3536ac1fff3fb1a141450fa28b875e985712170ea7f1bfe5e5fc41e2cd8",
-      strip_prefix = "protobuf-24.4",
-      urls = ["https://github.com/protocolbuffers/protobuf/archive/v24.4.tar.gz"],
+      sha256 = "6fbe2e6f703bcd3a246529c2cab586ca12a98c4e641f5f71d51fde09eb48e9e7",
+      strip_prefix = "protobuf-27.1",
+      urls = ["https://github.com/protocolbuffers/protobuf/archive/v27.1.tar.gz"],
   )
 
 # This is the version of Node.js that would run the generator, it's unrelated to the versions supported by the generated libraries
