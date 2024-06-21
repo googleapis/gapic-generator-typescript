@@ -75,6 +75,7 @@ export interface MethodDescriptorProto
 
 export interface ServiceDescriptorProto
   extends protos.google.protobuf.IServiceDescriptorProto {
+  apiVersion: string;
   packageName: string;
   method: MethodDescriptorProto[];
   simpleMethods: MethodDescriptorProto[];
@@ -907,6 +908,10 @@ function augmentService(parameters: AugmentServiceParameters) {
   if (augmentedService.options?.['.google.api.oauthScopes']) {
     augmentedService.oauthScopes =
       augmentedService.options['.google.api.oauthScopes'].split(',');
+  }
+  if (augmentedService.options?.['.google.api.apiVersion']) {
+    augmentedService.apiVersion =
+      augmentedService.options['.google.api.apiVersion'];
   }
 
   // Build a list of resources referenced by this service

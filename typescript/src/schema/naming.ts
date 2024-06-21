@@ -75,7 +75,8 @@ export class Naming {
     const versionIndex = segments.findIndex(segment =>
       segment.match(versionPattern)
     );
-    if (versionIndex === -1) {
+    // Special exception for location, which does not have a version
+    if (versionIndex === -1 && rootPackage !== 'google.cloud.location') {
       throw new Error(
         `ERROR: Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`
       );
@@ -88,7 +89,8 @@ export class Naming {
         `ERROR: Cannot parse package name ${rootPackage}: version ${version} is the first segment in the name.`
       );
     }
-    const name = segments[versionIndex - 1];
+    // If there is no version (in the case of location), just grab the last segment
+    const name = segments[versionIndex - 1] || segments[segments.length - 1];
 
     // everything before the name is namespace
     const namespaces = segments.slice(0, versionIndex - 1).join('.');
