@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.6.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.1...v4.6.2) (2024-07-30)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency google-gax to ^4.3.6 ([#1604](https://github.com/googleapis/gapic-generator-typescript/issues/1604)) ([353b6f3](https://github.com/googleapis/gapic-generator-typescript/commit/353b6f3c721020ce69da9e807dee5f66c42e4215))
+* **deps:** Update dependency google-gax to ^4.3.7 ([#1612](https://github.com/googleapis/gapic-generator-typescript/issues/1612)) ([94f7e07](https://github.com/googleapis/gapic-generator-typescript/commit/94f7e071b597b86766d52d10c6d4851cb173c2e8))
+* **deps:** Update dependency google-gax to ^4.3.8 ([#1628](https://github.com/googleapis/gapic-generator-typescript/issues/1628)) ([82eb30b](https://github.com/googleapis/gapic-generator-typescript/commit/82eb30bbb6810e7fd5681580d833f3fad4fbc14a))
+* **deps:** Update dependency protobufjs to v7.3.2 ([#1606](https://github.com/googleapis/gapic-generator-typescript/issues/1606)) ([a98549d](https://github.com/googleapis/gapic-generator-typescript/commit/a98549de4149eb6acd3b14b347b574064335e48c))
+* Update various dependencies ([#1614](https://github.com/googleapis/gapic-generator-typescript/issues/1614)) ([17a1772](https://github.com/googleapis/gapic-generator-typescript/commit/17a1772c3e918e380af310bee23a996c6c37d46f))
+
 ## [4.6.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.0...v4.6.1) (2024-05-29)
 
 
