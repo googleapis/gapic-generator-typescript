@@ -1,3 +1,4 @@
+#sudo su 
 # API Client Generator for TypeScript
 
 ## Background
