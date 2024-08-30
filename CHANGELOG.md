@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.6.3](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.2...v4.6.3) (2024-08-30)
+
+
+### Bug Fixes
+
+* Avoid unhandled exception when reusing a closed client ([#1640](https://github.com/googleapis/gapic-generator-typescript/issues/1640)) ([e9da76a](https://github.com/googleapis/gapic-generator-typescript/commit/e9da76a4aafdc5bd4f1e43fc89eaed540afe87fe))
+* **deps:** Update dependency google-gax to ^4.4.0 ([#1636](https://github.com/googleapis/gapic-generator-typescript/issues/1636)) ([6a3f80d](https://github.com/googleapis/gapic-generator-typescript/commit/6a3f80d7c9d44e9cd4d57061571c8e2f5958f6a9))
+* **deps:** Update dependency protobufjs-cli to ^1.1.3 ([#1642](https://github.com/googleapis/gapic-generator-typescript/issues/1642)) ([8bc71f2](https://github.com/googleapis/gapic-generator-typescript/commit/8bc71f200c908c71d6298186fce3fabc3d1a6c82))
+
 ## [4.6.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.1...v4.6.2) (2024-08-27)
 
 
