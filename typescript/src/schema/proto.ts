@@ -289,7 +289,9 @@ function pagingField(
     return undefined;
   }
 
+  console.log("serviceNameException", serviceNameException)
   const inputType = messages[method.inputType!];
+  console.log("\n##############inputType", inputType)
   const outputType = messages[method.outputType!];
   const hasPageToken =
     inputType &&
