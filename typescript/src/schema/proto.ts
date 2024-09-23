@@ -279,6 +279,7 @@ function pagingField(
   // next version.
   //
   // This should not be done for any other API.
+  // TODO(coleleah): update this to include bigquery and except GetQueryResults
   const serviceNameException =
     service && service.packageName === 'google.cloud.talent.v4beta1';
   const methodNameException =
@@ -289,25 +290,52 @@ function pagingField(
     return undefined;
   }
 
-  console.log("serviceNameException", serviceNameException)
+  // keyed by proto package name, e.g. "google.cloud.foo.v1".
+  const enableWrapperTypesForPageSize = {
+    'google.cloud.bigquery.v2': true,
+  }
   const inputType = messages[method.inputType!];
-  console.log("\n##############inputType", inputType)
   const outputType = messages[method.outputType!];
   const hasPageToken =
     inputType &&
     inputType.field &&
     inputType.field.some(field => field.name === 'page_token');
-  // Support paginated methods defined in Discovery-based APIs,
+
+  // isPageSizeField evaluates whether a particular field is a page size field, and whether this
+  // field will require a dependency on wrapper types in the generator.
+  //
+  // https://google.aip.dev/158 guidance is to use `page_size`, but older APIs like compute
+  // and bigquery use `max_results`.  Similarly, `int32` is the expected scalar type, but
+  // there's more variance here in implementations, so int32 and uint32 are allowed.
+  //
+  // Additionally, we support paginated methods defined in Discovery-based APIs,
   // where it uses "max_results" to define the maximum number of
   // paginated resources to return.
-  const hasPageSize =
-    inputType &&
-    inputType.field &&
-    inputType.field.some(
-      field =>
-        field.name === 'page_size' ||
-        (diregapic && field.name === 'max_results')
-    );
+  //
+  // TODO (update comment as needed) If wrapper support is allowed, the page size detection will include the
+  // usage of equivalent wrapper types as well (Int32Value, UInt32Value).  This is legacy behavior
+  // due to older APIs that were built prior to proto3 presence being (re)introduced.
+  // TODO(coleleah): update this to account for bigquery as well
+  const isPageSizeField = () => {
+    if(service){
+      const wrappersAllowed = enableWrapperTypesForPageSize[service.packageName];
+      const hasPageSize =
+      inputType &&
+      inputType.field &&
+      inputType.field.some(
+        field =>
+          field.name === 'page_size' ||
+          (diregapic && field.name === 'max_results') ||
+          (wrappersAllowed && field.name === 'max_results')
+      );
+      return hasPageSize;
+    }else{
+      //TODO coleleah - determine what to do
+    }
+
+  }
+  const hasPageSize = isPageSizeField();
+
   const hasNextPageToken =
     outputType &&
     outputType.field &&
@@ -324,6 +352,8 @@ function pagingField(
   if (repeatedFields.length === 1) {
     return repeatedFields[0];
   }
+  // TODO(coleleah): add logic for int32 issue
+
   // According to https://aip.dev/client-libraries/4233, if there are two
   // or more repeated fields in the output, we must take the the first one
   // (in order of appearance in the file AND field number).
