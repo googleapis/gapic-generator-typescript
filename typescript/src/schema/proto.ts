@@ -317,25 +317,70 @@ function pagingField(
   // due to older APIs that were built prior to proto3 presence being (re)introduced.
   // TODO(coleleah): update this to account for bigquery as well
   const isPageSizeField = () => {
+
     if(service){
       const wrappersAllowed = enableWrapperTypesForPageSize[service.packageName];
-      const hasPageSize =
-      inputType &&
-      inputType.field &&
-      inputType.field.some(
-        field =>
-          field.name === 'page_size' ||
-          (diregapic && field.name === 'max_results') ||
-          (wrappersAllowed && field.name === 'max_results')
-      );
-      return hasPageSize;
-    }else{
-      //TODO coleleah - determine what to do
+      if (inputType && inputType.field){
+        inputType.field.some(
+          field =>{
+            console.warn(field.name)
+            if((field.name === 'page_size') ||
+            (diregapic && field.name === 'max_results') ||
+            (wrappersAllowed && field.name === 'max_results')){
+              console.warn(true);
+              return true;
+            }else{
+              console.warn(false)
+              return false;
+            }
+         }
+
+        );
+
+        // if(fieldYes){
+        //   return true;
+        // }else{
+        //   console.warn("false!")
+        //   return false;
+        // }
+      }else{
+        return false;
+      }
     }
+    //   hasPageSize =
+    //   inputType &&
+    //   inputType.field &&
+    //   inputType.field.some(
+    //     field =>
+    //       field.name === 'page_size' ||
+    //       (diregapic && field.name === 'max_results') ||
+    //       (wrappersAllowed && field.name === 'max_results')
+    //   );
+    // }else{
+    //   let hasPageSize =
+    //   inputType &&
+    //   inputType.field &&
+    //   inputType.field.some(
+    //     field =>
+    //       field.name === 'page_size' ||
+    //       (diregapic && field.name === 'max_results')
+    //   );
+    //   //TODO coleleah - determine what to do and if it really is throwing false
+    //   // return false;
+    // }
+    // return hasPageSize;
+
 
   }
   const hasPageSize = isPageSizeField();
-
+  // const hasPageSize =
+  // inputType &&
+  // inputType.field &&
+  // inputType.field.some(
+  //   field =>
+  //     field.name === 'page_size' ||
+  //     (diregapic && field.name === 'max_results')
+  // );
   const hasNextPageToken =
     outputType &&
     outputType.field &&
