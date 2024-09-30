@@ -34,7 +34,10 @@ const COMMON_PROTO_LIST = [
   'google.protobuf',
   'google.type',
 ];
-
+  // keyed by proto package name, e.g. "google.cloud.foo.v1".
+  const ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE = {
+    'google.cloud.bigquery.v2': true,
+  }
 export interface MethodDescriptorProto
   extends protos.google.protobuf.IMethodDescriptorProto {
   autoPopulatedFields?: string[];
@@ -270,7 +273,8 @@ function pagingField(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean
 ) {
   // TODO: remove this once the next version of the Talent API is published.
   //
@@ -290,10 +294,7 @@ function pagingField(
     return undefined;
   }
 
-  // keyed by proto package name, e.g. "google.cloud.foo.v1".
-  const enableWrapperTypesForPageSize = {
-    'google.cloud.bigquery.v2': true,
-  }
+
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
@@ -317,25 +318,30 @@ function pagingField(
   // due to older APIs that were built prior to proto3 presence being (re)introduced.
   // TODO(coleleah): update this to account for bigquery as well
   const isPageSizeField = () => {
-    if(service){
-      const wrappersAllowed = enableWrapperTypesForPageSize[service.packageName];
-      if (inputType && inputType.field){
-        inputType.field.some(
-          field =>{
-            if((field.name === 'page_size') ||
-            (diregapic && field.name === 'max_results') ||
-            (wrappersAllowed && field.name === 'max_results')){
-              return true;
-            }else{
-              return false;
-            }
-         }
-        );
-      }else{
-        return false;
-      }
+    // let wrappersAllowed = false;
+    let fieldYes = false;
+    // if(service){
+    //   wrappersAllowed = ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[service.packageName];
+    // }
+    if (inputType && inputType.field){
+      inputType.field.some(
+        field =>{
+          if((field.name === 'page_size') ||
+          (diregapic && field.name === 'max_results') ||
+          (wrappersAllowed && field.name === 'max_results')){
+            // console.warn(field);
+            fieldYes = true;
+          }else{
+            // return false;
+          }
+        }
+      );
+    }else{
+      // return false;
     }
-  }
+    // console.warn(fieldYes)
+    return fieldYes;
+    }
   const hasPageSize = isPageSizeField();
 
   const hasNextPageToken =
@@ -389,27 +395,50 @@ function pagingFieldName(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean
 ) {
-  const field = pagingField(messages, method, service, diregapic);
+  const field = pagingField(messages, method, service, diregapic, wrappersAllowed);
+  //TODO(coleleah) remove - this prints info for list methods
+  // if(field){
+  //   console.warn('pagingfieldname')
+  //   console.warn(method.name)
+  //   console.warn("f", field)
+  // }
+
   return field?.name;
 }
 
 function pagingResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean
 ) {
-  const field = pagingField(messages, method, undefined, diregapic);
+  const field = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
+  // if(method.name.search(/List/)>=0){
+  // console.warn('420', method.name, field)
+  // }
+  // if(field){
+  //   console.warn('pagingresponsetype')
+  //   console.warn(method.name)
+  //   console.warn(field, field.type)
+  //   console.warn(!field, !field.type)
+  // }
   if (!field || !field.type) {
+    if(field){
+    // console.warn('returning undefined for', method.name)
+    }
     return undefined;
   }
   if (
     field.type === 11 // TYPE_MESSAGE
   ) {
+    // console.warn('message type!', field.typeName)
     return field.typeName; //.google.showcase.v1beta1.EchoResponse
   }
   const type = Type[field.type];
+
   // .google.protobuf.FieldDescriptorProto.Type.TYPE_STRING
   return '.google.protobuf.FieldDescriptorProto.Type.' + type;
 }
@@ -418,9 +447,10 @@ function pagingResponseType(
 function ignoreMapPagingMethod(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean
 ) {
-  const pagingfield = pagingField(messages, method, undefined, diregapic);
+  const pagingfield = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
   const outputType = messages[method.outputType!];
   if (!pagingfield?.type || !outputType.nestedType) {
     return undefined;
@@ -440,12 +470,16 @@ function ignoreMapPagingMethod(
 function pagingMapResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean
 ) {
-  const pagingfield = pagingField(messages, method, undefined, diregapic);
+
+  const pagingfield = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
+
   const outputType = messages[method.outputType!];
-  if (!pagingfield?.type || !diregapic || !outputType.nestedType) {
-    return undefined;
+  if (!pagingfield?.type || (!diregapic) || !outputType.nestedType) {
+
+      return undefined;
   }
   const mapResponses = outputType.nestedType.filter(desProto => {
     return desProto.options && desProto.options.mapEntry;
@@ -525,61 +559,72 @@ function augmentMethod(
   parameters: AugmentMethodParameters,
   method: MethodDescriptorProto
 ) {
+  const m2 =    {
+    longRunning: longrunning(parameters.service, method),
+    longRunningResponseType: longRunningResponseType(
+      parameters.service.packageName,
+      method
+    ),
+    longRunningMetadataType: longRunningMetadataType(
+      parameters.service.packageName,
+      method
+    ),
+    isDiregapicLRO: isDiregapicLRO(
+      parameters.service.packageName,
+      method,
+      parameters.diregapic
+    ),
+    autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
+    streaming: streaming(method),
+    pagingFieldName: pagingFieldName(
+      parameters.allMessages,
+      method,
+      parameters.service,
+      parameters.diregapic,
+      ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName]
+    ),
+    pagingResponseType: pagingResponseType(
+      parameters.allMessages,
+      method,
+      parameters.diregapic,
+      ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName]
+    ),
+    pagingMapResponseType: pagingMapResponseType(
+      parameters.allMessages,
+      method,
+      parameters.diregapic,
+      ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName]
+
+    ),
+    ignoreMapPagingMethod: ignoreMapPagingMethod(
+      parameters.allMessages,
+      method,
+      parameters.diregapic,
+      ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName]
+    ),
+    inputInterface: method.inputType!,
+    outputInterface: method.outputType!,
+    comments: parameters.service.commentsMap.getMethodComments(
+      parameters.service.name!,
+      method.name!
+    ),
+    methodConfig: getMethodConfig(
+      parameters.service.grpcServiceConfig,
+      `${parameters.service.packageName}.${parameters.service.name!}`,
+      method.name!
+    ),
+    retryableCodesName: defaultNonIdempotentRetryCodesName,
+    retryParamsName: defaultParametersName,
+  };
+  // if(method.name.search(/List/)>=0){
+  // console.warn("calling augment method", method.name, m2.pagingFieldName, m2.pagingResponseType)
+  // }
+
   method = Object.assign(
-    {
-      longRunning: longrunning(parameters.service, method),
-      longRunningResponseType: longRunningResponseType(
-        parameters.service.packageName,
-        method
-      ),
-      longRunningMetadataType: longRunningMetadataType(
-        parameters.service.packageName,
-        method
-      ),
-      isDiregapicLRO: isDiregapicLRO(
-        parameters.service.packageName,
-        method,
-        parameters.diregapic
-      ),
-      autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
-      streaming: streaming(method),
-      pagingFieldName: pagingFieldName(
-        parameters.allMessages,
-        method,
-        parameters.service,
-        parameters.diregapic
-      ),
-      pagingResponseType: pagingResponseType(
-        parameters.allMessages,
-        method,
-        parameters.diregapic
-      ),
-      pagingMapResponseType: pagingMapResponseType(
-        parameters.allMessages,
-        method,
-        parameters.diregapic
-      ),
-      ignoreMapPagingMethod: ignoreMapPagingMethod(
-        parameters.allMessages,
-        method,
-        parameters.diregapic
-      ),
-      inputInterface: method.inputType!,
-      outputInterface: method.outputType!,
-      comments: parameters.service.commentsMap.getMethodComments(
-        parameters.service.name!,
-        method.name!
-      ),
-      methodConfig: getMethodConfig(
-        parameters.service.grpcServiceConfig,
-        `${parameters.service.packageName}.${parameters.service.name!}`,
-        method.name!
-      ),
-      retryableCodesName: defaultNonIdempotentRetryCodesName,
-      retryParamsName: defaultParametersName,
-    },
+    m2, 
     method
   ) as MethodDescriptorProto;
+  // console.warn("squirrel", method.name, method.pagingResponseType);
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
       throw new Error(
