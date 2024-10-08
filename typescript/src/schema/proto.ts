@@ -25,7 +25,7 @@ import {
 import {BundleConfig} from '../bundle.js';
 import {Options} from './naming.js';
 import {ServiceYaml} from '../serviceyaml.js';
-import protobuf from 'protobufjs';
+import protobuf, { wrappers } from 'protobufjs';
 import protoJson from '../../../protos/protos.json' assert {type: 'json'};
 
 const COMMON_PROTO_LIST = [
@@ -74,6 +74,11 @@ export interface MethodDescriptorProto
   bundleConfig?: BundleConfig;
   toJSON: Function | undefined;
   isDiregapicLRO?: boolean;
+  // if wrappers are allowed we will pass the name of the non AIP compliant pageSize parameter
+  // (typically max_results) and the type the API expects
+  // it will be in the format ['max_results', 'UInt32Value']
+  // TODO(coleleah) make this comment more robust
+  maxResultsParameter: string[][] | undefined;
 }
 
 export interface ServiceDescriptorProto
@@ -268,7 +273,26 @@ function streaming(method: MethodDescriptorProto) {
   }
   return undefined;
 }
+ function modifyMaxResultsType(field, wrappersAllowed){
+  let fieldOut = field;
+  // maxResults 
+  if(wrappersAllowed){
+    if(fieldOut.type === 11 && fieldOut.typeName === ".google.protobuf.UInt32Value"){
+      delete fieldOut.typeName
+      fieldOut.type = 5
+    }
+  }
+  return fieldOut;
 
+}
+function getMaxResultsParameter(method, wrappersAllowed){
+  // TODO(coleleah): modify
+  if(wrappersAllowed){
+    return {'max_results': 'UInt32Value'}
+
+  }
+  return undefined;
+}
 function pagingField(
   messages: MessagesMap,
   method: MethodDescriptorProto,
@@ -329,7 +353,7 @@ function pagingField(
           if((field.name === 'page_size') ||
           (diregapic && field.name === 'max_results') ||
           (wrappersAllowed && field.name === 'max_results')){
-            // console.warn(field);
+
             fieldYes = true;
           }else{
             // return false;
@@ -339,7 +363,6 @@ function pagingField(
     }else{
       // return false;
     }
-    // console.warn(fieldYes)
     return fieldYes;
     }
   const hasPageSize = isPageSizeField();
@@ -357,6 +380,7 @@ function pagingField(
   if (repeatedFields.length === 0) {
     return undefined;
   }
+  
   if (repeatedFields.length === 1) {
     return repeatedFields[0];
   }
@@ -399,13 +423,6 @@ function pagingFieldName(
   wrappersAllowed?: boolean
 ) {
   const field = pagingField(messages, method, service, diregapic, wrappersAllowed);
-  //TODO(coleleah) remove - this prints info for list methods
-  // if(field){
-  //   console.warn('pagingfieldname')
-  //   console.warn(method.name)
-  //   console.warn("f", field)
-  // }
-
   return field?.name;
 }
 
@@ -416,25 +433,12 @@ function pagingResponseType(
   wrappersAllowed?: boolean
 ) {
   const field = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
-  // if(method.name.search(/List/)>=0){
-  // console.warn('420', method.name, field)
-  // }
-  // if(field){
-  //   console.warn('pagingresponsetype')
-  //   console.warn(method.name)
-  //   console.warn(field, field.type)
-  //   console.warn(!field, !field.type)
-  // }
   if (!field || !field.type) {
-    if(field){
-    // console.warn('returning undefined for', method.name)
-    }
     return undefined;
   }
   if (
     field.type === 11 // TYPE_MESSAGE
   ) {
-    // console.warn('message type!', field.typeName)
     return field.typeName; //.google.showcase.v1beta1.EchoResponse
   }
   const type = Type[field.type];
@@ -559,6 +563,7 @@ function augmentMethod(
   parameters: AugmentMethodParameters,
   method: MethodDescriptorProto
 ) {
+  const wrappersAllowed = ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName];
   const m2 =    {
     longRunning: longrunning(parameters.service, method),
     longRunningResponseType: longRunningResponseType(
@@ -581,26 +586,26 @@ function augmentMethod(
       method,
       parameters.service,
       parameters.diregapic,
-      ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName]
+      wrappersAllowed
     ),
     pagingResponseType: pagingResponseType(
       parameters.allMessages,
       method,
       parameters.diregapic,
-      ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName]
+      wrappersAllowed
     ),
     pagingMapResponseType: pagingMapResponseType(
       parameters.allMessages,
       method,
       parameters.diregapic,
-      ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName]
+      wrappersAllowed
 
     ),
     ignoreMapPagingMethod: ignoreMapPagingMethod(
       parameters.allMessages,
       method,
       parameters.diregapic,
-      ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName]
+      wrappersAllowed
     ),
     inputInterface: method.inputType!,
     outputInterface: method.outputType!,
@@ -615,16 +620,17 @@ function augmentMethod(
     ),
     retryableCodesName: defaultNonIdempotentRetryCodesName,
     retryParamsName: defaultParametersName,
+    maxResultsParameter: getMaxResultsParameter(method, wrappersAllowed)
   };
-  // if(method.name.search(/List/)>=0){
-  // console.warn("calling augment method", method.name, m2.pagingFieldName, m2.pagingResponseType)
-  // }
+  if(method.name.search(/List/)>=0){
+    console.warn("calling augment method", method.name)
+    console.warn(m2.autoPopulatedFields)
+  }
 
   method = Object.assign(
     m2, 
     method
   ) as MethodDescriptorProto;
-  // console.warn("squirrel", method.name, method.pagingResponseType);
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
       throw new Error(
@@ -664,13 +670,38 @@ function augmentMethod(
     const paramComment: Comment[] = [];
     const inputType = parameters.allMessages[method.inputType!];
     const inputmessageName = toMessageName(method.inputType);
-    for (const field of inputType.field!) {
+    let fields = [];
+    // console.warn('imn',inputmessageName);
+    for (let f of inputType.field!) {
+      if(method.name.search(/List/)>=0){
+        // console.warn('f', f, wrappersAllowed)
+      }
+      let field = f;
+      if(wrappersAllowed && field.name === "max_results"){
+        // console.warn('changing!')
+        field = modifyMaxResultsType(field, wrappersAllowed);
+        // console.warn('field', field);
+      }
+      fields.push(field);
+      // TODO param comment
       const comment = parameters.service.commentsMap.getParamComments(
         inputmessageName,
         field.name!
       );
       paramComment.push(comment);
+      // if(method.name.search(/List/)>=0){
+      //   console.warn('after', inputType.field!);
+      // }
+
     }
+        // if(method.name.search(/List/)>=0){
+        //   console.warn('before', parameters.allMessages[method.inputType!].field)
+        //   }
+    parameters.allMessages[method.inputType!].field = fields;
+        // if(method.name.search(/List/)>=0){
+        //   console.warn('after', parameters.allMessages[method.inputType!].field)
+        //   }
+
     method.paramComment = paramComment;
   }
   if (method.methodConfig.retryPolicy?.retryableStatusCodes) {
@@ -733,6 +764,9 @@ function augmentMethod(
   // protobuf.js redefines .toJSON to serialize only known fields,
   // but we need to serialize the whole augmented object.
   method.toJSON = undefined;
+  if(method.name.search(/List/)>=0){
+    // console.warn('744', parameters.allMessages[method.inputType!])
+  }
   return method;
 }
 
@@ -1142,5 +1176,6 @@ export class Proto {
         map[service.name!] = service;
         return map;
       }, {} as ServicesMap);
+
   }
 }
