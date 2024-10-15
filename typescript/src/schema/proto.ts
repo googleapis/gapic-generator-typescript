@@ -77,11 +77,8 @@ export interface MethodDescriptorProto
   bundleConfig?: BundleConfig;
   toJSON: Function | undefined;
   isDiregapicLRO?: boolean;
-  // if wrappers are allowed we will pass the name of the non AIP compliant pageSize parameter
-  // (typically max_results) and the type the API expects
-  // it will be in the format ['max_results', 'UInt32Value']
-  // TODO(coleleah) make this comment more robust
-  maxResultsParameter: string[][] | undefined;
+  // if wrappers are allowed and there is a maxResultsParamter, return true
+  maxResultsParameter: boolean;
 }
 
 export interface ServiceDescriptorProto
@@ -276,33 +273,19 @@ function streaming(method: MethodDescriptorProto) {
   }
   return undefined;
 }
-// TODO docstring
- function modifyMaxResultsType(field, wrappersAllowed){
-  let fieldOut = field;
-  // maxResults 
-  if(wrappersAllowed){
-    if(fieldOut.type === 11 && fieldOut.typeName === ".google.protobuf.UInt32Value"){
-      delete fieldOut.typeName
-      fieldOut.type = 5
-    }
-  }
-  return fieldOut;
 
-}
 // TODO docstring
+// TODO can this be in paging field? maybe? unclear
 function getMaxResultsParameter(messages, method, wrappersAllowed){
-  // TODO(coleleah): modify
   const inputType = messages[method.inputType!];
-
   const hasMaxResults =
     inputType &&
     inputType.field &&
     inputType.field.some(field => field.name === 'max_results');
   if(wrappersAllowed && hasMaxResults){
-    return {'max_results': 'UInt32Value'}
-
+    return true;
   }
-  return undefined;
+  return false;
 }
 // determines the actual field from that service that needs to be paginated
 function pagingField(
@@ -667,9 +650,6 @@ function augmentMethod(
     let fields = [];
     for (let f of inputType.field!) {
       let field = f;
-      if(wrappersAllowed && field.name === "max_results"){
-        field = modifyMaxResultsType(field, wrappersAllowed);
-      }
       fields.push(field);
       // TODO param comment
       const comment = parameters.service.commentsMap.getParamComments(
