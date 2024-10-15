@@ -285,9 +285,16 @@ function streaming(method: MethodDescriptorProto) {
   return fieldOut;
 
 }
-function getMaxResultsParameter(method, wrappersAllowed){
+function getMaxResultsParameter(messages, method, wrappersAllowed){
   // TODO(coleleah): modify
-  if(wrappersAllowed){
+  const inputType = messages[method.inputType!];
+  console.warn(inputType);
+
+  const hasMaxResults =
+    inputType &&
+    inputType.field &&
+    inputType.field.some(field => field.name === 'max_results');
+  if(wrappersAllowed && hasMaxResults){
     return {'max_results': 'UInt32Value'}
 
   }
@@ -342,11 +349,7 @@ function pagingField(
   // due to older APIs that were built prior to proto3 presence being (re)introduced.
   // TODO(coleleah): update this to account for bigquery as well
   const isPageSizeField = () => {
-    // let wrappersAllowed = false;
     let fieldYes = false;
-    // if(service){
-    //   wrappersAllowed = ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[service.packageName];
-    // }
     if (inputType && inputType.field){
       inputType.field.some(
         field =>{
@@ -355,13 +358,9 @@ function pagingField(
           (wrappersAllowed && field.name === 'max_results')){
 
             fieldYes = true;
-          }else{
-            // return false;
           }
         }
       );
-    }else{
-      // return false;
     }
     return fieldYes;
     }
@@ -620,12 +619,8 @@ function augmentMethod(
     ),
     retryableCodesName: defaultNonIdempotentRetryCodesName,
     retryParamsName: defaultParametersName,
-    maxResultsParameter: getMaxResultsParameter(method, wrappersAllowed)
+    maxResultsParameter: getMaxResultsParameter(parameters.allMessages, method, wrappersAllowed)
   };
-  if(method.name.search(/List/)>=0){
-    console.warn("calling augment method", method.name)
-    console.warn(m2.autoPopulatedFields)
-  }
 
   method = Object.assign(
     m2, 
@@ -671,16 +666,10 @@ function augmentMethod(
     const inputType = parameters.allMessages[method.inputType!];
     const inputmessageName = toMessageName(method.inputType);
     let fields = [];
-    // console.warn('imn',inputmessageName);
     for (let f of inputType.field!) {
-      if(method.name.search(/List/)>=0){
-        // console.warn('f', f, wrappersAllowed)
-      }
       let field = f;
       if(wrappersAllowed && field.name === "max_results"){
-        // console.warn('changing!')
         field = modifyMaxResultsType(field, wrappersAllowed);
-        // console.warn('field', field);
       }
       fields.push(field);
       // TODO param comment
@@ -689,18 +678,12 @@ function augmentMethod(
         field.name!
       );
       paramComment.push(comment);
-      // if(method.name.search(/List/)>=0){
-      //   console.warn('after', inputType.field!);
-      // }
+
 
     }
-        // if(method.name.search(/List/)>=0){
-        //   console.warn('before', parameters.allMessages[method.inputType!].field)
-        //   }
+
     parameters.allMessages[method.inputType!].field = fields;
-        // if(method.name.search(/List/)>=0){
-        //   console.warn('after', parameters.allMessages[method.inputType!].field)
-        //   }
+
 
     method.paramComment = paramComment;
   }
@@ -764,9 +747,6 @@ function augmentMethod(
   // protobuf.js redefines .toJSON to serialize only known fields,
   // but we need to serialize the whole augmented object.
   method.toJSON = undefined;
-  if(method.name.search(/List/)>=0){
-    // console.warn('744', parameters.allMessages[method.inputType!])
-  }
   return method;
 }
 
