@@ -34,6 +34,9 @@ const COMMON_PROTO_LIST = [
   'google.protobuf',
   'google.type',
 ];
+
+  // services that are allowed to use UInt32Value protobuf wrapper types 
+  // instead of "number" for pageSize/maxResults
   // keyed by proto package name, e.g. "google.cloud.foo.v1".
   const ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE = {
     'google.cloud.bigquery.v2': true,
@@ -273,6 +276,7 @@ function streaming(method: MethodDescriptorProto) {
   }
   return undefined;
 }
+// TODO docstring
  function modifyMaxResultsType(field, wrappersAllowed){
   let fieldOut = field;
   // maxResults 
@@ -285,10 +289,10 @@ function streaming(method: MethodDescriptorProto) {
   return fieldOut;
 
 }
+// TODO docstring
 function getMaxResultsParameter(messages, method, wrappersAllowed){
   // TODO(coleleah): modify
   const inputType = messages[method.inputType!];
-  console.warn(inputType);
 
   const hasMaxResults =
     inputType &&
@@ -300,6 +304,7 @@ function getMaxResultsParameter(messages, method, wrappersAllowed){
   }
   return undefined;
 }
+// determines the actual field from that service that needs to be paginated
 function pagingField(
   messages: MessagesMap,
   method: MethodDescriptorProto,
@@ -315,6 +320,7 @@ function pagingField(
   //
   // This should not be done for any other API.
   // TODO(coleleah): update this to include bigquery and except GetQueryResults
+  // TODO remember why I wrote teh above comment
   const serviceNameException =
     service && service.packageName === 'google.cloud.talent.v4beta1';
   const methodNameException =
@@ -343,11 +349,6 @@ function pagingField(
   // Additionally, we support paginated methods defined in Discovery-based APIs,
   // where it uses "max_results" to define the maximum number of
   // paginated resources to return.
-  //
-  // TODO (update comment as needed) If wrapper support is allowed, the page size detection will include the
-  // usage of equivalent wrapper types as well (Int32Value, UInt32Value).  This is legacy behavior
-  // due to older APIs that were built prior to proto3 presence being (re)introduced.
-  // TODO(coleleah): update this to account for bigquery as well
   const isPageSizeField = () => {
     let fieldYes = false;
     if (inputType && inputType.field){
@@ -356,7 +357,6 @@ function pagingField(
           if((field.name === 'page_size') ||
           (diregapic && field.name === 'max_results') ||
           (wrappersAllowed && field.name === 'max_results')){
-
             fieldYes = true;
           }
         }
@@ -383,8 +383,6 @@ function pagingField(
   if (repeatedFields.length === 1) {
     return repeatedFields[0];
   }
-  // TODO(coleleah): add logic for int32 issue
-
   // According to https://aip.dev/client-libraries/4233, if there are two
   // or more repeated fields in the output, we must take the the first one
   // (in order of appearance in the file AND field number).
@@ -419,7 +417,7 @@ function pagingFieldName(
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
   diregapic?: boolean,
-  wrappersAllowed?: boolean
+  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
   const field = pagingField(messages, method, service, diregapic, wrappersAllowed);
   return field?.name;
@@ -429,7 +427,7 @@ function pagingResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   diregapic?: boolean,
-  wrappersAllowed?: boolean
+  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
   const field = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
   if (!field || !field.type) {
@@ -451,7 +449,7 @@ function ignoreMapPagingMethod(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   diregapic?: boolean,
-  wrappersAllowed?: boolean
+  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
   const pagingfield = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
   const outputType = messages[method.outputType!];
@@ -474,7 +472,7 @@ function pagingMapResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   diregapic?: boolean,
-  wrappersAllowed?: boolean
+  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
 
   const pagingfield = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
@@ -562,68 +560,69 @@ function augmentMethod(
   parameters: AugmentMethodParameters,
   method: MethodDescriptorProto
 ) {
+  // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
+  // this is used to determine factors about pagination fields and to allow users to pass a "number" instead of
+  // having to convert to a protobuf wrapper type to determine page size
   const wrappersAllowed = ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName];
-  const m2 =    {
-    longRunning: longrunning(parameters.service, method),
-    longRunningResponseType: longRunningResponseType(
-      parameters.service.packageName,
-      method
-    ),
-    longRunningMetadataType: longRunningMetadataType(
-      parameters.service.packageName,
-      method
-    ),
-    isDiregapicLRO: isDiregapicLRO(
-      parameters.service.packageName,
-      method,
-      parameters.diregapic
-    ),
-    autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
-    streaming: streaming(method),
-    pagingFieldName: pagingFieldName(
-      parameters.allMessages,
-      method,
-      parameters.service,
-      parameters.diregapic,
-      wrappersAllowed
-    ),
-    pagingResponseType: pagingResponseType(
-      parameters.allMessages,
-      method,
-      parameters.diregapic,
-      wrappersAllowed
-    ),
-    pagingMapResponseType: pagingMapResponseType(
-      parameters.allMessages,
-      method,
-      parameters.diregapic,
-      wrappersAllowed
-
-    ),
-    ignoreMapPagingMethod: ignoreMapPagingMethod(
-      parameters.allMessages,
-      method,
-      parameters.diregapic,
-      wrappersAllowed
-    ),
-    inputInterface: method.inputType!,
-    outputInterface: method.outputType!,
-    comments: parameters.service.commentsMap.getMethodComments(
-      parameters.service.name!,
-      method.name!
-    ),
-    methodConfig: getMethodConfig(
-      parameters.service.grpcServiceConfig,
-      `${parameters.service.packageName}.${parameters.service.name!}`,
-      method.name!
-    ),
-    retryableCodesName: defaultNonIdempotentRetryCodesName,
-    retryParamsName: defaultParametersName,
-    maxResultsParameter: getMaxResultsParameter(parameters.allMessages, method, wrappersAllowed)
-  };
-
   method = Object.assign(
-    m2, 
+    {
+      longRunning: longrunning(parameters.service, method),
+      longRunningResponseType: longRunningResponseType(
+        parameters.service.packageName,
+        method
+      ),
+      longRunningMetadataType: longRunningMetadataType(
+        parameters.service.packageName,
+        method
+      ),
+      isDiregapicLRO: isDiregapicLRO(
+        parameters.service.packageName,
+        method,
+        parameters.diregapic
+      ),
+      autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
+      streaming: streaming(method),
+      pagingFieldName: pagingFieldName(
+        parameters.allMessages,
+        method,
+        parameters.service,
+        parameters.diregapic,
+        wrappersAllowed
+      ),
+      pagingResponseType: pagingResponseType(
+        parameters.allMessages,
+        method,
+        parameters.diregapic,
+        wrappersAllowed
+      ),
+      pagingMapResponseType: pagingMapResponseType(
+        parameters.allMessages,
+        method,
+        parameters.diregapic,
+        wrappersAllowed
+  
+      ),
+      ignoreMapPagingMethod: ignoreMapPagingMethod(
+        parameters.allMessages,
+        method,
+        parameters.diregapic,
+        wrappersAllowed
+      ),
+      inputInterface: method.inputType!,
+      outputInterface: method.outputType!,
+      comments: parameters.service.commentsMap.getMethodComments(
+        parameters.service.name!,
+        method.name!
+      ),
+      methodConfig: getMethodConfig(
+        parameters.service.grpcServiceConfig,
+        `${parameters.service.packageName}.${parameters.service.name!}`,
+        method.name!
+      ),
+      retryableCodesName: defaultNonIdempotentRetryCodesName,
+      retryParamsName: defaultParametersName,
+      maxResultsParameter: getMaxResultsParameter(parameters.allMessages, method, wrappersAllowed)
+    }, 
     method
   ) as MethodDescriptorProto;
   if (method.longRunning) {
