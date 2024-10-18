@@ -35,7 +35,7 @@ const COMMON_PROTO_LIST = [
   'google.type',
 ];
 
-  // services that are allowed to use UInt32Value protobuf wrapper types 
+  // services that are allowed to use Int32Value and UInt32Value protobuf wrapper types 
   // instead of "number" for pageSize/maxResults
   // keyed by proto package name, e.g. "google.cloud.foo.v1".
   const ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE = {
@@ -274,9 +274,10 @@ function streaming(method: MethodDescriptorProto) {
   return undefined;
 }
 
-// TODO docstring
-// TODO can this be in paging field? maybe? unclear
-function getMaxResultsParameter(messages, method, wrappersAllowed){
+// returns true if the method has wrappers for UInt32Value enabled
+// and is a paginated call with a maxResults parameter instead of pageSize
+// as of its creation, this should only be true for BigQuery
+function wrappersHasMaxResultsParameter(messages, method, wrappersAllowed){
   const inputType = messages[method.inputType!];
   const hasMaxResults =
     inputType &&
@@ -302,8 +303,6 @@ function pagingField(
   // next version.
   //
   // This should not be done for any other API.
-  // TODO(coleleah): update this to include bigquery and except GetQueryResults
-  // TODO remember why I wrote teh above comment
   const serviceNameException =
     service && service.packageName === 'google.cloud.talent.v4beta1';
   const methodNameException =
@@ -543,7 +542,7 @@ function augmentMethod(
   parameters: AugmentMethodParameters,
   method: MethodDescriptorProto
 ) {
-  // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
+  // whether a service is allowed to use Int32Value and UInt32Value wrappers - generally this is only BigQuery
   // this is used to determine factors about pagination fields and to allow users to pass a "number" instead of
   // having to convert to a protobuf wrapper type to determine page size
   const wrappersAllowed = ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName];
@@ -604,7 +603,7 @@ function augmentMethod(
       ),
       retryableCodesName: defaultNonIdempotentRetryCodesName,
       retryParamsName: defaultParametersName,
-      maxResultsParameter: getMaxResultsParameter(parameters.allMessages, method, wrappersAllowed)
+      maxResultsParameter: wrappersHasMaxResultsParameter(parameters.allMessages, method, wrappersAllowed)
     }, 
     method
   ) as MethodDescriptorProto;
