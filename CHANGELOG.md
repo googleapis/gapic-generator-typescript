@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.4](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.3...v4.6.4) (2024-10-21)
+
+
+### Bug Fixes
+
+* Remove extra protos & capiture ESM in headers ([#1658](https://github.com/googleapis/gapic-generator-typescript/issues/1658)) ([3bbb2b9](https://github.com/googleapis/gapic-generator-typescript/commit/3bbb2b9cd3af09f36d5b39025fc6c7d4507c78c7))
+
 ## [4.6.3](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.2...v4.6.3) (2024-08-30)
 
 
