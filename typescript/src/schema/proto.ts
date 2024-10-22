@@ -35,12 +35,12 @@ const COMMON_PROTO_LIST = [
   'google.type',
 ];
 
-  // services that are allowed to use Int32Value and UInt32Value protobuf wrapper types 
-  // instead of "number" for pageSize/maxResults
-  // keyed by proto package name, e.g. "google.cloud.foo.v1".
-  const ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE = {
-    'google.cloud.bigquery.v2': true,
-  }
+// services that are allowed to use Int32Value and UInt32Value protobuf wrapper types
+// instead of "number" for pageSize/maxResults
+// keyed by proto package name, e.g. "google.cloud.foo.v1".
+const ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE = {
+  'google.cloud.bigquery.v2': true,
+};
 export interface MethodDescriptorProto
   extends protos.google.protobuf.IMethodDescriptorProto {
   autoPopulatedFields?: string[];
@@ -277,13 +277,13 @@ function streaming(method: MethodDescriptorProto) {
 // returns true if the method has wrappers for UInt32Value enabled
 // and is a paginated call with a maxResults parameter instead of pageSize
 // as of its creation, this should only be true for BigQuery
-function wrappersHasMaxResultsParameter(messages, method, wrappersAllowed){
+function wrappersHasMaxResultsParameter(messages, method, wrappersAllowed) {
   const inputType = messages[method.inputType!];
   const hasMaxResults =
     inputType &&
     inputType.field &&
     inputType.field.some(field => field.name === 'max_results');
-  if(wrappersAllowed && hasMaxResults){
+  if (wrappersAllowed && hasMaxResults) {
     return true;
   }
   return false;
@@ -313,7 +313,6 @@ function pagingField(
     return undefined;
   }
 
-
   const inputType = messages[method.inputType!];
   const outputType = messages[method.outputType!];
   const hasPageToken =
@@ -333,19 +332,19 @@ function pagingField(
   // paginated resources to return.
   const isPageSizeField = () => {
     let fieldYes = false;
-    if (inputType && inputType.field){
-      inputType.field.some(
-        field =>{
-          if((field.name === 'page_size') ||
+    if (inputType && inputType.field) {
+      inputType.field.some(field => {
+        if (
+          field.name === 'page_size' ||
           (diregapic && field.name === 'max_results') ||
-          (wrappersAllowed && field.name === 'max_results')){
-            fieldYes = true;
-          }
+          (wrappersAllowed && field.name === 'max_results')
+        ) {
+          fieldYes = true;
         }
-      );
+      });
     }
     return fieldYes;
-    }
+  };
   const hasPageSize = isPageSizeField();
 
   const hasNextPageToken =
@@ -361,7 +360,7 @@ function pagingField(
   if (repeatedFields.length === 0) {
     return undefined;
   }
-  
+
   if (repeatedFields.length === 1) {
     return repeatedFields[0];
   }
@@ -401,7 +400,13 @@ function pagingFieldName(
   diregapic?: boolean,
   wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
-  const field = pagingField(messages, method, service, diregapic, wrappersAllowed);
+  const field = pagingField(
+    messages,
+    method,
+    service,
+    diregapic,
+    wrappersAllowed
+  );
   return field?.name;
 }
 
@@ -411,7 +416,13 @@ function pagingResponseType(
   diregapic?: boolean,
   wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
-  const field = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
+  const field = pagingField(
+    messages,
+    method,
+    undefined,
+    diregapic,
+    wrappersAllowed
+  );
   if (!field || !field.type) {
     return undefined;
   }
@@ -433,7 +444,13 @@ function ignoreMapPagingMethod(
   diregapic?: boolean,
   wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
-  const pagingfield = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
+  const pagingfield = pagingField(
+    messages,
+    method,
+    undefined,
+    diregapic,
+    wrappersAllowed
+  );
   const outputType = messages[method.outputType!];
   if (!pagingfield?.type || !outputType.nestedType) {
     return undefined;
@@ -456,13 +473,17 @@ function pagingMapResponseType(
   diregapic?: boolean,
   wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
-
-  const pagingfield = pagingField(messages, method, undefined, diregapic, wrappersAllowed);
+  const pagingfield = pagingField(
+    messages,
+    method,
+    undefined,
+    diregapic,
+    wrappersAllowed
+  );
 
   const outputType = messages[method.outputType!];
-  if (!pagingfield?.type || (!diregapic) || !outputType.nestedType) {
-
-      return undefined;
+  if (!pagingfield?.type || !diregapic || !outputType.nestedType) {
+    return undefined;
   }
   const mapResponses = outputType.nestedType.filter(desProto => {
     return desProto.options && desProto.options.mapEntry;
@@ -545,7 +566,8 @@ function augmentMethod(
   // whether a service is allowed to use Int32Value and UInt32Value wrappers - generally this is only BigQuery
   // this is used to determine factors about pagination fields and to allow users to pass a "number" instead of
   // having to convert to a protobuf wrapper type to determine page size
-  const wrappersAllowed = ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName];
+  const wrappersAllowed =
+    ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName];
   method = Object.assign(
     {
       longRunning: longrunning(parameters.service, method),
@@ -582,7 +604,6 @@ function augmentMethod(
         method,
         parameters.diregapic,
         wrappersAllowed
-  
       ),
       ignoreMapPagingMethod: ignoreMapPagingMethod(
         parameters.allMessages,
@@ -603,8 +624,12 @@ function augmentMethod(
       ),
       retryableCodesName: defaultNonIdempotentRetryCodesName,
       retryParamsName: defaultParametersName,
-      maxResultsParameter: wrappersHasMaxResultsParameter(parameters.allMessages, method, wrappersAllowed)
-    }, 
+      maxResultsParameter: wrappersHasMaxResultsParameter(
+        parameters.allMessages,
+        method,
+        wrappersAllowed
+      ),
+    },
     method
   ) as MethodDescriptorProto;
   if (method.longRunning) {
@@ -652,11 +677,7 @@ function augmentMethod(
         field.name!
       );
       paramComment.push(comment);
-
-
     }
-
-
 
     method.paramComment = paramComment;
   }
@@ -1129,6 +1150,5 @@ export class Proto {
         map[service.name!] = service;
         return map;
       }, {} as ServicesMap);
-
   }
 }

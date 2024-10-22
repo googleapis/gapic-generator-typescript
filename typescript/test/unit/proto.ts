@@ -1239,7 +1239,6 @@ describe('src/schema/proto.ts', () => {
       );
       assert.deepStrictEqual(proto.services['service'].paging.length, 0);
     });
-    
   });
   describe('should support pagination for allowlisted APIs that use UInt32 wrappers and max_results', () => {
     it('should be page field if allowlisted with wrappers and use "max_results" as field name', () => {
@@ -1255,8 +1254,7 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method[0] =
         {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[0].name = 'ListCats';
-      fd.service[0].method[0].outputType =
-        '.google.cloud.bigquery.v2.CatList';
+      fd.service[0].method[0].outputType = '.google.cloud.bigquery.v2.CatList';
       fd.service[0].method[0].inputType =
         '.google.cloud.bigquery.v2.ListCatsRequest';
 
@@ -1275,8 +1273,7 @@ describe('src/schema/proto.ts', () => {
       fd.messageType[0].field[0].name = 'next_page_token';
       fd.messageType[0].field[0].label = 3; // LABEL_REPEATED
       fd.messageType[0].field[0].type = 11; // TYPE_MESSAGE
-      fd.messageType[0].field[0].typeName =
-        '.google.cloud.bigquery.v2.Cat';
+      fd.messageType[0].field[0].typeName = '.google.cloud.bigquery.v2.Cat';
       fd.messageType[1].field = [
         {} as protos.google.protobuf.FieldDescriptorProto,
       ];
@@ -1310,7 +1307,10 @@ describe('src/schema/proto.ts', () => {
         proto.services['CatService'].method[0].pagingFieldName,
         'next_page_token'
       );
-      assert.deepStrictEqual(proto.services['CatService'].paging[0].name, 'ListCats');
+      assert.deepStrictEqual(
+        proto.services['CatService'].paging[0].name,
+        'ListCats'
+      );
       assert.deepStrictEqual(
         proto.services['CatService'].paging[0].inputType,
         '.google.cloud.bigquery.v2.ListCatsRequest'
@@ -1337,8 +1337,7 @@ describe('src/schema/proto.ts', () => {
       fd.service[0].method[0] =
         {} as protos.google.protobuf.MethodDescriptorProto;
       fd.service[0].method[0].name = 'ListCats';
-      fd.service[0].method[0].outputType =
-        '.google.cloud.felines.v2.CatList';
+      fd.service[0].method[0].outputType = '.google.cloud.felines.v2.CatList';
       fd.service[0].method[0].inputType =
         '.google.cloud.felines.v2.ListCatsRequest';
 
@@ -1357,8 +1356,7 @@ describe('src/schema/proto.ts', () => {
       fd.messageType[0].field[0].name = 'next_page_token';
       fd.messageType[0].field[0].label = 3; // LABEL_REPEATED
       fd.messageType[0].field[0].type = 11; // TYPE_MESSAGE
-      fd.messageType[0].field[0].typeName =
-        '.google.cloud.bigquery.v2.Cat';
+      fd.messageType[0].field[0].typeName = '.google.cloud.bigquery.v2.Cat';
       fd.messageType[1].field = [
         {} as protos.google.protobuf.FieldDescriptorProto,
       ];
