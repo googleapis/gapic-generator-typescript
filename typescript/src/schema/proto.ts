@@ -25,7 +25,7 @@ import {
 import {BundleConfig} from '../bundle.js';
 import {Options} from './naming.js';
 import {ServiceYaml} from '../serviceyaml.js';
-import protobuf, { wrappers } from 'protobufjs';
+import protobuf from 'protobufjs';
 import protoJson from '../../../protos/protos.json' assert {type: 'json'};
 
 const COMMON_PROTO_LIST = [
@@ -646,11 +646,7 @@ function augmentMethod(
     const paramComment: Comment[] = [];
     const inputType = parameters.allMessages[method.inputType!];
     const inputmessageName = toMessageName(method.inputType);
-    let fields = [];
-    for (let f of inputType.field!) {
-      let field = f;
-      fields.push(field);
-      // TODO param comment
+    for (const field of inputType.field!) {
       const comment = parameters.service.commentsMap.getParamComments(
         inputmessageName,
         field.name!
@@ -660,7 +656,6 @@ function augmentMethod(
 
     }
 
-    parameters.allMessages[method.inputType!].field = fields;
 
 
     method.paramComment = paramComment;
