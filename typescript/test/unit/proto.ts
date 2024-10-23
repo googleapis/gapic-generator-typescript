@@ -1240,7 +1240,7 @@ describe('src/schema/proto.ts', () => {
       assert.deepStrictEqual(proto.services['service'].paging.length, 0);
     });
   });
-  describe('should support pagination for allowlisted APIs that use UInt32 wrappers and max_results', () => {
+  describe('should support pagination for allowlisted APIs that use UInt32/Int32 wrappers and max_results', () => {
     it('should be page field if allowlisted with wrappers and use "max_results" as field name', () => {
       const fd = {} as protos.google.protobuf.FileDescriptorProto;
       fd.name = 'google/cloud/bigquery/v2/cats.proto';
