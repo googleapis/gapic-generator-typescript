@@ -61,18 +61,19 @@ function main(projectId) {
   const {DatasetServiceClient} = require('bigquery').v2;
 
   // Instantiates a client
-  const bigqueryClient = new DatasetServiceClient({fallback:'rest'});
+  const bigqueryClient = new DatasetServiceClient();
 
   async function callListDatasets() {
     // Construct request
     const request = {
       projectId,
-      maxResults,
     };
-    console.log('sample request', request);
+
     // Run request
-    const [response, nextPageToken, rawResponse] = await bigqueryClient.listDatasets(request, {autoPaginate: false});
-    console.log(response);
+    const iterable = bigqueryClient.listDatasetsAsync(request);
+    for await (const response of iterable) {
+        console.log(response);
+    }
   }
 
   callListDatasets();
@@ -84,4 +85,3 @@ process.on('unhandledRejection', err => {
   process.exitCode = 1;
 });
 main(...process.argv.slice(2));
-
