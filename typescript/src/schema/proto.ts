@@ -78,7 +78,7 @@ export interface MethodDescriptorProto
   toJSON: Function | undefined;
   isDiregapicLRO?: boolean;
   // if wrappers are allowed and there is a maxResultsParamter, return true
-  maxResultsParameter: boolean;
+  maxResultsParameter?: boolean;
 }
 
 export interface ServiceDescriptorProto
@@ -277,6 +277,7 @@ function streaming(method: MethodDescriptorProto) {
 // returns true if the method has wrappers for UInt32Value enabled
 // and is a paginated call with a maxResults parameter instead of pageSize
 // as of its creation, this should only be true for BigQuery
+// otherwise will not return
 function wrappersHasMaxResultsParameter(messages, method, wrappersAllowed) {
   const inputType = messages[method.inputType!];
   const hasMaxResults =
@@ -286,7 +287,6 @@ function wrappersHasMaxResultsParameter(messages, method, wrappersAllowed) {
   if (wrappersAllowed && hasMaxResults) {
     return true;
   }
-  return false;
 }
 // determines the actual field from that service that needs to be paginated
 function pagingField(
