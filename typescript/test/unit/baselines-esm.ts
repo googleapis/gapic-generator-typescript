@@ -20,7 +20,7 @@ describe('Baseline tests: ESM', () => {
     baselineName: 'bigquery-v2-esm',
     outputDir: '.test-out-bigquery-v2-esm',
     protoPath: 'google/cloud/bigquery/v2/*.proto',
-    useCommonProto: true, // TODO: coleleah, not sure about this
+    useCommonProto: true,
     format: 'esm',
   });
   runBaselineTest({
