@@ -20,7 +20,7 @@ describe('Baseline tests', () => {
     baselineName: 'bigquery-v2',
     outputDir: '.test-out-bigquery-v2',
     protoPath: 'google/cloud/bigquery/v2/*.proto',
-    useCommonProto: true, // TODO: coleleah, not sure about this
+    useCommonProto: true,
   });
   runBaselineTest({
     baselineName: 'dlp',
