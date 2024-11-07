@@ -566,8 +566,11 @@ function augmentMethod(
   // whether a service is allowed to use Int32Value and UInt32Value wrappers - generally this is only BigQuery
   // this is used to determine factors about pagination fields and to allow users to pass a "number" instead of
   // having to convert to a protobuf wrapper type to determine page size
-  const wrappersAllowed =
-    ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName] ? true: undefined;
+  const wrappersAllowed = ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[
+    parameters.service.packageName
+  ]
+    ? true
+    : undefined;
   method = Object.assign(
     {
       longRunning: longrunning(parameters.service, method),
