@@ -568,9 +568,7 @@ function augmentMethod(
   // having to convert to a protobuf wrapper type to determine page size
   const wrappersAllowed = ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[
     parameters.service.packageName
-  ]
-    ? true
-    : undefined;
+  ];
   method = Object.assign(
     {
       longRunning: longrunning(parameters.service, method),
