@@ -848,6 +848,7 @@ export class {{ service.name }}Client {
   }
 {%- endfor %}
 {%- for method in service.paging %}
+
 {%- if not method.ignoreMapPagingMethod %}
 {%- if not method.pagingMapResponseType %}
  /**
@@ -893,10 +894,21 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.outputInterface) }}
       ]>|void {
     request = request || {};
+  {%- if method.maxResultsParameter %}
+    // Converts number to Unit32 or Int32 value for non-compliant APIs.
+    if(request.maxResults && typeof request.maxResults === "number"){
+      const maxResultsObject = {"value": request.maxResults}
+      request.maxResults = maxResultsObject
+    }
+
+  {%- endif %}
+
 {%- for field in method.autoPopulatedFields %}    
     if (!request.{{ field.toCamelCase() }}) {
       request.{{ field.toCamelCase() }} = gax.makeUUID();
-    } {%- endfor %}
+    } 
+    
+    {%- endfor %}
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
       callback = optionsOrCallback;

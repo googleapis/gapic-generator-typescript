@@ -44,8 +44,16 @@
 {%- elif printParamFieldSample(oneComment) == 'region' %}
   // const {{ printParamFieldSample(oneComment) }} = 'us-central1'
 {%- elif type.startsWith('.') %}
+{%- if method.maxResultsParameter
+  and method.pagingResponseType
+  and (printParamFieldSample(oneComment) | replace('[', '') | replace(']', '')).val=="maxResults"
+  and not asyncOrStream
+  and (type == ".google.protobuf.UInt32Value" or type == ".google.protobuf.Int32Value")%}
+  // const {{ printParamFieldSample(oneComment) | replace('[', '') | replace(']', '') }} = {{ printTypeExample('number') -}} {{-\n-}}
+  {%- else %}
   // const {{ printParamFieldSample(oneComment) | replace('[', '') | replace(']', '') }} = {{ printTypeExample(type.substring(1)) -}} {{-\n-}}
-{%- else %}
+  {%- endif -%}
+  {%- else %}
   // const {{ printParamFieldSample(oneComment) | replace('[', '') | replace(']', '') }} = {{ printTypeExample(convertParamType(oneComment.paramType)) -}}
 {%- endif -%}
 {%- endif -%}
