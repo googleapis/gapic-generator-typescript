@@ -25,7 +25,9 @@ limitations under the License.
 {% import "../../_locations.njk" as location -%}
 {% import "../../_operations.njk" as operations -%}
 {% import "../../_namer.njk" as namer -%}
+{% import "../../_debuglog.njk" as debuglog -%}
 {{- namer.initialize(id, service) -}}
+{{- debuglog.logger(api.loggingName) -}}
 {%- set autoPopulated = false -%}
 {%- for method in service.method -%}
       {%- if method.autoPopulatedFields|length !== 0 %}
@@ -656,9 +658,11 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    log.info('{{ method.name.toCamelCase(true) }} %j', request);
     {%- if method.isDiregapicLRO %}
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
     .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
+      log.info('{{ method.name.toCamelCase(true) }} success %j', response);
       return [
           { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
           operation,
@@ -666,7 +670,14 @@ export class {{ service.name }}Client {
         ];
     });
     {%- else %}
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback);
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
+    .then(([response, options, rawResponse]: [
+        {{ util.toInterface(method.outputInterface) }},
+        {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
+      ]) => {
+        log.info('{{ method.name.toCamelCase(true) }} success %j', response);
+        return [response, options, rawResponse];
+      });
     {%- endif %}
   }
 {%- endfor %}
@@ -689,6 +700,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    log.info('{{ method.name.toCamelCase() }} streaming');
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(null, options);
   }
 {%- elif method.serverStreaming %}
@@ -712,6 +724,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    log.info('{{ method.name.toCamelCase() }} streaming %j', request);
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options);
   }
 {%- elif method.clientStreaming %}
@@ -757,6 +770,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    log.info('{{ method.name.toCamelCase() }} streaming');
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(null, options, callback);
   }
 {%- endif %}
@@ -824,6 +838,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    log.info('{{ method.name.toCamelCase() }} long-running %j', request);
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback);
   }
 /**
@@ -903,7 +918,7 @@ export class {{ service.name }}Client {
 
   {%- endif %}
 
-{%- for field in method.autoPopulatedFields %}    
+{%- for field in method.autoPopulatedFields %}
     if (!request.{{ field.toCamelCase() }}) {
       request.{{ field.toCamelCase() }} = gax.makeUUID();
     } 
@@ -1057,6 +1072,7 @@ export class {{ service.name }}Client {
   {{ id.get("close") }}(): Promise<void> {
     if (this.{{ service.name.toCamelCase() }}Stub && !this._terminated) {
       return this.{{ service.name.toCamelCase() }}Stub.then(stub => {
+        log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
         {%- if service.IAMPolicyMixin > 0 %}
