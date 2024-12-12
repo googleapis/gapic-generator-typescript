@@ -43,11 +43,11 @@ import {
 {%- endif %}
 // @ts-ignore
 import type * as protos from '../../../protos/protos.js';
-import * as {{ service.name.toSnakeCase() }}_client_config from './{{ service.name.toSnakeCase() }}_client_config.json';
+// @ts-ignore
+import * as {{ service.name.toSnakeCase() }}_client_config from './{{ service.name.toSnakeCase() }}_client_config.json' with {type: 'json'};
 import fs from 'fs';
 import path from 'path';
 import {fileURLToPath} from 'url';
-import {getJSON} from '../json-helper.cjs';
 // @ts-ignore
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -56,17 +56,16 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
  * `src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`.
  * This file defines retry strategy and timeouts for all API methods in this library.
  */
-const gapicConfig = getJSON(
-  path.join(dirname, '{{ service.name.toSnakeCase() }}_client_config.json')
-);
+// @ts-ignore
+import * as gapicConfig from './{{ service.name.toSnakeCase() }}_client_config.json' with {type: 'json'};
+
 {% if not api.legacyProtoLoad %}
-const jsonProtos = getJSON(
-  path.join(dirname, '..', '..', '..', 'protos/protos.json')
-);
+// @ts-ignore
+import * as jsonProtos from '../../../protos/protos.json' with {type: 'json'};
 {% endif %}
-const version = getJSON(
-  path.join(dirname, '..', '..', '..', '..', 'package.json')
-).version;
+// @ts-ignore
+import * as pkgJson from '../../../../package.json' with {type: 'json'};
+const version = pkgJson.version;
 
 /**
 {{- util.printCommentsForService(service) }}
@@ -192,16 +191,9 @@ export class {{ service.name }}Client {
     if (servicePath !== this._servicePath && !('scopes' in opts)) {
       opts['scopes'] = staticMembers.{{ id.get("scopes") }};
     }
-    {%- if not api.legacyProtoLoad %}
-
-    // Load google-gax module synchronously if needed
-    if (!gaxInstance) {
-      gaxInstance = gax as typeof gax;
-    }
-    {%- endif %}
 
     // Choose either gRPC or proto-over-HTTP implementation of google-gax.
-    this._gaxModule = {% if not api.legacyProtoLoad %}opts.fallback ? gaxInstance.fallback : gaxInstance{% else %}gax{% endif %};
+    this._gaxModule = {% if not api.legacyProtoLoad %}opts.fallback ? gax.fallback : gax{% else %}gax{% endif %};
 
     // Create a `gaxGrpc` object, with any grpc-specific options sent to the client.
     this._gaxGrpc = new this._gaxModule.GrpcClient(opts);
