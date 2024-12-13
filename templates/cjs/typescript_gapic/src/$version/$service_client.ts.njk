@@ -658,16 +658,16 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    log.info('{{ method.name.toCamelCase(true) }} %j', request);
+    log.info('{{ method.name.toCamelCase() }} request %j', request);
     {%- if method.isDiregapicLRO %}
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
     .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
-      log.info('{{ method.name.toCamelCase(true) }} success %j', response);
+      log.info('{{ method.name.toCamelCase() }} response %j', response);
       return [
           { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
           operation,
           rawResponse
-        ];
+      ];
     });
     {%- else %}
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
@@ -675,7 +675,7 @@ export class {{ service.name }}Client {
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
       ]) => {
-        log.info('{{ method.name.toCamelCase(true) }} success %j', response);
+        log.info('{{ method.name.toCamelCase() }} response %j', response);
         return [response, options, rawResponse];
       });
     {%- endif %}
@@ -700,7 +700,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    log.info('{{ method.name.toCamelCase() }} streaming');
+    log.info('{{ method.name.toCamelCase() }} stream');
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(null, options);
   }
 {%- elif method.serverStreaming %}
@@ -724,7 +724,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    log.info('{{ method.name.toCamelCase() }} streaming %j', request);
+    log.info('{{ method.name.toCamelCase() }} stream %j', request);
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options);
   }
 {%- elif method.clientStreaming %}
@@ -770,7 +770,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    log.info('{{ method.name.toCamelCase() }} streaming');
+    log.info('{{ method.name.toCamelCase() }} stream');
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(null, options, callback);
   }
 {%- endif %}
@@ -838,8 +838,15 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    log.info('{{ method.name.toCamelCase() }} long-running %j', request);
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback);
+    log.info('{{ method.name.toCamelCase() }} request %j', request);
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
+    .then(([response, options, rawResponse]: [
+      {{ util.toInterface(method.outputInterface) }},
+      {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
+    ]) => {
+      log.info('{{ method.name.toCamelCase() }} response %j', response);
+      return [response, options, rawResponse];
+    });
   }
 /**
 {%- set decodeMethodName = id.get("check" + method.name.toPascalCase() + "Progress") -%}
@@ -856,6 +863,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{decodeMethodName}}','{{decodeMethodName}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    log.info('{{method.name.toCamelCase()}} long-running');
     const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
     const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, this._gaxModule.createDefaultBackoffSettings());
@@ -921,8 +929,8 @@ export class {{ service.name }}Client {
 {%- for field in method.autoPopulatedFields %}
     if (!request.{{ field.toCamelCase() }}) {
       request.{{ field.toCamelCase() }} = gax.makeUUID();
-    } 
-    
+    }
+
     {%- endfor %}
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
@@ -937,7 +945,16 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback);
+    log.info('{{ method.name.toCamelCase() }} request %j', request);
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
+    .then(([response, input, output]: [
+        {{ util.toInterface(method.pagingResponseType) }}[],
+        {{ util.toInterface(method.inputInterface) }}|null,
+        {{ util.toInterface(method.outputInterface) }}
+      ]) => {
+        log.info('{{ method.name.toCamelCase() }} response %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -962,6 +979,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    log.info('{{ method.name.toCamelCase() }} stream %j', request);
     return this.descriptors.page.{{ method.name.toCamelCase() }}.createStream(
       this.innerApiCalls.{{ method.name.toCamelCase(true) }} as GaxCall,
       request,
@@ -1000,6 +1018,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    log.info('{{ method.name.toCamelCase() }} iterate %j', request);
     return this.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate(
       this.innerApiCalls['{{ method.name.toCamelCase(true) }}'] as GaxCall,
       request as {},
