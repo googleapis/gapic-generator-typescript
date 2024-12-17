@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions} from 'google-gax
 
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import * as logging from 'google-logging-utils';
 
 /**
  * Client JSON configuration object, loaded from
@@ -45,6 +46,8 @@ export class SequenceServiceClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('showcase');
+
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -410,7 +413,24 @@ export class SequenceServiceClient {
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
-    return this.innerApiCalls.createSequence(request, options, callback);
+    this._log.info('createSequence request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.showcase.v1beta1.ISequence,
+        protos.google.showcase.v1beta1.ICreateSequenceRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createSequence response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.createSequence(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.showcase.v1beta1.ISequence,
+        protos.google.showcase.v1beta1.ICreateSequenceRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('createSequence response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Retrieves a sequence.
@@ -479,7 +499,24 @@ export class SequenceServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.getSequenceReport(request, options, callback);
+    this._log.info('getSequenceReport request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.showcase.v1beta1.ISequenceReport,
+        protos.google.showcase.v1beta1.IGetSequenceReportRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getSequenceReport response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.getSequenceReport(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.showcase.v1beta1.ISequenceReport,
+        protos.google.showcase.v1beta1.IGetSequenceReportRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('getSequenceReport response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Attempts a sequence.
@@ -548,7 +585,24 @@ export class SequenceServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.attemptSequence(request, options, callback);
+    this._log.info('attemptSequence request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IAttemptSequenceRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('attemptSequence response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.attemptSequence(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IAttemptSequenceRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('attemptSequence response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 
   // --------------------
@@ -934,6 +988,7 @@ export class SequenceServiceClient {
   close(): Promise<void> {
     if (this.sequenceServiceStub && !this._terminated) {
       return this.sequenceServiceStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
       });
