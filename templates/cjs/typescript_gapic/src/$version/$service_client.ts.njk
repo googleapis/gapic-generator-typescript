@@ -660,18 +660,36 @@ export class {{ service.name }}Client {
     {%- endif %}
     log.info('{{ method.name.toCamelCase() }} request %j', request);
     {%- if method.isDiregapicLRO %}
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
-    .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
-      log.info('{{ method.name.toCamelCase() }} response %j', response);
-      return [
-          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
-          operation,
-          rawResponse
-      ];
-    });
+    const wrappedCallback: Callback<
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IOperation>|undefined = callback
+      ? (error, response, nextRequest, rawResponse) => {
+          log.info('{{ method.name.toCamelCase() }} response %j', response);
+          callback(error, response, nextRequest, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
+      ?.then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
+        log.info('{{ method.name.toCamelCase() }} response %j', response);
+        return [
+            { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
+            operation,
+            rawResponse
+        ];
+      });
     {%- else %}
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
-    .then(([response, options, rawResponse]: [
+    const wrappedCallback: Callback<
+        {{ util.toInterface(method.outputInterface) }},
+        {{ util.toInterface(method.inputInterface) }}|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          log.info('{{ method.name.toCamelCase() }} response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
         {{ util.toInterface(method.outputInterface) }},
         {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
       ]) => {
@@ -838,9 +856,18 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    const wrappedCallback: Callback<
+        {{ util.toInterface(method.outputInterface) }},
+        {{ util.toInterface(method.inputInterface) }}|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          log.info('{{ method.name.toCamelCase() }} response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
     log.info('{{ method.name.toCamelCase() }} request %j', request);
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
-    .then(([response, options, rawResponse]: [
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
+    ?.then(([response, options, rawResponse]: [
       {{ util.toInterface(method.outputInterface) }},
       {{ util.toInterface(method.inputInterface) }}|undefined, {}|undefined
     ]) => {
@@ -945,14 +972,24 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    const wrappedCallback: PaginationCallback<
+      {{ util.toInterface(method.inputInterface) }},
+      {{ util.toInterface(method.outputInterface) }}|null|undefined,
+      {{ util.toInterface(method.pagingResponseType) }}>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          log.info('{{ method.name.toCamelCase() }} values %j', values);
+          callback(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
     log.info('{{ method.name.toCamelCase() }} request %j', request);
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
-    .then(([response, input, output]: [
+    return this.innerApiCalls
+      .{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
         {{ util.toInterface(method.pagingResponseType) }}[],
         {{ util.toInterface(method.inputInterface) }}|null,
         {{ util.toInterface(method.outputInterface) }}
       ]) => {
-        log.info('{{ method.name.toCamelCase() }} response %j', response);
+        log.info('{{ method.name.toCamelCase() }} values %j', response);
         return [response, input, output];
       });
   }
