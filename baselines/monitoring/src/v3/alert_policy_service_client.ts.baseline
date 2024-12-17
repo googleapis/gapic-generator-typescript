@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallba
 import {Transform} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import * as logging from 'google-logging-utils';
 
 /**
  * Client JSON configuration object, loaded from
@@ -54,6 +55,8 @@ export class AlertPolicyServiceClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('monitoring');
+
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -479,7 +482,24 @@ export class AlertPolicyServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.getAlertPolicy(request, options, callback);
+    this._log.info('getAlertPolicy request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.monitoring.v3.IAlertPolicy,
+        protos.google.monitoring.v3.IGetAlertPolicyRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getAlertPolicy response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.getAlertPolicy(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.monitoring.v3.IAlertPolicy,
+        protos.google.monitoring.v3.IGetAlertPolicyRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('getAlertPolicy response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Creates a new alerting policy.
@@ -560,7 +580,24 @@ export class AlertPolicyServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.createAlertPolicy(request, options, callback);
+    this._log.info('createAlertPolicy request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.monitoring.v3.IAlertPolicy,
+        protos.google.monitoring.v3.ICreateAlertPolicyRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createAlertPolicy response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.createAlertPolicy(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.monitoring.v3.IAlertPolicy,
+        protos.google.monitoring.v3.ICreateAlertPolicyRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('createAlertPolicy response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Deletes an alerting policy.
@@ -634,7 +671,24 @@ export class AlertPolicyServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.deleteAlertPolicy(request, options, callback);
+    this._log.info('deleteAlertPolicy request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.IDeleteAlertPolicyRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('deleteAlertPolicy response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.deleteAlertPolicy(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.IDeleteAlertPolicyRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('deleteAlertPolicy response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Updates an alerting policy. You can either replace the entire policy with
@@ -732,7 +786,24 @@ export class AlertPolicyServiceClient {
       'alert_policy.name': request.alertPolicy!.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.updateAlertPolicy(request, options, callback);
+    this._log.info('updateAlertPolicy request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.monitoring.v3.IAlertPolicy,
+        protos.google.monitoring.v3.IUpdateAlertPolicyRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('updateAlertPolicy response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.updateAlertPolicy(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.monitoring.v3.IAlertPolicy,
+        protos.google.monitoring.v3.IUpdateAlertPolicyRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('updateAlertPolicy response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 
  /**
@@ -835,7 +906,26 @@ export class AlertPolicyServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.listAlertPolicies(request, options, callback);
+    const wrappedCallback: PaginationCallback<
+      protos.google.monitoring.v3.IListAlertPoliciesRequest,
+      protos.google.monitoring.v3.IListAlertPoliciesResponse|null|undefined,
+      protos.google.monitoring.v3.IAlertPolicy>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listAlertPolicies values %j', values);
+          callback(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('listAlertPolicies request %j', request);
+    return this.innerApiCalls
+      .listAlertPolicies(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.monitoring.v3.IAlertPolicy[],
+        protos.google.monitoring.v3.IListAlertPoliciesRequest|null,
+        protos.google.monitoring.v3.IListAlertPoliciesResponse
+      ]) => {
+        this._log.info('listAlertPolicies values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -898,6 +988,7 @@ export class AlertPolicyServiceClient {
     const defaultCallSettings = this._defaults['listAlertPolicies'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('listAlertPolicies stream %j', request);
     return this.descriptors.page.listAlertPolicies.createStream(
       this.innerApiCalls.listAlertPolicies as GaxCall,
       request,
@@ -968,6 +1059,7 @@ export class AlertPolicyServiceClient {
     const defaultCallSettings = this._defaults['listAlertPolicies'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('listAlertPolicies iterate %j', request);
     return this.descriptors.page.listAlertPolicies.asyncIterate(
       this.innerApiCalls['listAlertPolicies'] as GaxCall,
       request as {},
@@ -1929,6 +2021,7 @@ export class AlertPolicyServiceClient {
   close(): Promise<void> {
     if (this.alertPolicyServiceStub && !this._terminated) {
       return this.alertPolicyServiceStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
       });

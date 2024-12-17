@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallba
 import {Transform} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import * as logging from 'google-logging-utils';
 
 /**
  * Client JSON configuration object, loaded from
@@ -46,6 +47,8 @@ export class RowAccessPolicyServiceClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('bigquery');
+
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -408,7 +411,26 @@ export class RowAccessPolicyServiceClient {
       'table_id': request.tableId ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.listRowAccessPolicies(request, options, callback);
+    const wrappedCallback: PaginationCallback<
+      protos.google.cloud.bigquery.v2.IListRowAccessPoliciesRequest,
+      protos.google.cloud.bigquery.v2.IListRowAccessPoliciesResponse|null|undefined,
+      protos.google.cloud.bigquery.v2.IRowAccessPolicy>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listRowAccessPolicies values %j', values);
+          callback(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('listRowAccessPolicies request %j', request);
+    return this.innerApiCalls
+      .listRowAccessPolicies(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.cloud.bigquery.v2.IRowAccessPolicy[],
+        protos.google.cloud.bigquery.v2.IListRowAccessPoliciesRequest|null,
+        protos.google.cloud.bigquery.v2.IListRowAccessPoliciesResponse
+      ]) => {
+        this._log.info('listRowAccessPolicies values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -456,6 +478,7 @@ export class RowAccessPolicyServiceClient {
     const defaultCallSettings = this._defaults['listRowAccessPolicies'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('listRowAccessPolicies stream %j', request);
     return this.descriptors.page.listRowAccessPolicies.createStream(
       this.innerApiCalls.listRowAccessPolicies as GaxCall,
       request,
@@ -511,6 +534,7 @@ export class RowAccessPolicyServiceClient {
     const defaultCallSettings = this._defaults['listRowAccessPolicies'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('listRowAccessPolicies iterate %j', request);
     return this.descriptors.page.listRowAccessPolicies.asyncIterate(
       this.innerApiCalls['listRowAccessPolicies'] as GaxCall,
       request as {},
@@ -527,6 +551,7 @@ export class RowAccessPolicyServiceClient {
   close(): Promise<void> {
     if (this.rowAccessPolicyServiceStub && !this._terminated) {
       return this.rowAccessPolicyServiceStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
       });
