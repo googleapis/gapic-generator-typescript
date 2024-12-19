@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOption
 import {Transform, PassThrough} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import * as logging from 'google-logging-utils';
 
 /**
  * Client JSON configuration object, loaded from
@@ -52,6 +53,8 @@ export class EchoClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('showcase');
+
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -575,7 +578,24 @@ export class EchoClient {
       routingParameter
     );
     this.initialize();
-    return this.innerApiCalls.echo(request, options, callback);
+    this._log.info('echo request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.showcase.v1beta1.IEchoResponse,
+        protos.google.showcase.v1beta1.IEchoRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('echo response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.echo(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.showcase.v1beta1.IEchoResponse,
+        protos.google.showcase.v1beta1.IEchoRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('echo response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * This method returns error details in a repeated "google.protobuf.Any"
@@ -649,7 +669,24 @@ export class EchoClient {
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
-    return this.innerApiCalls.echoErrorDetails(request, options, callback);
+    this._log.info('echoErrorDetails request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.showcase.v1beta1.IEchoErrorDetailsResponse,
+        protos.google.showcase.v1beta1.IEchoErrorDetailsRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('echoErrorDetails response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.echoErrorDetails(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.showcase.v1beta1.IEchoErrorDetailsResponse,
+        protos.google.showcase.v1beta1.IEchoErrorDetailsRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('echoErrorDetails response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * This is similar to the PagedExpand except that it uses
@@ -722,7 +759,24 @@ export class EchoClient {
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
-    return this.innerApiCalls.pagedExpandLegacy(request, options, callback);
+    this._log.info('pagedExpandLegacy request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.showcase.v1beta1.IPagedExpandResponse,
+        protos.google.showcase.v1beta1.IPagedExpandLegacyRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('pagedExpandLegacy response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.pagedExpandLegacy(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.showcase.v1beta1.IPagedExpandResponse,
+        protos.google.showcase.v1beta1.IPagedExpandLegacyRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('pagedExpandLegacy response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * This method will block (wait) for the requested amount of time
@@ -794,7 +848,24 @@ export class EchoClient {
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
-    return this.innerApiCalls.block(request, options, callback);
+    this._log.info('block request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.showcase.v1beta1.IBlockResponse,
+        protos.google.showcase.v1beta1.IBlockRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('block response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.block(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.showcase.v1beta1.IBlockResponse,
+        protos.google.showcase.v1beta1.IBlockRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('block response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 
 /**
@@ -827,6 +898,7 @@ export class EchoClient {
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
+    this._log.info('expand stream %j', options);
     return this.innerApiCalls.expand(request, options);
   }
 
@@ -873,6 +945,7 @@ export class EchoClient {
     }
     const options = optionsOrCallback as CallOptions;
     this.initialize();
+    this._log.info('collect stream %j', options);
     return this.innerApiCalls.collect(null, options, callback);
   }
 
@@ -896,6 +969,7 @@ export class EchoClient {
       options?: CallOptions):
     gax.CancellableStream {
     this.initialize();
+    this._log.info('chat stream %j', options);
     return this.innerApiCalls.chat(null, options);
   }
 
@@ -972,7 +1046,24 @@ export class EchoClient {
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
-    return this.innerApiCalls.wait(request, options, callback);
+    const wrappedCallback: Callback<
+        protos.google.longrunning.IOperation,
+        protos.google.showcase.v1beta1.IWaitRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('wait response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    this._log.info('wait request %j', request);
+    return this.innerApiCalls.wait(request, options, wrappedCallback)
+    ?.then(([response, options, rawResponse]: [
+      protos.google.longrunning.IOperation,
+      protos.google.showcase.v1beta1.IWaitRequest|undefined, {}|undefined
+    ]) => {
+      this._log.info('wait response %j', response);
+      return [response, options, rawResponse];
+    });
   }
 /**
  * Check the status of the long running operation returned by `wait()`.
@@ -986,6 +1077,7 @@ export class EchoClient {
  * region_tag:localhost_v1beta1_generated_Echo_Wait_async
  */
   async checkWaitProgress(name: string): Promise<LROperation<protos.google.showcase.v1beta1.WaitResponse, protos.google.showcase.v1beta1.WaitMetadata>>{
+    this._log.info('wait long-running');
     const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
     const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.wait, this._gaxModule.createDefaultBackoffSettings());
@@ -1064,7 +1156,26 @@ export class EchoClient {
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
-    return this.innerApiCalls.pagedExpand(request, options, callback);
+    const wrappedCallback: PaginationCallback<
+      protos.google.showcase.v1beta1.IPagedExpandRequest,
+      protos.google.showcase.v1beta1.IPagedExpandResponse|null|undefined,
+      protos.google.showcase.v1beta1.IEchoResponse>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('pagedExpand values %j', values);
+          callback(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('pagedExpand request %j', request);
+    return this.innerApiCalls
+      .pagedExpand(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.showcase.v1beta1.IEchoResponse[],
+        protos.google.showcase.v1beta1.IPagedExpandRequest|null,
+        protos.google.showcase.v1beta1.IPagedExpandResponse
+      ]) => {
+        this._log.info('pagedExpand values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -1099,6 +1210,7 @@ export class EchoClient {
     const defaultCallSettings = this._defaults['pagedExpand'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('pagedExpand stream %j', request);
     return this.descriptors.page.pagedExpand.createStream(
       this.innerApiCalls.pagedExpand as GaxCall,
       request,
@@ -1141,6 +1253,7 @@ export class EchoClient {
     const defaultCallSettings = this._defaults['pagedExpand'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('pagedExpand iterate %j', request);
     return this.descriptors.page.pagedExpand.asyncIterate(
       this.innerApiCalls['pagedExpand'] as GaxCall,
       request as {},
@@ -1530,6 +1643,7 @@ export class EchoClient {
   close(): Promise<void> {
     if (this.echoStub && !this._terminated) {
       return this.echoStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
         this.operationsClient.close();
