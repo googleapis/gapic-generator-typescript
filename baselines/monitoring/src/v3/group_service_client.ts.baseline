@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallba
 import {Transform} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import * as logging from 'google-logging-utils';
 
 /**
  * Client JSON configuration object, loaded from
@@ -57,6 +58,8 @@ export class GroupServiceClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('monitoring');
+
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -483,7 +486,24 @@ export class GroupServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.getGroup(request, options, callback);
+    this._log.info('getGroup request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.monitoring.v3.IGroup,
+        protos.google.monitoring.v3.IGetGroupRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getGroup response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.getGroup(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.monitoring.v3.IGroup,
+        protos.google.monitoring.v3.IGetGroupRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('getGroup response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Creates a new group.
@@ -559,7 +579,24 @@ export class GroupServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.createGroup(request, options, callback);
+    this._log.info('createGroup request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.monitoring.v3.IGroup,
+        protos.google.monitoring.v3.ICreateGroupRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createGroup response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.createGroup(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.monitoring.v3.IGroup,
+        protos.google.monitoring.v3.ICreateGroupRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('createGroup response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Updates an existing group.
@@ -633,7 +670,24 @@ export class GroupServiceClient {
       'group.name': request.group!.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.updateGroup(request, options, callback);
+    this._log.info('updateGroup request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.monitoring.v3.IGroup,
+        protos.google.monitoring.v3.IUpdateGroupRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('updateGroup response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.updateGroup(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.monitoring.v3.IGroup,
+        protos.google.monitoring.v3.IUpdateGroupRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('updateGroup response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Deletes an existing group.
@@ -708,7 +762,24 @@ export class GroupServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.deleteGroup(request, options, callback);
+    this._log.info('deleteGroup request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.IDeleteGroupRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('deleteGroup response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.deleteGroup(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.monitoring.v3.IDeleteGroupRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('deleteGroup response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 
  /**
@@ -806,7 +877,26 @@ export class GroupServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.listGroups(request, options, callback);
+    const wrappedCallback: PaginationCallback<
+      protos.google.monitoring.v3.IListGroupsRequest,
+      protos.google.monitoring.v3.IListGroupsResponse|null|undefined,
+      protos.google.monitoring.v3.IGroup>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listGroups values %j', values);
+          callback(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('listGroups request %j', request);
+    return this.innerApiCalls
+      .listGroups(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.monitoring.v3.IGroup[],
+        protos.google.monitoring.v3.IListGroupsRequest|null,
+        protos.google.monitoring.v3.IListGroupsResponse
+      ]) => {
+        this._log.info('listGroups values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -864,6 +954,7 @@ export class GroupServiceClient {
     const defaultCallSettings = this._defaults['listGroups'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('listGroups stream %j', request);
     return this.descriptors.page.listGroups.createStream(
       this.innerApiCalls.listGroups as GaxCall,
       request,
@@ -929,6 +1020,7 @@ export class GroupServiceClient {
     const defaultCallSettings = this._defaults['listGroups'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('listGroups iterate %j', request);
     return this.descriptors.page.listGroups.asyncIterate(
       this.innerApiCalls['listGroups'] as GaxCall,
       request as {},
@@ -1028,7 +1120,26 @@ export class GroupServiceClient {
       'name': request.name ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.listGroupMembers(request, options, callback);
+    const wrappedCallback: PaginationCallback<
+      protos.google.monitoring.v3.IListGroupMembersRequest,
+      protos.google.monitoring.v3.IListGroupMembersResponse|null|undefined,
+      protos.google.api.IMonitoredResource>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listGroupMembers values %j', values);
+          callback(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('listGroupMembers request %j', request);
+    return this.innerApiCalls
+      .listGroupMembers(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.api.IMonitoredResource[],
+        protos.google.monitoring.v3.IListGroupMembersRequest|null,
+        protos.google.monitoring.v3.IListGroupMembersResponse
+      ]) => {
+        this._log.info('listGroupMembers values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -1084,6 +1195,7 @@ export class GroupServiceClient {
     const defaultCallSettings = this._defaults['listGroupMembers'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('listGroupMembers stream %j', request);
     return this.descriptors.page.listGroupMembers.createStream(
       this.innerApiCalls.listGroupMembers as GaxCall,
       request,
@@ -1147,6 +1259,7 @@ export class GroupServiceClient {
     const defaultCallSettings = this._defaults['listGroupMembers'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('listGroupMembers iterate %j', request);
     return this.descriptors.page.listGroupMembers.asyncIterate(
       this.innerApiCalls['listGroupMembers'] as GaxCall,
       request as {},
@@ -2108,6 +2221,7 @@ export class GroupServiceClient {
   close(): Promise<void> {
     if (this.groupServiceStub && !this._terminated) {
       return this.groupServiceStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
       });
