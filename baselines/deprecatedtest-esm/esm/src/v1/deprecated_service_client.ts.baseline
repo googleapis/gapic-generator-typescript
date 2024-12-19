@@ -29,6 +29,7 @@ import {fileURLToPath} from 'url';
 import {getJSON} from '../json-helper.cjs';
 // @ts-ignore
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+import * as logging from 'google-logging-utils';
 
 /**
  * Client JSON configuration object, loaded from
@@ -64,6 +65,7 @@ export class DeprecatedServiceClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('deprecatedtest');
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -400,7 +402,24 @@ export class DeprecatedServiceClient {
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
-    return this.innerApiCalls.fastFibonacci(request, options, callback);
+    this._log.info('fastFibonacci request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.deprecatedtest.v1.IFibonacciRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('fastFibonacci response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.fastFibonacci(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.deprecatedtest.v1.IFibonacciRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('fastFibonacci response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Calculates Fibonacci on the provided value, slowly.
@@ -467,7 +486,24 @@ export class DeprecatedServiceClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize();
     this.warn('DEP$DeprecatedService-$SlowFibonacci','SlowFibonacci is deprecated and may be removed in a future version.', 'DeprecationWarning');
-    return this.innerApiCalls.slowFibonacci(request, options, callback);
+    this._log.info('slowFibonacci request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.deprecatedtest.v1.IFibonacciRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('slowFibonacci response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.slowFibonacci(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.deprecatedtest.v1.IFibonacciRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('slowFibonacci response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 
 
@@ -480,6 +516,7 @@ export class DeprecatedServiceClient {
   close(): Promise<void> {
     if (this.deprecatedServiceStub && !this._terminated) {
       return this.deprecatedServiceStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
       });

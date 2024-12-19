@@ -29,6 +29,7 @@ import {fileURLToPath} from 'url';
 import {getJSON} from '../json-helper.cjs';
 // @ts-ignore
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+import * as logging from 'google-logging-utils';
 
 /**
  * Client JSON configuration object, loaded from
@@ -65,6 +66,7 @@ export class AddressesClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('compute');
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -436,14 +438,25 @@ export class AddressesClient {
       'address': request.address ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.delete(request, options, callback)
-    .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
-      return [
-          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
-          operation,
-          rawResponse
+    this._log.info('delete request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IOperation>|undefined = callback
+      ? (error, response, nextRequest, rawResponse) => {
+          this._log.info('delete response %j', response);
+          callback(error, response, nextRequest, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.delete(request, options, wrappedCallback)
+      ?.then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
+        this._log.info('delete response %j', response);
+        return [
+            { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
+            operation,
+            rawResponse
         ];
-    });
+      });
   }
 /**
  * Creates an address resource in the specified project by using the data included in the request.
@@ -529,14 +542,25 @@ export class AddressesClient {
       'region': request.region ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.insert(request, options, callback)
-    .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
-      return [
-          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
-          operation,
-          rawResponse
+    this._log.info('insert request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IOperation>|undefined = callback
+      ? (error, response, nextRequest, rawResponse) => {
+          this._log.info('insert response %j', response);
+          callback(error, response, nextRequest, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.insert(request, options, wrappedCallback)
+      ?.then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
+        this._log.info('insert response %j', response);
+        return [
+            { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
+            operation,
+            rawResponse
         ];
-    });
+      });
   }
 
 
@@ -596,6 +620,7 @@ export class AddressesClient {
     const defaultCallSettings = this._defaults['aggregatedList'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('aggregatedList iterate %j', request);
     return this.descriptors.page.aggregatedList.asyncIterate(
       this.innerApiCalls['aggregatedList'] as GaxCall,
       request as {},
@@ -696,7 +721,26 @@ export class AddressesClient {
       'region': request.region ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.list(request, options, callback);
+    const wrappedCallback: PaginationCallback<
+      protos.google.cloud.compute.v1.IListAddressesRequest,
+      protos.google.cloud.compute.v1.IAddressList|null|undefined,
+      protos.google.cloud.compute.v1.IAddress>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('list values %j', values);
+          callback(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('list request %j', request);
+    return this.innerApiCalls
+      .list(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.cloud.compute.v1.IAddress[],
+        protos.google.cloud.compute.v1.IListAddressesRequest|null,
+        protos.google.cloud.compute.v1.IAddressList
+      ]) => {
+        this._log.info('list values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -753,6 +797,7 @@ export class AddressesClient {
     const defaultCallSettings = this._defaults['list'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('list stream %j', request);
     return this.descriptors.page.list.createStream(
       this.innerApiCalls.list as GaxCall,
       request,
@@ -817,6 +862,7 @@ export class AddressesClient {
     const defaultCallSettings = this._defaults['list'];
     const callSettings = defaultCallSettings.merge(options);
     this.initialize();
+    this._log.info('list iterate %j', request);
     return this.descriptors.page.list.asyncIterate(
       this.innerApiCalls['list'] as GaxCall,
       request as {},
@@ -833,6 +879,7 @@ export class AddressesClient {
   close(): Promise<void> {
     if (this.addressesStub && !this._terminated) {
       return this.addressesStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
       });

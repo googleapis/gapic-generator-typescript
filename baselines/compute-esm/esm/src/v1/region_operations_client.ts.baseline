@@ -29,6 +29,7 @@ import {fileURLToPath} from 'url';
 import {getJSON} from '../json-helper.cjs';
 // @ts-ignore
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+import * as logging from 'google-logging-utils';
 
 /**
  * Client JSON configuration object, loaded from
@@ -62,6 +63,7 @@ export class RegionOperationsClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('compute');
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -412,7 +414,24 @@ export class RegionOperationsClient {
       'operation': request.operation ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.get(request, options, callback);
+    this._log.info('get request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IGetRegionOperationRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('get response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.get(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IGetRegionOperationRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('get response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Waits for the specified Operation resource to return as `DONE` or for the request to approach the 2 minute deadline, and retrieves the specified Operation resource. This method differs from the `GET` method in that it waits for no more than the default deadline (2 minutes) and then returns the current state of the operation, which might be `DONE` or still in progress.
@@ -492,7 +511,24 @@ export class RegionOperationsClient {
       'operation': request.operation ?? '',
     });
     this.initialize();
-    return this.innerApiCalls.wait(request, options, callback);
+    this._log.info('wait request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IWaitRegionOperationRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('wait response %j', response);
+          callback(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.wait(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.cloud.compute.v1.IOperation,
+        protos.google.cloud.compute.v1.IWaitRegionOperationRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('wait response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 
 
@@ -505,6 +541,7 @@ export class RegionOperationsClient {
   close(): Promise<void> {
     if (this.regionOperationsStub && !this._terminated) {
       return this.regionOperationsStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
       });
