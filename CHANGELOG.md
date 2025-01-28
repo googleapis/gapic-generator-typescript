@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.7.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.3...v4.7.0) (2025-01-28)
+
+
+### Features
+
+* Paging changes for bigquery ([#1661](https://github.com/googleapis/gapic-generator-typescript/issues/1661)) ([24f6ad1](https://github.com/googleapis/gapic-generator-typescript/commit/24f6ad106b80ab909f2fd353a44e696732e0a2d1))
+
+
+### Bug Fixes
+
+* Add x-goog-request-params to header for LRO-checking methods ([#1674](https://github.com/googleapis/gapic-generator-typescript/issues/1674)) ([aaed824](https://github.com/googleapis/gapic-generator-typescript/commit/aaed824ac634408148098976e99e47b756ab7693))
+* Remove extra protos & capiture ESM in headers ([#1658](https://github.com/googleapis/gapic-generator-typescript/issues/1658)) ([3bbb2b9](https://github.com/googleapis/gapic-generator-typescript/commit/3bbb2b9cd3af09f36d5b39025fc6c7d4507c78c7))
+* Template was missing curly brackets ([#1669](https://github.com/googleapis/gapic-generator-typescript/issues/1669)) ([aa2943b](https://github.com/googleapis/gapic-generator-typescript/commit/aa2943bb748f524abb4c98e9d78446d06f5efa25))
+
 ## [4.6.3](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.2...v4.6.3) (2024-08-30)
 
 
