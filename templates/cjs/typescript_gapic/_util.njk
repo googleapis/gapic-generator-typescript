@@ -39,7 +39,7 @@ limitations under the License.
 {%- macro printCommentsPageStream(method, generatedName) -%}
   {{- printPageStreamHeader(method) -}}
   {{- printRequest(method) -}}
-  {{- printCommentsForParams(method) -}}
+  {{- printCommentsForParams(method, "stream") -}}
   {{- printOptions() -}}
   {{- printReturnPageStream(method, generatedName) }}
 {%- endmacro -%}
@@ -47,7 +47,7 @@ limitations under the License.
 {%- macro printCommentsPageAsync(method, generatedName) -%}
   {{- printPageAsyncHeader(method) -}}
   {{- printRequest(method) -}}
-  {{- printCommentsForParams(method) -}}
+  {{- printCommentsForParams(method, "async") -}}
   {{- printOptions() -}}
   {{- printReturnPageAsync(method, generatedName) }}
 {%- endmacro -%}
@@ -83,7 +83,7 @@ limitations under the License.
 {%- endmacro -%}
 
 {%- macro printPageStreamHeader(method) %}
- * Equivalent to `method.name.toCamelCase()`, but returns a NodeJS Stream object.
+ * Equivalent to `{{ method.name.toCamelCase() }}`, but returns a NodeJS Stream object.
 {%- endmacro -%}
 
 {%- macro printRequest(method) %}
@@ -93,13 +93,21 @@ limitations under the License.
 {%- endif %}
 {%- endmacro -%}
 
-{%- macro printCommentsForParams(method) -%}
+{%- macro printCommentsForParams(method, asyncOrStream) -%}
 {% if not method.clientStreaming %}
 {%- set commentsMap = method.paramComment -%}
 {%- for oneComment in commentsMap -%}
 {%- set type = oneComment.paramType -%}
 {%- if type.startsWith('.') %}
+ {%- if method.maxResultsParameter 
+  and method.pagingResponseType 
+  and printRequestField(oneComment)=="request.maxResults"
+  and not asyncOrStream 
+  and (type == ".google.protobuf.UInt32Value" or type == ".google.protobuf.Int32Value")%}
+  * @param { {{- type.substring(1) -}}  | number } {{ printRequestField(oneComment) }}
+ {%- else %}
  * @param { {{- type.substring(1) -}} } {{ printRequestField(oneComment) }}
+ {%- endif -%}
 {%- else %}
  * @param { {{- convertParamType(oneComment.paramType) -}} } {{ printRequestField(oneComment) }}
 {%- endif -%}

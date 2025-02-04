@@ -35,6 +35,12 @@ const COMMON_PROTO_LIST = [
   'google.type',
 ];
 
+// services that are allowed to use Int32Value and UInt32Value protobuf wrapper types
+// instead of "number" for pageSize/maxResults
+// keyed by proto package name, e.g. "google.cloud.foo.v1".
+const ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE = {
+  'google.cloud.bigquery.v2': true,
+};
 export interface MethodDescriptorProto
   extends protos.google.protobuf.IMethodDescriptorProto {
   autoPopulatedFields?: string[];
@@ -71,6 +77,8 @@ export interface MethodDescriptorProto
   bundleConfig?: BundleConfig;
   toJSON: Function | undefined;
   isDiregapicLRO?: boolean;
+  // if wrappers are allowed and there is a maxResultsParamter, return true
+  maxResultsParameter?: boolean;
 }
 
 export interface ServiceDescriptorProto
@@ -266,11 +274,27 @@ function streaming(method: MethodDescriptorProto) {
   return undefined;
 }
 
+// returns true if the method has wrappers for UInt32Value enabled
+// and is a paginated call with a maxResults parameter instead of pageSize
+// as of its creation, this should only be true for BigQuery
+// otherwise will not return
+function wrappersHasMaxResultsParameter(messages, method, wrappersAllowed) {
+  const inputType = messages[method.inputType!];
+  const hasMaxResults =
+    inputType &&
+    inputType.field &&
+    inputType.field.some(field => field.name === 'max_results');
+  if (wrappersAllowed && hasMaxResults) {
+    return true;
+  }
+}
+// determines the actual field from that service that needs to be paginated
 function pagingField(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean
 ) {
   // TODO: remove this once the next version of the Talent API is published.
   //
@@ -295,17 +319,34 @@ function pagingField(
     inputType &&
     inputType.field &&
     inputType.field.some(field => field.name === 'page_token');
-  // Support paginated methods defined in Discovery-based APIs,
+
+  // isPageSizeField evaluates whether a particular field is a page size field, and whether this
+  // field will require a dependency on wrapper types in the generator.
+  //
+  // https://google.aip.dev/158 guidance is to use `page_size`, but older APIs like compute
+  // and bigquery use `max_results`.  Similarly, `int32` is the expected scalar type, but
+  // there's more variance here in implementations, so int32 and uint32 are allowed.
+  //
+  // Additionally, we support paginated methods defined in Discovery-based APIs,
   // where it uses "max_results" to define the maximum number of
   // paginated resources to return.
-  const hasPageSize =
-    inputType &&
-    inputType.field &&
-    inputType.field.some(
-      field =>
-        field.name === 'page_size' ||
-        (diregapic && field.name === 'max_results')
-    );
+  const isPageSizeField = () => {
+    let fieldYes = false;
+    if (inputType && inputType.field) {
+      inputType.field.some(field => {
+        if (
+          field.name === 'page_size' ||
+          (diregapic && field.name === 'max_results') ||
+          (wrappersAllowed && field.name === 'max_results')
+        ) {
+          fieldYes = true;
+        }
+      });
+    }
+    return fieldYes;
+  };
+  const hasPageSize = isPageSizeField();
+
   const hasNextPageToken =
     outputType &&
     outputType.field &&
@@ -319,6 +360,7 @@ function pagingField(
   if (repeatedFields.length === 0) {
     return undefined;
   }
+
   if (repeatedFields.length === 1) {
     return repeatedFields[0];
   }
@@ -355,18 +397,32 @@ function pagingFieldName(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
-  const field = pagingField(messages, method, service, diregapic);
+  const field = pagingField(
+    messages,
+    method,
+    service,
+    diregapic,
+    wrappersAllowed
+  );
   return field?.name;
 }
 
 function pagingResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
-  const field = pagingField(messages, method, undefined, diregapic);
+  const field = pagingField(
+    messages,
+    method,
+    undefined,
+    diregapic,
+    wrappersAllowed
+  );
   if (!field || !field.type) {
     return undefined;
   }
@@ -376,6 +432,7 @@ function pagingResponseType(
     return field.typeName; //.google.showcase.v1beta1.EchoResponse
   }
   const type = Type[field.type];
+
   // .google.protobuf.FieldDescriptorProto.Type.TYPE_STRING
   return '.google.protobuf.FieldDescriptorProto.Type.' + type;
 }
@@ -384,9 +441,16 @@ function pagingResponseType(
 function ignoreMapPagingMethod(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
-  const pagingfield = pagingField(messages, method, undefined, diregapic);
+  const pagingfield = pagingField(
+    messages,
+    method,
+    undefined,
+    diregapic,
+    wrappersAllowed
+  );
   const outputType = messages[method.outputType!];
   if (!pagingfield?.type || !outputType.nestedType) {
     return undefined;
@@ -406,9 +470,17 @@ function ignoreMapPagingMethod(
 function pagingMapResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
-  diregapic?: boolean
+  diregapic?: boolean,
+  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
-  const pagingfield = pagingField(messages, method, undefined, diregapic);
+  const pagingfield = pagingField(
+    messages,
+    method,
+    undefined,
+    diregapic,
+    wrappersAllowed
+  );
+
   const outputType = messages[method.outputType!];
   if (!pagingfield?.type || !diregapic || !outputType.nestedType) {
     return undefined;
@@ -491,6 +563,11 @@ function augmentMethod(
   parameters: AugmentMethodParameters,
   method: MethodDescriptorProto
 ) {
+  // whether a service is allowed to use Int32Value and UInt32Value wrappers - generally this is only BigQuery
+  // this is used to determine factors about pagination fields and to allow users to pass a "number" instead of
+  // having to convert to a protobuf wrapper type to determine page size
+  const wrappersAllowed =
+    ENABLE_WRAPPER_TYPES_FOR_PAGE_SIZE[parameters.service.packageName];
   method = Object.assign(
     {
       longRunning: longrunning(parameters.service, method),
@@ -513,22 +590,26 @@ function augmentMethod(
         parameters.allMessages,
         method,
         parameters.service,
-        parameters.diregapic
+        parameters.diregapic,
+        wrappersAllowed
       ),
       pagingResponseType: pagingResponseType(
         parameters.allMessages,
         method,
-        parameters.diregapic
+        parameters.diregapic,
+        wrappersAllowed
       ),
       pagingMapResponseType: pagingMapResponseType(
         parameters.allMessages,
         method,
-        parameters.diregapic
+        parameters.diregapic,
+        wrappersAllowed
       ),
       ignoreMapPagingMethod: ignoreMapPagingMethod(
         parameters.allMessages,
         method,
-        parameters.diregapic
+        parameters.diregapic,
+        wrappersAllowed
       ),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
@@ -543,6 +624,11 @@ function augmentMethod(
       ),
       retryableCodesName: defaultNonIdempotentRetryCodesName,
       retryParamsName: defaultParametersName,
+      maxResultsParameter: wrappersHasMaxResultsParameter(
+        parameters.allMessages,
+        method,
+        wrappersAllowed
+      ),
     },
     method
   ) as MethodDescriptorProto;
@@ -592,6 +678,7 @@ function augmentMethod(
       );
       paramComment.push(comment);
     }
+
     method.paramComment = paramComment;
   }
   if (method.methodConfig.retryPolicy?.retryableStatusCodes) {

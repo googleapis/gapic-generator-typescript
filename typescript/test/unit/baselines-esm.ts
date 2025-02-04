@@ -17,6 +17,13 @@ import {runBaselineTest} from '../util.js';
 
 describe('Baseline tests: ESM', () => {
   runBaselineTest({
+    baselineName: 'bigquery-v2-esm',
+    outputDir: '.test-out-bigquery-v2-esm',
+    protoPath: 'google/cloud/bigquery/v2/*.proto',
+    useCommonProto: true,
+    format: 'esm',
+  });
+  runBaselineTest({
     baselineName: 'dlp-esm',
     outputDir: '.test-out-dlp-esm',
     protoPath: 'google/privacy/dlp/v2/*.proto',
