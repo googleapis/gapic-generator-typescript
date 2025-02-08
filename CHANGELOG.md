@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.7.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.7.1...v4.7.2) (2025-02-05)
+
+
+### Bug Fixes
+
+* Typings for headers and tests ([#1682](https://github.com/googleapis/gapic-generator-typescript/issues/1682)) ([cf2dfd2](https://github.com/googleapis/gapic-generator-typescript/commit/cf2dfd2f8355530c1e8479cab7079a59a2753bd9))
+
+## [4.7.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.7.0...v4.7.1) (2025-02-03)
+
+
+### Bug Fixes
+
+* Add type checking for headers ([#1677](https://github.com/googleapis/gapic-generator-typescript/issues/1677)) ([be289a9](https://github.com/googleapis/gapic-generator-typescript/commit/be289a97e88f409e8f5d12405fff8d9b1516c768))
+
 ## [4.7.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.6.3...v4.7.0) (2025-01-28)
 
 
