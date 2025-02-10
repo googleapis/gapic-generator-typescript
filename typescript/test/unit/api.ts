@@ -49,17 +49,19 @@ describe('src/schema/api.ts', () => {
     const api = new API([fd], 'google.cloud.test.v1', {
       grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
     });
-    assert.deepStrictEqual(api.loggingName, 'google-cloud-test-v1');
+    assert.deepStrictEqual(api.loggingName, 'test');
 
-    const apiPlainName = new API([fd], 'google-test-cloud', {
+    const apiPlainName = new API([fd], 'google.cloud.test.v1', {
       grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+      publishName: 'google-test-cloud',
     });
     assert.deepStrictEqual(apiPlainName.loggingName, 'google-test-cloud');
 
-    const apiOrgName = new API([fd], '@google-test/cloud', {
+    const apiOrgName = new API([fd], 'google.cloud.test.v1', {
       grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+      publishName: '@google-test/cloud',
     });
-    assert.deepStrictEqual(apiPlainName.loggingName, 'cloud');
+    assert.deepStrictEqual(apiOrgName.loggingName, 'cloud');
   });
 
   it('throw error if an api does not have default host', () => {
