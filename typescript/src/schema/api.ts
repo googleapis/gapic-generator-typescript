@@ -99,7 +99,7 @@ export class API {
     // users specify the actual package name, if not, set it to product name.
     this.publishName =
       options.publishName || this.naming.productName.toKebabCase();
-    this.loggingName = this.publishName.replace(/^@google-cloud\//, '');
+    this.loggingName = this.publishName.match(/[^/]+\/(.*)/)?.[1] ?? this.publishName;
     this.handwrittenLayer = options.handwrittenLayer ?? false;
     this.rest = options.rest;
     this.diregapic = options.diregapic ?? false;

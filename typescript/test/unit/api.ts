@@ -36,6 +36,32 @@ describe('src/schema/api.ts', () => {
     ]);
   });
 
+  it('should correctly derive a valid logging name', () => {
+    const fd = {} as protos.google.protobuf.FileDescriptorProto;
+    fd.name = 'google/cloud/test/v1/test.proto';
+    fd.package = 'google.cloud.test.v1';
+    fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+    fd.service[0].name = 'ZService';
+    fd.service[0].options = {
+      '.google.api.defaultHost': 'hostname.example.com:443',
+    };
+
+    const api = new API([fd], 'google.cloud.test.v1', {
+      grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+    });
+    assert.deepStrictEqual(api.loggingName, 'google-cloud-test-v1');
+
+    const apiPlainName = new API([fd], 'google-test-cloud', {
+      grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+    });
+    assert.deepStrictEqual(apiPlainName.loggingName, 'google-test-cloud');
+
+    const apiOrgName = new API([fd], '@google-test/cloud', {
+      grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+    });
+    assert.deepStrictEqual(apiPlainName.loggingName, 'cloud');
+  });
+
   it('throw error if an api does not have default host', () => {
     const fd = {} as protos.google.protobuf.FileDescriptorProto;
     fd.name = 'google/cloud/test/v1/test.proto';
