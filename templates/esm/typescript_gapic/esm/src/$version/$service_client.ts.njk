@@ -673,20 +673,21 @@ export class {{ service.name }}Client {
     this._log.info('{{ method.name.toCamelCase() }} request %j', request);
     {%- if method.isDiregapicLRO %}
     const wrappedCallback: Callback<
-        LROperation<{{ util.toInterface(method.outputInterface) }}, null>,
-        {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined>|undefined = callback
-      ? (error, response, rawResponse, _) => {
+        {{ util.toInterface(method.outputInterface) }},
+        {{ util.toInterface(method.inputInterface) }}|undefined,
+        {}|undefined>|undefined = callback
+      ? (error, response, nextRequest, rawResponse => {
           this._log.info('{{ method.name.toCamelCase() }} response %j', rawResponse);
-          callback!(error, response, rawResponse, _); // We verified callback above.
+          callback!(error, response, nextRequest, rawResponse); // We verified `callback` above.
         }
       : undefined;
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
-      ?.then(([response, rawResponse, _]: [LROperation<{{ util.toInterface(method.outputInterface) }}, null>,{{ util.toInterface(method.outputInterface) }}|undefined,{}|undefined]) => {
+      ?.then(([response, nextRequest, rawResponse]: [LROperation<{{ util.toInterface(method.outputInterface) }}, null>,{{ util.toInterface(method.outputInterface) }}|undefined,{}|undefined]) => {
         this._log.info('{{ method.name.toCamelCase() }} response %j', rawResponse);
         return [
           response,
+          nextRequest,
           rawResponse,
-          _
         ];
       });
     {%- else %}
@@ -868,12 +869,12 @@ export class {{ service.name }}Client {
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     const wrappedCallback: Callback<
-        LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
-        {{ util.toInterface(method.outputInterface) }}|null|undefined,
-        {}|null|undefined>|undefined = callback
+          LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
+          {{ util.toInterface(method.outputInterface) }}|null|undefined,
+          {}|null|undefined>|undefined = callback
       ? (error, response, rawResponse, _) => {
           this._log.info('{{ method.name.toCamelCase() }} response %j', rawResponse);
-          callback!(error, response, rawResponse, _); // We verified callback above.
+          callback!(error, response, rawResponse, _); // We verified `callback` above.
         }
       : undefined;
     this._log.info('{{ method.name.toCamelCase() }} request %j', request);
