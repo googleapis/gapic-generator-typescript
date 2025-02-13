@@ -682,12 +682,11 @@ export class {{ service.name }}Client {
         }
       : undefined;
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
-      ?.then(([response, nextRequest, rawResponse]: [LROperation<{{ util.toInterface(method.outputInterface) }}, null>,{{ util.toInterface(method.outputInterface) }}|undefined,{}|undefined]) => {
-        this._log.info('{{ method.name.toCamelCase() }} response %j', rawResponse);
+      ?.then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
         return [
-          response,
-          nextRequest,
-          rawResponse,
+          { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
+          operation,
+          rawResponse
         ];
       });
     {%- else %}
