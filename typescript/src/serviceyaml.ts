@@ -26,10 +26,22 @@ export interface ServiceYaml {
   http: Http;
   publishing?: {
     method_settings?: MethodSettings[];
+    typescript_settings?: TypescriptSettings;
   };
 }
 
 export interface MethodSettings {
   selector: string;
   auto_populated_fields?: string[];
+}
+
+export interface TypescriptSettings {
+  common: {
+    selective_gapic_generation?: {
+      methods: string[];
+      generate_omitted_as_internal?: boolean;
+      as_deny_list?: boolean;
+    }
+    destinations: string;
+  }
 }

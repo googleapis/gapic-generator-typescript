@@ -64,6 +64,8 @@ export interface MethodDescriptorProto
   methodConfig: protos.grpc.service_config.MethodConfig;
   retryableCodesName: string;
   retryParamsName: string;
+  // Determine whether we should generate the method normally or as a hidden or internal method.
+  selectiveGapic: SelectiveGapicType;
   timeoutMillis?: number;
   // headerRequestParams: if we need to pass "request.foo" and "request.bar"
   // into x-goog-request-params header, the array will contain
@@ -87,6 +89,7 @@ export interface ServiceDescriptorProto
   packageName: string;
   method: MethodDescriptorProto[];
   simpleMethods: MethodDescriptorProto[];
+  internalMethods: MethodDescriptorProto[];
   longRunning: MethodDescriptorProto[];
   streaming: MethodDescriptorProto[];
   clientStreaming: MethodDescriptorProto[];
@@ -557,6 +560,7 @@ interface AugmentMethodParameters {
   localMessages: MessagesMap;
   service: ServiceDescriptorProto;
   diregapic?: boolean;
+  selectiveGapic?: SelectiveGapicConfig;
 }
 
 function augmentMethod(
@@ -585,6 +589,7 @@ function augmentMethod(
         parameters.diregapic
       ),
       autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
+      selectiveGapic: parameters.selectiveGapic ? isMethodSelectiveGapic(method, parameters) : SelectiveGapicType.NORMAL,
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
@@ -632,6 +637,7 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
       throw new Error(
@@ -647,6 +653,7 @@ function augmentMethod(
       );
     }
   }
+  
   const bundleConfigs = parameters.service.bundleConfigs;
   if (bundleConfigs) {
     for (const bc of bundleConfigs) {
@@ -667,6 +674,7 @@ function augmentMethod(
       }
     }
   }
+
   if (method.inputType && parameters.allMessages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
     const inputType = parameters.allMessages[method.inputType!];
@@ -681,12 +689,14 @@ function augmentMethod(
 
     method.paramComment = paramComment;
   }
+
   if (method.methodConfig.retryPolicy?.retryableStatusCodes) {
     method.retryableCodesName =
       parameters.service.retryableCodeMap.getRetryableCodesName(
         method.methodConfig.retryPolicy.retryableStatusCodes
       );
   }
+
   if (method.methodConfig.retryPolicy) {
     // converting retry parameters to the syntax google-gax supports
     const retryParams: {[key: string]: number} = {};
@@ -742,6 +752,66 @@ function augmentMethod(
   // but we need to serialize the whole augmented object.
   method.toJSON = undefined;
   return method;
+}
+
+/* Interface and method to grab selective gapic methods from the service yaml and create a map 
+along with other potential selective gapic config options. */
+interface SelectiveGapicConfig {
+  selectiveGapicMethodsMap: Map<string, boolean>;
+  generateOmittedAsInternal: boolean;
+  asDenyList: boolean;
+}
+
+export function getSelectiveGapic(
+  serviceYaml: ServiceYaml | undefined
+): SelectiveGapicConfig {
+  const selectiveGapicMethodsMap = new Map();
+  const serviceYamlTS = serviceYaml.publishing?.typescript_settings?.common?.selective_gapic_generation;
+  const generateOmittedAsInternal = serviceYamlTS?.generate_omitted_as_internal ? serviceYamlTS?.generate_omitted_as_internal : false;
+  const asDenyList = serviceYamlTS?.as_deny_list ? serviceYamlTS?.as_deny_list : false;
+  
+  if (serviceYamlTS) {
+    const selectiveGapicMethods = serviceYamlTS.methods;
+
+    // We find the final part of the proto method name and add it to methods map.
+    for (const m of selectiveGapicMethods) {
+      const lastDotIndex = m.lastIndexOf('.');
+      if (lastDotIndex !== -1) {
+        selectiveGapicMethodsMap.set(m.substring(lastDotIndex + 1), true);
+      } 
+    }
+  }
+
+  return {
+    selectiveGapicMethodsMap,
+    generateOmittedAsInternal, 
+    asDenyList,
+  };
+}
+
+enum SelectiveGapicType {
+  NORMAL = 'normal',
+  HIDDEN = 'hidden',
+  INTERNAL = 'internal',
+}
+
+export function isMethodSelectiveGapic(method: MethodDescriptorProto, parameters: AugmentMethodParameters) : SelectiveGapicType {
+  const selectiveGapicConfig = parameters.selectiveGapic;
+  if (selectiveGapicConfig) {
+    // If denylist and method name is in denylist, then we should hide or make internal.
+    if (selectiveGapicConfig.asDenyList && this.selectiveGapicMethodsMap.has(method.name)) {
+      return selectiveGapicConfig.generateOmittedAsInternal ? SelectiveGapicType.INTERNAL : SelectiveGapicType.HIDDEN;
+    } else if (selectiveGapicConfig.asDenyList && !this.selectiveGapicMethodsMap.has(method.name)) {
+      return SelectiveGapicType.NORMAL;
+    };
+
+    // If it's an allowlist method, and the method is not in the list, we should hide or make internal.
+    if (!selectiveGapicConfig.asDenyList && !this.selectiveGapicMethodsMap.has(method.name)) {
+      return selectiveGapicConfig.generateOmittedAsInternal ? SelectiveGapicType.INTERNAL : SelectiveGapicType.HIDDEN;
+    } else if (!selectiveGapicConfig.asDenyList && this.selectiveGapicMethodsMap.has(method.name)) {
+      return SelectiveGapicType.NORMAL;
+    };
+  };
 }
 
 export function getSingleHeaderParam(
@@ -893,6 +963,7 @@ interface AugmentServiceParameters {
   resourceDatabase: ResourceDatabase;
   options: Options;
   protoFile: string;
+  selectiveGapic: SelectiveGapicConfig;
 }
 
 function augmentService(parameters: AugmentServiceParameters) {
@@ -937,10 +1008,20 @@ function augmentService(parameters: AugmentServiceParameters) {
           localMessages: parameters.localMessages,
           service: augmentedService,
           diregapic: parameters.options.diregapic,
+          selectiveGapic: parameters.selectiveGapic,
         },
         method
       )
     ) ?? [];
+
+  /* Selective GAPIC method handling. */
+  augmentedService.method = augmentedService.method.filter(
+    method => method.selectiveGapic !== SelectiveGapicType.HIDDEN
+  );
+  augmentedService.internalMethods = augmentedService.method.filter(
+    method => method.selectiveGapic === SelectiveGapicType.INTERNAL
+  );
+
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
     method => method.bundleConfig
   );
@@ -969,6 +1050,8 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.paging = augmentedService.method.filter(
     method => method.pagingFieldName
   );
+
+
 
   const hasLroMethods = augmentedService.longRunning.length > 0;
   if (
@@ -1076,6 +1159,7 @@ interface ProtoParameters {
   resourceDatabase: ResourceDatabase;
   options: Options;
   commentsMap: CommentsMap;
+  selectiveGapic: SelectiveGapicConfig;
 }
 
 export class Proto {
@@ -1094,6 +1178,7 @@ export class Proto {
   localMessages: MessagesMap = {};
   fileToGenerate = true;
   diregapic?: boolean;
+  selectiveGapic: SelectiveGapicConfig;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
@@ -1114,6 +1199,8 @@ export class Proto {
         return map;
       }, {} as MessagesMap);
     this.diregapic = parameters.options.diregapic;
+    this.selectiveGapic = getSelectiveGapic(parameters.options.serviceYaml);
+
     const protopackage = parameters.fd.package;
     // Allow to generate if a proto has no service and its package name is differ from its service's.
     if (
@@ -1144,6 +1231,7 @@ export class Proto {
           resourceDatabase: parameters.resourceDatabase,
           options: parameters.options,
           protoFile: parameters.fd.name!,
+          selectiveGapic: this.selectiveGapic,
         })
       )
       .reduce((map, service) => {
