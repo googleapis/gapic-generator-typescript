@@ -589,7 +589,9 @@ function augmentMethod(
         parameters.diregapic
       ),
       autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
-      selectiveGapic: parameters.selectiveGapic ? isMethodSelectiveGapic(method, parameters) : SelectiveGapicType.NORMAL,
+      selectiveGapic: parameters.selectiveGapic
+        ? isMethodSelectiveGapic(method, parameters)
+        : SelectiveGapicType.NORMAL,
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
@@ -653,7 +655,7 @@ function augmentMethod(
       );
     }
   }
-  
+
   const bundleConfigs = parameters.service.bundleConfigs;
   if (bundleConfigs) {
     for (const bc of bundleConfigs) {
@@ -754,7 +756,7 @@ function augmentMethod(
   return method;
 }
 
-/* Interface and method to grab selective gapic methods from the service yaml and create a map 
+/* Interface and method to grab selective gapic methods from the service yaml and create a map
 along with other potential selective gapic config options. */
 interface SelectiveGapicConfig {
   selectiveGapicMethodsMap: Map<string, boolean>;
@@ -766,10 +768,16 @@ export function getSelectiveGapic(
   serviceYaml: ServiceYaml | undefined
 ): SelectiveGapicConfig {
   const selectiveGapicMethodsMap = new Map();
-  const serviceYamlTS = serviceYaml.publishing?.typescript_settings?.common?.selective_gapic_generation;
-  const generateOmittedAsInternal = serviceYamlTS?.generate_omitted_as_internal ? serviceYamlTS?.generate_omitted_as_internal : false;
-  const asDenyList = serviceYamlTS?.as_deny_list ? serviceYamlTS?.as_deny_list : false;
-  
+  const serviceYamlTS =
+    serviceYaml.publishing?.typescript_settings?.common
+      ?.selective_gapic_generation;
+  const generateOmittedAsInternal = serviceYamlTS?.generate_omitted_as_internal
+    ? serviceYamlTS?.generate_omitted_as_internal
+    : false;
+  const asDenyList = serviceYamlTS?.as_deny_list
+    ? serviceYamlTS?.as_deny_list
+    : false;
+
   if (serviceYamlTS) {
     const selectiveGapicMethods = serviceYamlTS.methods;
 
@@ -778,13 +786,13 @@ export function getSelectiveGapic(
       const lastDotIndex = m.lastIndexOf('.');
       if (lastDotIndex !== -1) {
         selectiveGapicMethodsMap.set(m.substring(lastDotIndex + 1), true);
-      } 
+      }
     }
   }
 
   return {
     selectiveGapicMethodsMap,
-    generateOmittedAsInternal, 
+    generateOmittedAsInternal,
     asDenyList,
   };
 }
@@ -795,23 +803,42 @@ enum SelectiveGapicType {
   INTERNAL = 'internal',
 }
 
-export function isMethodSelectiveGapic(method: MethodDescriptorProto, parameters: AugmentMethodParameters) : SelectiveGapicType {
+export function isMethodSelectiveGapic(
+  method: MethodDescriptorProto,
+  parameters: AugmentMethodParameters
+): SelectiveGapicType {
   const selectiveGapicConfig = parameters.selectiveGapic;
   if (selectiveGapicConfig) {
     // If denylist and method name is in denylist, then we should hide or make internal.
-    if (selectiveGapicConfig.asDenyList && this.selectiveGapicMethodsMap.has(method.name)) {
-      return selectiveGapicConfig.generateOmittedAsInternal ? SelectiveGapicType.INTERNAL : SelectiveGapicType.HIDDEN;
-    } else if (selectiveGapicConfig.asDenyList && !this.selectiveGapicMethodsMap.has(method.name)) {
+    if (
+      selectiveGapicConfig.asDenyList &&
+      this.selectiveGapicMethodsMap.has(method.name)
+    ) {
+      return selectiveGapicConfig.generateOmittedAsInternal
+        ? SelectiveGapicType.INTERNAL
+        : SelectiveGapicType.HIDDEN;
+    } else if (
+      selectiveGapicConfig.asDenyList &&
+      !this.selectiveGapicMethodsMap.has(method.name)
+    ) {
       return SelectiveGapicType.NORMAL;
-    };
+    }
 
     // If it's an allowlist method, and the method is not in the list, we should hide or make internal.
-    if (!selectiveGapicConfig.asDenyList && !this.selectiveGapicMethodsMap.has(method.name)) {
-      return selectiveGapicConfig.generateOmittedAsInternal ? SelectiveGapicType.INTERNAL : SelectiveGapicType.HIDDEN;
-    } else if (!selectiveGapicConfig.asDenyList && this.selectiveGapicMethodsMap.has(method.name)) {
+    if (
+      !selectiveGapicConfig.asDenyList &&
+      !this.selectiveGapicMethodsMap.has(method.name)
+    ) {
+      return selectiveGapicConfig.generateOmittedAsInternal
+        ? SelectiveGapicType.INTERNAL
+        : SelectiveGapicType.HIDDEN;
+    } else if (
+      !selectiveGapicConfig.asDenyList &&
+      this.selectiveGapicMethodsMap.has(method.name)
+    ) {
       return SelectiveGapicType.NORMAL;
-    };
-  };
+    }
+  }
 }
 
 export function getSingleHeaderParam(
@@ -1050,8 +1077,6 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.paging = augmentedService.method.filter(
     method => method.pagingFieldName
   );
-
-
 
   const hasLroMethods = augmentedService.longRunning.length > 0;
   if (
