@@ -41,7 +41,7 @@ export interface TypescriptSettings {
       methods: string[];
       generate_omitted_as_internal?: boolean;
       as_deny_list?: boolean;
-    }
+    };
     destinations: string;
-  }
+  };
 }
