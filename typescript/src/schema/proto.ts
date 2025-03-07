@@ -810,33 +810,25 @@ export function isMethodSelectiveGapic(
   const selectiveGapicConfig = parameters.selectiveGapic;
   if (selectiveGapicConfig) {
     // If denylist and method name is in denylist, then we should hide or make internal.
-    if (
-      selectiveGapicConfig.asDenyList &&
-      this.selectiveGapicMethodsMap.has(method.name)
-    ) {
-      return selectiveGapicConfig.generateOmittedAsInternal
-        ? SelectiveGapicType.INTERNAL
-        : SelectiveGapicType.HIDDEN;
-    } else if (
-      selectiveGapicConfig.asDenyList &&
-      !this.selectiveGapicMethodsMap.has(method.name)
-    ) {
-      return SelectiveGapicType.NORMAL;
+    if (selectiveGapicConfig.asDenyList) {
+      if (this.selectiveGapicMethodsMap.has(method.name)) {
+        return selectiveGapicConfig.generateOmittedAsInternal
+          ? SelectiveGapicType.INTERNAL
+          : SelectiveGapicType.HIDDEN;
+      } else {
+        return SelectiveGapicType.NORMAL;
+      }
     }
 
     // If it's an allowlist method, and the method is not in the list, we should hide or make internal.
-    if (
-      !selectiveGapicConfig.asDenyList &&
-      !this.selectiveGapicMethodsMap.has(method.name)
-    ) {
-      return selectiveGapicConfig.generateOmittedAsInternal
-        ? SelectiveGapicType.INTERNAL
-        : SelectiveGapicType.HIDDEN;
-    } else if (
-      !selectiveGapicConfig.asDenyList &&
-      this.selectiveGapicMethodsMap.has(method.name)
-    ) {
-      return SelectiveGapicType.NORMAL;
+    if (!selectiveGapicConfig.asDenyList) {
+      if (!this.selectiveGapicMethodsMap.has(method.name)) {
+        return selectiveGapicConfig.generateOmittedAsInternal
+          ? SelectiveGapicType.INTERNAL
+          : SelectiveGapicType.HIDDEN;
+      } else {
+        return SelectiveGapicType.NORMAL;
+      }
     }
   }
 }
