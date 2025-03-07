@@ -23,6 +23,7 @@ import {
   getSingleRoutingHeaderParam,
   MessagesMap,
   Proto,
+  ServiceDescriptorProto,
 } from '../../src/schema/proto.js';
 import {Options} from '../../src/schema/naming.js';
 import {ResourceDatabase} from '../../src/schema/resource-database.js';
@@ -404,6 +405,7 @@ describe('src/schema/proto.ts', () => {
       };
       const allMessages: MessagesMap = {};
       const commentsMap = new CommentsMap([fd]);
+
       const proto = new Proto({
         fd,
         packageName: 'google.cloud.showcase.v1beta1',
@@ -712,6 +714,15 @@ describe('src/schema/proto.ts', () => {
                   auto_populated_fields: ['request_id'],
                 },
               ],
+              typescript_settings: {
+                common: {
+                  selective_gapic_generation: {
+                    methods: ['google.showcase.v1beta1.Echo.Echo'],
+                    generate_omitted_as_internal: true,
+                    as_deny_list: true,
+                  },
+                },
+              },
             },
           },
           grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
@@ -723,7 +734,7 @@ describe('src/schema/proto.ts', () => {
               paramType: 'TYPE_STRING',
               comments: [' A random request_id to test autopopulation'],
               fieldBehavior: 1,
-              fieldInfo: {format: 1} as protos.google.api.FieldInfo,
+              fieldInfo: { format: 1 } as protos.google.api.FieldInfo,
             },
           },
           getCommentsMap: function (): Comments {
@@ -733,7 +744,7 @@ describe('src/schema/proto.ts', () => {
                 paramType: 'TYPE_STRING',
                 comments: [' A random request_id to test autopopulation'],
                 fieldBehavior: 1,
-                fieldInfo: {format: 1},
+                fieldInfo: { format: 1 },
               },
             } as unknown as Comments;
           },
@@ -742,20 +753,20 @@ describe('src/schema/proto.ts', () => {
           },
           getMethodComments: function (
             serviceName: string,
-            methodName: string
+            methodName: string,
           ): string[] {
             return ['not needed'];
           },
           getParamComments: function (
             messageName: string,
-            fieldName: string
+            fieldName: string,
           ): Comment {
             return {
               paramName: 'request_id',
               paramType: 'TYPE_STRING',
               comments: [' A random request_id to test autopopulation'],
               fieldBehavior: 1,
-              fieldInfo: {format: 1},
+              fieldInfo: { format: 1 },
             } as Comment;
           },
         },
@@ -763,7 +774,7 @@ describe('src/schema/proto.ts', () => {
       // throw new Error(`${JSON.stringify(proto)}`)
       assert.deepStrictEqual(
         proto.services['service'].method[0].autoPopulatedFields,
-        ['request_id']
+        ['request_id'],
       );
     });
 

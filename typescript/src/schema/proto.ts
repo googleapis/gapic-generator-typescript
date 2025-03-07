@@ -589,9 +589,7 @@ function augmentMethod(
         parameters.diregapic
       ),
       autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
-      selectiveGapic: parameters.selectiveGapic
-        ? isMethodSelectiveGapic(method, parameters)
-        : SelectiveGapicType.NORMAL,
+      selectiveGapic: isMethodSelectiveGapic(method, parameters.selectiveGapic),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
@@ -769,8 +767,8 @@ export function getSelectiveGapic(
 ): SelectiveGapicConfig {
   const selectiveGapicMethodsMap = new Map();
   const serviceYamlTS =
-    serviceYaml.publishing?.typescript_settings?.common
-      ?.selective_gapic_generation;
+    serviceYaml?.publishing?.typescript_settings?.common
+      ?.selective_gapic_generation ?? undefined;
   const generateOmittedAsInternal = serviceYamlTS?.generate_omitted_as_internal
     ? serviceYamlTS?.generate_omitted_as_internal
     : false;
@@ -805,13 +803,14 @@ enum SelectiveGapicType {
 
 export function isMethodSelectiveGapic(
   method: MethodDescriptorProto,
-  parameters: AugmentMethodParameters
+  selectiveGapicConfig: SelectiveGapicConfig | undefined
 ): SelectiveGapicType {
-  const selectiveGapicConfig = parameters.selectiveGapic;
+  console.warn(selectiveGapicConfig);
+
   if (selectiveGapicConfig) {
     // If denylist and method name is in denylist, then we should hide or make internal.
     if (selectiveGapicConfig.asDenyList) {
-      if (this.selectiveGapicMethodsMap.has(method.name)) {
+      if (selectiveGapicConfig.selectiveGapicMethodsMap.has(method.name)) {
         return selectiveGapicConfig.generateOmittedAsInternal
           ? SelectiveGapicType.INTERNAL
           : SelectiveGapicType.HIDDEN;
@@ -822,7 +821,7 @@ export function isMethodSelectiveGapic(
 
     // If it's an allowlist method, and the method is not in the list, we should hide or make internal.
     if (!selectiveGapicConfig.asDenyList) {
-      if (!this.selectiveGapicMethodsMap.has(method.name)) {
+      if (!selectiveGapicConfig.selectiveGapicMethodsMap.has(method.name)) {
         return selectiveGapicConfig.generateOmittedAsInternal
           ? SelectiveGapicType.INTERNAL
           : SelectiveGapicType.HIDDEN;
@@ -830,6 +829,8 @@ export function isMethodSelectiveGapic(
         return SelectiveGapicType.NORMAL;
       }
     }
+  } else {
+    return SelectiveGapicType.NORMAL;
   }
 }
 
@@ -1176,7 +1177,7 @@ interface ProtoParameters {
   resourceDatabase: ResourceDatabase;
   options: Options;
   commentsMap: CommentsMap;
-  selectiveGapic: SelectiveGapicConfig;
+  selectiveGapic?: SelectiveGapicConfig;
 }
 
 export class Proto {
