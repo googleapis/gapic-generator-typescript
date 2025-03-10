@@ -1109,7 +1109,7 @@ describe('src/schema/proto.ts', () => {
   });
 
   describe('should support pagination for non-gRPC APIs, diregapic mode', () => {
-    it.only('should be page field if diregapic mode and use "max_results" as field name', () => {
+    it('should be page field if diregapic mode and use "max_results" as field name', () => {
       const fd = {} as protos.google.protobuf.FileDescriptorProto;
       fd.name = 'google/cloud/showcase/v1beta1/test.proto';
       fd.package = 'google.cloud.showcase.v1beta1';
@@ -1172,7 +1172,6 @@ describe('src/schema/proto.ts', () => {
         options,
         commentsMap,
       });
-      console.log(proto);
       assert.deepStrictEqual(
         proto.services['service'].method[0].pagingFieldName,
         'next_page_token'

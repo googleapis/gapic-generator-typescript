@@ -19,7 +19,6 @@ import {
   Proto,
   MessagesMap,
   ServiceDescriptorProto,
-  getSelectiveGapic,
 } from './proto.js';
 import {ResourceDatabase, ResourceDescriptor} from './resource-database.js';
 import {CommentsMap} from './comments.js';
@@ -123,8 +122,6 @@ export class API {
 
     const commentsMap = new CommentsMap(fileDescriptors);
 
-    const selectiveGapic = getSelectiveGapic(options.serviceYaml);
-
     const filteredProtos = API.filterOutIgnoredServices(
       fileDescriptors.filter(fd => fd.name)
     );
@@ -138,7 +135,6 @@ export class API {
         resourceDatabase,
         options,
         commentsMap,
-        selectiveGapic,
       });
       return map;
     }, {} as ProtosMap);
