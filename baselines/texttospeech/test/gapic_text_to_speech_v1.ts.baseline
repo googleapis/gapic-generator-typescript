@@ -44,6 +44,14 @@ function generateSampleMessage<T extends object>(instance: T) {
     return (instance.constructor as typeof protobuf.Message).fromObject(filledObject) as T;
 }
 
+function stubSimpleCall<ResponseType>(response?: ResponseType, error?: Error) {
+    return error ? sinon.stub().rejects(error) : sinon.stub().resolves([response]);
+}
+
+function stubSimpleCallWithCallback<ResponseType>(response?: ResponseType, error?: Error) {
+    return error ? sinon.stub().callsArgWith(2, error) : sinon.stub().callsArgWith(2, null, response);
+}
+
 describe('v1.TextToSpeechClient', () => {
     describe('Common methods', () => {
         it('has apiEndpoint', () => {
@@ -201,6 +209,156 @@ describe('v1.TextToSpeechClient', () => {
             });
             const result = await promise;
             assert.strictEqual(result, fakeProjectId);
+        });
+    });
+
+    describe('listVoices', () => {
+        it('invokes listVoices without error', async () => {
+            const client = new texttospeechModule.v1.TextToSpeechClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.ListVoicesRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.ListVoicesResponse()
+            );
+            client.innerApiCalls.listVoices = stubSimpleCall(expectedResponse);
+            const [response] = await client.listVoices(request);
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+
+        it('invokes listVoices without error using callback', async () => {
+            const client = new texttospeechModule.v1.TextToSpeechClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.ListVoicesRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.ListVoicesResponse()
+            );
+            client.innerApiCalls.listVoices = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.listVoices(
+                    request,
+                    (err?: Error|null, result?: protos.google.cloud.texttospeech.v1.IListVoicesResponse|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+
+        it('invokes listVoices with error', async () => {
+            const client = new texttospeechModule.v1.TextToSpeechClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.ListVoicesRequest()
+            );
+            const expectedError = new Error('expected');
+            client.innerApiCalls.listVoices = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.listVoices(request), expectedError);
+        });
+
+        it('invokes listVoices with closed client', async () => {
+            const client = new texttospeechModule.v1.TextToSpeechClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.ListVoicesRequest()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.listVoices(request), expectedError);
+        });
+    });
+
+    describe('synthesizeSpeech', () => {
+        it('invokes synthesizeSpeech without error', async () => {
+            const client = new texttospeechModule.v1.TextToSpeechClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.SynthesizeSpeechRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.SynthesizeSpeechResponse()
+            );
+            client.innerApiCalls.synthesizeSpeech = stubSimpleCall(expectedResponse);
+            const [response] = await client.synthesizeSpeech(request);
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+
+        it('invokes synthesizeSpeech without error using callback', async () => {
+            const client = new texttospeechModule.v1.TextToSpeechClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.SynthesizeSpeechRequest()
+            );
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.SynthesizeSpeechResponse()
+            );
+            client.innerApiCalls.synthesizeSpeech = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.synthesizeSpeech(
+                    request,
+                    (err?: Error|null, result?: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechResponse|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+        });
+
+        it('invokes synthesizeSpeech with error', async () => {
+            const client = new texttospeechModule.v1.TextToSpeechClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.SynthesizeSpeechRequest()
+            );
+            const expectedError = new Error('expected');
+            client.innerApiCalls.synthesizeSpeech = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.synthesizeSpeech(request), expectedError);
+        });
+
+        it('invokes synthesizeSpeech with closed client', async () => {
+            const client = new texttospeechModule.v1.TextToSpeechClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.texttospeech.v1.SynthesizeSpeechRequest()
+            );
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.synthesizeSpeech(request), expectedError);
         });
     });
 });

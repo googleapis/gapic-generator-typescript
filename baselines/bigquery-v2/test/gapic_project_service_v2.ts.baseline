@@ -44,6 +44,14 @@ function generateSampleMessage<T extends object>(instance: T) {
     return (instance.constructor as typeof protobuf.Message).fromObject(filledObject) as T;
 }
 
+function stubSimpleCall<ResponseType>(response?: ResponseType, error?: Error) {
+    return error ? sinon.stub().rejects(error) : sinon.stub().resolves([response]);
+}
+
+function stubSimpleCallWithCallback<ResponseType>(response?: ResponseType, error?: Error) {
+    return error ? sinon.stub().callsArgWith(2, error) : sinon.stub().callsArgWith(2, null, response);
+}
+
 describe('v2.ProjectServiceClient', () => {
     describe('Common methods', () => {
         it('has apiEndpoint', () => {
@@ -201,6 +209,114 @@ describe('v2.ProjectServiceClient', () => {
             });
             const result = await promise;
             assert.strictEqual(result, fakeProjectId);
+        });
+    });
+
+    describe('getServiceAccount', () => {
+        it('invokes getServiceAccount without error', async () => {
+            const client = new projectserviceModule.v2.ProjectServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.v2.GetServiceAccountRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.bigquery.v2.GetServiceAccountRequest', ['projectId']);
+            request.projectId = defaultValue1;
+            const expectedHeaderRequestParams = `project_id=${defaultValue1 ?? '' }`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.bigquery.v2.GetServiceAccountResponse()
+            );
+            client.innerApiCalls.getServiceAccount = stubSimpleCall(expectedResponse);
+            const [response] = await client.getServiceAccount(request);
+            assert.deepStrictEqual(response, expectedResponse);
+            const actualRequest = (client.innerApiCalls.getServiceAccount as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getServiceAccount as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes getServiceAccount without error using callback', async () => {
+            const client = new projectserviceModule.v2.ProjectServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.v2.GetServiceAccountRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.bigquery.v2.GetServiceAccountRequest', ['projectId']);
+            request.projectId = defaultValue1;
+            const expectedHeaderRequestParams = `project_id=${defaultValue1 ?? '' }`;
+            const expectedResponse = generateSampleMessage(
+              new protos.google.cloud.bigquery.v2.GetServiceAccountResponse()
+            );
+            client.innerApiCalls.getServiceAccount = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.getServiceAccount(
+                    request,
+                    (err?: Error|null, result?: protos.google.cloud.bigquery.v2.IGetServiceAccountResponse|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            const actualRequest = (client.innerApiCalls.getServiceAccount as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getServiceAccount as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes getServiceAccount with error', async () => {
+            const client = new projectserviceModule.v2.ProjectServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.v2.GetServiceAccountRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.bigquery.v2.GetServiceAccountRequest', ['projectId']);
+            request.projectId = defaultValue1;
+            const expectedHeaderRequestParams = `project_id=${defaultValue1 ?? '' }`;
+            const expectedError = new Error('expected');
+            client.innerApiCalls.getServiceAccount = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.getServiceAccount(request), expectedError);
+            const actualRequest = (client.innerApiCalls.getServiceAccount as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.getServiceAccount as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes getServiceAccount with closed client', async () => {
+            const client = new projectserviceModule.v2.ProjectServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.cloud.bigquery.v2.GetServiceAccountRequest()
+            );
+            const defaultValue1 =
+              getTypeDefaultValue('.google.cloud.bigquery.v2.GetServiceAccountRequest', ['projectId']);
+            request.projectId = defaultValue1;
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.getServiceAccount(request), expectedError);
         });
     });
 });

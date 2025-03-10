@@ -114,6 +114,7 @@ export interface ServiceDescriptorProto
   protoFile: string;
   diregapicLRO?: MethodDescriptorProto[];
   httpRules?: protos.google.api.IHttpRule[];
+  selectiveGapic: SelectiveGapicConfig;
 }
 
 export interface ServicesMap {
@@ -560,7 +561,6 @@ interface AugmentMethodParameters {
   localMessages: MessagesMap;
   service: ServiceDescriptorProto;
   diregapic?: boolean;
-  selectiveGapic?: SelectiveGapicConfig;
 }
 
 function augmentMethod(
@@ -589,7 +589,6 @@ function augmentMethod(
         parameters.diregapic
       ),
       autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
-      selectiveGapic: isMethodSelectiveGapic(method, parameters.selectiveGapic),
       streaming: streaming(method),
       pagingFieldName: pagingFieldName(
         parameters.allMessages,
@@ -758,8 +757,8 @@ function augmentMethod(
 along with other potential selective gapic config options. */
 interface SelectiveGapicConfig {
   selectiveGapicMethodsMap: Map<string, boolean>;
-  generateOmittedAsInternal: boolean;
-  asDenyList: boolean;
+  generateOmittedAsInternal: boolean | undefined;
+  asDenyList: boolean | undefined;
 }
 
 export function getSelectiveGapic(
@@ -771,10 +770,10 @@ export function getSelectiveGapic(
       ?.selective_gapic_generation ?? undefined;
   const generateOmittedAsInternal = serviceYamlTS?.generate_omitted_as_internal
     ? serviceYamlTS?.generate_omitted_as_internal
-    : false;
+    : undefined;
   const asDenyList = serviceYamlTS?.as_deny_list
     ? serviceYamlTS?.as_deny_list
-    : false;
+    : undefined;
 
   if (serviceYamlTS) {
     const selectiveGapicMethods = serviceYamlTS.methods;
@@ -805,15 +804,19 @@ export function isMethodSelectiveGapic(
   method: MethodDescriptorProto,
   selectiveGapicConfig: SelectiveGapicConfig | undefined
 ): SelectiveGapicType {
-  console.warn(selectiveGapicConfig);
+  let type: SelectiveGapicType = SelectiveGapicType.NORMAL;
+
+  if (selectiveGapicConfig.asDenyList === undefined && selectiveGapicConfig.generateOmittedAsInternal === undefined) {
+    return SelectiveGapicType.NORMAL;
+  }
 
   if (selectiveGapicConfig) {
     // If denylist and method name is in denylist, then we should hide or make internal.
     if (selectiveGapicConfig.asDenyList) {
       if (selectiveGapicConfig.selectiveGapicMethodsMap.has(method.name)) {
-        return selectiveGapicConfig.generateOmittedAsInternal
-          ? SelectiveGapicType.INTERNAL
-          : SelectiveGapicType.HIDDEN;
+        selectiveGapicConfig.generateOmittedAsInternal
+          ? (type = SelectiveGapicType.INTERNAL)
+          : (type = SelectiveGapicType.HIDDEN);
       } else {
         return SelectiveGapicType.NORMAL;
       }
@@ -822,16 +825,17 @@ export function isMethodSelectiveGapic(
     // If it's an allowlist method, and the method is not in the list, we should hide or make internal.
     if (!selectiveGapicConfig.asDenyList) {
       if (!selectiveGapicConfig.selectiveGapicMethodsMap.has(method.name)) {
-        return selectiveGapicConfig.generateOmittedAsInternal
-          ? SelectiveGapicType.INTERNAL
-          : SelectiveGapicType.HIDDEN;
+        selectiveGapicConfig.generateOmittedAsInternal
+          ? (type = SelectiveGapicType.INTERNAL)
+          : (type = SelectiveGapicType.HIDDEN);
       } else {
         return SelectiveGapicType.NORMAL;
       }
     }
-  } else {
-    return SelectiveGapicType.NORMAL;
   }
+
+  console.log(selectiveGapicConfig, type)
+  return type;
 }
 
 export function getSingleHeaderParam(
@@ -983,7 +987,6 @@ interface AugmentServiceParameters {
   resourceDatabase: ResourceDatabase;
   options: Options;
   protoFile: string;
-  selectiveGapic: SelectiveGapicConfig;
 }
 
 function augmentService(parameters: AugmentServiceParameters) {
@@ -1016,6 +1019,9 @@ function augmentService(parameters: AugmentServiceParameters) {
   );
   augmentedService.commentsMap = parameters.commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
+  augmentedService.selectiveGapic = getSelectiveGapic(
+    parameters.options.serviceYaml
+  );
   augmentedService.grpcServiceConfig = parameters.options.grpcServiceConfig;
   augmentedService.bundleConfigs = parameters.options.bundleConfigs?.filter(
     bc => bc.serviceName === parameters.service.name
@@ -1028,7 +1034,6 @@ function augmentService(parameters: AugmentServiceParameters) {
           localMessages: parameters.localMessages,
           service: augmentedService,
           diregapic: parameters.options.diregapic,
-          selectiveGapic: parameters.selectiveGapic,
         },
         method
       )
@@ -1036,10 +1041,14 @@ function augmentService(parameters: AugmentServiceParameters) {
 
   /* Selective GAPIC method handling. */
   augmentedService.method = augmentedService.method.filter(
-    method => method.selectiveGapic !== SelectiveGapicType.HIDDEN
+    method =>
+      isMethodSelectiveGapic(method, augmentedService.selectiveGapic) !==
+      SelectiveGapicType.HIDDEN
   );
   augmentedService.internalMethods = augmentedService.method.filter(
-    method => method.selectiveGapic === SelectiveGapicType.INTERNAL
+    method =>
+      isMethodSelectiveGapic(method, augmentedService.selectiveGapic) !==
+      SelectiveGapicType.INTERNAL
   );
 
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
@@ -1177,7 +1186,6 @@ interface ProtoParameters {
   resourceDatabase: ResourceDatabase;
   options: Options;
   commentsMap: CommentsMap;
-  selectiveGapic?: SelectiveGapicConfig;
 }
 
 export class Proto {
@@ -1196,7 +1204,6 @@ export class Proto {
   localMessages: MessagesMap = {};
   fileToGenerate = true;
   diregapic?: boolean;
-  selectiveGapic: SelectiveGapicConfig;
   // TODO: need to store metadata? address?
 
   // allResourceDatabase: resources that defined by `google.api.resource`
@@ -1217,7 +1224,6 @@ export class Proto {
         return map;
       }, {} as MessagesMap);
     this.diregapic = parameters.options.diregapic;
-    this.selectiveGapic = getSelectiveGapic(parameters.options.serviceYaml);
 
     const protopackage = parameters.fd.package;
     // Allow to generate if a proto has no service and its package name is differ from its service's.
@@ -1249,7 +1255,6 @@ export class Proto {
           resourceDatabase: parameters.resourceDatabase,
           options: parameters.options,
           protoFile: parameters.fd.name!,
-          selectiveGapic: this.selectiveGapic,
         })
       )
       .reduce((map, service) => {

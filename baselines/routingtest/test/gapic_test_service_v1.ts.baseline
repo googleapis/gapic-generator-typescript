@@ -44,6 +44,14 @@ function generateSampleMessage<T extends object>(instance: T) {
     return (instance.constructor as typeof protobuf.Message).fromObject(filledObject) as T;
 }
 
+function stubSimpleCall<ResponseType>(response?: ResponseType, error?: Error) {
+    return error ? sinon.stub().rejects(error) : sinon.stub().resolves([response]);
+}
+
+function stubSimpleCallWithCallback<ResponseType>(response?: ResponseType, error?: Error) {
+    return error ? sinon.stub().callsArgWith(2, error) : sinon.stub().callsArgWith(2, null, response);
+}
+
 describe('v1.TestServiceClient', () => {
     describe('Common methods', () => {
         it('has apiEndpoint', () => {
@@ -160,6 +168,318 @@ describe('v1.TestServiceClient', () => {
             });
             const result = await promise;
             assert.strictEqual(result, fakeProjectId);
+        });
+    });
+
+    describe('fastFibonacci', () => {
+        it('invokes fastFibonacci without error', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {database=projects/*/databases/*}/documents
+            request.name = 'projects/value/databases/value/documents';
+            const expectedHeaderRequestParams = 'database=projects%2Fvalue%2Fdatabases%2Fvalue';
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            client.innerApiCalls.fastFibonacci = stubSimpleCall(expectedResponse);
+            const [response] = await client.fastFibonacci(request);
+            assert.deepStrictEqual(response, expectedResponse);
+            const actualRequest = (client.innerApiCalls.fastFibonacci as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.fastFibonacci as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes fastFibonacci without error using callback', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {database=projects/*/databases/*}/documents
+            request.name = 'projects/value/databases/value/documents';
+            const expectedHeaderRequestParams = 'database=projects%2Fvalue%2Fdatabases%2Fvalue';
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            client.innerApiCalls.fastFibonacci = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.fastFibonacci(
+                    request,
+                    (err?: Error|null, result?: protos.google.protobuf.IEmpty|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            const actualRequest = (client.innerApiCalls.fastFibonacci as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.fastFibonacci as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes fastFibonacci with error', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {database=projects/*/databases/*}/documents
+            request.name = 'projects/value/databases/value/documents';
+            const expectedHeaderRequestParams = 'database=projects%2Fvalue%2Fdatabases%2Fvalue';
+            const expectedError = new Error('expected');
+            client.innerApiCalls.fastFibonacci = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.fastFibonacci(request), expectedError);
+            const actualRequest = (client.innerApiCalls.fastFibonacci as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.fastFibonacci as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes fastFibonacci with closed client', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {database=projects/*/databases/*}/documents
+            request.name = 'projects/value/databases/value/documents';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.fastFibonacci(request), expectedError);
+        });
+    });
+
+    describe('randomFibonacci', () => {
+        it('invokes randomFibonacci without error', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {routing_id=**}
+            request.name = 'value';
+            const expectedHeaderRequestParams = 'routing_id=value';
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            client.innerApiCalls.randomFibonacci = stubSimpleCall(expectedResponse);
+            const [response] = await client.randomFibonacci(request);
+            assert.deepStrictEqual(response, expectedResponse);
+            const actualRequest = (client.innerApiCalls.randomFibonacci as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.randomFibonacci as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes randomFibonacci without error using callback', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {routing_id=**}
+            request.name = 'value';
+            const expectedHeaderRequestParams = 'routing_id=value';
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            client.innerApiCalls.randomFibonacci = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.randomFibonacci(
+                    request,
+                    (err?: Error|null, result?: protos.google.protobuf.IEmpty|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            const actualRequest = (client.innerApiCalls.randomFibonacci as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.randomFibonacci as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes randomFibonacci with error', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {routing_id=**}
+            request.name = 'value';
+            const expectedHeaderRequestParams = 'routing_id=value';
+            const expectedError = new Error('expected');
+            client.innerApiCalls.randomFibonacci = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.randomFibonacci(request), expectedError);
+            const actualRequest = (client.innerApiCalls.randomFibonacci as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.randomFibonacci as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes randomFibonacci with closed client', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {routing_id=**}
+            request.name = 'value';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.randomFibonacci(request), expectedError);
+        });
+    });
+
+    describe('slowFibonacci', () => {
+        it('invokes slowFibonacci without error', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {routing_id=projects/*}/databases/*/documents
+            request.anotherParentId = 'projects/value/databases/value/documents';
+            const expectedHeaderRequestParams = 'routing_id=projects%2Fvalue';
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            client.innerApiCalls.slowFibonacci = stubSimpleCall(expectedResponse);
+            const [response] = await client.slowFibonacci(request);
+            assert.deepStrictEqual(response, expectedResponse);
+            const actualRequest = (client.innerApiCalls.slowFibonacci as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.slowFibonacci as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes slowFibonacci without error using callback', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {routing_id=projects/*}/databases/*/documents
+            request.anotherParentId = 'projects/value/databases/value/documents';
+            const expectedHeaderRequestParams = 'routing_id=projects%2Fvalue';
+            const expectedResponse = generateSampleMessage(
+              new protos.google.protobuf.Empty()
+            );
+            client.innerApiCalls.slowFibonacci = stubSimpleCallWithCallback(expectedResponse);
+            const promise = new Promise((resolve, reject) => {
+                 client.slowFibonacci(
+                    request,
+                    (err?: Error|null, result?: protos.google.protobuf.IEmpty|null) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
+            const response = await promise;
+            assert.deepStrictEqual(response, expectedResponse);
+            const actualRequest = (client.innerApiCalls.slowFibonacci as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.slowFibonacci as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes slowFibonacci with error', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {routing_id=projects/*}/databases/*/documents
+            request.anotherParentId = 'projects/value/databases/value/documents';
+            const expectedHeaderRequestParams = 'routing_id=projects%2Fvalue';
+            const expectedError = new Error('expected');
+            client.innerApiCalls.slowFibonacci = stubSimpleCall(undefined, expectedError);
+            await assert.rejects(client.slowFibonacci(request), expectedError);
+            const actualRequest = (client.innerApiCalls.slowFibonacci as SinonStub)
+                .getCall(0).args[0];
+            assert.deepStrictEqual(actualRequest, request);
+            const actualHeaderRequestParams = (client.innerApiCalls.slowFibonacci as SinonStub)
+                .getCall(0).args[1].otherArgs.headers['x-goog-request-params'];
+            assert(actualHeaderRequestParams.includes(expectedHeaderRequestParams));
+        });
+
+        it('invokes slowFibonacci with closed client', async () => {
+            const client = new testserviceModule.v1.TestServiceClient({
+              credentials: {client_email: 'bogus', private_key: 'bogus'},
+              projectId: 'bogus',
+            });
+            client.initialize();
+            const request = generateSampleMessage(
+              new protos.google.routingtest.v1.FibonacciRequest()
+            );
+            // path template: {routing_id=projects/*}/databases/*/documents
+            request.anotherParentId = 'projects/value/databases/value/documents';
+            const expectedError = new Error('The client has already been closed.');
+            client.close();
+            await assert.rejects(client.slowFibonacci(request), expectedError);
         });
     });
 });
