@@ -806,11 +806,12 @@ export function isMethodSelectiveGapic(
 ): SelectiveGapicType {
   let type: SelectiveGapicType = SelectiveGapicType.NORMAL;
 
-  if (selectiveGapicConfig.asDenyList === undefined && selectiveGapicConfig.generateOmittedAsInternal === undefined) {
+  if (
+    selectiveGapicConfig.asDenyList === undefined &&
+    selectiveGapicConfig.generateOmittedAsInternal === undefined
+  ) {
     return SelectiveGapicType.NORMAL;
-  }
-
-  if (selectiveGapicConfig) {
+  } else {
     // If denylist and method name is in denylist, then we should hide or make internal.
     if (selectiveGapicConfig.asDenyList) {
       if (selectiveGapicConfig.selectiveGapicMethodsMap.has(method.name)) {
@@ -834,7 +835,6 @@ export function isMethodSelectiveGapic(
     }
   }
 
-  console.log(selectiveGapicConfig, type)
   return type;
 }
 
