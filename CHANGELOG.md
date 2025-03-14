@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.8.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.8.0...v4.8.1) (2025-03-11)
+
+
+### Bug Fixes
+
+* Add json files to tsconfig templates ([#1692](https://github.com/googleapis/gapic-generator-typescript/issues/1692)) ([ba6be1d](https://github.com/googleapis/gapic-generator-typescript/commit/ba6be1dd31058a1afc8976e636ca40a1f2fbc110))
+
 ## [4.8.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.7.2...v4.8.0) (2025-03-11)
 
 
