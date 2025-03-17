@@ -321,7 +321,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
 
         it('has close method for the initialized client', done => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
-            client.{{ id.get("initialize") }}();
+            client.{{ id.get("initialize") }}().catch(err => {throw err});
             assert(client.{{ service.name.toCamelCase() }}Stub);
             client.{{ id.get("close") }}().then(() => {
                 done();
@@ -370,7 +370,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(expectedResponse);
@@ -394,7 +394,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCallWithCallback(expectedResponse);
@@ -425,7 +425,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(undefined, expectedError);
@@ -444,7 +444,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method, skipExpectedVariable='true') }}
             const expectedError = new Error('The client has already been closed.');
             client.close();
@@ -463,7 +463,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubLongRunningCall(expectedResponse);
@@ -482,7 +482,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubLongRunningCallWithCallback(expectedResponse);
@@ -514,7 +514,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubLongRunningCall(undefined, expectedError);
@@ -531,7 +531,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubLongRunningCall(undefined, undefined, expectedError);
@@ -549,7 +549,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const expectedResponse = generateSampleMessage(
               new operationsProtos.google.longrunning.Operation()
             );
@@ -572,7 +572,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const expectedError = new Error('expected');
 
             client.operationsClient.getOperation = stubSimpleCall(undefined, expectedError);
@@ -593,7 +593,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubServerStreamingCall(expectedResponse);
@@ -615,11 +615,11 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
 
         it('invokes {{ method.name.toCamelCase() }} without error and gaxServerStreamingRetries enabled', async () => {
-            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({gaxServerStreamingRetries: true});
+            const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest, true) -}});
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubServerStreamingCall(expectedResponse);
@@ -645,7 +645,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubServerStreamingCall(undefined, expectedError);
@@ -670,7 +670,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method, skipExpectedVariable='true') }}
             const expectedError = new Error('The client has already been closed.');
             client.close();
@@ -705,7 +705,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new protos{{ method.inputInterface }}()
             );
@@ -738,7 +738,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new protos{{ method.inputInterface }}()
             );
@@ -774,7 +774,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new protos{{ method.inputInterface }}()
             );
@@ -808,7 +808,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new protos{{ method.inputInterface }}()
             );
@@ -848,7 +848,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initPagingResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(expectedResponse);
@@ -869,7 +869,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {{ util.initPagingResponse(method) }}
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCallWithCallback(expectedResponse);
@@ -901,7 +901,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.innerApiCalls.{{ method.name.toCamelCase(true) }} = stubSimpleCall(undefined, expectedError);
@@ -921,7 +921,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             {{ util.initPagingResponse(method) }}
             client.descriptors.page.{{ method.name.toCamelCase() }}.createStream = stubPageStreamingCall(expectedResponse);
@@ -963,7 +963,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.descriptors.page.{{ method.name.toCamelCase() }}.createStream = stubPageStreamingCall(undefined, expectedError);
@@ -1002,7 +1002,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) -}}
             {%- if method.pagingMapResponseType %}
             {{ util.initPagingMapResponse(method) }}
@@ -1048,7 +1048,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method) }}
             const expectedError = new Error('expected');
             client.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate = stubAsyncIterationCall(undefined, expectedError);
@@ -1096,7 +1096,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
             );
@@ -1130,7 +1130,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
             );
@@ -1180,7 +1180,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new IamProtos.google.iam.v1.{{ method.toPascalCase() }}Request()
             );
@@ -1215,7 +1215,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
             );
@@ -1245,7 +1245,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
             );
@@ -1290,7 +1290,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new LocationProtos.google.cloud.location.{{ method.toPascalCase() }}Request()
             );
@@ -1406,7 +1406,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             {%- if method.options and method.options.deprecated %}
             const stub = sinon.stub(client, 'warn');
             {%- endif %}
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             const request = generateSampleMessage(
               new operationsProtos.google.longrunning.{{ method.toPascalCase() }}Request()
             );
@@ -1559,7 +1559,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
     describe('Path templates', () => {
 {%- for template in service.pathTemplates %}
 
-        describe('{{ template.name.toCamelCase() }}', () => {
+        describe('{{ template.name.toCamelCase() }}', async () => {
             const fakePath = "/rendered/path/{{ template.name.toCamelCase() }}";
             const expectedParameters = {
 {%- set callParameters = "" -%}
@@ -1573,7 +1573,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                 credentials: {client_email: 'bogus', private_key: 'bogus'},
                 projectId: 'bogus',
             });
-            client.{{ id.get("initialize") }}();
+            await client.{{ id.get("initialize") }}();
             client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.render =
                 sinon.stub().returns(fakePath);
             client.pathTemplates.{{ template.name.toCamelCase() }}PathTemplate.match =
