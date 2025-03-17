@@ -40,7 +40,6 @@ export interface TypescriptSettings {
     selective_gapic_generation?: {
       methods: string[];
       generate_omitted_as_internal?: boolean;
-      as_deny_list?: boolean;
     };
     destinations?: string;
   };

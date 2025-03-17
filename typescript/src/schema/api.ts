@@ -15,11 +15,7 @@
 import type * as protos from '../../../protos/index.js';
 
 import {Naming, Options as namingOptions} from './naming.js';
-import {
-  Proto,
-  MessagesMap,
-  ServiceDescriptorProto,
-} from './proto.js';
+import {Proto, MessagesMap, ServiceDescriptorProto} from './proto.js';
 import {ResourceDatabase, ResourceDescriptor} from './resource-database.js';
 import {CommentsMap} from './comments.js';
 
