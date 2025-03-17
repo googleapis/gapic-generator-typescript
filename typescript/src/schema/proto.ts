@@ -85,6 +85,7 @@ export interface MethodDescriptorProto
 
 export interface ServiceDescriptorProto
   extends protos.google.protobuf.IServiceDescriptorProto {
+  internalMethods: MethodDescriptorProto[];
   apiVersion: string;
   packageName: string;
   method: MethodDescriptorProto[];
@@ -755,9 +756,9 @@ function augmentMethod(
 /* Interface and method to grab selective gapic methods from the service yaml and create a map
 along with other potential selective gapic config options. */
 interface SelectiveGapicConfig {
+  isSelectiveGapic: boolean;
   selectiveGapicMethodsMap: Map<string, boolean>;
   generateOmittedAsInternal: boolean | undefined;
-  asDenyList: boolean | undefined;
 }
 
 export function getSelectiveGapic(
@@ -769,9 +770,6 @@ export function getSelectiveGapic(
       ?.selective_gapic_generation ?? undefined;
   const generateOmittedAsInternal = serviceYamlTS?.generate_omitted_as_internal
     ? serviceYamlTS?.generate_omitted_as_internal
-    : undefined;
-  const asDenyList = serviceYamlTS?.as_deny_list
-    ? serviceYamlTS?.as_deny_list
     : undefined;
 
   if (serviceYamlTS) {
@@ -787,9 +785,9 @@ export function getSelectiveGapic(
   }
 
   return {
+    isSelectiveGapic: serviceYamlTS ? true : false,
     selectiveGapicMethodsMap,
     generateOmittedAsInternal,
-    asDenyList,
   };
 }
 
@@ -805,32 +803,16 @@ export function isMethodSelectiveGapic(
 ): SelectiveGapicType {
   let type: SelectiveGapicType = SelectiveGapicType.NORMAL;
 
-  if (
-    selectiveGapicConfig.asDenyList === undefined &&
-    selectiveGapicConfig.generateOmittedAsInternal === undefined
-  ) {
+  if (!selectiveGapicConfig.isSelectiveGapic) {
     return SelectiveGapicType.NORMAL;
   } else {
-    // If denylist and method name is in denylist, then we should hide or make internal.
-    if (selectiveGapicConfig.asDenyList === true) {
-      if (selectiveGapicConfig.selectiveGapicMethodsMap.has(method.name)) {
-        selectiveGapicConfig.generateOmittedAsInternal
-          ? (type = SelectiveGapicType.INTERNAL)
-          : (type = SelectiveGapicType.HIDDEN);
-      } else {
-        return SelectiveGapicType.NORMAL;
-      }
-    }
-
-    // If it's an allowlist method, and the method is not in the list, we should hide or make internal.
-    if (selectiveGapicConfig.asDenyList === false) {
-      if (!selectiveGapicConfig.selectiveGapicMethodsMap.has(method.name)) {
-        selectiveGapicConfig.generateOmittedAsInternal
-          ? (type = SelectiveGapicType.INTERNAL)
-          : (type = SelectiveGapicType.HIDDEN);
-      } else {
-        return SelectiveGapicType.NORMAL;
-      }
+    // The public service yaml is always an allowlist.
+    if (!selectiveGapicConfig.selectiveGapicMethodsMap.has(method.name)) {
+      selectiveGapicConfig.generateOmittedAsInternal
+        ? (type = SelectiveGapicType.INTERNAL)
+        : (type = SelectiveGapicType.HIDDEN);
+    } else {
+      return SelectiveGapicType.NORMAL;
     }
   }
 
@@ -1044,15 +1026,11 @@ function augmentService(parameters: AugmentServiceParameters) {
       isMethodSelectiveGapic(method, augmentedService.selectiveGapic) !==
       SelectiveGapicType.HIDDEN
   );
-  augmentedService.method = augmentedService.method.map(method => {
-    if (
+  augmentedService.internalMethods = augmentedService.method.filter(
+    method =>
       isMethodSelectiveGapic(method, augmentedService.selectiveGapic) ===
       SelectiveGapicType.INTERNAL
-    ) {
-      method.name = `_${method.name}`;
-    }
-    return method;
-  });
+  );
 
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
     method => method.bundleConfig
