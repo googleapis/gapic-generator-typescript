@@ -719,7 +719,6 @@ describe('src/schema/proto.ts', () => {
                   selective_gapic_generation: {
                     methods: ['google.showcase.v1beta1.Echo.Echo'],
                     generate_omitted_as_internal: true,
-                    as_deny_list: true,
                   },
                 },
               },
