@@ -588,6 +588,7 @@ export class {{ service.name }}Client {
  {%- if method in service.internalMethods %}
  * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
  *
+ {{ service.serviceYaml.publishing.library_settings[0].typescript_settings.common.selective_gapic_generation.methods | dump(2) }}
  {%- endif %}
 {{- util.printComments(method, service) }}
  {%- if not api.handwrittenLayer %}
@@ -705,6 +706,11 @@ export class {{ service.name }}Client {
   }
 {%- endfor %}
 {% for method in service.streaming %}
+{%- if method in service.internalMethods %}
+* @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
+*
+{{ service.serviceYaml.publishing.library_settings[0].typescript_settings.common.selective_gapic_generation.methods | dump(2) }}
+{%- endif %}
 {%- if method.serverStreaming and method.clientStreaming %}
 /**
 {{- util.printComments(method, service) }}
@@ -800,6 +806,11 @@ export class {{ service.name }}Client {
 {% endfor %}
 {%- for method in service.longRunning %}
 /**
+ {%- if method in service.internalMethods %}
+ * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
+ *
+ {{ service.serviceYaml.publishing.library_settings[0].typescript_settings.common.selective_gapic_generation.methods | dump(2) }}
+ {%- endif %}
 {{- util.printComments(method, service) }}
  {%- if not api.handwrittenLayer %}
  * @example <caption>include:samples/generated/{{api.naming.version}}/{{service.name.toSnakeCase()}}.{{method.name.toSnakeCase()}}.js</caption>
@@ -903,10 +914,14 @@ export class {{ service.name }}Client {
   }
 {%- endfor %}
 {%- for method in service.paging %}
-
 {%- if not method.ignoreMapPagingMethod %}
 {%- if not method.pagingMapResponseType %}
  /**
+ {%- if method in service.internalMethods %}
+ * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
+ *
+ {{ service.serviceYaml.publishing.library_settings[0].typescript_settings.common.selective_gapic_generation.methods | dump(2) }}
+ {%- endif %}
 {{- util.printComments(method, service, id.get(method.name.toCamelCase() + "Async")) }}
  {%- if method.options and method.options.deprecated %}
  * @deprecated {{method.name}} is deprecated and may be removed in a future version.

@@ -765,27 +765,35 @@ export function getSelectiveGapic(
   serviceYaml: ServiceYaml | undefined
 ): SelectiveGapicConfig {
   const selectiveGapicMethodsMap = new Map();
-  const serviceYamlTS =
-    serviceYaml?.publishing?.typescript_settings?.common
-      ?.selective_gapic_generation ?? undefined;
-  const generateOmittedAsInternal = serviceYamlTS?.generate_omitted_as_internal
-    ? serviceYamlTS?.generate_omitted_as_internal
-    : undefined;
+  // There's only a singular library setting even though it is technically a repeated field, so use the first one.
+  const librarySettings = serviceYaml?.publishing?.library_settings;
+  let generateOmittedAsInternal = undefined;
+  let selectiveGapicConfig = undefined;
 
-  if (serviceYamlTS) {
-    const selectiveGapicMethods = serviceYamlTS.methods;
+  if (librarySettings) {
+    selectiveGapicConfig =
+      librarySettings[0].typescript_settings?.common
+        ?.selective_gapic_generation;
+    generateOmittedAsInternal =
+      selectiveGapicConfig?.generate_omitted_as_internal;
+    const selectiveGapicMethods = selectiveGapicConfig.methods;
 
-    // We find the final part of the proto method name and add it to methods map.
-    for (const m of selectiveGapicMethods) {
-      const lastDotIndex = m.lastIndexOf('.');
-      if (lastDotIndex !== -1) {
-        selectiveGapicMethodsMap.set(m.substring(lastDotIndex + 1), true);
+    if (selectiveGapicConfig) {
+      // We find the final part of the proto method name and add it to methods map.
+      for (const m of selectiveGapicMethods) {
+        const lastDotIndex = m.lastIndexOf('.');
+        if (lastDotIndex !== -1) {
+          selectiveGapicMethodsMap.set(
+            m.substring(lastDotIndex + 1).toLowerCase(),
+            true
+          );
+        }
       }
     }
   }
 
   return {
-    isSelectiveGapic: serviceYamlTS ? true : false,
+    isSelectiveGapic: selectiveGapicConfig ? true : false,
     selectiveGapicMethodsMap,
     generateOmittedAsInternal,
   };
@@ -1001,7 +1009,7 @@ function augmentService(parameters: AugmentServiceParameters) {
   augmentedService.commentsMap = parameters.commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
   augmentedService.selectiveGapic = getSelectiveGapic(
-    parameters.options.serviceYaml
+    augmentedService.serviceYaml
   );
   augmentedService.grpcServiceConfig = parameters.options.grpcServiceConfig;
   augmentedService.bundleConfigs = parameters.options.bundleConfigs?.filter(

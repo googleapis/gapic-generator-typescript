@@ -714,14 +714,18 @@ describe('src/schema/proto.ts', () => {
                   auto_populated_fields: ['request_id'],
                 },
               ],
-              typescript_settings: {
-                common: {
-                  selective_gapic_generation: {
-                    methods: ['google.showcase.v1beta1.Echo.Echo'],
-                    generate_omitted_as_internal: true,
+              library_settings: [
+                {
+                  typescript_settings: {
+                    common: {
+                      selective_gapic_generation: {
+                        methods: ['google.showcase.v1beta1.Echo.Echo'],
+                        generate_omitted_as_internal: true,
+                      },
+                    },
                   },
                 },
-              },
+              ],
             },
           },
           grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
