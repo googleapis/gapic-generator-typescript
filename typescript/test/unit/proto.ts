@@ -733,7 +733,7 @@ describe('src/schema/proto.ts', () => {
               paramType: 'TYPE_STRING',
               comments: [' A random request_id to test autopopulation'],
               fieldBehavior: 1,
-              fieldInfo: { format: 1 } as protos.google.api.FieldInfo,
+              fieldInfo: {format: 1} as protos.google.api.FieldInfo,
             },
           },
           getCommentsMap: function (): Comments {
@@ -743,7 +743,7 @@ describe('src/schema/proto.ts', () => {
                 paramType: 'TYPE_STRING',
                 comments: [' A random request_id to test autopopulation'],
                 fieldBehavior: 1,
-                fieldInfo: { format: 1 },
+                fieldInfo: {format: 1},
               },
             } as unknown as Comments;
           },
@@ -752,20 +752,20 @@ describe('src/schema/proto.ts', () => {
           },
           getMethodComments: function (
             serviceName: string,
-            methodName: string,
+            methodName: string
           ): string[] {
             return ['not needed'];
           },
           getParamComments: function (
             messageName: string,
-            fieldName: string,
+            fieldName: string
           ): Comment {
             return {
               paramName: 'request_id',
               paramType: 'TYPE_STRING',
               comments: [' A random request_id to test autopopulation'],
               fieldBehavior: 1,
-              fieldInfo: { format: 1 },
+              fieldInfo: {format: 1},
             } as Comment;
           },
         },
@@ -773,7 +773,7 @@ describe('src/schema/proto.ts', () => {
       // throw new Error(`${JSON.stringify(proto)}`)
       assert.deepStrictEqual(
         proto.services['service'].method[0].autoPopulatedFields,
-        ['request_id'],
+        ['request_id']
       );
     });
 
