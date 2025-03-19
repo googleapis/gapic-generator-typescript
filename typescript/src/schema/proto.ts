@@ -757,18 +757,18 @@ function augmentMethod(
 along with other potential selective gapic config options. */
 interface SelectiveGapicConfig {
   isSelectiveGapic: boolean;
-  selectiveGapicMethodsMap: Map<string, boolean>;
   generateOmittedAsInternal: boolean | undefined;
+  methods: string[];
 }
 
 export function getSelectiveGapic(
   serviceYaml: ServiceYaml | undefined
 ): SelectiveGapicConfig {
-  const selectiveGapicMethodsMap = new Map();
   // There's only a singular library setting even though it is technically a repeated field, so use the first one.
   const librarySettings = serviceYaml?.publishing?.library_settings;
   let generateOmittedAsInternal = undefined;
   let selectiveGapicConfig = undefined;
+  const methods = [];
 
   if (librarySettings) {
     selectiveGapicConfig =
@@ -776,17 +776,13 @@ export function getSelectiveGapic(
         ?.selective_gapic_generation;
     generateOmittedAsInternal =
       selectiveGapicConfig?.generate_omitted_as_internal;
-    const selectiveGapicMethods = selectiveGapicConfig.methods;
 
     if (selectiveGapicConfig) {
       // We find the final part of the proto method name and add it to methods map.
-      for (const m of selectiveGapicMethods) {
+      for (const m of selectiveGapicConfig.methods) {
         const lastDotIndex = m.lastIndexOf('.');
         if (lastDotIndex !== -1) {
-          selectiveGapicMethodsMap.set(
-            m.substring(lastDotIndex + 1).toLowerCase(),
-            true
-          );
+          methods.push(m.substring(lastDotIndex + 1));
         }
       }
     }
@@ -794,8 +790,8 @@ export function getSelectiveGapic(
 
   return {
     isSelectiveGapic: selectiveGapicConfig ? true : false,
-    selectiveGapicMethodsMap,
     generateOmittedAsInternal,
+    methods,
   };
 }
 
@@ -815,7 +811,7 @@ export function isMethodSelectiveGapic(
     return SelectiveGapicType.NORMAL;
   } else {
     // The public service yaml is always an allowlist.
-    if (!selectiveGapicConfig.selectiveGapicMethodsMap.has(method.name)) {
+    if (!selectiveGapicConfig.methods.includes(method.name)) {
       selectiveGapicConfig.generateOmittedAsInternal
         ? (type = SelectiveGapicType.INTERNAL)
         : (type = SelectiveGapicType.HIDDEN);
