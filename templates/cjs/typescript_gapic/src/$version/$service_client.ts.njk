@@ -583,14 +583,18 @@ export class {{ service.name }}Client {
   // -- Service calls --
   // -------------------
 
+{%- macro internalWarning(service, method, api) %}
+{%- for internalMethod in service.internalMethods %}
+{%- if method.name === internalMethod.name %}
+ * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
+ * 
+{%- endif %}
+{%- endfor %}
+{%- endmacro %}
+
 {%- for method in service.simpleMethods %}
 /**
- {%- for internalMethod in service.internalMethods %}
- {%- if method.name === internalMethod.name %}
- * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
- *
- {%- endif %}
- {%- endfor %}
+ {{- internalWarning(service, method, api) }}
 {{- util.printComments(method, service) }}
  {%- if not api.handwrittenLayer %}
  * @example <caption>include:samples/generated/{{api.naming.version}}/{{service.name.toSnakeCase()}}.{{method.name.toSnakeCase()}}.js</caption>
@@ -709,12 +713,7 @@ export class {{ service.name }}Client {
 {% for method in service.streaming %}
 {%- if method.serverStreaming and method.clientStreaming %}
 /**
- {%- for internalMethod in service.internalMethods %}
- {%- if method.name === internalMethod.name %}
- * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
- *
- {%- endif %}
- {%- endfor %}
+ {{- internalWarning(service, method, api) }}
 {{- util.printComments(method, service) }}
  {%- if not api.handwrittenLayer %}
  * @example <caption>include:samples/generated/{{api.naming.version}}/{{service.name.toSnakeCase()}}.{{method.name.toSnakeCase()}}.js</caption>
@@ -808,7 +807,7 @@ export class {{ service.name }}Client {
 {% endfor %}
 {%- for method in service.longRunning %}
 /**
- {%- for internalMethod in service.internalMethods %}
+ {{- internalWarning(service, method, api) }}
  {%- if method.name === internalMethod.name %}
  * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
  *
@@ -915,17 +914,11 @@ export class {{ service.name }}Client {
     const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos{{ method.longRunningResponseType }}, protos{{ method.longRunningMetadataType }}>;
   }
-{%- endfor %}
 {%- for method in service.paging %}
 {%- if not method.ignoreMapPagingMethod %}
 {%- if not method.pagingMapResponseType %}
  /**
- {%- for internalMethod in service.internalMethods %}
- {%- if method.name === internalMethod.name %}
- * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
- *
- {%- endif %}
- {%- endfor %}
+ {{- internalWarning(service, method, api) }}
 {{- util.printComments(method, service, id.get(method.name.toCamelCase() + "Async")) }}
  {%- if method.options and method.options.deprecated %}
  * @deprecated {{method.name}} is deprecated and may be removed in a future version.
