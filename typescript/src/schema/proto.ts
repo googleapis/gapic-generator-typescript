@@ -64,6 +64,8 @@ export interface MethodDescriptorProto
   methodConfig: protos.grpc.service_config.MethodConfig;
   retryableCodesName: string;
   retryParamsName: string;
+  // Determine whether we should generate the method normally or as a hidden or internal method.
+  selectiveGapic: SelectiveGapicType;
   timeoutMillis?: number;
   // headerRequestParams: if we need to pass "request.foo" and "request.bar"
   // into x-goog-request-params header, the array will contain
@@ -83,6 +85,7 @@ export interface MethodDescriptorProto
 
 export interface ServiceDescriptorProto
   extends protos.google.protobuf.IServiceDescriptorProto {
+  internalMethods: MethodDescriptorProto[];
   apiVersion: string;
   packageName: string;
   method: MethodDescriptorProto[];
@@ -111,6 +114,7 @@ export interface ServiceDescriptorProto
   protoFile: string;
   diregapicLRO?: MethodDescriptorProto[];
   httpRules?: protos.google.api.IHttpRule[];
+  selectiveGapic: SelectiveGapicConfig;
 }
 
 export interface ServicesMap {
@@ -632,6 +636,7 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
       throw new Error(
@@ -647,6 +652,7 @@ function augmentMethod(
       );
     }
   }
+
   const bundleConfigs = parameters.service.bundleConfigs;
   if (bundleConfigs) {
     for (const bc of bundleConfigs) {
@@ -667,6 +673,7 @@ function augmentMethod(
       }
     }
   }
+
   if (method.inputType && parameters.allMessages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
     const inputType = parameters.allMessages[method.inputType!];
@@ -681,12 +688,14 @@ function augmentMethod(
 
     method.paramComment = paramComment;
   }
+
   if (method.methodConfig.retryPolicy?.retryableStatusCodes) {
     method.retryableCodesName =
       parameters.service.retryableCodeMap.getRetryableCodesName(
         method.methodConfig.retryPolicy.retryableStatusCodes
       );
   }
+
   if (method.methodConfig.retryPolicy) {
     // converting retry parameters to the syntax google-gax supports
     const retryParams: {[key: string]: number} = {};
@@ -742,6 +751,76 @@ function augmentMethod(
   // but we need to serialize the whole augmented object.
   method.toJSON = undefined;
   return method;
+}
+
+/* Interface and method to grab selective gapic methods from the service yaml and create a map
+along with other potential selective gapic config options. */
+interface SelectiveGapicConfig {
+  isSelectiveGapic: boolean;
+  generateOmittedAsInternal: boolean | undefined;
+  methods: string[];
+}
+
+export function getSelectiveGapic(
+  serviceYaml: ServiceYaml | undefined
+): SelectiveGapicConfig {
+  // There's only a singular library setting even though it is technically a repeated field, so use the first one.
+  const librarySettings = serviceYaml?.publishing?.library_settings;
+  let generateOmittedAsInternal = undefined;
+  let selectiveGapicConfig = undefined;
+  const methods = [];
+
+  if (librarySettings) {
+    selectiveGapicConfig =
+      librarySettings[0].typescript_settings?.common
+        ?.selective_gapic_generation;
+    generateOmittedAsInternal =
+      selectiveGapicConfig?.generate_omitted_as_internal;
+
+    if (selectiveGapicConfig) {
+      // We find the final part of the proto method name and add it to methods map.
+      for (const m of selectiveGapicConfig.methods) {
+        const lastDotIndex = m.lastIndexOf('.');
+        if (lastDotIndex !== -1) {
+          methods.push(m.substring(lastDotIndex + 1));
+        }
+      }
+    }
+  }
+
+  return {
+    isSelectiveGapic: selectiveGapicConfig ? true : false,
+    generateOmittedAsInternal,
+    methods,
+  };
+}
+
+enum SelectiveGapicType {
+  NORMAL = 'normal',
+  HIDDEN = 'hidden',
+  INTERNAL = 'internal',
+}
+
+export function isMethodSelectiveGapic(
+  method: MethodDescriptorProto,
+  selectiveGapicConfig: SelectiveGapicConfig | undefined
+): SelectiveGapicType {
+  let type: SelectiveGapicType = SelectiveGapicType.NORMAL;
+
+  if (!selectiveGapicConfig.isSelectiveGapic) {
+    return SelectiveGapicType.NORMAL;
+  } else {
+    // The public service yaml is always an allowlist.
+    if (!selectiveGapicConfig.methods.includes(method.name)) {
+      selectiveGapicConfig.generateOmittedAsInternal
+        ? (type = SelectiveGapicType.INTERNAL)
+        : (type = SelectiveGapicType.HIDDEN);
+    } else {
+      return SelectiveGapicType.NORMAL;
+    }
+  }
+
+  return type;
 }
 
 export function getSingleHeaderParam(
@@ -925,6 +1004,9 @@ function augmentService(parameters: AugmentServiceParameters) {
   );
   augmentedService.commentsMap = parameters.commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
+  augmentedService.selectiveGapic = getSelectiveGapic(
+    augmentedService.serviceYaml
+  );
   augmentedService.grpcServiceConfig = parameters.options.grpcServiceConfig;
   augmentedService.bundleConfigs = parameters.options.bundleConfigs?.filter(
     bc => bc.serviceName === parameters.service.name
@@ -941,6 +1023,19 @@ function augmentService(parameters: AugmentServiceParameters) {
         method
       )
     ) ?? [];
+
+  /* Selective GAPIC method handling. */
+  augmentedService.method = augmentedService.method.filter(
+    method =>
+      isMethodSelectiveGapic(method, augmentedService.selectiveGapic) !==
+      SelectiveGapicType.HIDDEN
+  );
+  augmentedService.internalMethods = augmentedService.method.filter(
+    method =>
+      isMethodSelectiveGapic(method, augmentedService.selectiveGapic) ===
+      SelectiveGapicType.INTERNAL
+  );
+
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
     method => method.bundleConfig
   );
@@ -1114,6 +1209,7 @@ export class Proto {
         return map;
       }, {} as MessagesMap);
     this.diregapic = parameters.options.diregapic;
+
     const protopackage = parameters.fd.package;
     // Allow to generate if a proto has no service and its package name is differ from its service's.
     if (
