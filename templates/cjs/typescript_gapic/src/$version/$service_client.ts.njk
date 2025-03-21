@@ -808,11 +808,6 @@ export class {{ service.name }}Client {
 {%- for method in service.longRunning %}
 /**
  {{- internalWarning(service, method, api) }}
- {%- if method.name === internalMethod.name %}
- * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
- *
- {%- endif %}
- {%- endfor %}
 {{- util.printComments(method, service) }}
  {%- if not api.handwrittenLayer %}
  * @example <caption>include:samples/generated/{{api.naming.version}}/{{service.name.toSnakeCase()}}.{{method.name.toSnakeCase()}}.js</caption>
@@ -914,6 +909,7 @@ export class {{ service.name }}Client {
     const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, this._gaxModule.createDefaultBackoffSettings());
     return decodeOperation as LROperation<protos{{ method.longRunningResponseType }}, protos{{ method.longRunningMetadataType }}>;
   }
+{%- endfor %}
 {%- for method in service.paging %}
 {%- if not method.ignoreMapPagingMethod %}
 {%- if not method.pagingMapResponseType %}
