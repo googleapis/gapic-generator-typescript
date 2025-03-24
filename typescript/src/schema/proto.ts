@@ -764,35 +764,29 @@ interface SelectiveGapicConfig {
 export function getSelectiveGapic(
   serviceYaml: ServiceYaml | undefined
 ): SelectiveGapicConfig {
-  // There's only a singular library setting even though it is technically a repeated field, so use the first one.
-  const librarySettings = serviceYaml?.publishing?.library_settings;
-  const methods = [];
-  let generateOmittedAsInternal = undefined;
-  let selectiveGapicConfig = undefined;
+  const selectiveGapicConfig =
+    serviceYaml?.publishing?.library_settings?.[0]?.typescript_settings?.common
+      ?.selective_gapic_generation;
 
-  // If library settings is set, then we look for selective gapic settings.
-  if (librarySettings) {
-    selectiveGapicConfig =
-      librarySettings[0].typescript_settings?.common
-        ?.selective_gapic_generation;
-    generateOmittedAsInternal =
-      selectiveGapicConfig?.generate_omitted_as_internal;
+  const methods: string[] = [];
+  const generateOmittedAsInternal =
+    selectiveGapicConfig?.generate_omitted_as_internal ?? false;
+  const isSelectiveGapic = !!selectiveGapicConfig;
 
-    // If selective gapic is set, then we can parse the methods from the config.
-    if (selectiveGapicConfig) {
-      // We find the actual method name and add it to methods array.
-      // Example: `google.cloud.bigquery.v2.CancelJobRequest` becomes `CancelJobRequest`.
-      for (const m of selectiveGapicConfig.methods) {
-        const lastDotIndex = m.lastIndexOf('.');
-        if (lastDotIndex !== -1) {
-          methods.push(m.substring(lastDotIndex + 1));
-        }
+  // If selective gapic is set, then we can parse the methods from the config.
+  if (selectiveGapicConfig?.methods) {
+    // We find the method name and add it to methods array.
+    // Example: `google.cloud.bigquery.v2.CancelJobRequest` becomes `CancelJobRequest`.
+    for (const method of selectiveGapicConfig.methods) {
+      const lastDotIndex = method.lastIndexOf(".");
+      if (lastDotIndex !== -1) {
+        methods.push(method.substring(lastDotIndex + 1));
       }
     }
   }
 
   return {
-    isSelectiveGapic: selectiveGapicConfig ? true : false,
+    isSelectiveGapic,
     generateOmittedAsInternal,
     methods,
   };
@@ -808,22 +802,18 @@ export function isMethodSelectiveGapic(
   method: MethodDescriptorProto,
   selectiveGapicConfig: SelectiveGapicConfig | undefined
 ): SelectiveGapicType {
-  let type: SelectiveGapicType = SelectiveGapicType.NORMAL;
-
   if (!selectiveGapicConfig.isSelectiveGapic) {
     return SelectiveGapicType.NORMAL;
-  } else {
-    // The public service yaml is always an allowlist.
-    if (!selectiveGapicConfig.methods.includes(method.name)) {
-      selectiveGapicConfig.generateOmittedAsInternal
-        ? (type = SelectiveGapicType.INTERNAL)
-        : (type = SelectiveGapicType.HIDDEN);
-    } else {
-      return SelectiveGapicType.NORMAL;
-    }
   }
 
-  return type;
+  // The public service yaml is always an allowlist.
+  if (!selectiveGapicConfig.methods.includes(method.name)) {
+    return selectiveGapicConfig.generateOmittedAsInternal
+      ? SelectiveGapicType.INTERNAL
+      : SelectiveGapicType.HIDDEN;
+  }
+
+  return SelectiveGapicType.NORMAL;
 }
 
 export function getSingleHeaderParam(
