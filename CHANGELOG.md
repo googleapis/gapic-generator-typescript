@@ -1,5 +1,28 @@
 # Changelog
 
+## [4.8.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.8.1...v4.8.2) (2025-03-18)
+
+
+### Bug Fixes
+
+* Do not generate tests for deprecated services ([#1701](https://github.com/googleapis/gapic-generator-typescript/issues/1701)) ([b8bd84d](https://github.com/googleapis/gapic-generator-typescript/commit/b8bd84d606220cf37979848bd7e9953e4afa8fc4))
+* Remove floating promises ([#1697](https://github.com/googleapis/gapic-generator-typescript/issues/1697)) ([c215012](https://github.com/googleapis/gapic-generator-typescript/commit/c21501265f74ab653b732ff7a0ae74a362151b82))
+* Update return type for listOperationsAsync ([#1702](https://github.com/googleapis/gapic-generator-typescript/issues/1702)) ([0b56eff](https://github.com/googleapis/gapic-generator-typescript/commit/0b56eff6b1e22d85c15b2cef97cabf56a33bb830))
+
+## [4.8.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.8.0...v4.8.1) (2025-03-11)
+
+
+### Bug Fixes
+
+* Add json files to tsconfig templates ([#1692](https://github.com/googleapis/gapic-generator-typescript/issues/1692)) ([ba6be1d](https://github.com/googleapis/gapic-generator-typescript/commit/ba6be1dd31058a1afc8976e636ca40a1f2fbc110))
+
+## [4.8.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.7.2...v4.8.0) (2025-03-11)
+
+
+### Features
+
+* Add request/response debug logging to gapics, update templates to gax 5 and node 18 ([#1671](https://github.com/googleapis/gapic-generator-typescript/issues/1671)) ([5b1a577](https://github.com/googleapis/gapic-generator-typescript/commit/5b1a577d40824bf45e73c6afcc91ac55cfa4d02e))
+
 ## [4.7.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.7.1...v4.7.2) (2025-02-05)
 
 
