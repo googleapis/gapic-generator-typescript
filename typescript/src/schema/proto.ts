@@ -783,7 +783,7 @@ export function getSelectiveGapic(
       // We find the actual method name and add it to methods array.
       // Example: `google.cloud.bigquery.v2.CancelJobRequest` becomes `CancelJobRequest`.
       for (const m of selectiveGapicConfig.methods) {
-        const lastDotIndex = m.lastIndexOf(".");
+        const lastDotIndex = m.lastIndexOf('.');
         if (lastDotIndex !== -1) {
           methods.push(m.substring(lastDotIndex + 1));
         }
