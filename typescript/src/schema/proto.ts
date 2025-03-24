@@ -753,7 +753,7 @@ function augmentMethod(
   return method;
 }
 
-/* Interface and method to grab selective gapic methods from the service yaml and create a map
+/* Interface and method to grab selective gapic methods from the service yaml
 along with other potential selective gapic config options. */
 interface SelectiveGapicConfig {
   isSelectiveGapic: boolean;
@@ -766,10 +766,11 @@ export function getSelectiveGapic(
 ): SelectiveGapicConfig {
   // There's only a singular library setting even though it is technically a repeated field, so use the first one.
   const librarySettings = serviceYaml?.publishing?.library_settings;
+  const methods = [];
   let generateOmittedAsInternal = undefined;
   let selectiveGapicConfig = undefined;
-  const methods = [];
 
+  // If library settings is set, then we look for selective gapic settings.
   if (librarySettings) {
     selectiveGapicConfig =
       librarySettings[0].typescript_settings?.common
@@ -777,10 +778,12 @@ export function getSelectiveGapic(
     generateOmittedAsInternal =
       selectiveGapicConfig?.generate_omitted_as_internal;
 
+    // If selective gapic is set, then we can parse the methods from the config.
     if (selectiveGapicConfig) {
-      // We find the final part of the proto method name and add it to methods map.
+      // We find the actual method name and add it to methods array.
+      // Example: `google.cloud.bigquery.v2.CancelJobRequest` becomes `CancelJobRequest`.
       for (const m of selectiveGapicConfig.methods) {
-        const lastDotIndex = m.lastIndexOf('.');
+        const lastDotIndex = m.lastIndexOf(".");
         if (lastDotIndex !== -1) {
           methods.push(m.substring(lastDotIndex + 1));
         }
