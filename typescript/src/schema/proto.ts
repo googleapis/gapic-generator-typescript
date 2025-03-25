@@ -761,6 +761,7 @@ interface SelectiveGapicConfig {
   methods: string[];
 }
 
+
 export function getSelectiveGapic(
   serviceYaml: ServiceYaml | undefined
 ): SelectiveGapicConfig {
@@ -793,7 +794,7 @@ export function getSelectiveGapic(
 }
 
 enum SelectiveGapicType {
-  NORMAL = 'normal',
+  PUBLIC = 'public',
   HIDDEN = 'hidden',
   INTERNAL = 'internal',
 }
@@ -803,7 +804,7 @@ export function isMethodSelectiveGapic(
   selectiveGapicConfig: SelectiveGapicConfig | undefined
 ): SelectiveGapicType {
   if (!selectiveGapicConfig.isSelectiveGapic) {
-    return SelectiveGapicType.NORMAL;
+    return SelectiveGapicType.PUBLIC;
   }
 
   // The public service yaml is always an allowlist.
@@ -813,7 +814,7 @@ export function isMethodSelectiveGapic(
       : SelectiveGapicType.HIDDEN;
   }
 
-  return SelectiveGapicType.NORMAL;
+  return SelectiveGapicType.PUBLIC;
 }
 
 export function getSingleHeaderParam(
