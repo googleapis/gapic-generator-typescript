@@ -761,7 +761,6 @@ interface SelectiveGapicConfig {
   methods: string[];
 }
 
-
 export function getSelectiveGapic(
   serviceYaml: ServiceYaml | undefined
 ): SelectiveGapicConfig {
@@ -779,7 +778,7 @@ export function getSelectiveGapic(
     // We find the method name and add it to methods array.
     // Example: `google.cloud.bigquery.v2.CancelJobRequest` becomes `CancelJobRequest`.
     for (const method of selectiveGapicConfig.methods) {
-      const lastDotIndex = method.lastIndexOf(".");
+      const lastDotIndex = method.lastIndexOf('.');
       if (lastDotIndex !== -1) {
         methods.push(method.substring(lastDotIndex + 1));
       }
