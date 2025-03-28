@@ -84,7 +84,7 @@ async function main() {
     console.log('Running npm test...');
     await execp('npm test');
     console.log('Tests passed! No need to update baselines.');
-    return;
+    //return;
   } catch (err) {
     console.log("Tests failed - that's OK, will update baselines.");
   }
