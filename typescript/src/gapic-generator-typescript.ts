@@ -249,11 +249,10 @@ async function main(processArgv: string[]) {
     const {stdout, stderr} = await execFileAsync(protoc, protocCommand);
     console.log(stdout);
     console.warn(stderr);
-  } catch(e: any) {
+  } catch (e: any) {
     console.error(e.stderr);
     throw e;
   }
-
 
   // create protos folder to copy proto file
   const copyProtoDir = path.join(outputDir, 'protos');

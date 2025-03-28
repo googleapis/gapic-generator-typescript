@@ -171,7 +171,7 @@ function equalToBaseline(outpurDir: string, baselineDir: string): boolean {
         item.baselinePath + BASELINE_EXTENSION
       );
       if (compareResult === NO_OUTPUT_FILE) {
-        console.warn("no output file found");
+        console.warn('no output file found');
         result = false;
       }
       // if two files are identical or it's generated properly, filter it from the stack.
