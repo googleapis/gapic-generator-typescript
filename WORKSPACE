@@ -9,6 +9,9 @@ gapic_generator_typescript_repositories()
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
 
+load("@rules_python//python:repositories.bzl", "py_repositories")
+py_repositories()
+
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 rules_proto_dependencies()
 rules_proto_toolchains()

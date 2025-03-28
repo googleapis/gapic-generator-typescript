@@ -128,14 +128,17 @@ export class Generator {
           'INTERNAL ERROR: Cannot find ServiceConfig type in proto JSON'
         );
       }
-      const deserialized = serializer.fromProto3JSON(ServiceConfig, json);
+      const deserialized = serializer.fromProto3JSON(
+        ServiceConfig as any,
+        json
+      );
       if (!deserialized) {
         throw new Error(
           'ERROR: Cannot parse the content of gRPC service config'
         );
       }
       this.grpcServiceConfig = ServiceConfig.toObject(
-        deserialized
+        deserialized as any
       ) as protos.grpc.service_config.ServiceConfig;
     }
   }
@@ -360,8 +363,14 @@ export class Generator {
     if (!CodeGeneratorResponse) {
       throw new Error('Cannot find CodeGeneratorResponse type in proto JSON');
     }
+    const Edition = this.root.lookupEnum('Edition');
+    if (!Edition) {
+      throw new Error('Cannot find Edition type in proto JSON');
+    }
     this.response = {} as protos.google.protobuf.compiler.CodeGeneratorResponse;
-    this.response.supportedFeatures = 1; // FEATURE_PROTO3_OPTIONAL
+    this.response.supportedFeatures = 3; // FEATURE_PROTO3_OPTIONAL | FEATURE_SUPPORTS_EDITIONS
+    this.response.minimumEdition = Edition.values['EDITION_PROTO2'];
+    this.response.maximumEdition = Edition.values['EDITION_2023'];
     this.response.file = [];
 
     try {
