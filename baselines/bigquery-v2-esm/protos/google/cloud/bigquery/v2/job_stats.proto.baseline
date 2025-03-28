@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-syntax = "proto3";
+edition = "2023";
 
 package google.cloud.bigquery.v2;
 
@@ -415,18 +415,18 @@ message IndexUnusedReason {
 
   // Specifies the high-level reason for the scenario when no search index was
   // used.
-  optional Code code = 1;
+  Code code = 1;
 
   // Free form human-readable reason for the scenario when no search index was
   // used.
-  optional string message = 2;
+  string message = 2;
 
   // Specifies the base table involved in the reason that no search index was
   // used.
-  optional TableReference base_table = 3;
+  TableReference base_table = 3;
 
   // Specifies the name of the unused search index, if available.
-  optional string index_name = 4;
+  string index_name = 4;
 }
 
 // Statistics for a search query.
@@ -1139,7 +1139,7 @@ message PerformanceInsights {
   // slow compared to previous executions. To find previous executions, use
   // INFORMATION_SCHEMA tables and filter jobs with same query hash.
   int64 avg_previous_execution_ms = 1
-      [(google.api.field_behavior) = OUTPUT_ONLY];
+      [(google.api.field_behavior) = OUTPUT_ONLY, features.field_presence = IMPLICIT];
 
   // Output only. Standalone query stage performance insights, for exploring
   // potential improvements.
@@ -1157,10 +1157,10 @@ message PerformanceInsights {
 // stage.
 message StagePerformanceChangeInsight {
   // Output only. The stage id that the insight mapped to.
-  int64 stage_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int64 stage_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY, features.field_presence = IMPLICIT];
 
   // Output only. Input data change insight of the query stage.
-  optional InputDataChange input_data_change = 2
+  InputDataChange input_data_change = 2
       [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
@@ -1174,13 +1174,13 @@ message InputDataChange {
 // Standalone performance insights for a specific stage.
 message StagePerformanceStandaloneInsight {
   // Output only. The stage id that the insight mapped to.
-  int64 stage_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int64 stage_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY, features.field_presence = IMPLICIT];
 
   // Output only. True if the stage has a slot contention issue.
-  optional bool slot_contention = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  bool slot_contention = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. True if the stage has insufficient shuffle quota.
-  optional bool insufficient_shuffle_quota = 3
+  bool insufficient_shuffle_quota = 3
       [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. If present, the stage had the following reasons for being
@@ -1193,7 +1193,7 @@ message StagePerformanceStandaloneInsight {
       [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Partition skew in the stage.
-  optional PartitionSkew partition_skew = 7
+  PartitionSkew partition_skew = 7
       [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
@@ -1238,12 +1238,12 @@ message SparkStatistics {
   }
 
   // Output only. Spark job ID if a Spark job is created successfully.
-  optional string spark_job_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string spark_job_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Location where the Spark job is executed.
   // A location is selected by BigQueury for jobs configured to run in a
   // multi-region.
-  optional string spark_job_location = 2
+  string spark_job_location = 2
       [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Endpoints returned from Dataproc.
@@ -1252,7 +1252,7 @@ message SparkStatistics {
   map<string, string> endpoints = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Logging info is used to generate a link to Cloud Logging.
-  optional LoggingInfo logging_info = 4
+  LoggingInfo logging_info = 4
       [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. The Cloud KMS encryption key that is used to protect the
@@ -1268,7 +1268,7 @@ message SparkStatistics {
   // Example:
   //
   // * `projects/[kms_project_id]/locations/[region]/keyRings/[key_region]/cryptoKeys/[key]`
-  optional string kms_key_name = 5 [
+  string kms_key_name = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.resource_reference) = {
       type: "cloudkms.googleapis.com/CryptoKey"
@@ -1285,7 +1285,7 @@ message SparkStatistics {
   // Example:
   //
   // * `gs://[bucket_name]`
-  optional string gcs_staging_bucket = 6 [
+  string gcs_staging_bucket = 6 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.resource_reference) = { type: "storage.googleapis.com/Bucket" }
   ];
@@ -1357,7 +1357,7 @@ message MaterializedView {
   }
 
   // The candidate materialized view.
-  optional TableReference table_reference = 1;
+  TableReference table_reference = 1;
 
   // Whether the materialized view is chosen for the query.
   //
@@ -1365,15 +1365,15 @@ message MaterializedView {
   // query. If a materialized view is chosen to rewrite any part of the query,
   // then this field is true, even if the materialized view was not chosen to
   // rewrite others parts.
-  optional bool chosen = 2;
+  bool chosen = 2;
 
   // If present, specifies a best-effort estimation of the bytes saved by using
   // the materialized view rather than its base tables.
-  optional int64 estimated_bytes_saved = 3;
+  int64 estimated_bytes_saved = 3;
 
   // If present, specifies the reason why the materialized view was not chosen
   // for the query.
-  optional RejectedReason rejected_reason = 4;
+  RejectedReason rejected_reason = 4;
 }
 
 // Table level detail on the usage of metadata caching. Only set for Metadata
@@ -1397,14 +1397,14 @@ message TableMetadataCacheUsage {
   }
 
   // Metadata caching eligible table referenced in the query.
-  optional TableReference table_reference = 1;
+  TableReference table_reference = 1;
 
   // Reason for not using metadata caching for the table.
-  optional UnusedReason unused_reason = 2;
+  UnusedReason unused_reason = 2;
 
   // Free form human-readable reason metadata caching was unused for
   // the job.
-  optional string explanation = 3;
+  string explanation = 3;
 
   // Duration since last refresh as of this job for managed tables (indicates
   // metadata cache staleness as seen by this job).
