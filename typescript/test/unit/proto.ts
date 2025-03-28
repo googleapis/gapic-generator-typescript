@@ -23,6 +23,7 @@ import {
   getSingleRoutingHeaderParam,
   MessagesMap,
   Proto,
+  ServiceDescriptorProto,
 } from '../../src/schema/proto.js';
 import {Options} from '../../src/schema/naming.js';
 import {ResourceDatabase} from '../../src/schema/resource-database.js';
@@ -404,6 +405,7 @@ describe('src/schema/proto.ts', () => {
       };
       const allMessages: MessagesMap = {};
       const commentsMap = new CommentsMap([fd]);
+
       const proto = new Proto({
         fd,
         packageName: 'google.cloud.showcase.v1beta1',
@@ -710,6 +712,18 @@ describe('src/schema/proto.ts', () => {
                 {
                   selector: 'google.showcase.v1beta1.Echo.Echo',
                   auto_populated_fields: ['request_id'],
+                },
+              ],
+              library_settings: [
+                {
+                  typescript_settings: {
+                    common: {
+                      selective_gapic_generation: {
+                        methods: ['google.showcase.v1beta1.Echo.Echo'],
+                        generate_omitted_as_internal: true,
+                      },
+                    },
+                  },
                 },
               ],
             },
