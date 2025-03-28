@@ -245,9 +245,15 @@ async function main(processArgv: string[]) {
   protocCommand.push(...protoFiles);
   protocCommand.push(`-I${commonProtoPath}`);
 
-  const {stdout, stderr} = await execFileAsync(protoc, protocCommand);
-  console.log(stdout);
-  console.warn(stderr);
+  try {
+    const {stdout, stderr} = await execFileAsync(protoc, protocCommand);
+    console.log(stdout);
+    console.warn(stderr);
+  } catch(e: any) {
+    console.error(e.stderr);
+    throw e;
+  }
+
 
   // create protos folder to copy proto file
   const copyProtoDir = path.join(outputDir, 'protos');
