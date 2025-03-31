@@ -25,11 +25,27 @@ export interface ServiceYaml {
   // Refactor reading the annotation from the proto to the serviceYaml file once that is implemented.
   http: Http;
   publishing?: {
+    library_settings?: LibrarySettings[];
     method_settings?: MethodSettings[];
   };
+}
+
+export interface LibrarySettings {
+  version?: string;
+  typescript_settings?: TypescriptSettings;
 }
 
 export interface MethodSettings {
   selector: string;
   auto_populated_fields?: string[];
+}
+
+export interface TypescriptSettings {
+  common: {
+    selective_gapic_generation?: {
+      methods: string[];
+      generate_omitted_as_internal?: boolean;
+    };
+    destinations?: string;
+  };
 }
