@@ -798,7 +798,7 @@ enum SelectiveGapicType {
   INTERNAL = 'internal',
 }
 
-export function isMethodSelectiveGapic(
+export function selectiveGapicMethodType(
   method: MethodDescriptorProto,
   selectiveGapicConfig: SelectiveGapicConfig | undefined
 ): SelectiveGapicType {
@@ -1020,12 +1020,12 @@ function augmentService(parameters: AugmentServiceParameters) {
   /* Selective GAPIC method handling. */
   augmentedService.method = augmentedService.method.filter(
     method =>
-      isMethodSelectiveGapic(method, augmentedService.selectiveGapic) !==
+      selectiveGapicMethodType(method, augmentedService.selectiveGapic) !==
       SelectiveGapicType.HIDDEN
   );
   augmentedService.internalMethods = augmentedService.method.filter(
     method =>
-      isMethodSelectiveGapic(method, augmentedService.selectiveGapic) ===
+      selectiveGapicMethodType(method, augmentedService.selectiveGapic) ===
       SelectiveGapicType.INTERNAL
   );
 
