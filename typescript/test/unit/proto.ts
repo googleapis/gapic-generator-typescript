@@ -25,10 +25,7 @@ import {
   MessagesMap,
   Proto,
   ServiceDescriptorProto,
-<<<<<<< HEAD
   augmentService,
-=======
->>>>>>> d28ed2291e82b55daf2f83869117d297fec6a9fc
 } from '../../src/schema/proto.js';
 import {Options} from '../../src/schema/naming.js';
 import {ResourceDatabase} from '../../src/schema/resource-database.js';
