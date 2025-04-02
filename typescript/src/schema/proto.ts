@@ -967,7 +967,7 @@ interface AugmentServiceParameters {
   protoFile: string;
 }
 
-function augmentService(parameters: AugmentServiceParameters) {
+export function augmentService(parameters: AugmentServiceParameters) {
   const augmentedService = parameters.service as ServiceDescriptorProto;
   augmentedService.packageName = parameters.packageName;
   augmentedService.serviceYaml = parameters.options.serviceYaml!;

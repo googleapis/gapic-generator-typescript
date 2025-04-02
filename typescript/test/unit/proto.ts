@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +25,7 @@ import {
   MessagesMap,
   Proto,
   ServiceDescriptorProto,
+  augmentService,
 } from '../../src/schema/proto.js';
 import {Options} from '../../src/schema/naming.js';
 import {ResourceDatabase} from '../../src/schema/resource-database.js';
@@ -751,18 +753,18 @@ describe('src/schema/proto.ts', () => {
               },
             } as unknown as Comments;
           },
-          getServiceComment: function (serviceName: string): string[] {
+          getServiceComment: function (_serviceName: string): string[] {
             return ['not needed'];
           },
           getMethodComments: function (
-            serviceName: string,
-            methodName: string
+            _serviceName: string,
+            _methodName: string
           ): string[] {
             return ['not needed'];
           },
           getParamComments: function (
-            messageName: string,
-            fieldName: string
+            _messageName: string,
+            _fieldName: string
           ): Comment {
             return {
               paramName: 'request_id',
@@ -835,18 +837,18 @@ describe('src/schema/proto.ts', () => {
               },
             } as unknown as Comments;
           },
-          getServiceComment: function (serviceName: string): string[] {
+          getServiceComment: function (_serviceName: string): string[] {
             return ['not needed'];
           },
           getMethodComments: function (
-            serviceName: string,
-            methodName: string
+            _serviceName: string,
+            _methodName: string
           ): string[] {
             return ['not needed'];
           },
           getParamComments: function (
-            messageName: string,
-            fieldName: string
+            _messageName: string,
+            _fieldName: string
           ): Comment {
             return {
               paramName: 'request_id',
@@ -917,18 +919,18 @@ describe('src/schema/proto.ts', () => {
               },
             } as unknown as Comments;
           },
-          getServiceComment: function (serviceName: string): string[] {
+          getServiceComment: function (_serviceName: string): string[] {
             return ['not needed'];
           },
           getMethodComments: function (
-            serviceName: string,
-            methodName: string
+            _serviceName: string,
+            _methodName: string
           ): string[] {
             return ['not needed'];
           },
           getParamComments: function (
-            messageName: string,
-            fieldName: string
+            _messageName: string,
+            _fieldName: string
           ): Comment {
             return {
               paramName: 'request_id',
@@ -999,18 +1001,18 @@ describe('src/schema/proto.ts', () => {
               },
             } as unknown as Comments;
           },
-          getServiceComment: function (serviceName: string): string[] {
+          getServiceComment: function (_serviceName: string): string[] {
             return ['hi!'];
           },
           getMethodComments: function (
-            serviceName: string,
-            methodName: string
+            _serviceName: string,
+            _methodName: string
           ): string[] {
             return ['hi!'];
           },
           getParamComments: function (
-            messageName: string,
-            fieldName: string
+            _messageName: string,
+            _fieldName: string
           ): Comment {
             return {
               paramName: 'request_id',
@@ -1081,18 +1083,18 @@ describe('src/schema/proto.ts', () => {
               },
             } as unknown as Comments;
           },
-          getServiceComment: function (serviceName: string): string[] {
+          getServiceComment: function (_serviceName: string): string[] {
             return ['hi!'];
           },
           getMethodComments: function (
-            serviceName: string,
-            methodName: string
+            _serviceName: string,
+            _methodName: string
           ): string[] {
             return ['hi!'];
           },
           getParamComments: function (
-            messageName: string,
-            fieldName: string
+            _messageName: string,
+            _fieldName: string
           ): Comment {
             return {
               paramName: 'request_id',
@@ -1405,6 +1407,319 @@ describe('src/schema/proto.ts', () => {
         undefined
       );
       assert.deepStrictEqual(proto.services['CatService'].paging.length, 0);
+    });
+  });
+
+  describe('should support selective gapic generation from service yaml configs', () => {
+    it('should generate all the methods if marked as internal in the service yaml', () => {
+      const fd = {} as protos.google.protobuf.FileDescriptorProto;
+      fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        {} as protos.google.protobuf.MethodDescriptorProto,
+      ];
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0].name = 'Echo';
+      fd.service[0].method[1] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[1].name = 'Ecno';
+
+      const commentsMap = {
+        comments: {
+          'EchoRequest:request_id': {
+            paramName: 'request_id',
+            paramType: 'TYPE_STRING',
+            comments: [' A random request_id to test autopopulation'],
+            fieldBehavior: 1,
+            fieldInfo: {format: 1} as protos.google.api.FieldInfo,
+          },
+        },
+        getCommentsMap: function (): Comments {
+          return {
+            'EchoRequest:request_id': {
+              paramName: 'request_id',
+              paramType: 'TYPE_STRING',
+              comments: [' A random request_id to test autopopulation'],
+              fieldBehavior: 1,
+              fieldInfo: {format: 1},
+            },
+          } as unknown as Comments;
+        },
+        getServiceComment: function (_serviceName: string): string[] {
+          return ['not needed'];
+        },
+        getMethodComments: function (
+          _serviceName: string,
+          _methodName: string
+        ): string[] {
+          return ['not needed'];
+        },
+        getParamComments: function (
+          _messageName: string,
+          _fieldName: string
+        ): Comment {
+          return {
+            paramName: 'request_id',
+            paramType: 'TYPE_STRING',
+            comments: [' A random request_id to test autopopulation'],
+            fieldBehavior: 1,
+            fieldInfo: {format: 1},
+          } as Comment;
+        },
+      };
+
+      const options = {
+        serviceYaml: {
+          title: 'google.cloud.example',
+          http: {} as Http,
+          apis: ['example'],
+          publishing: {
+            method_settings: [
+              {
+                selector: 'google.showcase.v1beta1.Echo.Echo',
+                auto_populated_fields: ['request_id'],
+              },
+            ],
+            library_settings: [
+              {
+                typescript_settings: {
+                  common: {
+                    selective_gapic_generation: {
+                      methods: [
+                        'google.showcase.v1beta1.Echo.Echo',
+                        'google.showcase.v1beta1.Echo.Ecno',
+                      ],
+                      generate_omitted_as_internal: false,
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+      };
+
+      const augmentedService = augmentService({
+        allMessages: {},
+        localMessages: {},
+        packageName: 'google.showcase.v1beta1',
+        service: fd.service[0],
+        commentsMap,
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+        protoFile: 'fd',
+      });
+
+      assert.deepStrictEqual(augmentedService.method[0].name, 'Echo');
+      assert.deepStrictEqual(augmentedService.method[1].name, 'Ecno');
+      assert.deepStrictEqual(augmentedService.method.length, 2);
+    });
+
+    it('should not generate any methods if marked as internal in the service yaml', () => {
+      const fd = {} as protos.google.protobuf.FileDescriptorProto;
+      fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        {} as protos.google.protobuf.MethodDescriptorProto,
+      ];
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0].name = 'Echo';
+
+      const commentsMap = {
+        comments: {
+          'EchoRequest:request_id': {
+            paramName: 'request_id',
+            paramType: 'TYPE_STRING',
+            comments: [' A random request_id to test autopopulation'],
+            fieldBehavior: 1,
+            fieldInfo: {format: 1} as protos.google.api.FieldInfo,
+          },
+        },
+        getCommentsMap: function (): Comments {
+          return {
+            'EchoRequest:request_id': {
+              paramName: 'request_id',
+              paramType: 'TYPE_STRING',
+              comments: [' A random request_id to test autopopulation'],
+              fieldBehavior: 1,
+              fieldInfo: {format: 1},
+            },
+          } as unknown as Comments;
+        },
+        getServiceComment: function (_serviceName: string): string[] {
+          return ['not needed'];
+        },
+        getMethodComments: function (
+          _serviceName: string,
+          _methodName: string
+        ): string[] {
+          return ['not needed'];
+        },
+        getParamComments: function (
+          _messageName: string,
+          _fieldName: string
+        ): Comment {
+          return {
+            paramName: 'request_id',
+            paramType: 'TYPE_STRING',
+            comments: [' A random request_id to test autopopulation'],
+            fieldBehavior: 1,
+            fieldInfo: {format: 1},
+          } as Comment;
+        },
+      };
+
+      const options = {
+        serviceYaml: {
+          title: 'google.cloud.example',
+          http: {} as Http,
+          apis: ['example'],
+          publishing: {
+            method_settings: [
+              {
+                selector: 'google.showcase.v1beta1.Echo.Echo',
+                auto_populated_fields: ['request_id'],
+              },
+            ],
+            library_settings: [
+              {
+                typescript_settings: {
+                  common: {
+                    selective_gapic_generation: {
+                      methods: ['google.showcase.v1beta1.Echo.Ecno'],
+                      generate_omitted_as_internal: false,
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+      };
+
+      const augmentedService = augmentService({
+        allMessages: {},
+        localMessages: {},
+        packageName: 'google.showcase.v1beta1',
+        service: fd.service[0],
+        commentsMap,
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+        protoFile: 'fd',
+      });
+
+      assert.deepStrictEqual(augmentedService.method, []);
+      assert.deepStrictEqual(augmentedService.method.length, 0);
+    });
+
+    it('should not generate specific methods if marked as internal in the service yaml', () => {
+      const fd = {} as protos.google.protobuf.FileDescriptorProto;
+      fd.service = [{} as protos.google.protobuf.ServiceDescriptorProto];
+      fd.service[0].name = 'service';
+      fd.service[0].method = [
+        {} as protos.google.protobuf.MethodDescriptorProto,
+      ];
+      fd.service[0].method[0] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[0].name = 'Echo';
+      fd.service[0].method[1] =
+        {} as protos.google.protobuf.MethodDescriptorProto;
+      fd.service[0].method[1].name = 'Ecno';
+
+      const commentsMap = {
+        comments: {
+          'EchoRequest:request_id': {
+            paramName: 'request_id',
+            paramType: 'TYPE_STRING',
+            comments: [' A random request_id to test autopopulation'],
+            fieldBehavior: 1,
+            fieldInfo: {format: 1} as protos.google.api.FieldInfo,
+          },
+        },
+        getCommentsMap: function (): Comments {
+          return {
+            'EchoRequest:request_id': {
+              paramName: 'request_id',
+              paramType: 'TYPE_STRING',
+              comments: [' A random request_id to test autopopulation'],
+              fieldBehavior: 1,
+              fieldInfo: {format: 1},
+            },
+          } as unknown as Comments;
+        },
+        getServiceComment: function (_serviceName: string): string[] {
+          return ['not needed'];
+        },
+        getMethodComments: function (
+          _serviceName: string,
+          _methodName: string
+        ): string[] {
+          return ['not needed'];
+        },
+        getParamComments: function (
+          _messageName: string,
+          _fieldName: string
+        ): Comment {
+          return {
+            paramName: 'request_id',
+            paramType: 'TYPE_STRING',
+            comments: [' A random request_id to test autopopulation'],
+            fieldBehavior: 1,
+            fieldInfo: {format: 1},
+          } as Comment;
+        },
+      };
+
+      const options = {
+        serviceYaml: {
+          title: 'google.cloud.example',
+          http: {} as Http,
+          apis: ['example'],
+          publishing: {
+            method_settings: [
+              {
+                selector: 'google.showcase.v1beta1.Echo.Echo',
+                auto_populated_fields: ['request_id'],
+              },
+            ],
+            library_settings: [
+              {
+                typescript_settings: {
+                  common: {
+                    selective_gapic_generation: {
+                      methods: ['google.showcase.v1beta1.Echo.Ecno'],
+                      generate_omitted_as_internal: false,
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        grpcServiceConfig: {} as protos.grpc.service_config.ServiceConfig,
+      };
+
+      const augmentedService = augmentService({
+        allMessages: {},
+        localMessages: {},
+        packageName: 'google.showcase.v1beta1',
+        service: fd.service[0],
+        commentsMap,
+        allResourceDatabase: new ResourceDatabase(),
+        resourceDatabase: new ResourceDatabase(),
+        options,
+        protoFile: 'fd',
+      });
+
+      assert.deepStrictEqual(augmentedService.method[0].name, 'Ecno');
+      assert.deepStrictEqual(augmentedService.method[1], undefined);
+      assert.deepStrictEqual(augmentedService.method.length, 1);
     });
   });
 });
