@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.9.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.8.2...v4.9.0) (2025-04-04)
+
+
+### Features
+
+* Add Selective GAPIC support for TypeScript generation ([#1690](https://github.com/googleapis/gapic-generator-typescript/issues/1690)) ([849b179](https://github.com/googleapis/gapic-generator-typescript/commit/849b179352295cc81c26ffe6e8313ec60f1ba619))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency long to ^5.3.1 ([#1712](https://github.com/googleapis/gapic-generator-typescript/issues/1712)) ([539b8ea](https://github.com/googleapis/gapic-generator-typescript/commit/539b8ea423d0814b8afd6d7726fc783fab8d3956))
+
 ## [4.8.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.8.1...v4.8.2) (2025-03-18)
 
 
