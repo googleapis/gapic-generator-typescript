@@ -23,7 +23,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/bazel
-        key: ${{ runner.os }}-googleapis-20220711-${{ secrets.CACHE_VERSION }}
+        key: ${{ runner.os }}-googleapis-20250414-${{ secrets.CACHE_VERSION }}
 
     - name: Cache not found
       if: steps.cache-bazel.outputs.cache-hit != 'true'
@@ -42,10 +42,10 @@ jobs:
         echo "The old one will disappear after 7 days."
 
     - name: Run bazel build
-      run: bazel build '//...'
+      run: bazelisk build '//...'
 
     - name: Run bazel test
-      run: bazel test --test_output=errors //...
+      run: bazelisk test --test_output=errors //...
 
     - name: Verify error conformance
       run: |
@@ -59,7 +59,7 @@ jobs:
       run: |
         mkdir -p ~/artifacts
         cp bazel-testlogs/unit_tests/test.outputs/outputs.zip ~/artifacts/
-        bazel run -- @pnpm//:pnpm --dir $PWD install
+        bazelisk run -- @pnpm//:pnpm --dir $PWD install
         tar cfz ~/artifacts/node_modules.tar.gz node_modules
 
     - name: Save artifacts
@@ -72,6 +72,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node-version: [18.x]
         lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech, showcase-legacy, compute, logging, bigquery-v2, redis]
@@ -108,6 +109,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node-version: [18.x]
         lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech, showcase-legacy, compute, logging, bigquery-v2, redis]
