@@ -16,34 +16,31 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
 rules_proto_dependencies()
 rules_proto_toolchains()
 
+load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
+rules_js_dependencies()
+
 load("@aspect_rules_ts//ts:repositories.bzl", "rules_ts_dependencies")
 rules_ts_dependencies(
     ts_version_from = "//:package.json",
 )
 
-load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
-rules_js_dependencies()
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
+nodejs_register_toolchains(
+    name = "nodejs",
+    node_version = NODE_VERSION,
+)
 
-load("@aspect_rules_js//js:toolchains.bzl", "DEFAULT_NODE_VERSION", "rules_js_register_toolchains")
-
-rules_js_register_toolchains(node_version = DEFAULT_NODE_VERSION)
-
-load("@aspect_rules_js//npm:repositories.bzl", "npm_translate_lock", "pnpm_repository")
-
-
+load("@aspect_rules_js//npm:npm_import.bzl", "npm_translate_lock", "pnpm_repository")
 npm_translate_lock(
     name = "npm",
     pnpm_lock = "//:pnpm-lock.yaml",
     update_pnpm_lock = True,
     data = ["//:package.json"],
 )
-pnpm_repository(name = "pnpm")
-load("@npm//:repositories.bzl", "npm_repositories")
-npm_repositories()
-
-
-
 # To regenerate the lock file, run:
 # bazel run -- @pnpm//:pnpm --dir $PWD install --lockfile-only
 # More information: https://github.com/aspect-build/rules_js/blob/main/docs/faq.md#can-i-use-bazel-managed-pnpm
 
+load("@npm//:repositories.bzl", "npm_repositories")
+npm_repositories()
+pnpm_repository(name = "pnpm")
