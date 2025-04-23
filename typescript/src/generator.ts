@@ -164,7 +164,7 @@ export class Generator {
       const info = yaml.load(content) as ServiceYaml;
       this.serviceYaml = info;
       const serviceMixins = [];
-      for (let i = 0; i < info.apis?.length ?? 0; i++) {
+      for (let i = 0; i < info.apis?.length || 0; i++) {
         const api = info.apis[i];
         for (const [, value] of Object.entries(api)) {
           serviceMixins.push(value);
@@ -360,8 +360,14 @@ export class Generator {
     if (!CodeGeneratorResponse) {
       throw new Error('Cannot find CodeGeneratorResponse type in proto JSON');
     }
+    const Edition = this.root.lookupEnum('Edition');
+    if (!Edition) {
+      throw new Error('Cannot find Edition type in proto JSON');
+    }
     this.response = {} as protos.google.protobuf.compiler.CodeGeneratorResponse;
-    this.response.supportedFeatures = 1; // FEATURE_PROTO3_OPTIONAL
+    this.response.supportedFeatures = 3; // FEATURE_PROTO3_OPTIONAL | FEATURE_SUPPORTS_EDITIONS
+    this.response.minimumEdition = Edition.values['EDITION_PROTO2'];
+    this.response.maximumEdition = Edition.values['EDITION_2023'];
     this.response.file = [];
 
     try {
