@@ -29,6 +29,7 @@ import {fileURLToPath} from 'url';
 import {getJSON} from '../json-helper.cjs';
 // @ts-ignore
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+import {loggingUtils as logging} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -70,6 +71,7 @@ export class DlpServiceClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('dlp');
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -104,7 +106,7 @@ export class DlpServiceClient {
    *     Developer's Console, e.g. 'grape-spaceship-123'. We will also check
    *     the environment variable GCLOUD_PROJECT for your project ID. If your
    *     app is running in an environment which supports
-   *     {@link https://developers.google.com/identity/protocols/application-default-credentials Application Default Credentials},
+   *     {@link https://cloud.google.com/docs/authentication/application-default-credentials Application Default Credentials},
    *     your project ID will be detected automatically.
    * @param {string} [options.apiEndpoint] - The domain name of the
    *     API remote host.
@@ -485,8 +487,25 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.inspectContent(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('inspectContent request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IInspectContentResponse,
+        protos.google.privacy.dlp.v2.IInspectContentRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('inspectContent response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.inspectContent(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IInspectContentResponse,
+        protos.google.privacy.dlp.v2.IInspectContentRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('inspectContent response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Redacts potentially sensitive info from an image.
@@ -575,8 +594,25 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.redactImage(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('redactImage request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IRedactImageResponse,
+        protos.google.privacy.dlp.v2.IRedactImageRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('redactImage response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.redactImage(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IRedactImageResponse,
+        protos.google.privacy.dlp.v2.IRedactImageRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('redactImage response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * De-identifies potentially sensitive info from a ContentItem.
@@ -678,8 +714,25 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.deidentifyContent(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('deidentifyContent request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IDeidentifyContentResponse,
+        protos.google.privacy.dlp.v2.IDeidentifyContentRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('deidentifyContent response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.deidentifyContent(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IDeidentifyContentResponse,
+        protos.google.privacy.dlp.v2.IDeidentifyContentRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('deidentifyContent response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Re-identifies content that has been de-identified.
@@ -783,8 +836,25 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.reidentifyContent(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('reidentifyContent request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IReidentifyContentResponse,
+        protos.google.privacy.dlp.v2.IReidentifyContentRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('reidentifyContent response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.reidentifyContent(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IReidentifyContentResponse,
+        protos.google.privacy.dlp.v2.IReidentifyContentRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('reidentifyContent response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Returns a list of the sensitive information types that the DLP API
@@ -863,8 +933,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.listInfoTypes(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('listInfoTypes request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IListInfoTypesResponse,
+        protos.google.privacy.dlp.v2.IListInfoTypesRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('listInfoTypes response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.listInfoTypes(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IListInfoTypesResponse,
+        protos.google.privacy.dlp.v2.IListInfoTypesRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('listInfoTypes response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Creates an InspectTemplate for re-using frequently used configuration
@@ -947,8 +1034,25 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.createInspectTemplate(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('createInspectTemplate request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IInspectTemplate,
+        protos.google.privacy.dlp.v2.ICreateInspectTemplateRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createInspectTemplate response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.createInspectTemplate(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IInspectTemplate,
+        protos.google.privacy.dlp.v2.ICreateInspectTemplateRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('createInspectTemplate response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Updates the InspectTemplate.
@@ -1024,8 +1128,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.updateInspectTemplate(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('updateInspectTemplate request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IInspectTemplate,
+        protos.google.privacy.dlp.v2.IUpdateInspectTemplateRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('updateInspectTemplate response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.updateInspectTemplate(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IInspectTemplate,
+        protos.google.privacy.dlp.v2.IUpdateInspectTemplateRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('updateInspectTemplate response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Gets an InspectTemplate.
@@ -1097,8 +1218,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.getInspectTemplate(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('getInspectTemplate request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IInspectTemplate,
+        protos.google.privacy.dlp.v2.IGetInspectTemplateRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getInspectTemplate response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.getInspectTemplate(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IInspectTemplate,
+        protos.google.privacy.dlp.v2.IGetInspectTemplateRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('getInspectTemplate response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Deletes an InspectTemplate.
@@ -1170,8 +1308,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.deleteInspectTemplate(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('deleteInspectTemplate request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteInspectTemplateRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('deleteInspectTemplate response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.deleteInspectTemplate(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteInspectTemplateRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('deleteInspectTemplate response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Creates a DeidentifyTemplate for re-using frequently used configuration
@@ -1255,8 +1410,25 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.createDeidentifyTemplate(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('createDeidentifyTemplate request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IDeidentifyTemplate,
+        protos.google.privacy.dlp.v2.ICreateDeidentifyTemplateRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createDeidentifyTemplate response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.createDeidentifyTemplate(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IDeidentifyTemplate,
+        protos.google.privacy.dlp.v2.ICreateDeidentifyTemplateRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('createDeidentifyTemplate response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Updates the DeidentifyTemplate.
@@ -1333,8 +1505,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.updateDeidentifyTemplate(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('updateDeidentifyTemplate request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IDeidentifyTemplate,
+        protos.google.privacy.dlp.v2.IUpdateDeidentifyTemplateRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('updateDeidentifyTemplate response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.updateDeidentifyTemplate(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IDeidentifyTemplate,
+        protos.google.privacy.dlp.v2.IUpdateDeidentifyTemplateRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('updateDeidentifyTemplate response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Gets a DeidentifyTemplate.
@@ -1407,8 +1596,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.getDeidentifyTemplate(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('getDeidentifyTemplate request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IDeidentifyTemplate,
+        protos.google.privacy.dlp.v2.IGetDeidentifyTemplateRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getDeidentifyTemplate response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.getDeidentifyTemplate(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IDeidentifyTemplate,
+        protos.google.privacy.dlp.v2.IGetDeidentifyTemplateRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('getDeidentifyTemplate response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Deletes a DeidentifyTemplate.
@@ -1481,8 +1687,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.deleteDeidentifyTemplate(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('deleteDeidentifyTemplate request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteDeidentifyTemplateRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('deleteDeidentifyTemplate response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.deleteDeidentifyTemplate(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteDeidentifyTemplateRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('deleteDeidentifyTemplate response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Creates a job trigger to run DLP actions such as scanning storage for
@@ -1564,8 +1787,25 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.createJobTrigger(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('createJobTrigger request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IJobTrigger,
+        protos.google.privacy.dlp.v2.ICreateJobTriggerRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createJobTrigger response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.createJobTrigger(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IJobTrigger,
+        protos.google.privacy.dlp.v2.ICreateJobTriggerRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('createJobTrigger response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Updates a job trigger.
@@ -1640,8 +1880,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.updateJobTrigger(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('updateJobTrigger request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IJobTrigger,
+        protos.google.privacy.dlp.v2.IUpdateJobTriggerRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('updateJobTrigger response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.updateJobTrigger(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IJobTrigger,
+        protos.google.privacy.dlp.v2.IUpdateJobTriggerRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('updateJobTrigger response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Gets a job trigger.
@@ -1712,8 +1969,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.getJobTrigger(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('getJobTrigger request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IJobTrigger,
+        protos.google.privacy.dlp.v2.IGetJobTriggerRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getJobTrigger response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.getJobTrigger(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IJobTrigger,
+        protos.google.privacy.dlp.v2.IGetJobTriggerRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('getJobTrigger response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Deletes a job trigger.
@@ -1784,8 +2058,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.deleteJobTrigger(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('deleteJobTrigger request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteJobTriggerRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('deleteJobTrigger response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.deleteJobTrigger(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteJobTriggerRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('deleteJobTrigger response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Activate a job trigger. Causes the immediate execute of a trigger
@@ -1856,8 +2147,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.activateJobTrigger(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('activateJobTrigger request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IDlpJob,
+        protos.google.privacy.dlp.v2.IActivateJobTriggerRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('activateJobTrigger response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.activateJobTrigger(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IDlpJob,
+        protos.google.privacy.dlp.v2.IActivateJobTriggerRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('activateJobTrigger response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Creates a new job to inspect storage or calculate risk metrics.
@@ -1945,8 +2253,25 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.createDlpJob(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('createDlpJob request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IDlpJob,
+        protos.google.privacy.dlp.v2.ICreateDlpJobRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createDlpJob response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.createDlpJob(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IDlpJob,
+        protos.google.privacy.dlp.v2.ICreateDlpJobRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('createDlpJob response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Gets the latest state of a long-running DlpJob.
@@ -2017,8 +2342,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.getDlpJob(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('getDlpJob request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IDlpJob,
+        protos.google.privacy.dlp.v2.IGetDlpJobRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getDlpJob response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.getDlpJob(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IDlpJob,
+        protos.google.privacy.dlp.v2.IGetDlpJobRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('getDlpJob response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Deletes a long-running DlpJob. This method indicates that the client is
@@ -2091,8 +2433,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.deleteDlpJob(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('deleteDlpJob request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteDlpJobRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('deleteDlpJob response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.deleteDlpJob(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteDlpJobRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('deleteDlpJob response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Starts asynchronous cancellation on a long-running DlpJob. The server
@@ -2165,8 +2524,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.cancelDlpJob(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('cancelDlpJob request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.ICancelDlpJobRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('cancelDlpJob response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.cancelDlpJob(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.ICancelDlpJobRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('cancelDlpJob response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Creates a pre-built stored infoType to be used for inspection.
@@ -2249,8 +2625,25 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.createStoredInfoType(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('createStoredInfoType request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IStoredInfoType,
+        protos.google.privacy.dlp.v2.ICreateStoredInfoTypeRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createStoredInfoType response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.createStoredInfoType(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IStoredInfoType,
+        protos.google.privacy.dlp.v2.ICreateStoredInfoTypeRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('createStoredInfoType response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Updates the stored infoType by creating a new version. The existing version
@@ -2330,8 +2723,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.updateStoredInfoType(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('updateStoredInfoType request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IStoredInfoType,
+        protos.google.privacy.dlp.v2.IUpdateStoredInfoTypeRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('updateStoredInfoType response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.updateStoredInfoType(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IStoredInfoType,
+        protos.google.privacy.dlp.v2.IUpdateStoredInfoTypeRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('updateStoredInfoType response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Gets a stored infoType.
@@ -2404,8 +2814,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.getStoredInfoType(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('getStoredInfoType request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.privacy.dlp.v2.IStoredInfoType,
+        protos.google.privacy.dlp.v2.IGetStoredInfoTypeRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getStoredInfoType response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.getStoredInfoType(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.privacy.dlp.v2.IStoredInfoType,
+        protos.google.privacy.dlp.v2.IGetStoredInfoTypeRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('getStoredInfoType response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Deletes a stored infoType.
@@ -2478,8 +2905,25 @@ export class DlpServiceClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.deleteStoredInfoType(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('deleteStoredInfoType request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteStoredInfoTypeRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('deleteStoredInfoType response %j', response);
+          callback!(error, response, options, rawResponse);
+        }
+      : undefined;
+    return this.innerApiCalls.deleteStoredInfoType(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.privacy.dlp.v2.IDeleteStoredInfoTypeRequest|undefined, {}|undefined
+      ]) => {
+        this._log.info('deleteStoredInfoType response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 
  /**
@@ -2580,8 +3024,27 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.listInspectTemplates(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    const wrappedCallback: PaginationCallback<
+      protos.google.privacy.dlp.v2.IListInspectTemplatesRequest,
+      protos.google.privacy.dlp.v2.IListInspectTemplatesResponse|null|undefined,
+      protos.google.privacy.dlp.v2.IInspectTemplate>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listInspectTemplates values %j', values);
+          callback!(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('listInspectTemplates request %j', request);
+    return this.innerApiCalls
+      .listInspectTemplates(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.privacy.dlp.v2.IInspectTemplate[],
+        protos.google.privacy.dlp.v2.IListInspectTemplatesRequest|null,
+        protos.google.privacy.dlp.v2.IListInspectTemplatesResponse
+      ]) => {
+        this._log.info('listInspectTemplates values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -2641,7 +3104,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listInspectTemplates'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listInspectTemplates stream %j', request);
     return this.descriptors.page.listInspectTemplates.createStream(
       this.innerApiCalls.listInspectTemplates as GaxCall,
       request,
@@ -2709,7 +3173,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listInspectTemplates'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listInspectTemplates iterate %j', request);
     return this.descriptors.page.listInspectTemplates.asyncIterate(
       this.innerApiCalls['listInspectTemplates'] as GaxCall,
       request as {},
@@ -2815,8 +3280,27 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.listDeidentifyTemplates(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    const wrappedCallback: PaginationCallback<
+      protos.google.privacy.dlp.v2.IListDeidentifyTemplatesRequest,
+      protos.google.privacy.dlp.v2.IListDeidentifyTemplatesResponse|null|undefined,
+      protos.google.privacy.dlp.v2.IDeidentifyTemplate>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listDeidentifyTemplates values %j', values);
+          callback!(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('listDeidentifyTemplates request %j', request);
+    return this.innerApiCalls
+      .listDeidentifyTemplates(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.privacy.dlp.v2.IDeidentifyTemplate[],
+        protos.google.privacy.dlp.v2.IListDeidentifyTemplatesRequest|null,
+        protos.google.privacy.dlp.v2.IListDeidentifyTemplatesResponse
+      ]) => {
+        this._log.info('listDeidentifyTemplates values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -2876,7 +3360,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listDeidentifyTemplates'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listDeidentifyTemplates stream %j', request);
     return this.descriptors.page.listDeidentifyTemplates.createStream(
       this.innerApiCalls.listDeidentifyTemplates as GaxCall,
       request,
@@ -2944,7 +3429,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listDeidentifyTemplates'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listDeidentifyTemplates iterate %j', request);
     return this.descriptors.page.listDeidentifyTemplates.asyncIterate(
       this.innerApiCalls['listDeidentifyTemplates'] as GaxCall,
       request as {},
@@ -3075,8 +3561,27 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.listJobTriggers(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    const wrappedCallback: PaginationCallback<
+      protos.google.privacy.dlp.v2.IListJobTriggersRequest,
+      protos.google.privacy.dlp.v2.IListJobTriggersResponse|null|undefined,
+      protos.google.privacy.dlp.v2.IJobTrigger>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listJobTriggers values %j', values);
+          callback!(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('listJobTriggers request %j', request);
+    return this.innerApiCalls
+      .listJobTriggers(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.privacy.dlp.v2.IJobTrigger[],
+        protos.google.privacy.dlp.v2.IListJobTriggersRequest|null,
+        protos.google.privacy.dlp.v2.IListJobTriggersResponse
+      ]) => {
+        this._log.info('listJobTriggers values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -3162,7 +3667,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listJobTriggers'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listJobTriggers stream %j', request);
     return this.descriptors.page.listJobTriggers.createStream(
       this.innerApiCalls.listJobTriggers as GaxCall,
       request,
@@ -3256,7 +3762,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listJobTriggers'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listJobTriggers iterate %j', request);
     return this.descriptors.page.listJobTriggers.asyncIterate(
       this.innerApiCalls['listJobTriggers'] as GaxCall,
       request as {},
@@ -3390,8 +3897,27 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.listDlpJobs(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    const wrappedCallback: PaginationCallback<
+      protos.google.privacy.dlp.v2.IListDlpJobsRequest,
+      protos.google.privacy.dlp.v2.IListDlpJobsResponse|null|undefined,
+      protos.google.privacy.dlp.v2.IDlpJob>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listDlpJobs values %j', values);
+          callback!(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('listDlpJobs request %j', request);
+    return this.innerApiCalls
+      .listDlpJobs(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.privacy.dlp.v2.IDlpJob[],
+        protos.google.privacy.dlp.v2.IListDlpJobsRequest|null,
+        protos.google.privacy.dlp.v2.IListDlpJobsResponse
+      ]) => {
+        this._log.info('listDlpJobs values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -3479,7 +4005,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listDlpJobs'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listDlpJobs stream %j', request);
     return this.descriptors.page.listDlpJobs.createStream(
       this.innerApiCalls.listDlpJobs as GaxCall,
       request,
@@ -3575,7 +4102,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listDlpJobs'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listDlpJobs iterate %j', request);
     return this.descriptors.page.listDlpJobs.asyncIterate(
       this.innerApiCalls['listDlpJobs'] as GaxCall,
       request as {},
@@ -3682,8 +4210,27 @@ export class DlpServiceClient {
       'parent': request.parent ?? '',
       'location_id': request.locationId ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.listStoredInfoTypes(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    const wrappedCallback: PaginationCallback<
+      protos.google.privacy.dlp.v2.IListStoredInfoTypesRequest,
+      protos.google.privacy.dlp.v2.IListStoredInfoTypesResponse|null|undefined,
+      protos.google.privacy.dlp.v2.IStoredInfoType>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listStoredInfoTypes values %j', values);
+          callback!(error, values, nextPageRequest, rawResponse);
+        }
+      : undefined;
+    this._log.info('listStoredInfoTypes request %j', request);
+    return this.innerApiCalls
+      .listStoredInfoTypes(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.privacy.dlp.v2.IStoredInfoType[],
+        protos.google.privacy.dlp.v2.IListStoredInfoTypesRequest|null,
+        protos.google.privacy.dlp.v2.IListStoredInfoTypesResponse
+      ]) => {
+        this._log.info('listStoredInfoTypes values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -3744,7 +4291,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listStoredInfoTypes'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listStoredInfoTypes stream %j', request);
     return this.descriptors.page.listStoredInfoTypes.createStream(
       this.innerApiCalls.listStoredInfoTypes as GaxCall,
       request,
@@ -3813,7 +4361,8 @@ export class DlpServiceClient {
     });
     const defaultCallSettings = this._defaults['listStoredInfoTypes'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listStoredInfoTypes iterate %j', request);
     return this.descriptors.page.listStoredInfoTypes.asyncIterate(
       this.innerApiCalls['listStoredInfoTypes'] as GaxCall,
       request as {},
@@ -4167,6 +4716,7 @@ export class DlpServiceClient {
   close(): Promise<void> {
     if (this.dlpServiceStub && !this._terminated) {
       return this.dlpServiceStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
       });

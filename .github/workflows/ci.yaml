@@ -23,7 +23,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/bazel
-        key: ${{ runner.os }}-googleapis-20220711-${{ secrets.CACHE_VERSION }}
+        key: ${{ runner.os }}-googleapis-20250422-${{ secrets.CACHE_VERSION }}
 
     - name: Cache not found
       if: steps.cache-bazel.outputs.cache-hit != 'true'
@@ -42,24 +42,24 @@ jobs:
         echo "The old one will disappear after 7 days."
 
     - name: Run bazel build
-      run: bazel build '//...'
+      run: bazelisk build '//...'
 
     - name: Run bazel test
-      run: bazel test --test_output=errors //...
+      run: bazelisk test --test_output=errors //...
 
     - name: Verify error conformance
       run: |
         curl -sSL https://github.com/googleapis/gapic-config-validator/releases/download/v0.6.0/gapic-config-validator-0.6.0-linux-amd64.tar.gz > config-validator.tar.gz
         tar xzf config-validator.tar.gz --no-same-owner
         chmod +x gapic-error-conformance
-        chmod +x bazel-bin/protoc_plugin.sh
-        ./gapic-error-conformance -plugin="bazel-bin/protoc_plugin.sh"
+        chmod +x bazel-bin/protoc_plugin_/protoc_plugin
+        ./gapic-error-conformance -plugin="bazel-bin/protoc_plugin_/protoc_plugin"
 
     - name: Prepare baseline artifacts
       run: |
         mkdir -p ~/artifacts
         cp bazel-testlogs/unit_tests/test.outputs/outputs.zip ~/artifacts/
-        bazel run -- @pnpm//:pnpm --dir $PWD install
+        bazelisk run -- @pnpm//:pnpm --dir $PWD install
         tar cfz ~/artifacts/node_modules.tar.gz node_modules
 
     - name: Save artifacts
@@ -72,9 +72,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [14.x]
-        lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech, showcase-legacy, compute, logging, bigquery-v2]
+        node-version: [18.x]
+        lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech, showcase-legacy, compute, logging, bigquery-v2, redis]
     steps:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
@@ -108,9 +109,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [14.x]
-        lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech, showcase-legacy, compute, logging, bigquery-v2]
+        node-version: [18.x]
+        lib-name: [showcase, kms, translate, monitoring, dlp, texttospeech, showcase-legacy, compute, logging, bigquery-v2, redis]
     steps:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
@@ -145,6 +147,6 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 18
       - run: npm install
       - run: npm run lint

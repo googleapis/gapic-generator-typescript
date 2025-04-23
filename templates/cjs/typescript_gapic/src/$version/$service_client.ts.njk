@@ -53,6 +53,7 @@ import * as path from 'path';
 {%- else %}
 import jsonProtos = require('../../protos/protos.json');
 {%- endif %}
+import {loggingUtils as logging} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -80,6 +81,8 @@ export class {{ service.name }}Client {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('{{api.loggingName}}');
+
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -125,7 +128,7 @@ export class {{ service.name }}Client {
    *     Developer's Console, e.g. 'grape-spaceship-123'. We will also check
    *     the environment variable GCLOUD_PROJECT for your project ID. If your
    *     app is running in an environment which supports
-   *     {@link https://developers.google.com/identity/protocols/application-default-credentials Application Default Credentials},
+   *     {@link https://cloud.google.com/docs/authentication/application-default-credentials Application Default Credentials},
    *     your project ID will be detected automatically.
    * @param {string} [options.apiEndpoint] - The domain name of the
    *     API remote host.
@@ -580,8 +583,18 @@ export class {{ service.name }}Client {
   // -- Service calls --
   // -------------------
 
+{%- macro internalWarning(service, method, api) %}
+ {%- for internalMethod in service.internalMethods %}
+  {%- if method.name === internalMethod.name %}
+ * @internal WARNING: This method is internal to the {{api.hostName.split(".")[0]}}_{{api.naming.version}} api and should not be used by clients.
+ * 
+  {%- endif %}
+ {%- endfor %}
+{%- endmacro %}
+
 {%- for method in service.simpleMethods %}
 /**
+ {{- internalWarning(service, method, api) }}
 {{- util.printComments(method, service) }}
  {%- if not api.handwrittenLayer %}
  * @example <caption>include:samples/generated/{{api.naming.version}}/{{service.name.toSnakeCase()}}.{{method.name.toSnakeCase()}}.js</caption>
@@ -652,27 +665,55 @@ export class {{ service.name }}Client {
       options = optionsOrCallback as CallOptions;
     }
     {{ util.buildHeaderRequestParam(method) }}
-    this.{{ id.get("initialize") }}();
+    this.{{ id.get("initialize") }}().catch(err => {throw err});
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    this._log.info('{{ method.name.toCamelCase() }} request %j', request);
     {%- if method.isDiregapicLRO %}
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback)
-    .then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
-      return [
+    const wrappedCallback: Callback<
+          {{ util.toInterface(method.outputInterface) }},
+          {{ util.toInterface(method.inputInterface) }}|null|undefined,
+          {}|null|undefined>|undefined = callback
+      ? (error, response, nextRequest, rawResponse) => {
+          this._log.info('{{ method.name.toCamelCase() }} response %j', rawResponse);
+          callback!(error, response, nextRequest, rawResponse); // We verified `callback` above.
+        }
+      : undefined;
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
+      ?.then(([response, operation, rawResponse]: [protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation, protos.google.cloud.compute.v1.IOperation]) => {
+        return [
           { latestResponse: response, done: false, name: response.id, metadata: null, result: {}},
           operation,
           rawResponse
         ];
-    });
+      });
     {%- else %}
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback);
+    const wrappedCallback: Callback<
+        {{ util.toInterface(method.outputInterface) }},
+        {{ util.toInterface(method.inputInterface) }}|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('{{ method.name.toCamelCase() }} response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        {{ util.toInterface(method.outputInterface) }},
+        {{ util.toInterface(method.inputInterface) }}|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('{{ method.name.toCamelCase() }} response %j', response);
+        return [response, options, rawResponse];
+      });
     {%- endif %}
   }
 {%- endfor %}
 {% for method in service.streaming %}
 {%- if method.serverStreaming and method.clientStreaming %}
 /**
+ {{- internalWarning(service, method, api) }}
 {{- util.printComments(method, service) }}
  {%- if not api.handwrittenLayer %}
  * @example <caption>include:samples/generated/{{api.naming.version}}/{{service.name.toSnakeCase()}}.{{method.name.toSnakeCase()}}.js</caption>
@@ -685,10 +726,11 @@ export class {{ service.name }}Client {
   {{ method.name.toCamelCase() }}(
       options?: CallOptions):
     gax.CancellableStream {
-    this.{{ id.get("initialize") }}();
+    this.{{ id.get("initialize") }}().catch(err => {throw err});
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    this._log.info('{{ method.name.toCamelCase() }} stream %j', options);
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(null, options);
   }
 {%- elif method.serverStreaming %}
@@ -708,10 +750,11 @@ export class {{ service.name }}Client {
     gax.CancellableStream{
     request = request || {};
     {{ util.buildHeaderRequestParam(method) }}
-    this.{{ id.get("initialize") }}();
+    this.{{ id.get("initialize") }}().catch(err => {throw err});
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    this._log.info('{{ method.name.toCamelCase() }} stream %j', options);
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options);
   }
 {%- elif method.clientStreaming %}
@@ -753,16 +796,18 @@ export class {{ service.name }}Client {
         optionsOrCallback = {};
     }
     const options = optionsOrCallback as CallOptions;
-    this.{{ id.get("initialize") }}();
+    this.{{ id.get("initialize") }}().catch(err => {throw err});
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    this._log.info('{{ method.name.toCamelCase() }} stream %j', options);
     return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(null, options, callback);
   }
 {%- endif %}
 {% endfor %}
 {%- for method in service.longRunning %}
 /**
+ {{- internalWarning(service, method, api) }}
 {{- util.printComments(method, service) }}
  {%- if not api.handwrittenLayer %}
  * @example <caption>include:samples/generated/{{api.naming.version}}/{{service.name.toSnakeCase()}}.{{method.name.toSnakeCase()}}.js</caption>
@@ -820,11 +865,28 @@ export class {{ service.name }}Client {
       options = optionsOrCallback as CallOptions;
     }
     {{ util.buildHeaderRequestParam(method) }}
-    this.{{ id.get("initialize") }}();
+    this.{{ id.get("initialize") }}().catch(err => {throw err});
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback);
+    const wrappedCallback: Callback<
+          LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType)}}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
+          {{ util.toInterface(method.outputInterface) }}|null|undefined,
+          {}|null|undefined>|undefined = callback
+      ? (error, response, rawResponse, _) => {
+          this._log.info('{{ method.name.toCamelCase() }} response %j', rawResponse);
+          callback!(error, response, rawResponse, _); // We verified callback above.
+        }
+      : undefined;
+    this._log.info('{{ method.name.toCamelCase() }} request %j', request);
+    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
+    ?.then(([response, rawResponse, _]: [
+      LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>,
+      {{ util.toInterface(method.outputInterface) }}|undefined, {}|undefined
+    ]) => {
+      this._log.info('{{ method.name.toCamelCase() }} response %j', rawResponse);
+      return [response, rawResponse, _];
+    });
   }
 /**
 {%- set decodeMethodName = id.get("check" + method.name.toPascalCase() + "Progress") -%}
@@ -841,6 +903,7 @@ export class {{ service.name }}Client {
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{decodeMethodName}}','{{decodeMethodName}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    this._log.info('{{method.name.toCamelCase()}} long-running');
     const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
     const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.{{ method.name.toCamelCase() }}, this._gaxModule.createDefaultBackoffSettings());
@@ -848,10 +911,10 @@ export class {{ service.name }}Client {
   }
 {%- endfor %}
 {%- for method in service.paging %}
-
 {%- if not method.ignoreMapPagingMethod %}
 {%- if not method.pagingMapResponseType %}
  /**
+ {{- internalWarning(service, method, api) }}
 {{- util.printComments(method, service, id.get(method.name.toCamelCase() + "Async")) }}
  {%- if method.options and method.options.deprecated %}
  * @deprecated {{method.name}} is deprecated and may be removed in a future version.
@@ -903,11 +966,11 @@ export class {{ service.name }}Client {
 
   {%- endif %}
 
-{%- for field in method.autoPopulatedFields %}    
+{%- for field in method.autoPopulatedFields %}
     if (!request.{{ field.toCamelCase() }}) {
       request.{{ field.toCamelCase() }} = gax.makeUUID();
-    } 
-    
+    }
+
     {%- endfor %}
     let options: CallOptions;
     if (typeof optionsOrCallback === 'function' && callback === undefined) {
@@ -918,11 +981,30 @@ export class {{ service.name }}Client {
       options = optionsOrCallback as CallOptions;
     }
     {{ util.buildHeaderRequestParam(method) }}
-    this.{{ id.get("initialize") }}();
+    this.{{ id.get("initialize") }}().catch(err => {throw err});
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
-    return this.innerApiCalls.{{ method.name.toCamelCase(true) }}(request, options, callback);
+    const wrappedCallback: PaginationCallback<
+      {{ util.toInterface(method.inputInterface) }},
+      {{ util.toInterface(method.outputInterface) }}|null|undefined,
+      {{ util.toInterface(method.pagingResponseType) }}>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('{{ method.name.toCamelCase() }} values %j', values);
+          callback!(error, values, nextPageRequest, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    this._log.info('{{ method.name.toCamelCase() }} request %j', request);
+    return this.innerApiCalls
+      .{{ method.name.toCamelCase(true) }}(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        {{ util.toInterface(method.pagingResponseType) }}[],
+        {{ util.toInterface(method.inputInterface) }}|null,
+        {{ util.toInterface(method.outputInterface) }}
+      ]) => {
+        this._log.info('{{ method.name.toCamelCase() }} values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -943,10 +1025,11 @@ export class {{ service.name }}Client {
     {{ util.buildHeaderRequestParam(method) }}
     const defaultCallSettings = this._defaults['{{method.name.toCamelCase(true)}}'];
     const callSettings = defaultCallSettings.merge(options);
-    this.{{ id.get("initialize") }}();
+    this.{{ id.get("initialize") }}().catch(err => {throw err});
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    this._log.info('{{ method.name.toCamelCase() }} stream %j', request);
     return this.descriptors.page.{{ method.name.toCamelCase() }}.createStream(
       this.innerApiCalls.{{ method.name.toCamelCase(true) }} as GaxCall,
       request,
@@ -981,10 +1064,11 @@ export class {{ service.name }}Client {
     {{ util.buildHeaderRequestParam(method) }}
     const defaultCallSettings = this._defaults['{{method.name.toCamelCase(true)}}'];
     const callSettings = defaultCallSettings.merge(options);
-    this.{{ id.get("initialize") }}();
+    this.{{ id.get("initialize") }}().catch(err => {throw err});
     {%- if method.options and method.options.deprecated %}
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
+    this._log.info('{{ method.name.toCamelCase() }} iterate %j', request);
     return this.descriptors.page.{{ method.name.toCamelCase() }}.asyncIterate(
       this.innerApiCalls['{{ method.name.toCamelCase(true) }}'] as GaxCall,
       request as {},
@@ -1057,6 +1141,7 @@ export class {{ service.name }}Client {
   {{ id.get("close") }}(): Promise<void> {
     if (this.{{ service.name.toCamelCase() }}Stub && !this._terminated) {
       return this.{{ service.name.toCamelCase() }}Stub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
         {%- if service.IAMPolicyMixin > 0 %}

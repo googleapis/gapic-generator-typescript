@@ -64,6 +64,8 @@ export interface MethodDescriptorProto
   methodConfig: protos.grpc.service_config.MethodConfig;
   retryableCodesName: string;
   retryParamsName: string;
+  // Determine whether we should generate the method normally or as a hidden or internal method.
+  selectiveGapic: SelectiveGapicType;
   timeoutMillis?: number;
   // headerRequestParams: if we need to pass "request.foo" and "request.bar"
   // into x-goog-request-params header, the array will contain
@@ -83,6 +85,7 @@ export interface MethodDescriptorProto
 
 export interface ServiceDescriptorProto
   extends protos.google.protobuf.IServiceDescriptorProto {
+  internalMethods: MethodDescriptorProto[];
   apiVersion: string;
   packageName: string;
   method: MethodDescriptorProto[];
@@ -111,6 +114,7 @@ export interface ServiceDescriptorProto
   protoFile: string;
   diregapicLRO?: MethodDescriptorProto[];
   httpRules?: protos.google.api.IHttpRule[];
+  selectiveGapic: SelectiveGapicConfig;
 }
 
 export interface ServicesMap {
@@ -632,6 +636,7 @@ function augmentMethod(
     },
     method
   ) as MethodDescriptorProto;
+
   if (method.longRunning) {
     if (!method.longRunningMetadataType) {
       throw new Error(
@@ -647,6 +652,7 @@ function augmentMethod(
       );
     }
   }
+
   const bundleConfigs = parameters.service.bundleConfigs;
   if (bundleConfigs) {
     for (const bc of bundleConfigs) {
@@ -667,6 +673,7 @@ function augmentMethod(
       }
     }
   }
+
   if (method.inputType && parameters.allMessages[method.inputType]?.field) {
     const paramComment: Comment[] = [];
     const inputType = parameters.allMessages[method.inputType!];
@@ -681,12 +688,14 @@ function augmentMethod(
 
     method.paramComment = paramComment;
   }
+
   if (method.methodConfig.retryPolicy?.retryableStatusCodes) {
     method.retryableCodesName =
       parameters.service.retryableCodeMap.getRetryableCodesName(
         method.methodConfig.retryPolicy.retryableStatusCodes
       );
   }
+
   if (method.methodConfig.retryPolicy) {
     // converting retry parameters to the syntax google-gax supports
     const retryParams: {[key: string]: number} = {};
@@ -742,6 +751,69 @@ function augmentMethod(
   // but we need to serialize the whole augmented object.
   method.toJSON = undefined;
   return method;
+}
+
+/* Interface and method to grab selective gapic methods from the service yaml
+along with other potential selective gapic config options. */
+interface SelectiveGapicConfig {
+  isSelectiveGapic: boolean;
+  generateOmittedAsInternal: boolean | undefined;
+  methods: string[];
+}
+
+export function getSelectiveGapic(
+  serviceYaml: ServiceYaml | undefined
+): SelectiveGapicConfig {
+  const selectiveGapicConfig =
+    serviceYaml?.publishing?.library_settings?.[0]?.typescript_settings?.common
+      ?.selective_gapic_generation;
+
+  const methods: string[] = [];
+  const generateOmittedAsInternal =
+    selectiveGapicConfig?.generate_omitted_as_internal ?? false;
+  const isSelectiveGapic = !!selectiveGapicConfig;
+
+  // If selective gapic is set, then we can parse the methods from the config.
+  if (selectiveGapicConfig?.methods) {
+    // We find the method name and add it to methods array.
+    // Example: `google.cloud.bigquery.v2.CancelJobRequest` becomes `CancelJobRequest`.
+    for (const method of selectiveGapicConfig.methods) {
+      const lastDotIndex = method.lastIndexOf('.');
+      if (lastDotIndex !== -1) {
+        methods.push(method.substring(lastDotIndex + 1));
+      }
+    }
+  }
+
+  return {
+    isSelectiveGapic,
+    generateOmittedAsInternal,
+    methods,
+  };
+}
+
+enum SelectiveGapicType {
+  PUBLIC = 'public',
+  HIDDEN = 'hidden',
+  INTERNAL = 'internal',
+}
+
+export function selectiveGapicMethodType(
+  method: MethodDescriptorProto,
+  selectiveGapicConfig: SelectiveGapicConfig | undefined
+): SelectiveGapicType {
+  if (!selectiveGapicConfig.isSelectiveGapic) {
+    return SelectiveGapicType.PUBLIC;
+  }
+
+  // The public service yaml is always an allowlist.
+  if (!selectiveGapicConfig.methods.includes(method.name)) {
+    return selectiveGapicConfig.generateOmittedAsInternal
+      ? SelectiveGapicType.INTERNAL
+      : SelectiveGapicType.HIDDEN;
+  }
+
+  return SelectiveGapicType.PUBLIC;
 }
 
 export function getSingleHeaderParam(
@@ -895,7 +967,7 @@ interface AugmentServiceParameters {
   protoFile: string;
 }
 
-function augmentService(parameters: AugmentServiceParameters) {
+export function augmentService(parameters: AugmentServiceParameters) {
   const augmentedService = parameters.service as ServiceDescriptorProto;
   augmentedService.packageName = parameters.packageName;
   augmentedService.serviceYaml = parameters.options.serviceYaml!;
@@ -925,6 +997,9 @@ function augmentService(parameters: AugmentServiceParameters) {
   );
   augmentedService.commentsMap = parameters.commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
+  augmentedService.selectiveGapic = getSelectiveGapic(
+    augmentedService.serviceYaml
+  );
   augmentedService.grpcServiceConfig = parameters.options.grpcServiceConfig;
   augmentedService.bundleConfigs = parameters.options.bundleConfigs?.filter(
     bc => bc.serviceName === parameters.service.name
@@ -941,6 +1016,19 @@ function augmentService(parameters: AugmentServiceParameters) {
         method
       )
     ) ?? [];
+
+  /* Selective GAPIC method handling. */
+  augmentedService.method = augmentedService.method.filter(
+    method =>
+      selectiveGapicMethodType(method, augmentedService.selectiveGapic) !==
+      SelectiveGapicType.HIDDEN
+  );
+  augmentedService.internalMethods = augmentedService.method.filter(
+    method =>
+      selectiveGapicMethodType(method, augmentedService.selectiveGapic) ===
+      SelectiveGapicType.INTERNAL
+  );
+
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
     method => method.bundleConfig
   );
@@ -1114,6 +1202,7 @@ export class Proto {
         return map;
       }, {} as MessagesMap);
     this.diregapic = parameters.options.diregapic;
+
     const protopackage = parameters.fd.package;
     // Allow to generate if a proto has no service and its package name is differ from its service's.
     if (

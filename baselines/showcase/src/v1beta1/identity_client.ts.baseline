@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallba
 import {Transform} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import {loggingUtils as logging} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -46,6 +47,8 @@ export class IdentityClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('showcase');
+
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -80,7 +83,7 @@ export class IdentityClient {
    *     Developer's Console, e.g. 'grape-spaceship-123'. We will also check
    *     the environment variable GCLOUD_PROJECT for your project ID. If your
    *     app is running in an environment which supports
-   *     {@link https://developers.google.com/identity/protocols/application-default-credentials Application Default Credentials},
+   *     {@link https://cloud.google.com/docs/authentication/application-default-credentials Application Default Credentials},
    *     your project ID will be detected automatically.
    * @param {string} [options.apiEndpoint] - The domain name of the
    *     API remote host.
@@ -423,8 +426,26 @@ export class IdentityClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize();
-    return this.innerApiCalls.createUser(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('createUser request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.showcase.v1beta1.IUser,
+        protos.google.showcase.v1beta1.ICreateUserRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createUser response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.createUser(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.showcase.v1beta1.IUser,
+        protos.google.showcase.v1beta1.ICreateUserRequest|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('createUser response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Retrieves the User with the given uri.
@@ -493,8 +514,26 @@ export class IdentityClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.getUser(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('getUser request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.showcase.v1beta1.IUser,
+        protos.google.showcase.v1beta1.IGetUserRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getUser response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.getUser(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.showcase.v1beta1.IUser,
+        protos.google.showcase.v1beta1.IGetUserRequest|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('getUser response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Updates a user.
@@ -566,8 +605,26 @@ export class IdentityClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'user.name': request.user!.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.updateUser(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('updateUser request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.showcase.v1beta1.IUser,
+        protos.google.showcase.v1beta1.IUpdateUserRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('updateUser response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.updateUser(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.showcase.v1beta1.IUser,
+        protos.google.showcase.v1beta1.IUpdateUserRequest|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('updateUser response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Deletes a user, their profile, and all of their authored messages.
@@ -636,8 +693,26 @@ export class IdentityClient {
     ] = this._gaxModule.routingHeader.fromParams({
       'name': request.name ?? '',
     });
-    this.initialize();
-    return this.innerApiCalls.deleteUser(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    this._log.info('deleteUser request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteUserRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('deleteUser response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.deleteUser(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.showcase.v1beta1.IDeleteUserRequest|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('deleteUser response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 
  /**
@@ -712,8 +787,27 @@ export class IdentityClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize();
-    return this.innerApiCalls.listUsers(request, options, callback);
+    this.initialize().catch(err => {throw err});
+    const wrappedCallback: PaginationCallback<
+      protos.google.showcase.v1beta1.IListUsersRequest,
+      protos.google.showcase.v1beta1.IListUsersResponse|null|undefined,
+      protos.google.showcase.v1beta1.IUser>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('listUsers values %j', values);
+          callback!(error, values, nextPageRequest, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    this._log.info('listUsers request %j', request);
+    return this.innerApiCalls
+      .listUsers(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.showcase.v1beta1.IUser[],
+        protos.google.showcase.v1beta1.IListUsersRequest|null,
+        protos.google.showcase.v1beta1.IListUsersResponse
+      ]) => {
+        this._log.info('listUsers values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -748,7 +842,8 @@ export class IdentityClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     const defaultCallSettings = this._defaults['listUsers'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listUsers stream %j', request);
     return this.descriptors.page.listUsers.createStream(
       this.innerApiCalls.listUsers as GaxCall,
       request,
@@ -791,7 +886,8 @@ export class IdentityClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     const defaultCallSettings = this._defaults['listUsers'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize();
+    this.initialize().catch(err => {throw err});
+    this._log.info('listUsers iterate %j', request);
     return this.descriptors.page.listUsers.asyncIterate(
       this.innerApiCalls['listUsers'] as GaxCall,
       request as {},
@@ -1181,6 +1277,7 @@ export class IdentityClient {
   close(): Promise<void> {
     if (this.identityStub && !this._terminated) {
       return this.identityStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
       });

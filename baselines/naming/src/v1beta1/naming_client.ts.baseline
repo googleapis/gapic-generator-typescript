@@ -22,6 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, GrpcClientOption
 import {Transform} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
+import {loggingUtils as logging} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -46,6 +47,8 @@ export class NamingClient {
   private _defaults: {[method: string]: gax.CallSettings};
   private _universeDomain: string;
   private _servicePath: string;
+  private _log = logging.log('naming');
+
   auth: gax.GoogleAuth;
   descriptors: Descriptors = {
     page: {},
@@ -81,7 +84,7 @@ export class NamingClient {
    *     Developer's Console, e.g. 'grape-spaceship-123'. We will also check
    *     the environment variable GCLOUD_PROJECT for your project ID. If your
    *     app is running in an environment which supports
-   *     {@link https://developers.google.com/identity/protocols/application-default-credentials Application Default Credentials},
+   *     {@link https://cloud.google.com/docs/authentication/application-default-credentials Application Default Credentials},
    *     your project ID will be detected automatically.
    * @param {string} [options.apiEndpoint] - The domain name of the
    *     API remote host.
@@ -417,8 +420,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.paginatedMethodStream(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('paginatedMethodStream request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('paginatedMethodStream response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.paginatedMethodStream(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('paginatedMethodStream response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  *
@@ -479,8 +500,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.paginatedMethodAsync(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('paginatedMethodAsync request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('paginatedMethodAsync response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.paginatedMethodAsync(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('paginatedMethodAsync response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  *
@@ -541,8 +580,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.checkLongRunningProgress(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('checkLongRunningProgress request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('checkLongRunningProgress response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.checkLongRunningProgress(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('checkLongRunningProgress response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  * Problem #3: RPCs that conflict with auto-generated methods
@@ -604,8 +661,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.initialize(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('initialize request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('initialize response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.initialize(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('initialize response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  *
@@ -666,8 +741,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.servicePath(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('servicePath request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('servicePath response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.servicePath(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('servicePath response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  *
@@ -728,8 +821,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.apiEndpoint(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('apiEndpoint request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('apiEndpoint response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.apiEndpoint(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('apiEndpoint response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  *
@@ -790,8 +901,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.port(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('port request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('port response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.port(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('port response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  *
@@ -852,8 +981,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.scopes(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('scopes request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('scopes response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.scopes(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('scopes response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  *
@@ -914,8 +1061,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.getProjectId(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('getProjectId request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getProjectId response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.getProjectId(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('getProjectId response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  *
@@ -977,8 +1142,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.getReservedWord(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('getReservedWord request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.naming.v1beta1.IReservedWord,
+        protos.google.naming.v1beta1.IGetReservedWordRequest|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('getReservedWord response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.getReservedWord(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.naming.v1beta1.IReservedWord,
+        protos.google.naming.v1beta1.IGetReservedWordRequest|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('getReservedWord response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 /**
  *
@@ -1039,8 +1222,26 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.createAbcdeSomething(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    this._log.info('createABCDESomething request %j', request);
+    const wrappedCallback: Callback<
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|null|undefined,
+        {}|null|undefined>|undefined = callback
+      ? (error, response, options, rawResponse) => {
+          this._log.info('createABCDESomething response %j', response);
+          callback!(error, response, options, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    return this.innerApiCalls.createAbcdeSomething(request, options, wrappedCallback)
+      ?.then(([response, options, rawResponse]: [
+        protos.google.protobuf.IEmpty,
+        protos.google.protobuf.IEmpty|undefined,
+        {}|undefined
+      ]) => {
+        this._log.info('createABCDESomething response %j', response);
+        return [response, options, rawResponse];
+      });
   }
 
 /**
@@ -1105,8 +1306,25 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.longRunning(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    const wrappedCallback: Callback<
+          LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IEmpty>,
+          protos.google.longrunning.IOperation|null|undefined,
+          {}|null|undefined>|undefined = callback
+      ? (error, response, rawResponse, _) => {
+          this._log.info('longRunning response %j', rawResponse);
+          callback!(error, response, rawResponse, _); // We verified callback above.
+        }
+      : undefined;
+    this._log.info('longRunning request %j', request);
+    return this.innerApiCalls.longRunning(request, options, wrappedCallback)
+    ?.then(([response, rawResponse, _]: [
+      LROperation<protos.google.protobuf.IEmpty, protos.google.protobuf.IEmpty>,
+      protos.google.longrunning.IOperation|undefined, {}|undefined
+    ]) => {
+      this._log.info('longRunning response %j', rawResponse);
+      return [response, rawResponse, _];
+    });
   }
 /**
  * Check the status of the long running operation returned by `longRunning()`.
@@ -1120,6 +1338,7 @@ export class NamingClient {
  * region_tag:localhost_v1beta1_generated_Naming_LongRunning_async
  */
   async checkLongRunningProgress1(name: string): Promise<LROperation<protos.google.protobuf.Empty, protos.google.protobuf.Empty>>{
+    this._log.info('longRunning long-running');
     const request = new this._gaxModule.operationsProtos.google.longrunning.GetOperationRequest({name});
     const [operation] = await this.operationsClient.getOperation(request);
     const decodeOperation = new this._gaxModule.Operation(operation, this.descriptors.longrunning.longRunning, this._gaxModule.createDefaultBackoffSettings());
@@ -1194,8 +1413,27 @@ export class NamingClient {
     options = options || {};
     options.otherArgs = options.otherArgs || {};
     options.otherArgs.headers = options.otherArgs.headers || {};
-    this.initialize1();
-    return this.innerApiCalls.paginatedMethod(request, options, callback);
+    this.initialize1().catch(err => {throw err});
+    const wrappedCallback: PaginationCallback<
+      protos.google.naming.v1beta1.IPaginatedMethodRequest,
+      protos.google.naming.v1beta1.IPaginatedMethodResponse|null|undefined,
+      protos.google.protobuf.IEmpty>|undefined = callback
+      ? (error, values, nextPageRequest, rawResponse) => {
+          this._log.info('paginatedMethod values %j', values);
+          callback!(error, values, nextPageRequest, rawResponse); // We verified callback above.
+        }
+      : undefined;
+    this._log.info('paginatedMethod request %j', request);
+    return this.innerApiCalls
+      .paginatedMethod(request, options, wrappedCallback)
+      ?.then(([response, input, output]: [
+        protos.google.protobuf.IEmpty[],
+        protos.google.naming.v1beta1.IPaginatedMethodRequest|null,
+        protos.google.naming.v1beta1.IPaginatedMethodResponse
+      ]) => {
+        this._log.info('paginatedMethod values %j', response);
+        return [response, input, output];
+      });
   }
 
 /**
@@ -1226,7 +1464,8 @@ export class NamingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     const defaultCallSettings = this._defaults['paginatedMethod'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize1();
+    this.initialize1().catch(err => {throw err});
+    this._log.info('paginatedMethod stream %j', request);
     return this.descriptors.page.paginatedMethod.createStream(
       this.innerApiCalls.paginatedMethod as GaxCall,
       request,
@@ -1265,7 +1504,8 @@ export class NamingClient {
     options.otherArgs.headers = options.otherArgs.headers || {};
     const defaultCallSettings = this._defaults['paginatedMethod'];
     const callSettings = defaultCallSettings.merge(options);
-    this.initialize1();
+    this.initialize1().catch(err => {throw err});
+    this._log.info('paginatedMethod iterate %j', request);
     return this.descriptors.page.paginatedMethod.asyncIterate(
       this.innerApiCalls['paginatedMethod'] as GaxCall,
       request as {},
@@ -1357,6 +1597,7 @@ export class NamingClient {
   close(): Promise<void> {
     if (this.namingStub && !this._terminated) {
       return this.namingStub.then(stub => {
+        this._log.info('ending gRPC channel');
         this._terminated = true;
         stub.close();
         this.operationsClient.close();
