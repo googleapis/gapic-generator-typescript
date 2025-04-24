@@ -32,7 +32,7 @@ async function main(processArgv: string[]) {
   // https://stackoverflow.com/questions/54977743/do-require-resolve-for-es-modules
   const require = createRequire(import.meta.url);
   const googleGaxPath = path.dirname(
-    require.resolve('google-gax/build/src/index.js')
+    require.resolve('google-gax/build/src/index.js'),
   ); // ...../google-gax/build/src
 
   const googleGaxProtosDir = path.join(
@@ -40,10 +40,10 @@ async function main(processArgv: string[]) {
     '..',
     '..',
     'build',
-    'protos'
+    'protos',
   );
   const allTemplates = await fsp.readdir(
-    path.join(__dirname, '..', '..', 'templates')
+    path.join(__dirname, '..', '..', 'templates'),
   );
 
   // If we're built with bazel, we'll have a shell wrapper to be used as a protoc plugin.
@@ -64,12 +64,12 @@ async function main(processArgv: string[]) {
     .alias('output-dir', 'output_dir')
     .describe(
       'gapic-validator_out',
-      'Path to the output of the gapic validator'
+      'Path to the output of the gapic validator',
     )
     .alias('gapic-validator_out', 'gapic_validator_out')
     .describe(
       'validation',
-      'Option to set the validation of proto files, default value is true'
+      'Option to set the validation of proto files, default value is true',
     )
     .describe('output_dir', 'Path to a directory for the generated code')
     .alias('grpc-service-config', 'grpc_service_config')
@@ -83,55 +83,55 @@ async function main(processArgv: string[]) {
     .alias('main-service', 'main_service')
     .describe(
       'main_service',
-      'Main service name (if the package has multiple services, this one will be used for Webpack bundle name)'
+      'Main service name (if the package has multiple services, this one will be used for Webpack bundle name)',
     )
     .alias('common-proto-path', 'common_protos_path')
     .describe(
       'common_proto_path',
-      'Path to API common protos to use (if unset, will use protos shipped with google-gax)'
+      'Path to API common protos to use (if unset, will use protos shipped with google-gax)',
     )
     .describe(
       'template',
       `Semicolon-separated list of templates to use. Allowed values: "${allTemplates.join(
-        ';'
-      )}"`
+        ';',
+      )}"`,
     )
     .describe(
       'metadata',
-      'Set to true if GAPIC metadata generation is requested'
+      'Set to true if GAPIC metadata generation is requested',
     )
     .boolean('metadata')
     .describe(
       'transport',
-      'Default transport is gRPC. Set transport=rest for gRPC or non-gRPC API requires REST transport with http annotation in proto3 files.'
+      'Default transport is gRPC. Set transport=rest for gRPC or non-gRPC API requires REST transport with http annotation in proto3 files.',
     )
     .describe(
       'format',
-      'Default format is cjs. Semicolon-separated list of formats, i.e., format=cjs;esm or just format=esm to produce in dual format.'
+      'Default format is cjs. Semicolon-separated list of formats, i.e., format=cjs;esm or just format=esm to produce in dual format.',
     )
     .describe(
       'diregapic',
-      'DIREGAPIC represents Discovery Rest GAPICs. Set to true for GCE API or non-gRPC APIs with a Discovery doc description.'
+      'DIREGAPIC represents Discovery Rest GAPICs. Set to true for GCE API or non-gRPC APIs with a Discovery doc description.',
     )
     .describe(
       'handwritten_layer',
-      'Set to true if the library has a handwritten layer over GAPIC layer.'
+      'Set to true if the library has a handwritten layer over GAPIC layer.',
     )
     .describe(
       'legacy_proto_load',
-      'Load protos from *.proto directly at runtime, without compiling a proto JSON file. May speed up loading huge proto trees. Disables all fallback modes.'
+      'Load protos from *.proto directly at runtime, without compiling a proto JSON file. May speed up loading huge proto trees. Disables all fallback modes.',
     )
     .boolean('legacy-proto-load')
     .alias('legacy-proto-load', 'legacy_proto_load')
     .describe(
       'rest_numeric_enums',
-      'The generated library will pass and accept enum values as numbers when using the HTTP/1.1 REST transport.'
+      'The generated library will pass and accept enum values as numbers when using the HTTP/1.1 REST transport.',
     )
     .boolean('rest-numeric-enums')
     .alias('rest-numeric-enums', 'rest_numeric_enums')
     .describe(
       'mixins',
-      'Override the list of mixins to use. Semicolon-separated list of API names to mixin, e.g. google.longrunning.Operations. Use "none" to disable all mixins.'
+      'Override the list of mixins to use. Semicolon-separated list of API names to mixin, e.g. google.longrunning.Operations. Use "none" to disable all mixins.',
     )
     .string('mixins')
     .describe('protoc', 'Path to protoc binary')
@@ -166,7 +166,7 @@ async function main(processArgv: string[]) {
   const protoc = protocParameter ?? protocEnv ?? 'protoc';
   if (!fs.existsSync(protoc)) {
     throw new Error(
-      `ERROR: protoc binary is not found at ${protoc}, use --protoc option to point to your protoc binary`
+      `ERROR: protoc binary is not found at ${protoc}, use --protoc option to point to your protoc binary`,
     );
   }
 
@@ -195,12 +195,12 @@ async function main(processArgv: string[]) {
   }
   if (grpcServiceConfig) {
     protocCommand.push(
-      `--typescript_gapic_opt="grpc-service-config=${grpcServiceConfig}"`
+      `--typescript_gapic_opt="grpc-service-config=${grpcServiceConfig}"`,
     );
   }
   if (bundleConfig) {
     protocCommand.push(
-      `--typescript_gapic_opt="bundle-config=${bundleConfig}"`
+      `--typescript_gapic_opt="bundle-config=${bundleConfig}"`,
     );
   }
   if (serviceYaml) {
@@ -211,7 +211,7 @@ async function main(processArgv: string[]) {
   }
   if (mainServiceName) {
     protocCommand.push(
-      `--typescript_gapic_opt="main-service=${mainServiceName}"`
+      `--typescript_gapic_opt="main-service=${mainServiceName}"`,
     );
   }
   if (template) {
