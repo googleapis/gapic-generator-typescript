@@ -22,4 +22,4 @@ async function main() {
   await generator.generate();
 }
 
-main();
+main().catch(err => {throw err});
