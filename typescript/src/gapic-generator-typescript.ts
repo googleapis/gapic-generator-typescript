@@ -280,4 +280,6 @@ async function main(processArgv: string[]) {
   await fsp.unlink(protoList);
 }
 
-main(process.argv.slice(2)).catch(err => {throw err});
+main(process.argv.slice(2)).catch(err => {
+  throw err;
+});
