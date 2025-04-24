@@ -415,6 +415,8 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                         } else {
                             resolve(result);
                         }
+                    }).catch(err => {
+                        throw err;
                     });
             });
             const response = await promise;
@@ -455,7 +457,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method, skipExpectedVariable='true') }}
             const expectedError = new Error('The client has already been closed.');
-            client.close();
+            client.close().catch(err => {throw err});
             await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
@@ -505,6 +507,8 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                         } else {
                             resolve(result);
                         }
+                    }).catch(err => {
+                        throw err;
                     });
             });
             const operation = await promise as LROperation<{{ util.toInterface(method.longRunningResponseType, method.inputType) }}, {{ util.toInterface(method.longRunningMetadataType, method.inputType)  }}>;
@@ -681,7 +685,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method, skipExpectedVariable='true') }}
             const expectedError = new Error('The client has already been closed.');
-            client.close();
+            client.close().catch(err => {throw err});
             const stream = client.{{ method.name.toCamelCase() }}(request, {retryRequestOptions: {noResponseRetries: 0}});
             const promise = new Promise((resolve, reject) => {
                 stream.on('data', (response: protos{{ method.outputInterface }}) => {
@@ -889,6 +893,8 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                         } else {
                             resolve(result);
                         }
+                    }).catch(err => {
+                        throw err;
                     });
             });
             const response = await promise;

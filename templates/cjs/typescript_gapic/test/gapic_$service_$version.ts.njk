@@ -325,7 +325,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert(client.{{ service.name.toCamelCase() }}Stub);
             client.{{ id.get("close") }}().then(() => {
                 done();
-            });
+            }).catch(err => {throw err});
         });
 
         it('has close method for the non-initialized client', done => {
@@ -333,7 +333,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             assert.strictEqual(client.{{ service.name.toCamelCase() }}Stub, undefined);
             client.{{ id.get("close") }}().then(() => {
                 done();
-            });
+            }).catch(err => {throw err});
         });
 
         it('has getProjectId method', async () => {
@@ -447,7 +447,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method, skipExpectedVariable='true') }}
             const expectedError = new Error('The client has already been closed.');
-            client.close();
+            client.close().catch(err => {throw err});
             await assert.rejects(client.{{ method.name.toCamelCase() }}(request), expectedError);
             {%- if method.options and method.options.deprecated %}
             assert(stub.calledOnce);
@@ -673,7 +673,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
             await client.{{ id.get("initialize") }}();
             {{ util.initRequestWithHeaderParam(method, skipExpectedVariable='true') }}
             const expectedError = new Error('The client has already been closed.');
-            client.close();
+            client.close().catch(err => {throw err});
             const stream = client.{{ method.name.toCamelCase() }}(request, {retryRequestOptions: {noResponseRetries: 0}});
             const promise = new Promise((resolve, reject) => {
                 stream.on('data', (response: protos{{ method.outputInterface }}) => {
@@ -1165,7 +1165,7 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
                         } else {
                             resolve(result);
                         }
-                    });
+                    }).catch(err => {throw err});
             });
             const response = await promise;
             {%- if method.options and method.options.deprecated %}
