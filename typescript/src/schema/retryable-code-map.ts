@@ -92,20 +92,20 @@ export class RetryableCodeMap {
     // generate some pre-defined code sets for compatibility with existing configs
     this.getRetryableCodesName(
       defaultNonIdempotentCodes,
-      defaultNonIdempotentRetryCodesName
+      defaultNonIdempotentRetryCodesName,
     );
     this.getRetryableCodesName(
       defaultIdempotentCodes,
-      defaultIdempotentRetryCodesName
+      defaultIdempotentRetryCodesName,
     );
     this.getParamsName(defaultParameters, 'default');
   }
   private buildUniqueCodesName(
-    retryableStatusCodes: protos.google.rpc.Code[]
+    retryableStatusCodes: protos.google.rpc.Code[],
   ): string {
     // generate an unique readable name for the given retryable set of codes
     const sortedCodes = retryableStatusCodes.sort(
-      (a, b) => Number(a) - Number(b)
+      (a, b) => Number(a) - Number(b),
     );
     const uniqueName = sortedCodes
       .map(code => this.codeEnumMapping[code])
@@ -122,7 +122,7 @@ export class RetryableCodeMap {
   }
   getRetryableCodesName(
     retryableStatusCodes: protos.google.rpc.Code[],
-    suggestedName?: string
+    suggestedName?: string,
   ): string {
     const uniqueName = this.buildUniqueCodesName(retryableStatusCodes);
     const prettyName =
@@ -130,7 +130,7 @@ export class RetryableCodeMap {
     if (!this.uniqueCodesNamesMap[uniqueName]) {
       this.uniqueCodesNamesMap[uniqueName] = prettyName;
       this.prettyCodesNamesMap[prettyName] = retryableStatusCodes.map(
-        code => this.codeEnumMapping[code]
+        code => this.codeEnumMapping[code],
       );
     }
     return prettyName;

@@ -41,12 +41,12 @@ export class Naming {
 
   constructor(
     fileDescriptors: protos.google.protobuf.IFileDescriptorProto[],
-    options?: Options
+    options?: Options,
   ) {
     let rootPackage = '';
     const mainServiceName = options ? options.mainServiceName : '';
     const protoPackages = API.filterOutIgnoredServices(
-      fileDescriptors.filter(fd => fd.service && fd.service.length > 0)
+      fileDescriptors.filter(fd => fd.service && fd.service.length > 0),
     ).map(fd => fd.package || '');
     const prefix = commonPrefix(protoPackages);
     // common prefix must either end with `.`, or be equal to at least one of
@@ -73,12 +73,12 @@ export class Naming {
     // we need to find a version and ignore everything after it
     // (e.g. in "google.example.v1.services", "services" will be ignored)
     const versionIndex = segments.findIndex(segment =>
-      segment.match(versionPattern)
+      segment.match(versionPattern),
     );
     // Special exception for location, which does not have a version
     if (versionIndex === -1 && rootPackage !== 'google.cloud.location') {
       throw new Error(
-        `ERROR: Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`
+        `ERROR: Cannot parse package name ${rootPackage}: version does not match ${versionPattern}.`,
       );
     }
     const version = segments[versionIndex];
@@ -86,7 +86,7 @@ export class Naming {
     // name immediately preceeds the version
     if (versionIndex === 0) {
       throw new Error(
-        `ERROR: Cannot parse package name ${rootPackage}: version ${version} is the first segment in the name.`
+        `ERROR: Cannot parse package name ${rootPackage}: version ${version} is the first segment in the name.`,
       );
     }
     // If there is no version (in the case of location), just grab the last segment
@@ -103,14 +103,14 @@ export class Naming {
 
     if (!this.version && protoPackages.length > 1) {
       throw new Error(
-        'ERROR: All protos must have the same proto package up to and including the version.'
+        'ERROR: All protos must have the same proto package up to and including the version.',
       );
     }
   }
 
   private checkServiceInPackage(
     protoPackages: string[],
-    mainServiceName: string
+    mainServiceName: string,
   ) {
     for (const packageName of protoPackages) {
       if (packageName.indexOf(mainServiceName.toLowerCase()) !== -1) {

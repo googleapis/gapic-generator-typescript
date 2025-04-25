@@ -45,7 +45,7 @@ export class API {
   restNumericEnums: boolean;
 
   static isIgnoredService(
-    fd: protos.google.protobuf.IFileDescriptorProto
+    fd: protos.google.protobuf.IFileDescriptorProto,
   ): boolean {
     // Some common proto files define common services which we don't want to generate.
     // List them here.
@@ -61,7 +61,7 @@ export class API {
   }
 
   static filterOutIgnoredServices(
-    fds: protos.google.protobuf.IFileDescriptorProto[]
+    fds: protos.google.protobuf.IFileDescriptorProto[],
   ) {
     let filteredProtos = fds.filter(fd => !API.isIgnoredService(fd));
     // Special cases: google.iam.v1 or google.cloud.location
@@ -73,12 +73,12 @@ export class API {
     }, new Set<string>());
     if (packages.size > 1 && packages.has('google.iam.v1')) {
       filteredProtos = filteredProtos.filter(
-        p => p.package !== 'google.iam.v1'
+        p => p.package !== 'google.iam.v1',
       );
     }
     if (packages.size > 1 && packages.has('google.cloud.location')) {
       filteredProtos = filteredProtos.filter(
-        p => p.package !== 'google.cloud.location'
+        p => p.package !== 'google.cloud.location',
       );
     }
     return filteredProtos;
@@ -87,14 +87,14 @@ export class API {
   constructor(
     fileDescriptors: protos.google.protobuf.IFileDescriptorProto[],
     packageName: string,
-    options: namingOptions
+    options: namingOptions,
   ) {
     this.packageName = packageName;
     this.naming = new Naming(
       fileDescriptors.filter(
-        fd => fd.package && fd.package.startsWith(packageName)
+        fd => fd.package && fd.package.startsWith(packageName),
       ),
-      options
+      options,
     );
     // users specify the actual package name, if not, set it to product name.
     this.publishName =
@@ -123,7 +123,7 @@ export class API {
     const commentsMap = new CommentsMap(fileDescriptors);
 
     const filteredProtos = API.filterOutIgnoredServices(
-      fileDescriptors.filter(fd => fd.name)
+      fileDescriptors.filter(fd => fd.name),
     );
 
     this.protos = filteredProtos.reduce((map, fd) => {
@@ -149,13 +149,13 @@ export class API {
     for (const service of servicesList) {
       if (!service.options || !service.options['.google.api.defaultHost']) {
         throw new Error(
-          `service "${packageName}.${service.name}" is missing option google.api.default_host`
+          `service "${packageName}.${service.name}" is missing option google.api.default_host`,
         );
       }
       const defaultHost = service!.options!['.google.api.defaultHost']!;
       if (defaultHost.length === 0) {
         console.warn(
-          `service ${packageName}.${service.name} google.api.default_host is empty`
+          `service ${packageName}.${service.name} google.api.default_host is empty`,
         );
       }
       if (service?.options?.['.google.api.defaultHost']) {
@@ -163,7 +163,7 @@ export class API {
       }
     }
     servicesWithDefaultHost.sort((service1, service2) =>
-      service1.name!.localeCompare(service2.name!)
+      service1.name!.localeCompare(service2.name!),
     );
 
     const serviceNamesList: string[] = [];
@@ -172,7 +172,7 @@ export class API {
       const [hostname, port] = defaultHost.split(':');
       if (hostname && this.hostName && hostname !== this.hostName) {
         console.warn(
-          `Warning: different hostnames ${hostname} and ${this.hostName} within the same client are not supported.`
+          `Warning: different hostnames ${hostname} and ${this.hostName} within the same client are not supported.`,
         );
       }
       this.hostName = hostname || this.hostName || 'localhost';
@@ -183,7 +183,7 @@ export class API {
 
     if (serviceNamesList.length === 0) {
       throw new Error(
-        `ERROR: Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`
+        `ERROR: Can't find ${this.naming.name}'s service names, please make sure that services are defined in the proto file.`,
       );
     }
 
@@ -200,18 +200,18 @@ export class API {
       .filter(proto => proto.fileToGenerate)
       .reduce((retval, proto) => {
         retval.push(
-          ...Object.keys(proto.services).map(name => proto.services[name])
+          ...Object.keys(proto.services).map(name => proto.services[name]),
         );
         return retval;
       }, [] as ServiceDescriptorProto[])
       .sort((service1, service2) =>
-        service1.name!.localeCompare(service2.name!)
+        service1.name!.localeCompare(service2.name!),
       );
   }
 
   get filesToGenerate() {
     return Object.keys(this.protos).filter(
-      proto => this.protos[proto].fileToGenerate
+      proto => this.protos[proto].fileToGenerate,
     );
   }
 
@@ -223,7 +223,7 @@ export class API {
         })
         .sort(),
       null,
-      '  '
+      '  ',
     );
   }
 
@@ -244,7 +244,7 @@ export class API {
 }
 
 function getResourceDatabase(
-  fileDescriptors: protos.google.protobuf.IFileDescriptorProto[]
+  fileDescriptors: protos.google.protobuf.IFileDescriptorProto[],
 ): ResourceDatabase[] {
   const resourceDatabase = new ResourceDatabase(); // resources that defined by `google.api.resource`
   const allResourceDatabase = new ResourceDatabase(); // all resources defined by `google.api.resource` or `google.api.resource_definition`
@@ -254,12 +254,12 @@ function getResourceDatabase(
       []) {
       allResourceDatabase.registerResource(
         resource as ResourceDescriptor,
-        `file ${fd.name} resource_definition option`
+        `file ${fd.name} resource_definition option`,
       );
     }
     const messagesStack: protos.google.protobuf.IDescriptorProto[] = [];
     const messages = (fd.messageType ?? []).filter(
-      (message: protos.google.protobuf.IDescriptorProto) => message.name
+      (message: protos.google.protobuf.IDescriptorProto) => message.name,
     );
     // put first layer of messages in the stack
     messagesStack.push(...messages);
@@ -269,11 +269,11 @@ function getResourceDatabase(
       const messageName = '.' + fd.package + '.' + m.name!;
       resourceDatabase.registerResource(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
-        `file ${fd.name} message ${messageName}`
+        `file ${fd.name} message ${messageName}`,
       );
       allResourceDatabase.registerResource(
         m?.options?.['.google.api.resource'] as ResourceDescriptor | undefined,
-        `file ${fd.name} message ${messageName}`
+        `file ${fd.name} message ${messageName}`,
       );
       for (const message of m.nestedType ?? []) {
         messagesStack.push(message);

@@ -23,7 +23,7 @@ describe('src/schema/retryable-code-map.ts', () => {
       assert.strictEqual(map.getRetryableCodesName([]), 'non_idempotent');
       assert.strictEqual(
         map.getRetryableCodesName([Code.UNAVAILABLE, Code.DEADLINE_EXCEEDED]),
-        'idempotent'
+        'idempotent',
       );
     });
 
@@ -117,7 +117,7 @@ describe('src/schema/retryable-code-map.ts', () => {
           max_rpc_timeout_millis: 60000,
           total_timeout_millis: 600000,
         }),
-        'default'
+        'default',
       );
     });
 

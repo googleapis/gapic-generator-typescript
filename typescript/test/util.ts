@@ -55,7 +55,7 @@ const commonProtoFilePath = path.join(
   protosDirRoot,
   'google',
   'cloud',
-  'common_resources.proto'
+  'common_resources.proto',
 );
 const baselineRootDir = path.join(cwd, 'baselines');
 // Try to make it work both with and without bazel
@@ -64,7 +64,7 @@ const entryPointPath =
     ? path.join(
         process.env['RUNFILES_DIR'],
         process.env['BAZEL_WORKSPACE'],
-        'gapic_generator_typescript.sh'
+        'gapic_generator_typescript.sh',
       )
     : path.join(__dirname, '..', 'src', 'gapic-generator-typescript.js');
 // Try saving the generated baseline test outputs to the proper bazel location
@@ -77,13 +77,13 @@ export function runBaselineTest(options: BaselineOptions) {
   const outputDir = path.join(outputDirPrefix, options.outputDir);
   const protos = options.protoPath.split(';');
   const protoPaths = protos.map(proto =>
-    path.join(protosDirRoot, proto.split('/').join(path.sep))
+    path.join(protosDirRoot, proto.split('/').join(path.sep)),
   );
   const baselineDir = path.join(baselineRootDir, options.baselineName);
   const grpcServiceConfig = options.grpcServiceConfig
     ? path.join(
         protosDirRoot,
-        options.grpcServiceConfig.split('/').join(path.sep)
+        options.grpcServiceConfig.split('/').join(path.sep),
       )
     : undefined;
   const bundleConfig = options.bundleConfig
@@ -168,7 +168,7 @@ function equalToBaseline(outpurDir: string, baselineDir: string): boolean {
     if (fs.lstatSync(item.outputPath).isFile()) {
       const compareResult = checkIdenticalFile(
         item.outputPath,
-        item.baselinePath + BASELINE_EXTENSION
+        item.baselinePath + BASELINE_EXTENSION,
       );
       if (compareResult === NO_OUTPUT_FILE) {
         result = false;
@@ -179,7 +179,7 @@ function equalToBaseline(outpurDir: string, baselineDir: string): boolean {
         compareResult === NO_OUTPUT_FILE
       ) {
         fileStack = fileStack.filter(
-          file => file !== item.baselinePath + BASELINE_EXTENSION
+          file => file !== item.baselinePath + BASELINE_EXTENSION,
         );
       }
     } else if (fs.lstatSync(item.outputPath).isDirectory()) {
@@ -198,7 +198,7 @@ function equalToBaseline(outpurDir: string, baselineDir: string): boolean {
 
 function checkIdenticalFile(
   outputFullPath: string,
-  baselineFullPath: string
+  baselineFullPath: string,
 ): number {
   if (outputFullPath.endsWith('.proto')) {
     return IDENTICAL_FILE;
@@ -217,7 +217,7 @@ function checkIdenticalFile(
   if (readOutputLines.length !== baselineOutputLines.length) {
     console.warn(
       `Line count for ${outputFullPath} was ${readOutputLines.length}, ` +
-        `but expected ${baselineOutputLines.length}.`
+        `but expected ${baselineOutputLines.length}.`,
     );
   } else {
     for (let i = 0; i < readOutputLines.length; ++i) {
@@ -225,7 +225,7 @@ function checkIdenticalFile(
         console.warn(
           `Line ${i + 1} of ${outputFullPath} was \n\t"${
             readOutputLines[i]
-          }"\nbut expected\n\t"${baselineOutputLines[i]}"`
+          }"\nbut expected\n\t"${baselineOutputLines[i]}"`,
         );
       }
     }
@@ -237,7 +237,7 @@ function checkIdenticalFile(
 function putItemToStack(
   protoItemStack: Item[],
   outputDir: string,
-  baselinDir: string
+  baselinDir: string,
 ) {
   const outputFiles = fs.readdirSync(outputDir);
 
@@ -266,7 +266,7 @@ function putFiletoStack(dir: string, fileStack: string[], dirStack: string[]) {
 function putAllBaselineFiles(
   dir: string,
   fileStack: string[],
-  dirStack: string[]
+  dirStack: string[],
 ) {
   putFiletoStack(dir, fileStack, dirStack);
   while (dirStack.length !== 0) {

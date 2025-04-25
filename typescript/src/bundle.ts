@@ -43,7 +43,7 @@ export class BundleConfigClient {
       // service name: google.logging.v2.LoggingServiceV2
       const serviceName: string = oneInterface['name'];
       const shortenedServiceName = serviceName.substring(
-        serviceName.lastIndexOf('.') + 1
+        serviceName.lastIndexOf('.') + 1,
       );
       if (!oneInterface['methods']) {
         continue;

@@ -136,7 +136,7 @@ describe('src/schema/proto.ts', () => {
       ];
       assert.deepStrictEqual(
         getDynamicHeaderRequestParams(routingParameters),
-        expectedRoutingParameters
+        expectedRoutingParameters,
       );
     });
     it('works with a couple rules with the same parameter', () => {
@@ -179,7 +179,7 @@ describe('src/schema/proto.ts', () => {
       ];
       assert.deepStrictEqual(
         getDynamicHeaderRequestParams(routingParameters),
-        expectedRoutingParameters
+        expectedRoutingParameters,
       );
     });
     it('works with a couple rules with different parameters', () => {
@@ -213,7 +213,7 @@ describe('src/schema/proto.ts', () => {
       ];
       assert.deepStrictEqual(
         getDynamicHeaderRequestParams(routingParameters),
-        expectedRoutingParameters
+        expectedRoutingParameters,
       );
     });
     it('works with a several rules with different parameters', () => {
@@ -260,7 +260,7 @@ describe('src/schema/proto.ts', () => {
       ];
       assert.deepStrictEqual(
         getDynamicHeaderRequestParams(routingParameters),
-        expectedRoutingParameters
+        expectedRoutingParameters,
       );
     });
     it('regression test: Cloud Run location', () => {
@@ -282,7 +282,7 @@ describe('src/schema/proto.ts', () => {
       ];
       assert.deepStrictEqual(
         getDynamicHeaderRequestParams(routingParameters),
-        expectedRoutingParameters
+        expectedRoutingParameters,
       );
     });
   });
@@ -303,7 +303,7 @@ describe('src/schema/proto.ts', () => {
       ]);
       assert.deepStrictEqual(
         convertFieldToCamelCase('name.parent_id.another_parent_id'),
-        ['name', 'parentId', 'anotherParentId']
+        ['name', 'parentId', 'anotherParentId'],
       );
     });
   });
@@ -322,7 +322,7 @@ describe('src/schema/proto.ts', () => {
       };
       assert.deepStrictEqual(
         expectedRoutingParameters,
-        getSingleRoutingHeaderParam(routingRule)
+        getSingleRoutingHeaderParam(routingRule),
       );
     });
     it('works with no parameters', () => {
@@ -335,7 +335,7 @@ describe('src/schema/proto.ts', () => {
       };
       assert.deepStrictEqual(
         expectedRoutingParameters,
-        getSingleRoutingHeaderParam(routingRule)
+        getSingleRoutingHeaderParam(routingRule),
       );
     });
     it('works with no path template', () => {
@@ -350,7 +350,7 @@ describe('src/schema/proto.ts', () => {
       };
       assert.deepStrictEqual(
         expectedRoutingParameters,
-        getSingleRoutingHeaderParam(routingRule)
+        getSingleRoutingHeaderParam(routingRule),
       );
     });
     it('works with a basic path template', () => {
@@ -366,7 +366,7 @@ describe('src/schema/proto.ts', () => {
       };
       assert.deepStrictEqual(
         expectedRoutingParameters,
-        getSingleRoutingHeaderParam(routingRule)
+        getSingleRoutingHeaderParam(routingRule),
       );
     });
     it('works with a standard path template', () => {
@@ -382,7 +382,7 @@ describe('src/schema/proto.ts', () => {
       };
       assert.deepStrictEqual(
         expectedRoutingParameters,
-        getSingleRoutingHeaderParam(routingRule)
+        getSingleRoutingHeaderParam(routingRule),
       );
     });
   });
@@ -445,7 +445,7 @@ describe('src/schema/proto.ts', () => {
       });
       assert.strictEqual(
         proto.services['TestService'].apiVersion,
-        'v1_20240408'
+        'v1_20240408',
       );
     });
   });
@@ -521,19 +521,19 @@ describe('src/schema/proto.ts', () => {
       });
       assert.deepStrictEqual(
         proto.services['service'].method[0].pagingFieldName,
-        undefined
+        undefined,
       );
       assert.deepStrictEqual(
         proto.services['service'].method[1].pagingFieldName,
-        undefined
+        undefined,
       );
       assert.deepStrictEqual(
         proto.services['service'].method[2].pagingFieldName,
-        undefined
+        undefined,
       );
       assert.deepStrictEqual(
         proto.services['service'].method[3].pagingFieldName,
-        'next_page_token'
+        'next_page_token',
       );
     });
     it("should allow generate a proto has no service and its package name differ from service's", () => {
@@ -758,13 +758,13 @@ describe('src/schema/proto.ts', () => {
           },
           getMethodComments: function (
             _serviceName: string,
-            _methodName: string
+            _methodName: string,
           ): string[] {
             return ['not needed'];
           },
           getParamComments: function (
             _messageName: string,
-            _fieldName: string
+            _fieldName: string,
           ): Comment {
             return {
               paramName: 'request_id',
@@ -779,7 +779,7 @@ describe('src/schema/proto.ts', () => {
       // throw new Error(`${JSON.stringify(proto)}`)
       assert.deepStrictEqual(
         proto.services['service'].method[0].autoPopulatedFields,
-        ['request_id']
+        ['request_id'],
       );
     });
 
@@ -842,13 +842,13 @@ describe('src/schema/proto.ts', () => {
           },
           getMethodComments: function (
             _serviceName: string,
-            _methodName: string
+            _methodName: string,
           ): string[] {
             return ['not needed'];
           },
           getParamComments: function (
             _messageName: string,
-            _fieldName: string
+            _fieldName: string,
           ): Comment {
             return {
               paramName: 'request_id',
@@ -862,7 +862,7 @@ describe('src/schema/proto.ts', () => {
       });
       assert.deepStrictEqual(
         proto.services['service'].method[0].autoPopulatedFields,
-        []
+        [],
       );
     });
 
@@ -924,13 +924,13 @@ describe('src/schema/proto.ts', () => {
           },
           getMethodComments: function (
             _serviceName: string,
-            _methodName: string
+            _methodName: string,
           ): string[] {
             return ['not needed'];
           },
           getParamComments: function (
             _messageName: string,
-            _fieldName: string
+            _fieldName: string,
           ): Comment {
             return {
               paramName: 'request_id',
@@ -944,7 +944,7 @@ describe('src/schema/proto.ts', () => {
       });
       assert.deepStrictEqual(
         proto.services['service'].method[0].autoPopulatedFields,
-        []
+        [],
       );
     });
 
@@ -1006,13 +1006,13 @@ describe('src/schema/proto.ts', () => {
           },
           getMethodComments: function (
             _serviceName: string,
-            _methodName: string
+            _methodName: string,
           ): string[] {
             return ['hi!'];
           },
           getParamComments: function (
             _messageName: string,
-            _fieldName: string
+            _fieldName: string,
           ): Comment {
             return {
               paramName: 'request_id',
@@ -1026,7 +1026,7 @@ describe('src/schema/proto.ts', () => {
       });
       assert.deepStrictEqual(
         proto.services['service'].method[0].autoPopulatedFields,
-        []
+        [],
       );
     });
 
@@ -1088,13 +1088,13 @@ describe('src/schema/proto.ts', () => {
           },
           getMethodComments: function (
             _serviceName: string,
-            _methodName: string
+            _methodName: string,
           ): string[] {
             return ['hi!'];
           },
           getParamComments: function (
             _messageName: string,
-            _fieldName: string
+            _fieldName: string,
           ): Comment {
             return {
               paramName: 'request_id',
@@ -1108,7 +1108,7 @@ describe('src/schema/proto.ts', () => {
       });
       assert.deepStrictEqual(
         proto.services['service'].method[0].autoPopulatedFields,
-        []
+        [],
       );
     });
   });
@@ -1179,20 +1179,20 @@ describe('src/schema/proto.ts', () => {
       });
       assert.deepStrictEqual(
         proto.services['service'].method[0].pagingFieldName,
-        'next_page_token'
+        'next_page_token',
       );
       assert.deepStrictEqual(proto.services['service'].paging[0].name, 'List');
       assert.deepStrictEqual(
         proto.services['service'].paging[0].inputType,
-        '.google.cloud.showcase.v1beta1.ListAddressesRequest'
+        '.google.cloud.showcase.v1beta1.ListAddressesRequest',
       );
       assert.deepStrictEqual(
         proto.services['service'].paging[0].outputType,
-        '.google.cloud.showcase.v1beta1.AddressList'
+        '.google.cloud.showcase.v1beta1.AddressList',
       );
       assert.deepStrictEqual(
         proto.services['service'].paging[0].pagingResponseType,
-        '.google.cloud.showcase.v1beta1.Address'
+        '.google.cloud.showcase.v1beta1.Address',
       );
     });
     it('should not be page field if api is not google discovery api, method is not allowlisted, but use "max_result"', () => {
@@ -1251,7 +1251,7 @@ describe('src/schema/proto.ts', () => {
       });
       assert.deepStrictEqual(
         proto.services['service'].method[0].pagingFieldName,
-        undefined
+        undefined,
       );
       assert.deepStrictEqual(proto.services['service'].paging.length, 0);
     });
@@ -1321,23 +1321,23 @@ describe('src/schema/proto.ts', () => {
       });
       assert.deepStrictEqual(
         proto.services['CatService'].method[0].pagingFieldName,
-        'next_page_token'
+        'next_page_token',
       );
       assert.deepStrictEqual(
         proto.services['CatService'].paging[0].name,
-        'ListCats'
+        'ListCats',
       );
       assert.deepStrictEqual(
         proto.services['CatService'].paging[0].inputType,
-        '.google.cloud.bigquery.v2.ListCatsRequest'
+        '.google.cloud.bigquery.v2.ListCatsRequest',
       );
       assert.deepStrictEqual(
         proto.services['CatService'].paging[0].outputType,
-        '.google.cloud.bigquery.v2.CatList'
+        '.google.cloud.bigquery.v2.CatList',
       );
       assert.deepStrictEqual(
         proto.services['CatService'].paging[0].pagingResponseType,
-        '.google.cloud.bigquery.v2.Cat'
+        '.google.cloud.bigquery.v2.Cat',
       );
     });
     it('should not be page field if api is not google discovery api, is not wrappers allowed but uses "max_result"', () => {
@@ -1404,7 +1404,7 @@ describe('src/schema/proto.ts', () => {
       });
       assert.deepStrictEqual(
         proto.services['CatService'].method[0].pagingFieldName,
-        undefined
+        undefined,
       );
       assert.deepStrictEqual(proto.services['CatService'].paging.length, 0);
     });
@@ -1451,13 +1451,13 @@ describe('src/schema/proto.ts', () => {
         },
         getMethodComments: function (
           _serviceName: string,
-          _methodName: string
+          _methodName: string,
         ): string[] {
           return ['not needed'];
         },
         getParamComments: function (
           _messageName: string,
-          _fieldName: string
+          _fieldName: string,
         ): Comment {
           return {
             paramName: 'request_id',
@@ -1555,13 +1555,13 @@ describe('src/schema/proto.ts', () => {
         },
         getMethodComments: function (
           _serviceName: string,
-          _methodName: string
+          _methodName: string,
         ): string[] {
           return ['not needed'];
         },
         getParamComments: function (
           _messageName: string,
-          _fieldName: string
+          _fieldName: string,
         ): Comment {
           return {
             paramName: 'request_id',
@@ -1658,13 +1658,13 @@ describe('src/schema/proto.ts', () => {
         },
         getMethodComments: function (
           _serviceName: string,
-          _methodName: string
+          _methodName: string,
         ): string[] {
           return ['not needed'];
         },
         getParamComments: function (
           _messageName: string,
-          _fieldName: string
+          _fieldName: string,
         ): Comment {
           return {
             paramName: 'request_id',

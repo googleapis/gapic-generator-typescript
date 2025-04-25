@@ -131,7 +131,7 @@ export interface MessagesMap {
 
 function longrunning(
   service: ServiceDescriptorProto,
-  method: MethodDescriptorProto
+  method: MethodDescriptorProto,
 ) {
   if (
     method.outputType &&
@@ -141,7 +141,7 @@ function longrunning(
       throw new Error(
         `rpc "${service.packageName}.${service.name}.${method.name}" ` +
           'returns google.longrunning.Operation but is missing ' +
-          'option google.longrunning.operation_info'
+          'option google.longrunning.operation_info',
       );
     } else {
       return method.options!['.google.longrunning.operationInfo']!;
@@ -152,7 +152,7 @@ function longrunning(
 
 function toFullyQualifiedName(
   packageName: string,
-  messageName: string | null | undefined
+  messageName: string | null | undefined,
 ) {
   if (!messageName) {
     return undefined;
@@ -168,21 +168,21 @@ function toFullyQualifiedName(
 
 function longRunningResponseType(
   packageName: string,
-  method: MethodDescriptorProto
+  method: MethodDescriptorProto,
 ) {
   return toFullyQualifiedName(
     packageName,
-    method.options?.['.google.longrunning.operationInfo']?.responseType
+    method.options?.['.google.longrunning.operationInfo']?.responseType,
   );
 }
 
 function longRunningMetadataType(
   packageName: string,
-  method: MethodDescriptorProto
+  method: MethodDescriptorProto,
 ) {
   return toFullyQualifiedName(
     packageName,
-    method.options?.['.google.longrunning.operationInfo']?.metadataType
+    method.options?.['.google.longrunning.operationInfo']?.metadataType,
   );
 }
 
@@ -191,7 +191,7 @@ function longRunningMetadataType(
 function isDiregapicLRO(
   packageName: string,
   method: MethodDescriptorProto,
-  isDiregapic?: boolean
+  isDiregapic?: boolean,
 ): boolean | '' | null | undefined {
   const operationOutputType = toFullyQualifiedName(packageName, 'Operation');
   return (
@@ -216,7 +216,7 @@ function isDiregapicLRO(
  */
 function getAutoPopulatedFields(
   method: MethodDescriptorProto,
-  service: ServiceDescriptorProto
+  service: ServiceDescriptorProto,
 ): string[] {
   const autoPopulatedFields: string[] = [];
   let methodMatch = undefined;
@@ -298,7 +298,7 @@ function pagingField(
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
   diregapic?: boolean,
-  wrappersAllowed?: boolean
+  wrappersAllowed?: boolean,
 ) {
   // TODO: remove this once the next version of the Talent API is published.
   //
@@ -359,7 +359,7 @@ function pagingField(
     return undefined;
   }
   const repeatedFields = outputType.field!.filter(
-    field => field.label === 3 // LABEL_REPEATED
+    field => field.label === 3, // LABEL_REPEATED
   );
   if (repeatedFields.length === 0) {
     return undefined;
@@ -379,19 +379,19 @@ function pagingField(
       }
       return min;
     },
-    repeatedFields[0].number!
+    repeatedFields[0].number!,
   );
   if (minFieldNumber !== repeatedFields[0].number) {
     console.warn(
-      `Warning: method ${method.name} has several repeated fields in the output type and violates https://aip.dev/client-libraries/4233 for auto-pagination. Disabling auto-pagination for this method.`
+      `Warning: method ${method.name} has several repeated fields in the output type and violates https://aip.dev/client-libraries/4233 for auto-pagination. Disabling auto-pagination for this method.`,
     );
     console.warn('Fields considered for pagination:');
     console.warn(
-      repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n')
+      repeatedFields.map(field => `${field.name} = ${field.number}`).join('\n'),
     );
     // TODO: an option to ignore errors
     throw new Error(
-      `ERROR: Pagination settings for ${method.name} violate https://google.aip.dev/158`
+      `ERROR: Pagination settings for ${method.name} violate https://google.aip.dev/158`,
     );
   }
   return repeatedFields[0];
@@ -402,14 +402,14 @@ function pagingFieldName(
   method: MethodDescriptorProto,
   service?: ServiceDescriptorProto,
   diregapic?: boolean,
-  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
+  wrappersAllowed?: boolean, // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
   const field = pagingField(
     messages,
     method,
     service,
     diregapic,
-    wrappersAllowed
+    wrappersAllowed,
   );
   return field?.name;
 }
@@ -418,14 +418,14 @@ function pagingResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   diregapic?: boolean,
-  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
+  wrappersAllowed?: boolean, // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
   const field = pagingField(
     messages,
     method,
     undefined,
     diregapic,
-    wrappersAllowed
+    wrappersAllowed,
   );
   if (!field || !field.type) {
     return undefined;
@@ -446,14 +446,14 @@ function ignoreMapPagingMethod(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   diregapic?: boolean,
-  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
+  wrappersAllowed?: boolean, // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
   const pagingfield = pagingField(
     messages,
     method,
     undefined,
     diregapic,
-    wrappersAllowed
+    wrappersAllowed,
   );
   const outputType = messages[method.outputType!];
   if (!pagingfield?.type || !outputType.nestedType) {
@@ -475,14 +475,14 @@ function pagingMapResponseType(
   messages: MessagesMap,
   method: MethodDescriptorProto,
   diregapic?: boolean,
-  wrappersAllowed?: boolean // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
+  wrappersAllowed?: boolean, // whether a service is allowed to use UInt32Value wrappers - generally this is only BigQuery
 ) {
   const pagingfield = pagingField(
     messages,
     method,
     undefined,
     diregapic,
-    wrappersAllowed
+    wrappersAllowed,
   );
 
   const outputType = messages[method.outputType!];
@@ -497,7 +497,7 @@ function pagingMapResponseType(
   }
   if (mapResponses.length > 1) {
     throw new Error(
-      `ERROR: Paginated "${method.name}" method can only have one map field.`
+      `ERROR: Paginated "${method.name}" method can only have one map field.`,
     );
   }
   const pagingMapResponse = mapResponses[0];
@@ -505,7 +505,7 @@ function pagingMapResponseType(
   if (pagingMapResponse.name !== pagingfield.typeName?.split('.').pop()) {
     throw new Error(
       `ERROR: Paginated "${method.name}" method map response field name "${pagingMapResponse.name}" ` +
-        'is not matching the paging field name "${pagingfield.typeName}"'
+        'is not matching the paging field name "${pagingfield.typeName}"',
     );
   }
   if (pagingMapResponse.field) {
@@ -515,7 +515,7 @@ function pagingMapResponseType(
       pagingMapResponse.field[0].type !== 9 // TYPE_STRING
     ) {
       throw new Error(
-        `ERROR: Paginated "${method.name}" method map response field key's type should be string`
+        `ERROR: Paginated "${method.name}" method map response field key's type should be string`,
       );
     }
     return pagingMapResponse.field[1].typeName;
@@ -526,7 +526,7 @@ function pagingMapResponseType(
 function getMethodConfig(
   grpcServiceConfig: protos.grpc.service_config.ServiceConfig,
   serviceName: string,
-  methodName: string
+  methodName: string,
 ): protos.grpc.service_config.MethodConfig {
   let exactMatch: protos.grpc.service_config.IMethodConfig | undefined;
   let serviceMatch: protos.grpc.service_config.IMethodConfig | undefined;
@@ -545,13 +545,13 @@ function getMethodConfig(
     }
   } else if (grpcServiceConfig.methodConfig) {
     console.warn(
-      'Warning: cannot parse gRPC service config: methodConfig is not an array.'
+      'Warning: cannot parse gRPC service config: methodConfig is not an array.',
     );
   }
   const root = protobuf.Root.fromJSON(protoJson);
   const MethodConfig = root.lookupType('MethodConfig');
   const result = MethodConfig.toObject(
-    MethodConfig.fromObject(exactMatch || serviceMatch || {})
+    MethodConfig.fromObject(exactMatch || serviceMatch || {}),
   ) as protos.grpc.service_config.MethodConfig;
   return result;
 }
@@ -565,7 +565,7 @@ interface AugmentMethodParameters {
 
 function augmentMethod(
   parameters: AugmentMethodParameters,
-  method: MethodDescriptorProto
+  method: MethodDescriptorProto,
 ) {
   // whether a service is allowed to use Int32Value and UInt32Value wrappers - generally this is only BigQuery
   // this is used to determine factors about pagination fields and to allow users to pass a "number" instead of
@@ -577,16 +577,16 @@ function augmentMethod(
       longRunning: longrunning(parameters.service, method),
       longRunningResponseType: longRunningResponseType(
         parameters.service.packageName,
-        method
+        method,
       ),
       longRunningMetadataType: longRunningMetadataType(
         parameters.service.packageName,
-        method
+        method,
       ),
       isDiregapicLRO: isDiregapicLRO(
         parameters.service.packageName,
         method,
-        parameters.diregapic
+        parameters.diregapic,
       ),
       autoPopulatedFields: getAutoPopulatedFields(method, parameters.service!),
       streaming: streaming(method),
@@ -595,46 +595,46 @@ function augmentMethod(
         method,
         parameters.service,
         parameters.diregapic,
-        wrappersAllowed
+        wrappersAllowed,
       ),
       pagingResponseType: pagingResponseType(
         parameters.allMessages,
         method,
         parameters.diregapic,
-        wrappersAllowed
+        wrappersAllowed,
       ),
       pagingMapResponseType: pagingMapResponseType(
         parameters.allMessages,
         method,
         parameters.diregapic,
-        wrappersAllowed
+        wrappersAllowed,
       ),
       ignoreMapPagingMethod: ignoreMapPagingMethod(
         parameters.allMessages,
         method,
         parameters.diregapic,
-        wrappersAllowed
+        wrappersAllowed,
       ),
       inputInterface: method.inputType!,
       outputInterface: method.outputType!,
       comments: parameters.service.commentsMap.getMethodComments(
         parameters.service.name!,
-        method.name!
+        method.name!,
       ),
       methodConfig: getMethodConfig(
         parameters.service.grpcServiceConfig,
         `${parameters.service.packageName}.${parameters.service.name!}`,
-        method.name!
+        method.name!,
       ),
       retryableCodesName: defaultNonIdempotentRetryCodesName,
       retryParamsName: defaultParametersName,
       maxResultsParameter: wrappersHasMaxResultsParameter(
         parameters.allMessages,
         method,
-        wrappersAllowed
+        wrappersAllowed,
       ),
     },
-    method
+    method,
   ) as MethodDescriptorProto;
 
   if (method.longRunning) {
@@ -642,13 +642,13 @@ function augmentMethod(
       throw new Error(
         `ERROR: rpc "${parameters.service.packageName}.${method.name}" ` +
           'has google.longrunning.operation_info but is missing ' +
-          'option google.longrunning.operation_info.metadata_type'
+          'option google.longrunning.operation_info.metadata_type',
       );
     } else if (!method.longRunningResponseType) {
       throw new Error(
         `ERROR: rpc "${parameters.service.packageName}.${method.name}" ` +
           'has google.longrunning.operation_info but is missing ' +
-          'option google.longrunning.operation_info.response_type'
+          'option google.longrunning.operation_info.response_type',
       );
     }
   }
@@ -661,11 +661,11 @@ function augmentMethod(
         const repeatedFields = inputType.field!.filter(
           field =>
             field.label === 3 && // LABEL_REPEATED
-            field.name === bc.batchDescriptor.batched_field
+            field.name === bc.batchDescriptor.batched_field,
         );
         if (!repeatedFields[0].typeName) {
           throw new Error(
-            `ERROR: Wrong bundle config for method ${method.name}: typeName is undefined.`
+            `ERROR: Wrong bundle config for method ${method.name}: typeName is undefined.`,
           );
         }
         bc.repeatedField = repeatedFields[0].typeName!.substring(1)!;
@@ -681,7 +681,7 @@ function augmentMethod(
     for (const field of inputType.field!) {
       const comment = parameters.service.commentsMap.getParamComments(
         inputmessageName,
-        field.name!
+        field.name!,
       );
       paramComment.push(comment);
     }
@@ -692,7 +692,7 @@ function augmentMethod(
   if (method.methodConfig.retryPolicy?.retryableStatusCodes) {
     method.retryableCodesName =
       parameters.service.retryableCodeMap.getRetryableCodesName(
-        method.methodConfig.retryPolicy.retryableStatusCodes
+        method.methodConfig.retryPolicy.retryableStatusCodes,
       );
   }
 
@@ -701,7 +701,7 @@ function augmentMethod(
     const retryParams: {[key: string]: number} = {};
     if (method.methodConfig.retryPolicy.initialBackoff) {
       retryParams.initial_retry_delay_millis = milliseconds(
-        method.methodConfig.retryPolicy.initialBackoff
+        method.methodConfig.retryPolicy.initialBackoff,
       );
     }
     if (method.methodConfig.retryPolicy.backoffMultiplier) {
@@ -710,7 +710,7 @@ function augmentMethod(
     }
     if (method.methodConfig.retryPolicy.maxBackoff) {
       retryParams.max_retry_delay_millis = milliseconds(
-        method.methodConfig.retryPolicy.maxBackoff
+        method.methodConfig.retryPolicy.maxBackoff,
       );
     }
     // note: the following four parameters are unused but currently required by google-gax.
@@ -735,7 +735,7 @@ function augmentMethod(
   // If dynamic routing annotation doesn't exist, then send implicitly generated headers.
   if (!methodDynamicRouting) {
     method.headerRequestParams = getHeaderRequestParams(
-      method.options?.['.google.api.http']
+      method.options?.['.google.api.http'],
     );
   }
   // If dynamic routing annotation exists and is non-empty, then send dynamic routing headers.
@@ -744,7 +744,7 @@ function augmentMethod(
     methodDynamicRoutingParameters.length > 0
   ) {
     method.dynamicRoutingRequestParams = getDynamicHeaderRequestParams(
-      methodDynamicRoutingParameters
+      methodDynamicRoutingParameters,
     );
   }
   // protobuf.js redefines .toJSON to serialize only known fields,
@@ -762,7 +762,7 @@ interface SelectiveGapicConfig {
 }
 
 export function getSelectiveGapic(
-  serviceYaml: ServiceYaml | undefined
+  serviceYaml: ServiceYaml | undefined,
 ): SelectiveGapicConfig {
   const selectiveGapicConfig =
     serviceYaml?.publishing?.library_settings?.[0]?.typescript_settings?.common
@@ -800,7 +800,7 @@ enum SelectiveGapicType {
 
 export function selectiveGapicMethodType(
   method: MethodDescriptorProto,
-  selectiveGapicConfig: SelectiveGapicConfig | undefined
+  selectiveGapicConfig: SelectiveGapicConfig | undefined,
 ): SelectiveGapicType {
   if (!selectiveGapicConfig.isSelectiveGapic) {
     return SelectiveGapicType.PUBLIC;
@@ -817,7 +817,7 @@ export function selectiveGapicMethodType(
 }
 
 export function getSingleHeaderParam(
-  rule: protos.google.api.IHttpRule
+  rule: protos.google.api.IHttpRule,
 ): string[][] {
   const message =
     rule.post || rule.delete || rule.get || rule.put || rule.patch;
@@ -835,7 +835,7 @@ export function getSingleHeaderParam(
 }
 
 export function getHeaderRequestParams(
-  httpRule: protos.google.api.IHttpRule | null | undefined
+  httpRule: protos.google.api.IHttpRule | null | undefined,
 ) {
   if (!httpRule) {
     return [];
@@ -844,7 +844,9 @@ export function getHeaderRequestParams(
   params = params.concat(getSingleHeaderParam(httpRule));
   httpRule.additionalBindings = httpRule.additionalBindings ?? [];
   params = params.concat(
-    ...httpRule.additionalBindings.map(binding => getSingleHeaderParam(binding))
+    ...httpRule.additionalBindings.map(binding =>
+      getSingleHeaderParam(binding),
+    ),
   );
   // de-dup result array
   const used = new Set();
@@ -866,7 +868,7 @@ export function getHeaderRequestParams(
 // Parses the routing annotation and sets headerRequest for a method. This assumes the routing annotations
 // are in a sorted order (e.g. all the annotations for a single parameter are next to each other).
 export function getDynamicHeaderRequestParams(
-  rules: protos.google.api.IRoutingParameter[]
+  rules: protos.google.api.IRoutingParameter[],
 ) {
   const params: DynamicRoutingParameters[][] = [[]];
   let countOfParameters = 0;
@@ -918,7 +920,7 @@ export function convertFieldToCamelCase(field: string) {
 
 // This parses a single Routing Parameter and returns a MapRoutingParameters interface.
 export function getSingleRoutingHeaderParam(
-  rule: protos.google.api.IRoutingParameter
+  rule: protos.google.api.IRoutingParameter,
 ): DynamicRoutingParameters {
   let dynamicRoutingRule: DynamicRoutingParameters = {
     pathTemplate: rule.pathTemplate ?? '',
@@ -981,7 +983,7 @@ export function augmentService(parameters: AugmentServiceParameters) {
   }
   if (
     parameters.options.serviceYaml?.apis.includes(
-      'google.cloud.location.Locations'
+      'google.cloud.location.Locations',
     )
   ) {
     augmentedService.LocationMixin = 1;
@@ -993,16 +995,16 @@ export function augmentService(parameters: AugmentServiceParameters) {
     augmentedService.httpRules = parameters.options.serviceYaml.http.rules;
   }
   augmentedService.comments = parameters.commentsMap.getServiceComment(
-    parameters.service.name!
+    parameters.service.name!,
   );
   augmentedService.commentsMap = parameters.commentsMap;
   augmentedService.retryableCodeMap = new RetryableCodeMap();
   augmentedService.selectiveGapic = getSelectiveGapic(
-    augmentedService.serviceYaml
+    augmentedService.serviceYaml,
   );
   augmentedService.grpcServiceConfig = parameters.options.grpcServiceConfig;
   augmentedService.bundleConfigs = parameters.options.bundleConfigs?.filter(
-    bc => bc.serviceName === parameters.service.name
+    bc => bc.serviceName === parameters.service.name,
   );
   augmentedService.method =
     augmentedService.method?.map(method =>
@@ -1013,55 +1015,55 @@ export function augmentService(parameters: AugmentServiceParameters) {
           service: augmentedService,
           diregapic: parameters.options.diregapic,
         },
-        method
-      )
+        method,
+      ),
     ) ?? [];
 
   /* Selective GAPIC method handling. */
   augmentedService.method = augmentedService.method.filter(
     method =>
       selectiveGapicMethodType(method, augmentedService.selectiveGapic) !==
-      SelectiveGapicType.HIDDEN
+      SelectiveGapicType.HIDDEN,
   );
   augmentedService.internalMethods = augmentedService.method.filter(
     method =>
       selectiveGapicMethodType(method, augmentedService.selectiveGapic) ===
-      SelectiveGapicType.INTERNAL
+      SelectiveGapicType.INTERNAL,
   );
 
   augmentedService.bundleConfigsMethods = augmentedService.method.filter(
-    method => method.bundleConfig
+    method => method.bundleConfig,
   );
   augmentedService.simpleMethods = augmentedService.method.filter(
     method =>
-      !method.longRunning && !method.streaming && !method.pagingFieldName
+      !method.longRunning && !method.streaming && !method.pagingFieldName,
   );
   augmentedService.longRunning = augmentedService.method.filter(
-    method => method.longRunning
+    method => method.longRunning,
   );
   augmentedService.diregapicLRO = augmentedService.method.filter(
-    method => method.isDiregapicLRO
+    method => method.isDiregapicLRO,
   );
   augmentedService.streaming = augmentedService.method.filter(
-    method => method.streaming
+    method => method.streaming,
   );
   augmentedService.clientStreaming = augmentedService.method.filter(
-    method => method.streaming === 'CLIENT_STREAMING'
+    method => method.streaming === 'CLIENT_STREAMING',
   );
   augmentedService.serverStreaming = augmentedService.method.filter(
-    method => method.streaming === 'SERVER_STREAMING'
+    method => method.streaming === 'SERVER_STREAMING',
   );
   augmentedService.bidiStreaming = augmentedService.method.filter(
-    method => method.streaming === 'BIDI_STREAMING'
+    method => method.streaming === 'BIDI_STREAMING',
   );
   augmentedService.paging = augmentedService.method.filter(
-    method => method.pagingFieldName
+    method => method.pagingFieldName,
   );
 
   const hasLroMethods = augmentedService.longRunning.length > 0;
   if (
     parameters.options.serviceYaml?.apis.includes(
-      'google.longrunning.Operations'
+      'google.longrunning.Operations',
     ) &&
     // enable LRO mixin if either LRO methods exist, or overridden by an option
     (hasLroMethods || parameters.options.mixinsOverridden)
@@ -1113,7 +1115,7 @@ export function augmentService(parameters: AugmentServiceParameters) {
       const parentResources =
         parameters.allResourceDatabase.getParentResourcesByChildType(
           resourceReference?.childType,
-          errorLocation
+          errorLocation,
         );
       for (const resource of parentResources) {
         uniqueResources[resource.name] = resource;
@@ -1123,7 +1125,7 @@ export function augmentService(parameters: AugmentServiceParameters) {
       if (!resourceReference || !resourceReference.type) continue;
       const resourceByType = parameters.allResourceDatabase.getResourceByType(
         resourceReference?.type,
-        errorLocation
+        errorLocation,
       );
       if (!resourceByType || !resourceByType.pattern) continue;
       // For multi pattern resources, we look up the type first, and get the [pattern] from resource,
@@ -1148,7 +1150,7 @@ export function augmentService(parameters: AugmentServiceParameters) {
         return 1;
       }
       return 0;
-    }
+    },
   );
   // protobuf.js redefines .toJSON to serialize only known fields,
   // but we need to serialize the whole augmented object.
@@ -1233,7 +1235,7 @@ export class Proto {
           resourceDatabase: parameters.resourceDatabase,
           options: parameters.options,
           protoFile: parameters.fd.name!,
-        })
+        }),
       )
       .reduce((map, service) => {
         map[service.name!] = service;

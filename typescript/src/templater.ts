@@ -36,7 +36,7 @@ const fsstat = util.promisify(fs.stat);
 
 async function recursiveFileList(
   basePath: string,
-  nameRegex: RegExp
+  nameRegex: RegExp,
 ): Promise<string[]> {
   const dirQueue: string[] = [basePath];
   const result: string[] = [];
@@ -58,7 +58,7 @@ async function recursiveFileList(
 
 async function createSnippetIndexMetadata(
   api: API,
-  basePath: string
+  basePath: string,
 ): Promise<protos.google.cloud.tools.snippetgen.snippetindex.v1.IIndex> {
   const clientLibrary: protos.google.cloud.tools.snippetgen.snippetindex.v1.IClientLibrary =
     {
@@ -75,7 +75,7 @@ async function createSnippetIndexMetadata(
 
 async function createSnippetMetadata(
   api: API,
-  basePath: string
+  basePath: string,
 ): Promise<protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[]> {
   const snippets: protos.google.cloud.tools.snippetgen.snippetindex.v1.ISnippet[] =
     [];
@@ -97,7 +97,7 @@ async function createSnippetMetadata(
         basePath,
         api,
         service,
-        method
+        method,
       );
 
       const start = startRegionTag.start ? startRegionTag.start + 2 : undefined;
@@ -160,7 +160,7 @@ async function countRegionTagLines(
   basePath: string,
   api: API,
   service: ServiceDescriptorProto,
-  method: MethodDescriptorProto
+  method: MethodDescriptorProto,
 ) {
   const id = await loadNamerPlugin(basePath);
   const processed = nunjucks.render(templateName, {api, service, method, id});
@@ -186,7 +186,7 @@ async function countRegionTagLines(
 function renderFile(
   targetFilename: string,
   templateName: string,
-  renderParameters: {}
+  renderParameters: {},
 ) {
   let processed = nunjucks.render(templateName, renderParameters);
 
@@ -199,7 +199,7 @@ function renderFile(
     } catch (err) {
       if (err instanceof Error) {
         console.warn(
-          `The generated JSON file ${targetFilename} does not look like a valid JSON: ${err.toString()}`
+          `The generated JSON file ${targetFilename} does not look like a valid JSON: ${err.toString()}`,
         );
       } else {
         throw err;
@@ -217,7 +217,7 @@ async function processOneTemplate(
   basePath: string,
   templateFilename: string,
   api: API,
-  id: Namer
+  id: Namer,
 ) {
   const result: protos.google.protobuf.compiler.CodeGeneratorResponse.File[] =
     [];
@@ -260,7 +260,7 @@ async function processOneTemplate(
             commonParameters,
             service,
             id,
-          })
+          }),
         );
       }
     }
@@ -277,8 +277,8 @@ async function processOneTemplate(
         renderFile(
           outputFilename.replace(/\$service/, service.name!.toSnakeCase()),
           relativeTemplateName,
-          {api, commonParameters, service, id}
-        )
+          {api, commonParameters, service, id},
+        ),
       );
     }
   } else {
@@ -287,7 +287,7 @@ async function processOneTemplate(
         api,
         commonParameters,
         id,
-      })
+      }),
     );
   }
 
@@ -329,7 +329,7 @@ export async function processTemplates(basePath: string, api: API) {
       basePath,
       templateFilename,
       api,
-      id
+      id,
     );
     result.push(...generatedFiles);
   }
