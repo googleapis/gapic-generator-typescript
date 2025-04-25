@@ -68,7 +68,7 @@ describe('src/schema/naming.ts', () => {
     assert.strictEqual(naming.version, 'v1beta1');
     assert.strictEqual(
       naming.protoPackage,
-      'company.service.v1beta1.unexpected'
+      'company.service.v1beta1.unexpected',
     );
   });
 
