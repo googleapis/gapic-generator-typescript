@@ -13,9 +13,9 @@ def gapic_generator_typescript_repositories():
   maybe(
     http_archive,
     name = "aspect_rules_ts",
-    sha256 = "8bbac753f4b61adbfc1d9878b87b9cd0f64c9e8e6d8fafc8a1bbfa9625bab162",
-    strip_prefix = "rules_ts-3.2.1",
-    url = "https://github.com/aspect-build/rules_ts/archive/refs/tags/v3.2.1.tar.gz",
+    sha256 = "56858e1e4380948e2d5aca5ab2e96fc5ed788652a4a3b7036e8e4b6f019e63bd",
+    strip_prefix = "rules_ts-3.5.3",
+    url = "https://github.com/aspect-build/rules_ts/archive/refs/tags/v3.5.3.tar.gz",
   )
 
   maybe(
