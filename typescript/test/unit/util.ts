@@ -50,7 +50,7 @@ describe('src/util.ts', () => {
         Duration.fromObject({
           seconds: 10,
           nanos: 0,
-        })
+        }),
       ) as protos.google.protobuf.Duration;
       const result = seconds(duration);
       assert.strictEqual(result, 10);
@@ -61,7 +61,7 @@ describe('src/util.ts', () => {
         Duration.fromObject({
           seconds: 5,
           nanos: 500000000,
-        })
+        }),
       ) as protos.google.protobuf.Duration;
       const result = seconds(duration);
       assert.strictEqual(result, 5.5);
@@ -72,7 +72,7 @@ describe('src/util.ts', () => {
         Duration.fromObject({
           seconds: 10,
           nanos: 0,
-        })
+        }),
       ) as protos.google.protobuf.Duration;
       const result = milliseconds(duration);
       assert.strictEqual(result, 10000);
@@ -83,7 +83,7 @@ describe('src/util.ts', () => {
         Duration.fromObject({
           seconds: 5,
           nanos: 500000000,
-        })
+        }),
       ) as protos.google.protobuf.Duration;
       const result = milliseconds(duration);
       assert.strictEqual(result, 5500);
@@ -117,7 +117,7 @@ describe('src/util.ts', () => {
       ]);
       assert.deepStrictEqual(
         'camelCaseABCString'.words(/*protobufJsStyle:*/ true),
-        ['camel', 'case', 'abc', 'string']
+        ['camel', 'case', 'abc', 'string'],
       );
       assert.deepStrictEqual('PascalCaseString'.words(), [
         'pascal',
@@ -134,7 +134,7 @@ describe('src/util.ts', () => {
       ]);
       assert.deepStrictEqual(
         'PascalCaseABCString'.words(/*protobufJsStyle:*/ true),
-        ['pascal', 'case', 'abc', 'string']
+        ['pascal', 'case', 'abc', 'string'],
       );
       assert.deepStrictEqual('snake_case_string'.words(), [
         'snake',
@@ -170,43 +170,43 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual('test'.toCamelCase(), 'test');
       assert.deepStrictEqual(
         'camelCaseString'.toCamelCase(),
-        'camelCaseString'
+        'camelCaseString',
       );
       assert.deepStrictEqual(
         'PascalCaseString'.toCamelCase(),
-        'pascalCaseString'
+        'pascalCaseString',
       );
       assert.deepStrictEqual(
         'snake_case_string'.toCamelCase(),
-        'snakeCaseString'
+        'snakeCaseString',
       );
       assert.deepStrictEqual(
         'kebab-case-string'.toCamelCase(),
-        'kebabCaseString'
+        'kebabCaseString',
       );
       assert.deepStrictEqual(
         'random/separators-string'.toCamelCase(),
-        'randomSeparatorsString'
+        'randomSeparatorsString',
       );
       assert.deepStrictEqual(
         'mixedType-string.SomewhatWeird'.toCamelCase(),
-        'mixedTypeStringSomewhatWeird'
+        'mixedTypeStringSomewhatWeird',
       );
       assert.deepStrictEqual(
         'productName.v1p1beta1'.toCamelCase(),
-        'productNameV1p1beta1'
+        'productNameV1p1beta1',
       );
       assert.deepStrictEqual(
         'display_video_360_advertiser_link'.toCamelCase(),
-        'displayVideo_360AdvertiserLink'
+        'displayVideo_360AdvertiserLink',
       );
       assert.deepStrictEqual(
         'CreateOSSomething'.toCamelCase(),
-        'createOSSomething'
+        'createOSSomething',
       );
       assert.deepStrictEqual(
         'CreateOSSomething'.toCamelCase(/*protobufJsStyle:*/ true),
-        'createOsSomething'
+        'createOsSomething',
       );
     });
 
@@ -215,31 +215,31 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual('test'.toPascalCase(), 'Test');
       assert.deepStrictEqual(
         'camelCaseString'.toPascalCase(),
-        'CamelCaseString'
+        'CamelCaseString',
       );
       assert.deepStrictEqual(
         'PascalCaseString'.toPascalCase(),
-        'PascalCaseString'
+        'PascalCaseString',
       );
       assert.deepStrictEqual(
         'snake_case_string'.toPascalCase(),
-        'SnakeCaseString'
+        'SnakeCaseString',
       );
       assert.deepStrictEqual(
         'kebab-case-string'.toPascalCase(),
-        'KebabCaseString'
+        'KebabCaseString',
       );
       assert.deepStrictEqual(
         'random/separators-string'.toPascalCase(),
-        'RandomSeparatorsString'
+        'RandomSeparatorsString',
       );
       assert.deepStrictEqual(
         'mixedType-string.SomewhatWeird'.toPascalCase(),
-        'MixedTypeStringSomewhatWeird'
+        'MixedTypeStringSomewhatWeird',
       );
       assert.deepStrictEqual(
         'productName.v1p1beta1'.toPascalCase(),
-        'ProductNameV1p1beta1'
+        'ProductNameV1p1beta1',
       );
     });
 
@@ -248,31 +248,31 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual('test'.toKebabCase(), 'test');
       assert.deepStrictEqual(
         'camelCaseString'.toKebabCase(),
-        'camel-case-string'
+        'camel-case-string',
       );
       assert.deepStrictEqual(
         'PascalCaseString'.toKebabCase(),
-        'pascal-case-string'
+        'pascal-case-string',
       );
       assert.deepStrictEqual(
         'snake_case_string'.toKebabCase(),
-        'snake-case-string'
+        'snake-case-string',
       );
       assert.deepStrictEqual(
         'kebab-case-string'.toKebabCase(),
-        'kebab-case-string'
+        'kebab-case-string',
       );
       assert.deepStrictEqual(
         'random/separators-string'.toKebabCase(),
-        'random-separators-string'
+        'random-separators-string',
       );
       assert.deepStrictEqual(
         'mixedType-string.SomewhatWeird'.toKebabCase(),
-        'mixed-type-string-somewhat-weird'
+        'mixed-type-string-somewhat-weird',
       );
       assert.deepStrictEqual(
         'productName.v1p1beta1'.toKebabCase(),
-        'product-name-v1p1beta1'
+        'product-name-v1p1beta1',
       );
     });
 
@@ -281,31 +281,31 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual('test'.toSnakeCase(), 'test');
       assert.deepStrictEqual(
         'camelCaseString'.toSnakeCase(),
-        'camel_case_string'
+        'camel_case_string',
       );
       assert.deepStrictEqual(
         'PascalCaseString'.toSnakeCase(),
-        'pascal_case_string'
+        'pascal_case_string',
       );
       assert.deepStrictEqual(
         'snake_case_string'.toSnakeCase(),
-        'snake_case_string'
+        'snake_case_string',
       );
       assert.deepStrictEqual(
         'kebab-case-string'.toSnakeCase(),
-        'kebab_case_string'
+        'kebab_case_string',
       );
       assert.deepStrictEqual(
         'random/separators-string'.toSnakeCase(),
-        'random_separators_string'
+        'random_separators_string',
       );
       assert.deepStrictEqual(
         'mixedType-string.SomewhatWeird'.toSnakeCase(),
-        'mixed_type_string_somewhat_weird'
+        'mixed_type_string_somewhat_weird',
       );
       assert.deepStrictEqual(
         'productName.v1p1beta1'.toSnakeCase(),
-        'product_name_v1p1beta1'
+        'product_name_v1p1beta1',
       );
     });
   });
@@ -316,39 +316,39 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(['test'].toCamelCaseString('!.'), 'test');
       assert.deepStrictEqual(
         ['camelCaseString'].toCamelCaseString('!.'),
-        'camelCaseString'
+        'camelCaseString',
       );
       assert.deepStrictEqual(
         ['PascalCaseString'].toCamelCaseString('!.'),
-        'pascalCaseString'
+        'pascalCaseString',
       );
       assert.deepStrictEqual(
         ['snake_case_string'].toCamelCaseString('!.'),
-        'snakeCaseString'
+        'snakeCaseString',
       );
       assert.deepStrictEqual(
         ['kebab-case-string'].toCamelCaseString('!.'),
-        'kebabCaseString'
+        'kebabCaseString',
       );
       assert.deepStrictEqual(
         ['random/separators-string'].toCamelCaseString('!.'),
-        'randomSeparatorsString'
+        'randomSeparatorsString',
       );
       assert.deepStrictEqual(
         ['mixedType-string', 'SomewhatWeird'].toCamelCaseString('!.'),
-        'mixedTypeString!.somewhatWeird'
+        'mixedTypeString!.somewhatWeird',
       );
       assert.deepStrictEqual(
         ['productName', 'v1p1beta1'].toCamelCaseString('!.'),
-        'productName!.v1p1beta1'
+        'productName!.v1p1beta1',
       );
       assert.deepStrictEqual(
         ['product_key', 'lower_name', 'v1p1beta1'].toCamelCaseString('!.'),
-        'productKey!.lowerName!.v1p1beta1'
+        'productKey!.lowerName!.v1p1beta1',
       );
       assert.deepStrictEqual(
         ['tableReference', 'project_id'].toCamelCaseString('!.'),
-        'tableReference!.projectId'
+        'tableReference!.projectId',
       );
     });
 
@@ -357,39 +357,39 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(['test'].toSnakeCaseString('!.'), 'test');
       assert.deepStrictEqual(
         ['camelCaseString'].toSnakeCaseString('!.'),
-        'camel_case_string'
+        'camel_case_string',
       );
       assert.deepStrictEqual(
         ['PascalCaseString'].toSnakeCaseString('!.'),
-        'pascal_case_string'
+        'pascal_case_string',
       );
       assert.deepStrictEqual(
         ['snake_case_string'].toSnakeCaseString('!.'),
-        'snake_case_string'
+        'snake_case_string',
       );
       assert.deepStrictEqual(
         ['kebab-case-string'].toSnakeCaseString('!.'),
-        'kebab_case_string'
+        'kebab_case_string',
       );
       assert.deepStrictEqual(
         ['random/separators-string'].toSnakeCaseString('!.'),
-        'random_separators_string'
+        'random_separators_string',
       );
       assert.deepStrictEqual(
         ['mixedType-string', 'SomewhatWeird'].toSnakeCaseString('!.'),
-        'mixed_type_string!.somewhat_weird'
+        'mixed_type_string!.somewhat_weird',
       );
       assert.deepStrictEqual(
         ['productName', 'v1p1beta1'].toSnakeCaseString('!.'),
-        'product_name!.v1p1beta1'
+        'product_name!.v1p1beta1',
       );
       assert.deepStrictEqual(
         ['product_key', 'lower_name', 'v1p1beta1'].toSnakeCaseString('!.'),
-        'product_key!.lower_name!.v1p1beta1'
+        'product_key!.lower_name!.v1p1beta1',
       );
       assert.deepStrictEqual(
         ['tableReference', 'project_id'].toSnakeCaseString('!.'),
-        'table_reference!.project_id'
+        'table_reference!.project_id',
       );
     });
   });
@@ -432,13 +432,13 @@ describe('src/util.ts', () => {
       assert.deepStrictEqual(processPathTemplate('**'), null);
       assert.deepStrictEqual(
         processPathTemplate(
-          'test/{database=projects/*/databases/*}/documents/*/**'
+          'test/{database=projects/*/databases/*}/documents/*/**',
         ),
         {
           fieldSend: 'database',
           messageRegex:
             'test/(?<database>projects/[^/]+/databases/[^/]+)/documents/[^/]+(?:/.*)?',
-        }
+        },
       );
       assert.deepStrictEqual(
         processPathTemplate('{database=projects/*/databases/*}/documents/*/**'),
@@ -446,7 +446,7 @@ describe('src/util.ts', () => {
           fieldSend: 'database',
           messageRegex:
             '(?<database>projects/[^/]+/databases/[^/]+)/documents/[^/]+(?:/.*)?',
-        }
+        },
       );
       assert.deepStrictEqual(
         processPathTemplate('{new_name_match=projects/*/instances/*/tables/*}'),
@@ -454,14 +454,14 @@ describe('src/util.ts', () => {
           fieldSend: 'new_name_match',
           messageRegex:
             '(?<new_name_match>projects/[^/]+/instances/[^/]+/tables/[^/]+)',
-        }
+        },
       );
       assert.deepStrictEqual(
         processPathTemplate('{routing_id=projects/*}/**'),
         {
           fieldSend: 'routing_id',
           messageRegex: '(?<routing_id>projects/[^/]+)(?:/.*)?',
-        }
+        },
       );
       assert.deepStrictEqual(processPathTemplate('profiles/{routing_id=*}'), {
         fieldSend: 'routing_id',

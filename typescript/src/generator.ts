@@ -52,7 +52,7 @@ const readFile = util.promisify(fs.readFile);
 
 // support both run from Bazel and without it
 const templatesDirectory = fs.existsSync(
-  '../../gapic_generator_typescript/templates'
+  '../../gapic_generator_typescript/templates',
 )
   ? '../../gapic_generator_typescript/templates'
   : path.join(__dirname, '..', '..', 'templates');
@@ -125,17 +125,17 @@ export class Generator {
       const ServiceConfig = this.root.lookupType('ServiceConfig');
       if (!ServiceConfig) {
         throw new Error(
-          'INTERNAL ERROR: Cannot find ServiceConfig type in proto JSON'
+          'INTERNAL ERROR: Cannot find ServiceConfig type in proto JSON',
         );
       }
       const deserialized = serializer.fromProto3JSON(ServiceConfig, json);
       if (!deserialized) {
         throw new Error(
-          'ERROR: Cannot parse the content of gRPC service config'
+          'ERROR: Cannot parse the content of gRPC service config',
         );
       }
       this.grpcServiceConfig = ServiceConfig.toObject(
-        deserialized
+        deserialized,
       ) as protos.grpc.service_config.ServiceConfig;
     }
   }
@@ -250,11 +250,11 @@ export class Generator {
     const CodeGeneratorRequest = this.root.lookupType('CodeGeneratorRequest');
     if (!CodeGeneratorRequest) {
       throw new Error(
-        'INTERNAL ERROR: Cannot find CodeGeneratorRequest type in proto JSON'
+        'INTERNAL ERROR: Cannot find CodeGeneratorRequest type in proto JSON',
       );
     }
     this.request = CodeGeneratorRequest.toObject(
-      CodeGeneratorRequest.decode(inputBuffer)
+      CodeGeneratorRequest.decode(inputBuffer),
     ) as protos.google.protobuf.compiler.CodeGeneratorRequest;
     if (!this.request.protoFile) {
       throw new Error('ERROR: No input files given to the protoc plugin.');
@@ -310,7 +310,7 @@ export class Generator {
       }
     }
     const withoutIgnored = API.filterOutIgnoredServices(
-      fdsWithServicesToGenerate
+      fdsWithServicesToGenerate,
     );
     for (const fd of withoutIgnored) {
       protoPackagesToGenerate.add(fd.package || '');
@@ -319,7 +319,7 @@ export class Generator {
     const packageName = commonPrefix(packageNamesToGenerate).replace(/\.$/, '');
     if (packageName === '') {
       throw new Error(
-        'ERROR: Protos do not define any service, client library cannot be generated.'
+        'ERROR: Protos do not define any service, client library cannot be generated.',
       );
     }
     const api = new API(this.request.protoFile, packageName, {
@@ -384,7 +384,7 @@ export class Generator {
     }
 
     const outputBuffer = CodeGeneratorResponse.encode(
-      CodeGeneratorResponse.fromObject(this.response)
+      CodeGeneratorResponse.fromObject(this.response),
     ).finish();
     process.stdout.write(outputBuffer);
   }

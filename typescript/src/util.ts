@@ -38,7 +38,7 @@ export function seconds(duration: protos.google.protobuf.IDuration): number {
 
 // Convert a Duration to (possibly fractional) milliseconds.
 export function milliseconds(
-  duration: protos.google.protobuf.IDuration
+  duration: protos.google.protobuf.IDuration,
 ): number {
   return (
     Number(duration.seconds || 0) * 1000 + Number(duration.nanos || 0) * 1e-6
@@ -58,7 +58,7 @@ String.prototype.capitalize = function (this: string): string {
 
 String.prototype.words = function (
   this: string,
-  protobufJsStyle = false
+  protobufJsStyle = false,
 ): string[] {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   let arg = this;
@@ -83,7 +83,7 @@ String.prototype.words = function (
 
 String.prototype.toCamelCase = function (
   this: string,
-  protobufJsStyle = false
+  protobufJsStyle = false,
 ): string {
   const words = this.words(protobufJsStyle);
   if (words.length === 0) {
@@ -96,14 +96,14 @@ String.prototype.toCamelCase = function (
         return '_' + w;
       }
       return w.capitalize();
-    })
+    }),
   );
   return result.join('');
 };
 
 String.prototype.toPascalCase = function (
   this: string,
-  protobufJsStyle = false
+  protobufJsStyle = false,
 ): string {
   const words = this.words(protobufJsStyle);
   if (words.length === 0) {
@@ -115,7 +115,7 @@ String.prototype.toPascalCase = function (
 
 String.prototype.toKebabCase = function (
   this: string,
-  protobufJsStyle = false
+  protobufJsStyle = false,
 ): string {
   const words = this.words(protobufJsStyle);
   if (words.length === 0) {
@@ -126,7 +126,7 @@ String.prototype.toKebabCase = function (
 
 String.prototype.toSnakeCase = function (
   this: string,
-  protobufJsStyle = false
+  protobufJsStyle = false,
 ): string {
   const words = this.words(protobufJsStyle);
   if (words.length === 0) {
@@ -137,14 +137,14 @@ String.prototype.toSnakeCase = function (
 
 Array.prototype.toCamelCaseString = function (
   this: string[],
-  joiner: string
+  joiner: string,
 ): string {
   return this.map(part => part.toCamelCase()).join(joiner);
 };
 
 Array.prototype.toSnakeCaseString = function (
   this: string[],
-  joiner: string
+  joiner: string,
 ): string {
   return this.map(part => part.toSnakeCase()).join(joiner);
 };
@@ -193,7 +193,7 @@ export function getResourceNameByPattern(pattern: string): string {
 // is "project", and the regex will extract the part of the string that
 // corresponds to the curly brackets.
 export function processPathTemplate(
-  pathTemplate: string
+  pathTemplate: string,
 ): {fieldSend: string; messageRegex: string} | null {
   // Find the template part
   const patternMatch = pathTemplate.match(/{(\w+)[=}]/);
@@ -219,7 +219,7 @@ export function processPathTemplate(
     /{(\w+)=([^}]+)}/,
     (_match, before, after) => {
       return `(?<${before}>${after})`;
-    }
+    },
   );
 
   return {fieldSend, messageRegex};

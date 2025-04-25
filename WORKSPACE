@@ -44,6 +44,6 @@ npm_repositories()
 
 
 # To regenerate the lock file, run:
-# bazel run -- @pnpm//:pnpm --dir $PWD install --lockfile-only
+# bazelisk run -- @pnpm//:pnpm --dir $PWD install --lockfile-only
 # More information: https://github.com/aspect-build/rules_js/blob/main/docs/faq.md#can-i-use-bazel-managed-pnpm
 
