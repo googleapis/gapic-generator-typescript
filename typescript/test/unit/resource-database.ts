@@ -118,49 +118,49 @@ describe('src/schema/resource-database.ts', () => {
     };
     rdb.registerResource(resource, errorLocation);
     const registeredResource = rdb.getResourceByType(
-      'examples.googleapis.com/Case'
+      'examples.googleapis.com/Case',
     );
     assert(registeredResource);
     assert.strictEqual(
       registeredResource!.type,
-      'examples.googleapis.com/Case'
+      'examples.googleapis.com/Case',
     );
     const registeredResourceByPattern = rdb.getResourceByPattern(
-      resourcePatternSpecial1
+      resourcePatternSpecial1,
     );
     assert(registeredResourceByPattern);
     assert.strictEqual(
       registeredResourceByPattern!.name,
-      'location_profile_case_id'
+      'location_profile_case_id',
     );
     const registeredResourceByPattern2 = rdb.getResourceByPattern(
-      resourcePatternSpecial2
+      resourcePatternSpecial2,
     );
     assert(registeredResourceByPattern2);
     assert.strictEqual(registeredResourceByPattern2!.name, 'organization_case');
 
     const registeredResourceByPattern3 = rdb.getResourceByPattern(
-      resourcePatternSpecial3
+      resourcePatternSpecial3,
     );
     assert(registeredResourceByPattern3);
     assert.strictEqual(registeredResourceByPattern3!.name, 'task_result');
 
     const registeredNonSlashResource = rdb.getResourceByPattern(
-      nonSlashPatternSpecial
+      nonSlashPatternSpecial,
     );
     assert(registeredNonSlashResource);
     assert.strictEqual(
       registeredNonSlashResource!.name,
-      'organization_taskId_taskName_result'
+      'organization_taskId_taskName_result',
     );
 
     const registeredNonSlashResource2 = rdb.getResourceByPattern(
-      nonSlashPatternSpecial2
+      nonSlashPatternSpecial2,
     );
     assert(registeredNonSlashResource2);
     assert.strictEqual(
       registeredNonSlashResource2!.name,
-      'organization_taskId_taskName_result'
+      'organization_taskId_taskName_result',
     );
   });
 
@@ -172,16 +172,16 @@ describe('src/schema/resource-database.ts', () => {
     };
     rdb.registerResource(resource, errorLocation);
     const registeredResource = rdb.getResourceByType(
-      'examples.googleapis.com/Case'
+      'examples.googleapis.com/Case',
     );
     assert(registeredResource);
     assert.strictEqual(
       registeredResource!.type,
-      'examples.googleapis.com/Case'
+      'examples.googleapis.com/Case',
     );
 
     const registeredNonSlashResource = rdb.getResourceByPattern(
-      nonSlashPatternSpecial
+      nonSlashPatternSpecial,
     );
     assert(registeredNonSlashResource);
     assert.strictEqual(registeredNonSlashResource!.name, 'Case');
@@ -254,7 +254,7 @@ describe('src/schema/resource-database.ts', () => {
 
     const notFoundResource = rdb.getResourceByPattern(
       resourcePattern,
-      errorLocation
+      errorLocation,
     );
     assert.strictEqual(notFoundResource, undefined);
     assert(warnings.filter(w => w.includes(errorLocation)).length > 0);

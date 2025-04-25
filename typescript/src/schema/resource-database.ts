@@ -32,7 +32,7 @@ export class ResourceDatabase {
 
   registerResource(
     resource: protos.google.api.IResourceDescriptor | undefined,
-    errorLocation?: string
+    errorLocation?: string,
   ) {
     if (!resource) {
       return;
@@ -41,7 +41,7 @@ export class ResourceDatabase {
     if (!resource.type) {
       if (errorLocation) {
         console.warn(
-          `Warning: ${errorLocation} refers to a resource which does not have a type: ${resource}`
+          `Warning: ${errorLocation} refers to a resource which does not have a type: ${resource}`,
         );
       }
       return;
@@ -51,7 +51,7 @@ export class ResourceDatabase {
     if (!arr?.[1]) {
       if (errorLocation) {
         console.warn(
-          `Warning: ${errorLocation} refers to a resource which does not have a proper name: ${resource}`
+          `Warning: ${errorLocation} refers to a resource which does not have a proper name: ${resource}`,
         );
       }
       return;
@@ -60,7 +60,7 @@ export class ResourceDatabase {
     if (!patterns?.[0]) {
       if (errorLocation) {
         console.warn(
-          `Warning: ${errorLocation} refers to a resource which does not have a proper pattern: ${resource}`
+          `Warning: ${errorLocation} refers to a resource which does not have a proper pattern: ${resource}`,
         );
       }
       return;
@@ -73,7 +73,7 @@ export class ResourceDatabase {
       const resourceDescriptor = this.getResourceDescriptor(
         name,
         params,
-        resource
+        resource,
       );
       // We ignore resources with no parameters (e.g. pattern = '*').
       if (params.length > 0) {
@@ -109,7 +109,7 @@ export class ResourceDatabase {
 
   getResourceByType(
     type: string | null | undefined,
-    errorLocation?: string
+    errorLocation?: string,
   ): ResourceDescriptor | undefined {
     if (!type) {
       return undefined;
@@ -117,7 +117,7 @@ export class ResourceDatabase {
     if (!this.types[type]) {
       if (errorLocation) {
         console.warn(
-          `Warning: ${errorLocation} refers to an unknown resource: ${type}`
+          `Warning: ${errorLocation} refers to an unknown resource: ${type}`,
         );
       }
       return undefined;
@@ -127,7 +127,7 @@ export class ResourceDatabase {
 
   getResourceByPattern(
     pattern: string | null | undefined,
-    errorLocation?: string
+    errorLocation?: string,
   ): ResourceDescriptor | undefined {
     if (!pattern) {
       return undefined;
@@ -135,7 +135,7 @@ export class ResourceDatabase {
     if (!this.patterns[pattern]) {
       if (errorLocation) {
         console.warn(
-          `Warning: ${errorLocation} refers to an unknown resource: ${pattern}`
+          `Warning: ${errorLocation} refers to an unknown resource: ${pattern}`,
         );
       }
       return undefined;
@@ -145,7 +145,7 @@ export class ResourceDatabase {
 
   getParentResourcesByChildType(
     childType: string | null | undefined,
-    errorLocation?: string
+    errorLocation?: string,
   ): ResourceDescriptor[] {
     // childType looks like "datacatalog.googleapis.com/EntryGroup"
     // its pattern would be like "projects/{project}/locations/{location}/entryGroups/{entry_group}"
@@ -189,14 +189,14 @@ export class ResourceDatabase {
   private getResourceDescriptor(
     name: string,
     params: string[],
-    resource: protos.google.api.IResourceDescriptor
+    resource: protos.google.api.IResourceDescriptor,
   ): ResourceDescriptor {
     const resourceDescriptor = Object.assign(
       {
         name,
         params,
       },
-      resource
+      resource,
     );
     return resourceDescriptor;
   }

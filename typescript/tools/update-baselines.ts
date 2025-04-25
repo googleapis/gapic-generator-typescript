@@ -34,7 +34,7 @@ const baselineZip = path.join(
   'bazel-testlogs',
   'unit_tests',
   'test.outputs',
-  'outputs.zip'
+  'outputs.zip',
 );
 
 function getBaselineDirectory(library: string): string {
@@ -91,7 +91,7 @@ async function main() {
 
   // remove old test out folders
   const oldFolders = (await readdir(root)).filter(file =>
-    file.match(resultPrefix)
+    file.match(resultPrefix),
   );
   for (const oldFolder of oldFolders) {
     await fsp.rm(oldFolder, {recursive: true});
@@ -118,7 +118,7 @@ async function main() {
       await fsp.rm(baselineDir, {recursive: true});
     } catch (err) {
       console.log(
-        `Not removing baseline ${baselineDir} because it does not exist`
+        `Not removing baseline ${baselineDir} because it does not exist`,
       );
     }
     console.log(`  - copying files from ${dir}...`);
