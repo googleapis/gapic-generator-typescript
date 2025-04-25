@@ -1,5 +1,23 @@
 # Changelog
 
+## [4.9.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.8.2...v4.9.0) (2025-04-25)
+
+
+### Features
+
+* Add edition2023 support ([#1720](https://github.com/googleapis/gapic-generator-typescript/issues/1720)) ([91f1639](https://github.com/googleapis/gapic-generator-typescript/commit/91f1639414aede28d9ba4195609dd2265f43d27e))
+* Add Selective GAPIC support for TypeScript generation ([#1690](https://github.com/googleapis/gapic-generator-typescript/issues/1690)) ([849b179](https://github.com/googleapis/gapic-generator-typescript/commit/849b179352295cc81c26ffe6e8313ec60f1ba619))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency long to ^5.3.1 ([#1712](https://github.com/googleapis/gapic-generator-typescript/issues/1712)) ([539b8ea](https://github.com/googleapis/gapic-generator-typescript/commit/539b8ea423d0814b8afd6d7726fc783fab8d3956))
+* **deps:** Update dependency long to ^5.3.2 ([#1723](https://github.com/googleapis/gapic-generator-typescript/issues/1723)) ([2b20542](https://github.com/googleapis/gapic-generator-typescript/commit/2b2054266d53fb39272207ba5bbe913ebb89cd7b))
+* **deps:** Update dependency proto3-json-serializer to v3 ([#1737](https://github.com/googleapis/gapic-generator-typescript/issues/1737)) ([fb127d3](https://github.com/googleapis/gapic-generator-typescript/commit/fb127d33508f29d50365f565dcae4ab1bd2cbe69))
+* Update gts to v6  & pack-n-play along with necessary linting changes ([#1734](https://github.com/googleapis/gapic-generator-typescript/issues/1734)) ([e318c18](https://github.com/googleapis/gapic-generator-typescript/commit/e318c18cda5cb57c0116f9a5ecdff096d2bc125a))
+* Update ts_rules, js_rules, and typescript version ([c51f686](https://github.com/googleapis/gapic-generator-typescript/commit/c51f6862acc6c3163d18256b1283c0bfcb5ec9c4))
+* Update ts_rules, js_rules, and typescript version ([#1721](https://github.com/googleapis/gapic-generator-typescript/issues/1721)) ([f98d0f7](https://github.com/googleapis/gapic-generator-typescript/commit/f98d0f712f2a9b928f2d08365a2e7943774d54b9))
+
 ## [4.8.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.8.1...v4.8.2) (2025-03-18)
 
 
