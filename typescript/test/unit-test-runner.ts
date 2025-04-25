@@ -32,4 +32,6 @@ async function main() {
   });
 }
 
-main();
+main().catch(err => {
+  throw err;
+});
