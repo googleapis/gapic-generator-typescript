@@ -55,6 +55,40 @@ import jsonProtos = require('../../protos/protos.json');
 {%- endif %}
 import {loggingUtils as logging} from 'google-gax';
 
+const decodeProtobufAny = (anyValue: any, protos: any) => {
+    const match = anyValue.type_url.match(/^type.googleapis.com\/(.*)/);
+    if (!match) {
+        throw new Error(`Unknown type encoded in google.protobuf.any: ${anyValue.type_url}`);
+    }
+    const typeName = match[1];
+    const type = protos.lookupType(typeName);
+    if (!type) {
+        throw new Error(`Cannot lookup type ${typeName}`);
+    }
+    return type.decode(anyValue.value);
+}
+
+const processError = (error: any, protos: any) => {
+  if (error.statusDetails?.length) {
+    const finalStatusDetails = [];
+    for (const detail of error.statusDetails) {
+      try {
+        // Proto is Any we try to decode with available protos.
+        if (detail.constructor.name === "Any") {
+          const decodedCustomError = decodeProtobufAny(detail, protos);
+          finalStatusDetails.push(decodedCustomError);
+        } else {
+          finalStatusDetails.push(detail)
+        }
+      } catch (e: any) {
+        // Skip we can't process it.
+      }
+    }
+    error.statusDetails = finalStatusDetails;
+  }
+  return error;
+}
+
 /**
  * Client JSON configuration object, loaded from
  * `src/{{ api.naming.version }}/{{ service.name.toSnakeCase() }}_client_config.json`.
@@ -670,6 +704,7 @@ export class {{ service.name }}Client {
     this.warn('DEP${{service.name}}-${{method.name}}','{{method.name}} is deprecated and may be removed in a future version.', 'DeprecationWarning');
     {%- endif %}
     this._log.info('{{ method.name.toCamelCase() }} request %j', request);
+    const protos: any = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
     {%- if method.isDiregapicLRO %}
     const wrappedCallback: Callback<
           {{ util.toInterface(method.outputInterface) }},
@@ -687,6 +722,8 @@ export class {{ service.name }}Client {
           operation,
           rawResponse
         ];
+      }).catch((error: any) => {
+        throw processError(error, protos);
       });
     {%- else %}
     const wrappedCallback: Callback<
@@ -706,6 +743,8 @@ export class {{ service.name }}Client {
       ]) => {
         this._log.info('{{ method.name.toCamelCase() }} response %j', response);
         return [response, options, rawResponse];
+      }).catch((error: any) => {
+        throw processError(error, protos);
       });
     {%- endif %}
   }
