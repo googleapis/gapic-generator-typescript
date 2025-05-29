@@ -69,6 +69,15 @@ describe('Baseline tests: ESM', () => {
   });
 
   runBaselineTest({
+    baselineName: 'retail-esm',
+    outputDir: '.test-out-retail-esm',
+    protoPath: 'google/retail/v2alpha/*.proto',
+    useCommonProto: false,
+    mainServiceName: 'retail',
+    format: 'esm',
+  });
+
+  runBaselineTest({
     baselineName: 'redis-esm',
     outputDir: '.test-out-redis-esm',
     protoPath: 'google/cloud/redis/v1beta1/*.proto',
