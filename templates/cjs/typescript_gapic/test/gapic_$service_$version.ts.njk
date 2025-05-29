@@ -80,7 +80,8 @@ function generateSampleMessage<T extends object>(instance: T) {
         .toObject(instance as protobuf.Message<T>, {defaults: true});
     return (instance.constructor as typeof protobuf.Message).fromObject(filledObject) as T;
 }
-{%- if (service.simpleMethods.length + service.paging.length + service.longRunning.length + service.IAMPolicyMixin > 0) %}
+
+{%- if (service.simpleMethods.length + service.paging.length + service.longRunning.length + service.IAMPolicyMixin + service.LocationMixin + service.LongRunningOperationsMixin > 0) %}
 
 function stubSimpleCall<ResponseType>(response?: ResponseType, error?: Error) {
     return error ? sinon.stub().rejects(error) : sinon.stub().resolves([response]);
@@ -363,7 +364,6 @@ describe('{{ api.naming.version }}.{{ service.name }}Client', () => {
         });
     });
 {%- for method in service.simpleMethods %}
-
     describe('{{ method.name.toCamelCase() }}', () => {
         it('invokes {{ method.name.toCamelCase() }} without error', async () => {
             const client = new {{ service.name.toLowerCase() }}Module.{{ api.naming.version }}.{{ service.name }}Client({{- util.initClientOptions(api.rest) -}});
