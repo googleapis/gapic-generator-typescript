@@ -70,7 +70,7 @@ describe('Baseline tests: ESM', () => {
 
   runBaselineTest({
     baselineName: 'retail-esm',
-    outputDir: '.test-out-retail',
+    outputDir: '.test-out-retail-esm',
     protoPath: 'google/cloud/retail/v2alpha/*.proto',
     useCommonProto: true,
     mainServiceName: 'retail',
