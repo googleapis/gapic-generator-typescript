@@ -32,6 +32,36 @@ import {loggingUtils as logging} from 'google-gax';
 import * as gapicConfig from './job_service_client_config.json';
 const version = require('../../../package.json').version;
 
+const getVersionFromPackageJson = (path: string): string | null => {
+  try {
+    const packageJson: object | undefined  = require(path);
+    if (packageJson && 'version' in packageJson &&
+          typeof packageJson.version === 'string'
+    ) {
+      return packageJson.version;
+    }
+  } catch (e) {
+    console.warn(`Couldn't get package version`);
+  }
+  return null;
+}
+
+const getProtobufVersion = (): string | null => {
+  // If protobufjs is in gax-module we should get it from there.
+  const protobufVersionInGaxModule: string | null = getVersionFromPackageJson('../../../node_modules/google-gax/node_modules/protobufjs/package.json');
+  if (protobufVersionInGaxModule) {
+    return protobufVersionInGaxModule;
+  }
+  // Get protobufjs from main node_modules. 
+  const protobufjsVersion: string | null = getVersionFromPackageJson('../../../node_modules/protobufjs/package.json');
+  if (protobufjsVersion) {
+    return protobufjsVersion;
+  }
+  return null;
+};
+
+const protobufjsVersion: string | null = getProtobufVersion();
+
 /**
  *  This is an experimental RPC service definition for the BigQuery
  *  Job Service.
@@ -156,6 +186,9 @@ export class JobServiceClient {
       `gax/${this._gaxModule.version}`,
       `gapic/${version}`,
     ];
+    if (protobufjsVersion) {
+      clientHeader.push(`pb/${protobufjsVersion}`);
+    }
     if (typeof process === 'object' && 'versions' in process) {
       clientHeader.push(`gl-node/${process.versions.node}`);
     } else {
