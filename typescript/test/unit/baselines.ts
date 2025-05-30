@@ -62,6 +62,19 @@ describe('Baseline tests', () => {
     mainServiceName: 'monitoring',
   });
 
+  // API that uses location mixin
+  runBaselineTest({
+    baselineName: 'retail',
+    outputDir: '.test-out-retail',
+    protoPath: 'google/cloud/retail/v2alpha/*.proto',
+    useCommonProto: true,
+    mainServiceName: 'retail',
+    grpcServiceConfig:
+      'google/cloud/retail/v2alpha/retail_grpc_service_config.json',
+    serviceYaml: 'google/cloud/retail/v2alpha/retail_v2alpha.yaml',
+    mixins: 'location',
+  });
+
   runBaselineTest({
     baselineName: 'redis',
     outputDir: '.test-out-redis',
