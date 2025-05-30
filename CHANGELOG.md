@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.9.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.9.0...v4.9.1) (2025-05-30)
+
+
+### Bug Fixes
+
+* Generate stubSimpleCall with a location mixin and adds retail test to check ([#1762](https://github.com/googleapis/gapic-generator-typescript/issues/1762)) ([6ce3448](https://github.com/googleapis/gapic-generator-typescript/commit/6ce344859cab586652dbd8e6d7dbc6518a600a9f))
+* Use the new cached method fromJSON from google-gax ([#1755](https://github.com/googleapis/gapic-generator-typescript/issues/1755)) ([66a6b36](https://github.com/googleapis/gapic-generator-typescript/commit/66a6b36e7d2f54191707dcdcb6d32ceb2b753c39))
+
 ## [4.9.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.8.2...v4.9.0) (2025-04-25)
 
 
