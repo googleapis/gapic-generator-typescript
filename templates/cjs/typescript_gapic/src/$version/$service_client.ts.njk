@@ -53,41 +53,7 @@ import * as path from 'path';
 {%- else %}
 import jsonProtos = require('../../protos/protos.json');
 {%- endif %}
-import {loggingUtils as logging} from 'google-gax';
-
-const decodeProtobufAny = (anyValue: any, protos: any) => {
-    const match = anyValue.type_url.match(/^type.googleapis.com\/(.*)/);
-    if (!match) {
-        throw new Error(`Unknown type encoded in google.protobuf.any: ${anyValue.type_url}`);
-    }
-    const typeName = match[1];
-    const type = protos.lookupType(typeName);
-    if (!type) {
-        throw new Error(`Cannot lookup type ${typeName}`);
-    }
-    return type.decode(anyValue.value);
-}
-
-const processError = (error: any, protos: any) => {
-  if (error.statusDetails?.length) {
-    const finalStatusDetails = [];
-    for (const detail of error.statusDetails) {
-      try {
-        // Proto is Any we try to decode with available protos.
-        if (detail.constructor.name === "Any") {
-          const decodedCustomError = decodeProtobufAny(detail, protos);
-          finalStatusDetails.push(decodedCustomError);
-        } else {
-          finalStatusDetails.push(detail)
-        }
-      } catch (e: any) {
-        // Skip we can't process it.
-      }
-    }
-    error.statusDetails = finalStatusDetails;
-  }
-  return error;
-}
+import {loggingUtils as logging, decodeAnyProtosInArray} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -723,7 +689,11 @@ export class {{ service.name }}Client {
           rawResponse
         ];
       }).catch((error: any) => {
-        throw processError(error, protos);
+        if (error && 'statusDetails' in error) {
+          const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
+          error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
+        }
+        throw error;
       });
     {%- else %}
     const wrappedCallback: Callback<
@@ -744,7 +714,11 @@ export class {{ service.name }}Client {
         this._log.info('{{ method.name.toCamelCase() }} response %j', response);
         return [response, options, rawResponse];
       }).catch((error: any) => {
-        throw processError(error, protos);
+        if (error && 'statusDetails' in error) {
+          const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
+          error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
+        }
+        throw error;
       });
     {%- endif %}
   }
