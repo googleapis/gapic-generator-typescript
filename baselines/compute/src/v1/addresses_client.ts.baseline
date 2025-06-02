@@ -22,7 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, LROperation, Pag
 import {Transform} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
-import {loggingUtils as logging} from 'google-gax';
+import {loggingUtils as logging, decodeAnyProtosInArray} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -418,6 +418,7 @@ export class AddressesClient {
     });
     this.initialize().catch(err => {throw err});
     this._log.info('delete request %j', request);
+    const protos: any = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
     const wrappedCallback: Callback<
           protos.google.cloud.compute.v1.IOperation,
           protos.google.cloud.compute.v1.IDeleteAddressRequest|null|undefined,
@@ -434,6 +435,12 @@ export class AddressesClient {
           operation,
           rawResponse
         ];
+      }).catch((error: any) => {
+        if (error && 'statusDetails' in error) {
+          const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
+          error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
+        }
+        throw error;
       });
   }
 /**
@@ -521,6 +528,7 @@ export class AddressesClient {
     });
     this.initialize().catch(err => {throw err});
     this._log.info('insert request %j', request);
+    const protos: any = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
     const wrappedCallback: Callback<
           protos.google.cloud.compute.v1.IOperation,
           protos.google.cloud.compute.v1.IInsertAddressRequest|null|undefined,
@@ -537,6 +545,12 @@ export class AddressesClient {
           operation,
           rawResponse
         ];
+      }).catch((error: any) => {
+        if (error && 'statusDetails' in error) {
+          const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
+          error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
+        }
+        throw error;
       });
   }
 

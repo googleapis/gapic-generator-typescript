@@ -29,7 +29,7 @@ import {fileURLToPath} from 'url';
 import {getJSON} from '../json-helper.cjs';
 // @ts-ignore
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-import {loggingUtils as logging} from 'google-gax';
+import {loggingUtils as logging, decodeAnyProtosInArray} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -589,6 +589,12 @@ export class PredictionServiceClient {
       ]) => {
         this._log.info('predict response %j', response);
         return [response, options, rawResponse];
+      }).catch((error: any) => {
+        if (error && 'statusDetails' in error) {
+          const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
+          error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
+        }
+        throw error;
       });
   }
 

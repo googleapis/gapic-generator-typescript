@@ -22,7 +22,7 @@ import type {Callback, CallOptions, Descriptors, ClientOptions, PaginationCallba
 import {Transform, PassThrough} from 'stream';
 import * as protos from '../../protos/protos';
 import jsonProtos = require('../../protos/protos.json');
-import {loggingUtils as logging} from 'google-gax';
+import {loggingUtils as logging, decodeAnyProtosInArray} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -543,6 +543,7 @@ export class LoggingServiceV2Client {
     });
     this.initialize().catch(err => {throw err});
     this._log.info('deleteLog request %j', request);
+    const protos: any = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
     const wrappedCallback: Callback<
         protos.google.protobuf.IEmpty,
         protos.google.logging.v2.IDeleteLogRequest|null|undefined,
@@ -560,6 +561,12 @@ export class LoggingServiceV2Client {
       ]) => {
         this._log.info('deleteLog response %j', response);
         return [response, options, rawResponse];
+      }).catch((error: any) => {
+        if (error && 'statusDetails' in error) {
+          const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
+          error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
+        }
+        throw error;
       });
   }
 /**
@@ -697,6 +704,7 @@ export class LoggingServiceV2Client {
     options.otherArgs.headers = options.otherArgs.headers || {};
     this.initialize().catch(err => {throw err});
     this._log.info('writeLogEntries request %j', request);
+    const protos: any = this._gaxModule.protobuf.Root.fromJSON(jsonProtos);
     const wrappedCallback: Callback<
         protos.google.logging.v2.IWriteLogEntriesResponse,
         protos.google.logging.v2.IWriteLogEntriesRequest|null|undefined,
@@ -714,6 +722,12 @@ export class LoggingServiceV2Client {
       ]) => {
         this._log.info('writeLogEntries response %j', response);
         return [response, options, rawResponse];
+      }).catch((error: any) => {
+        if (error && 'statusDetails' in error) {
+          const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
+          error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
+        }
+        throw error;
       });
   }
 
