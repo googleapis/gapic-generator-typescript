@@ -50,10 +50,11 @@ import {
 import * as protos from '../../protos/protos';
 {%- if api.legacyProtoLoad %}
 import * as path from 'path';
+import {loggingUtils as logging} from 'google-gax';
 {%- else %}
 import jsonProtos = require('../../protos/protos.json');
-{%- endif %}
 import {loggingUtils as logging, decodeAnyProtosInArray} from 'google-gax';
+{%- endif %}
 
 /**
  * Client JSON configuration object, loaded from
@@ -689,10 +690,12 @@ export class {{ service.name }}Client {
           rawResponse
         ];
       }).catch((error: any) => {
+        {%- if not api.legacyProtoLoad %}
         if (error && 'statusDetails' in error && error.statusDetails instanceof Array) {
           const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
           error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
         }
+        {%- endif %}
         throw error;
       });
     {%- else %}
@@ -714,10 +717,12 @@ export class {{ service.name }}Client {
         this._log.info('{{ method.name.toCamelCase() }} response %j', response);
         return [response, options, rawResponse];
       }).catch((error: any) => {
+        {%- if not api.legacyProtoLoad %}
         if (error && 'statusDetails' in error && error.statusDetails instanceof Array) {
           const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
           error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
         }
+        {%- endif %}
         throw error;
       });
     {%- endif %}
