@@ -29,7 +29,6 @@ import {fileURLToPath} from 'url';
 import {getJSON} from '../json-helper.cjs';
 // @ts-ignore
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-import {loggingUtils as logging} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -43,7 +42,7 @@ const gapicConfig = getJSON(
 const jsonProtos = getJSON(
   path.join(dirname, '..', '..', '..', 'protos/protos.json')
 );
-
+import {loggingUtils as logging, decodeAnyProtosInArray} from 'google-gax';
 const version = getJSON(
   path.join(dirname, '..', '..', '..', '..', 'package.json')
 ).version;
@@ -190,7 +189,7 @@ export class VideoIntelligenceServiceClient {
     // Load the applicable protos.
     this._protos = this._gaxGrpc.loadProtoJSON(jsonProtos as gax.protobuf.INamespace);
 
-    const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos as gax.protobuf.INamespace);
+    const protoFilesRoot = this._gaxModule.protobufFromJSON(jsonProtos);
     // This API contains "long-running operations", which return a
     // an Operation object that allows for tracking of the operation,
     // rather than holding a request open.

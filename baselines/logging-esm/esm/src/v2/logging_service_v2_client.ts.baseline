@@ -29,7 +29,6 @@ import {fileURLToPath} from 'url';
 import {getJSON} from '../json-helper.cjs';
 // @ts-ignore
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-import {loggingUtils as logging} from 'google-gax';
 
 /**
  * Client JSON configuration object, loaded from
@@ -43,7 +42,7 @@ const gapicConfig = getJSON(
 const jsonProtos = getJSON(
   path.join(dirname, '..', '..', '..', 'protos/protos.json')
 );
-
+import {loggingUtils as logging, decodeAnyProtosInArray} from 'google-gax';
 const version = getJSON(
   path.join(dirname, '..', '..', '..', '..', 'package.json')
 ).version;
@@ -304,7 +303,7 @@ export class LoggingServiceV2Client {
       tailLogEntries: new this._gaxModule.StreamDescriptor(this._gaxModule.StreamType.BIDI_STREAMING, !!opts.fallback, !!opts.gaxServerStreamingRetries)
     };
 
-    const protoFilesRoot = this._gaxModule.protobuf.Root.fromJSON(jsonProtos as gax.protobuf.INamespace);
+    const protoFilesRoot = this._gaxModule.protobufFromJSON(jsonProtos);
     // Some methods on this API support automatically batching
     // requests; denote this.
 
@@ -580,6 +579,12 @@ export class LoggingServiceV2Client {
       ]) => {
         this._log.info('deleteLog response %j', response);
         return [response, options, rawResponse];
+      }).catch((error: any) => {
+        if (error && 'statusDetails' in error && error.statusDetails instanceof Array) {
+          const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
+          error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
+        }
+        throw error;
       });
   }
 /**
@@ -733,6 +738,12 @@ export class LoggingServiceV2Client {
       ]) => {
         this._log.info('writeLogEntries response %j', response);
         return [response, options, rawResponse];
+      }).catch((error: any) => {
+        if (error && 'statusDetails' in error && error.statusDetails instanceof Array) {
+          const protos = this._gaxModule.protobuf.Root.fromJSON(jsonProtos) as unknown as gax.protobuf.Type;
+          error.statusDetails = decodeAnyProtosInArray(error.statusDetails, protos);
+        }
+        throw error;
       });
   }
 
