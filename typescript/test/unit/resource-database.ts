@@ -104,32 +104,51 @@ describe('src/schema/resource-database.ts', () => {
     assert.strictEqual(warnings.length, 0);
   });
 
-    it('can register multi-pattern resource properly when it supports both singular and plural resource', () => {
-      const rdb = new ResourceDatabase();
-      const resourceTypeSingularPluralExample = "discoveryengine.googleapis.com/CmekConfig";
-      const resourcePatternSingular = "projects/{project}/locations/{location}/cmekConfig";
-      const resourcePatternPlural = "projects/{project}/locations/{location}/cmekConfigs/{cmek_config}";
-      const resource: protos.google.api.IResourceDescriptor = {
-        type: resourceTypeSingularPluralExample,
-        pattern: [resourcePatternSingular, resourcePatternPlural],
-        plural: "cmekConfigs",
-        singular: "cmekConfig"
-      };
-      rdb.registerResource(resource, errorLocation);
-      const resourceByType = rdb.getResourceByType(resourceTypeSingularPluralExample);
-      assert.deepStrictEqual(resourceByType!.pattern, [
-        resourcePatternSingular,
-        resourcePatternPlural,
-      ]);
-      const registeredResource1 = rdb.getResourceByPattern(resourcePatternSingular);
-      assert(registeredResource1);
-      const registeredResource2 = rdb.getResourceByPattern(resourcePatternPlural);
-      assert(registeredResource2);
-      assert.strictEqual(registeredResource1!.type, resourceTypeSingularPluralExample);
-      assert.strictEqual(registeredResource2!.type, resourceTypeSingularPluralExample);
-      assert.strictEqual(registeredResource1!.name, 'project_location_cmekConfig');
-      assert.strictEqual(registeredResource2!.name, 'project_location_cmekConfigs');
-      assert.strictEqual(warnings.length, 0);
+  it('can register multi-pattern resource properly when it supports both singular and plural resource', () => {
+    const rdb = new ResourceDatabase();
+    const resourceTypeSingularPluralExample =
+      'discoveryengine.googleapis.com/CmekConfig';
+    const resourcePatternSingular =
+      'projects/{project}/locations/{location}/cmekConfig';
+    const resourcePatternPlural =
+      'projects/{project}/locations/{location}/cmekConfigs/{cmek_config}';
+    const resource: protos.google.api.IResourceDescriptor = {
+      type: resourceTypeSingularPluralExample,
+      pattern: [resourcePatternSingular, resourcePatternPlural],
+      plural: 'cmekConfigs',
+      singular: 'cmekConfig',
+    };
+    rdb.registerResource(resource, errorLocation);
+    const resourceByType = rdb.getResourceByType(
+      resourceTypeSingularPluralExample,
+    );
+    assert.deepStrictEqual(resourceByType!.pattern, [
+      resourcePatternSingular,
+      resourcePatternPlural,
+    ]);
+    const registeredResource1 = rdb.getResourceByPattern(
+      resourcePatternSingular,
+    );
+    assert(registeredResource1);
+    const registeredResource2 = rdb.getResourceByPattern(resourcePatternPlural);
+    assert(registeredResource2);
+    assert.strictEqual(
+      registeredResource1!.type,
+      resourceTypeSingularPluralExample,
+    );
+    assert.strictEqual(
+      registeredResource2!.type,
+      resourceTypeSingularPluralExample,
+    );
+    assert.strictEqual(
+      registeredResource1!.name,
+      'project_location_cmekConfig',
+    );
+    assert.strictEqual(
+      registeredResource2!.name,
+      'project_location_cmekConfigs',
+    );
+    assert.strictEqual(warnings.length, 0);
   });
 
   it('get correct resource name for special patterns', () => {
