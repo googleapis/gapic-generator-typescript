@@ -91,7 +91,7 @@ export class ResourceDatabase {
         if (params.length === 0) {
           continue;
         }
-        const name = getResourceNameByPattern(pattern);
+        const name = getResourceNameByPattern(pattern, resource);
         let resourceDescriptor: ResourceDescriptor = {
           name,
           params,
