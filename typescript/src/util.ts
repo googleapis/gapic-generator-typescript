@@ -151,7 +151,7 @@ Array.prototype.toSnakeCaseString = function (
 
 export function getResourceNameByPattern(
   pattern: string,
-  resource?: protos.google.api.IResourceDescriptor,
+  resource: protos.google.api.IResourceDescriptor,
 ): string {
   const elements = pattern.split('/');
   const name = [];
