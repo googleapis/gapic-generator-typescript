@@ -149,7 +149,10 @@ Array.prototype.toSnakeCaseString = function (
   return this.map(part => part.toSnakeCase()).join(joiner);
 };
 
-export function getResourceNameByPattern(pattern: string): string {
+export function getResourceNameByPattern(
+  pattern: string,
+  resource: protos.google.api.IResourceDescriptor,
+): string {
   const elements = pattern.split('/');
   const name = [];
   // Multi pattern like: `projects/{project}/cmekSettings`, we need to append `cmekSettings` to the name.
@@ -158,6 +161,14 @@ export function getResourceNameByPattern(pattern: string): string {
   // if it comes as `profile` with no following `/{profile_id}`, we take `profile` as part of the name.
   // So for pattern: `user/{user_id}/profile/blurbs/{blurb_id}`, name will be `userId_profile_blurbId`
   while (elements.length > 0) {
+    // There is a very weird edge case in which if a resource turns from singular to plural (or, supports both)
+    // They can turn into the same name. Example is project_location_cmekConfig and project_location_cmek_config,
+    // Which turn into the same name with camelCase (therefore not unique).
+    // This branch uses the plural resource to distinguish the name.
+    if (elements[0] === resource.plural && resource.singular) {
+      name.push(elements[0]);
+      break;
+    }
     const eleName = elements.shift();
     if (elements.length === 0) {
       name.push(eleName);
