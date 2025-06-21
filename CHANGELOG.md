@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.10.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.10.0...v4.10.1) (2025-06-16)
+
+
+### Bug Fixes
+
+* Distinguish names for singleton & plural patterns ([#1769](https://github.com/googleapis/gapic-generator-typescript/issues/1769)) ([579dcfc](https://github.com/googleapis/gapic-generator-typescript/commit/579dcfc8510040f454668e40b7fd86806840311f))
+
 ## [4.10.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.9.0...v4.10.0) (2025-06-03)
 
 
