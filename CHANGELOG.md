@@ -1,5 +1,25 @@
 # Changelog
 
+## [4.10.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.10.0...v4.10.1) (2025-06-16)
+
+
+### Bug Fixes
+
+* Distinguish names for singleton & plural patterns ([#1769](https://github.com/googleapis/gapic-generator-typescript/issues/1769)) ([579dcfc](https://github.com/googleapis/gapic-generator-typescript/commit/579dcfc8510040f454668e40b7fd86806840311f))
+
+## [4.10.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.9.0...v4.10.0) (2025-06-03)
+
+
+### Features
+
+* Process any details in error status details ([#1763](https://github.com/googleapis/gapic-generator-typescript/issues/1763)) ([43ae174](https://github.com/googleapis/gapic-generator-typescript/commit/43ae17403c131d803154d13c93e7b76e8cd759e3))
+
+
+### Bug Fixes
+
+* Generate stubSimpleCall with a location mixin and adds retail test to check ([#1762](https://github.com/googleapis/gapic-generator-typescript/issues/1762)) ([6ce3448](https://github.com/googleapis/gapic-generator-typescript/commit/6ce344859cab586652dbd8e6d7dbc6518a600a9f))
+* Use the new cached method fromJSON from google-gax ([#1755](https://github.com/googleapis/gapic-generator-typescript/issues/1755)) ([66a6b36](https://github.com/googleapis/gapic-generator-typescript/commit/66a6b36e7d2f54191707dcdcb6d32ceb2b753c39))
+
 ## [4.9.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.8.2...v4.9.0) (2025-04-25)
 
 
