@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.10.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.10.1...v4.10.2) (2025-06-26)
+
+
+### Bug Fixes
+
+* Convert ID to string for ID types ([#1773](https://github.com/googleapis/gapic-generator-typescript/issues/1773)) ([abd0fcf](https://github.com/googleapis/gapic-generator-typescript/commit/abd0fcf8f4426b58ccfeae9c212264ee3f4be961))
+
 ## [4.10.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.10.0...v4.10.1) (2025-06-16)
 
 
