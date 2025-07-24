@@ -13,8 +13,15 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     echo -e "{srcs}" | while read src; do
         tar -xf "$src" -C "{package_dir}"
     done
+    echo "REALPATH OF PACKAGEDIR"
     echo $(realpath "{package_dir}")
     # Do some logic here to get the library in its final state
+    COMBINE_LIBRARIES=$(realpath "{combine_libraries}")
+    echo "HELLOO"
+    echo "$COMBINE_LIBRARIES"
+    $COMBINE_LIBRARIES .
+    COMPILE_PROTOS=$(realpath "{compile_protos}")
+    if [ -e esm/src ]; then $COMPILE_PROTOS "esm/src" "--esm"; else $COMPILE_PROTOS "src"; fi
     # Rezip package
     tar cfz "{pkg}" -C "$(realpath "{package_dir}")/.." "{package_dir}"
     """.format(
@@ -22,18 +29,33 @@ def _typescript_gapic_combined_pkg_impl(ctx):
         package_dir_path = paths.package_dir_path,
         package_dir = paths.package_dir,
         pkg = ctx.outputs.pkg.path,
+        compile_protos = ctx.executable.compile_protos.path,
+        combine_libraries = ctx.executable.combine_libraries.path
     )
 
     ctx.actions.run_shell(
         inputs = srcs,
         command = script,
         outputs = [ctx.outputs.pkg],
+        tools = [ctx.executable.compile_protos, ctx.executable.combine_libraries],
     )
 
 _typescript_gapic_combined_pkg = rule(
     attrs = {
         "deps": attr.label_list(allow_files = True, mandatory = True),
         "package_dir": attr.string(mandatory = True),
+        "compile_protos": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+            default = Label("//:compile_protos_binary"),
+        ),
+        "combine_libraries": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+            default = Label("//:combine_libraries_binary"), 
+        )
     },
     outputs = {"pkg": "%{name}.tar.gz"},
     implementation = _typescript_gapic_combined_pkg_impl,
