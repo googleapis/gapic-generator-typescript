@@ -19,8 +19,10 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     COMBINE_LIBRARIES=$(realpath "{combine_libraries}")
     echo "HELLOO"
     echo "$COMBINE_LIBRARIES"
-    $COMBINE_LIBRARIES .
+    $COMBINE_LIBRARIES combine-library --library-path $(realpath "{package_dir}")
+    echo $(ls -a $(realpath "{package_dir}"))
     COMPILE_PROTOS=$(realpath "{compile_protos}")
+    echo "$COMPILE_PROTOS"
     if [ -e esm/src ]; then $COMPILE_PROTOS "esm/src" "--esm"; else $COMPILE_PROTOS "src"; fi
     # Rezip package
     tar cfz "{pkg}" -C "$(realpath "{package_dir}")/.." "{package_dir}"
