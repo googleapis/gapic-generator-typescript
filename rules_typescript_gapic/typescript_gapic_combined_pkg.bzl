@@ -19,7 +19,7 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     COMBINE_LIBRARIES=$(realpath "{combine_libraries}")
     echo "HELLOO"
     echo "$COMBINE_LIBRARIES"
-    $COMBINE_LIBRARIES combine-library --library-path $(realpath "{package_dir}")
+    $COMBINE_LIBRARIES combine-library --library-path $(realpath "{package_dir}") --default-version "{default_version}"
     echo $(ls -a $(realpath "{package_dir}"))
     COMPILE_PROTOS=$(realpath "{compile_protos}")
     echo "$COMPILE_PROTOS"
@@ -30,6 +30,7 @@ def _typescript_gapic_combined_pkg_impl(ctx):
         srcs = "\\n".join([f.path for f in srcs]),
         package_dir_path = paths.package_dir_path,
         package_dir = paths.package_dir,
+        default_version = ctx.attr.default_version,
         pkg = ctx.outputs.pkg.path,
         compile_protos = ctx.executable.compile_protos.path,
         combine_libraries = ctx.executable.combine_libraries.path
@@ -46,6 +47,7 @@ _typescript_gapic_combined_pkg = rule(
     attrs = {
         "deps": attr.label_list(allow_files = True, mandatory = True),
         "package_dir": attr.string(mandatory = True),
+        "default_version": attr.string(mandatory = True),
         "compile_protos": attr.label(
             executable = True,
             cfg = "exec",
@@ -63,12 +65,14 @@ _typescript_gapic_combined_pkg = rule(
     implementation = _typescript_gapic_combined_pkg_impl,
 )
 
-def typescript_gapic_combined_pkg(name, deps, assembly_name = None):
+def typescript_gapic_combined_pkg(name, deps, default_version, assembly_name = None):
     package_dir = name
+    default_version = default_version
     if assembly_name:
         package_dir = "%s-%s" % (assembly_name, name)
     _typescript_gapic_combined_pkg(
         name = name,
         deps = deps,
+        default_version = default_version,
         package_dir = package_dir,
     )
