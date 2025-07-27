@@ -13,19 +13,20 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     echo -e "{srcs}" | while read src; do
         tar -xf "$src" -C "{package_dir}"
     done
-    echo "REALPATH OF PACKAGEDIR"
-    echo $(realpath "{package_dir}")
+    LIBRARY_DIR=$(realpath "{package_dir}")
     # Do some logic here to get the library in its final state
     COMBINE_LIBRARIES=$(realpath "{combine_libraries}")
-    echo "HELLOO"
-    echo "$COMBINE_LIBRARIES"
-    $COMBINE_LIBRARIES combine-library --library-path $(realpath "{package_dir}") --default-version "{default_version}"
-    echo $(ls -a $(realpath "{package_dir}"))
+    echo "START LOGGING"
+    echo "LIBRARY_DIR"
+    echo $LIBRARY_DIR
     COMPILE_PROTOS=$(realpath "{compile_protos}")
     echo "$COMPILE_PROTOS"
-    if [ -e esm/src ]; then $COMPILE_PROTOS "esm/src" "--esm"; else $COMPILE_PROTOS "src"; fi
+    echo "$LIBRARY_DIR/esm/src"
+    $COMBINE_LIBRARIES combine-library --library-path $LIBRARY_DIR --default-version "{default_version}"
+    COMPILE_PROTOS=$(realpath "{compile_protos}")
+    if [ -e "$LIBRARY_DIR/esm/src" ]; then $COMPILE_PROTOS "$LIBRARY_DIR/esm/src" --esm; else $COMPILE_PROTOS "$LIBRARY_DIR/src"; fi
     # Rezip package
-    tar cfz "{pkg}" -C "$(realpath "{package_dir}")/.." "{package_dir}"
+    tar cfz "{pkg}" -C "$LIBRARY_DIR/.." "{package_dir}"
     """.format(
         srcs = "\\n".join([f.path for f in srcs]),
         package_dir_path = paths.package_dir_path,
