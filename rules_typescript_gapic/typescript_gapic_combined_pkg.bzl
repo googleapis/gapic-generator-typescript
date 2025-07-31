@@ -15,12 +15,15 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     done
     LIBRARY_DIR=$(realpath "{package_dir}")
     # Do some logic here to get the library in its final state
-    COMBINE_LIBRARIES=$(realpath "{combine_libraries}")
+    PROCESS_LIBRARIES=$(realpath "{combine_libraries}")
     COMPILE_PROTOS=$(realpath "{compile_protos}")
-    $COMBINE_LIBRARIES combine-library \
+    $PROCESS_LIBRARIES combine-library \
         --library-path $LIBRARY_DIR \
         --default-version "{default_version}" \
-        --release-level "{release_level}"
+    $PROCESS_LIBRARIES generate-readme \
+        --initial-generation true \
+        --library-path $LIBRARY_DIR \
+        --release_level ${release_level}
     CWD=$(pwd)
     cd $LIBRARY_DIR
     echo "IN TEMPLATES EXCLUDES: "
