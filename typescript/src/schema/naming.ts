@@ -103,7 +103,7 @@ export class Naming {
     this.namespace = namespaces.replace(/\.$/, '').split('.');
     this.version = version || '';
     this.protoPackage = rootPackage;
-    this.namePath = segments.slice(0, versionIndex).join("-")
+    this.namePath = segments.slice(0, versionIndex).join('-');
 
     if (!this.version && protoPackages.length > 1) {
       throw new Error(
