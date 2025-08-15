@@ -34,7 +34,7 @@ export interface ServiceYaml {
 
 export interface LibrarySettings {
   version?: string;
-  typescript_settings?: TypescriptSettings;
+  node_settings?: NodeSettings;
 }
 
 export interface MethodSettings {
@@ -42,7 +42,7 @@ export interface MethodSettings {
   auto_populated_fields?: string[];
 }
 
-export interface TypescriptSettings {
+export interface NodeSettings {
   common: {
     selective_gapic_generation?: {
       methods: string[];
