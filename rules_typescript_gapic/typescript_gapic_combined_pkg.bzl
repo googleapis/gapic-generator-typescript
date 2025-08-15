@@ -20,10 +20,16 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     $PROCESS_LIBRARIES combine-library \
         --library-path $LIBRARY_DIR \
         --default-version "{default_version}" \
+    # If we ever want to change the replacement string
+    # in the README to add in the samples table and/or
+    # releaseLevel, make sure to change the search string in this command
+    # as well
     $PROCESS_LIBRARIES generate-readme \
         --initial-generation true \
         --library-path $LIBRARY_DIR \
-        --release_level ${release_level}
+        --release-level "{release_level}"
+        --replacement-string-samples '\\[//]: # "samples"'
+        --replacement-string-release-level '\\[//]: # "releaseLevel"'
     CWD=$(pwd)
     cd $LIBRARY_DIR
     echo "IN TEMPLATES EXCLUDES: "
