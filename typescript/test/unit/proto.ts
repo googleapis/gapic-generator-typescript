@@ -718,7 +718,7 @@ describe('src/schema/proto.ts', () => {
               ],
               library_settings: [
                 {
-                  typescript_settings: {
+                  node_settings: {
                     common: {
                       selective_gapic_generation: {
                         methods: ['google.showcase.v1beta1.Echo.Echo'],
@@ -1483,7 +1483,7 @@ describe('src/schema/proto.ts', () => {
             ],
             library_settings: [
               {
-                typescript_settings: {
+                node_settings: {
                   common: {
                     selective_gapic_generation: {
                       methods: [
@@ -1587,7 +1587,7 @@ describe('src/schema/proto.ts', () => {
             ],
             library_settings: [
               {
-                typescript_settings: {
+                node_settings: {
                   common: {
                     selective_gapic_generation: {
                       methods: ['google.showcase.v1beta1.Echo.Ecno'],
@@ -1690,7 +1690,7 @@ describe('src/schema/proto.ts', () => {
             ],
             library_settings: [
               {
-                typescript_settings: {
+                node_settings: {
                   common: {
                     selective_gapic_generation: {
                       methods: ['google.showcase.v1beta1.Echo.Ecno'],

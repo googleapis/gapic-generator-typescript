@@ -765,7 +765,7 @@ export function getSelectiveGapic(
   serviceYaml: ServiceYaml | undefined,
 ): SelectiveGapicConfig {
   const selectiveGapicConfig =
-    serviceYaml?.publishing?.library_settings?.[0]?.typescript_settings?.common
+    serviceYaml?.publishing?.library_settings?.[0]?.node_settings?.common
       ?.selective_gapic_generation;
 
   const methods: string[] = [];
