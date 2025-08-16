@@ -41,8 +41,6 @@ pnpm_repository(name = "pnpm")
 load("@npm//:repositories.bzl", "npm_repositories")
 npm_repositories()
 
-
-
 # To regenerate the lock file, run:
 # bazelisk run -- @pnpm//:pnpm --dir $PWD install --lockfile-only
 # More information: https://github.com/aspect-build/rules_js/blob/main/docs/faq.md#can-i-use-bazel-managed-pnpm

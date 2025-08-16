@@ -2,7 +2,7 @@ load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_test")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
 load("@npm//:gapic-tools/package_json.bzl", gapic_tools_bin = "bin")
-
+load("@npm//:gapic-node-processing/package_json.bzl", gapic_node_processing_bin = "bin")
 package(default_visibility = ["//visibility:public"])
 
 npm_link_all_packages(name = "node_modules")
@@ -103,6 +103,16 @@ gapic_tools_bin.compileProtos_binary(
     visibility = ["//visibility:public"],
 )  
 
+gapic_node_processing_bin.gapic_node_processing_binary(
+    name = "combine_libraries_binary",
+    data = [
+        "//:node_modules/nunjucks",
+        "//:node_modules/gapic-node-processing/templates/post-processing-templates/index.ts.njk"    ],
+    env = {
+        "BAZEL_BINDIR": ".",
+    },
+    visibility = ["//visibility:public"],
+)  
 
 js_binary(
     name = "protoc_plugin",
