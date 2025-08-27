@@ -38,6 +38,8 @@ export class Naming {
   version: string;
   productName: string;
   protoPackage: string;
+  nameNotCapitalized: string;
+  namePath: string;
 
   constructor(
     fileDescriptors: protos.google.protobuf.IFileDescriptorProto[],
@@ -97,9 +99,11 @@ export class Naming {
 
     this.name = name.capitalize();
     this.productName = this.name;
+    this.nameNotCapitalized = name;
     this.namespace = namespaces.replace(/\.$/, '').split('.');
     this.version = version || '';
     this.protoPackage = rootPackage;
+    this.namePath = segments.slice(0, versionIndex).join('-');
 
     if (!this.version && protoPackages.length > 1) {
       throw new Error(
