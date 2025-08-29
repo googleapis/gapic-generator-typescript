@@ -31,7 +31,7 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     # in the README to add in the samples table and/or
     # releaseLevel, make sure to change the search string in this command
     # as well
-    $PROCESS_LIBRARIES generate-readme --initial-generation true --source-path $LIBRARY_DIR --release-level "{release_level}"
+    $PROCESS_LIBRARIES generate-readme --initial-generation true --source-path $LIBRARY_DIR --release-level "{release_level}" --replacement-string-samples '[//]: # "samples"' --replacement-string-release-level '[//]: # "releaseLevel"'
     if [ $IS_ESM ]; then $COMPILE_PROTOS "esm/src" --esm; else $COMPILE_PROTOS "src"; fi   
     # Here we are removing any handwritten templates we don't want
     # the generator to clobber over. However this *might* cause a library
