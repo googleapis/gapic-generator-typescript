@@ -20,24 +20,19 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     CWD=$(pwd)
     cd $LIBRARY_DIR
     ESM_FLAG=""
+    IS_ESM=false
     if [ -e "esm/src" ]; then
         ESM_FLAG="--isEsm=true"
+        IS_ESM=true
     fi
-    $PROCESS_LIBRARIES combine-library \
-        --source-path $LIBRARY_DIR \
-        --default-version "{default_version}" \
-        $ESM_FLAG
+    cd $CWD
+    $PROCESS_LIBRARIES combine-library --source-path $LIBRARY_DIR --default-version "{default_version}" $ESM_FLAG
     # If we ever want to change the replacement string
     # in the README to add in the samples table and/or
     # releaseLevel, make sure to change the search string in this command
     # as well
-    $PROCESS_LIBRARIES generate-readme \
-        --initial-generation true \
-        --source-path $LIBRARY_DIR \
-        --release-level "{release_level}" \
-        --replacement-string-samples '\\[//]: # "samples"' \
-        --replacement-string-release-level '\\[//]: # "releaseLevel"'
-    if [ -e "esm/src" ]; then $COMPILE_PROTOS "esm/src" --esm; else $COMPILE_PROTOS "src"; fi
+    $PROCESS_LIBRARIES generate-readme --source-path $LIBRARY_DIR --initial-generation true  --release-level "{release_level}" --replacement-string-samples '\\[//]: # "samples"' --replacement-string-release-level '\\[//]: # "releaseLevel"'
+    if [ $IS_ESM ]; then $COMPILE_PROTOS "esm/src" --esm; else $COMPILE_PROTOS "src"; fi   
     # Here we are removing any handwritten templates we don't want
     # the generator to clobber over. However this *might* cause a library
     # to not be runnable. We'll need to reconsider this step once
@@ -48,7 +43,6 @@ def _typescript_gapic_combined_pkg_impl(ctx):
         echo "rm -rf $template";
         rm -rf "$template";
     done
-    cd $CWD
     # Rezip package
     tar cfz "{pkg}" -C "$LIBRARY_DIR/.." "{package_dir}"
     """.format(
