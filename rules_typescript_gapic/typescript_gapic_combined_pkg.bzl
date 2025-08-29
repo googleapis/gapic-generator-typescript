@@ -17,36 +17,33 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     # Do some logic here to get the library in its final state
     PROCESS_LIBRARIES=$(realpath "{combine_libraries}")
     COMPILE_PROTOS=$(realpath "{compile_protos}")
-    $PROCESS_LIBRARIES combine-library \
-        --library-path $LIBRARY_DIR \
-        --default-version "{default_version}" \
-    # If we ever want to change the replacement string
-    # in the README to add in the samples table and/or
-    # releaseLevel, make sure to change the search string in this command
-    # as well
     CWD=$(pwd)
     cd $LIBRARY_DIR
     ESM_FLAG=""
     if [ -e "esm/src" ]; then
         ESM_FLAG="--isEsm=true"
     fi
-
+    $PROCESS_LIBRARIES combine-library \
+        --source-path $LIBRARY_DIR \
+        --default-version "{default_version}" \
+        $ESM_FLAG
+    # If we ever want to change the replacement string
+    # in the README to add in the samples table and/or
+    # releaseLevel, make sure to change the search string in this command
+    # as well
     $PROCESS_LIBRARIES generate-readme \
         --initial-generation true \
-        --library-path $LIBRARY_DIR \
+        --source-path $LIBRARY_DIR \
         --release-level "{release_level}" \
         --replacement-string-samples '\\[//]: # "samples"' \
-        --replacement-string-release-level '\\[//]: # "releaseLevel"' \
-        $ESM_FLAG
-
-    echo "EXCLUDING THE FOLLOWING TEMPLATES: "
-    echo "{templates_excludes}"
+        --replacement-string-release-level '\\[//]: # "releaseLevel"'
     if [ -e "esm/src" ]; then $COMPILE_PROTOS "esm/src" --esm; else $COMPILE_PROTOS "src"; fi
-    echo $(ls -a)
     # Here we are removing any handwritten templates we don't want
     # the generator to clobber over. However this *might* cause a library
     # to not be runnable. We'll need to reconsider this step once
     # we fully move to librarian.
+    echo "EXCLUDING THE FOLLOWING TEMPLATES: "
+    echo "{templates_excludes}"
     echo -e "{templates_excludes}" | while read template; do
         echo "rm -rf $template";
         rm -rf "$template";
