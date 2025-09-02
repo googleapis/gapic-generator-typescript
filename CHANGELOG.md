@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.11.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.0...v4.11.1) (2025-09-02)
+
+
+### Bug Fixes
+
+* Remove the .md extension for LICENSE ([#1822](https://github.com/googleapis/gapic-generator-typescript/issues/1822)) ([f7b1110](https://github.com/googleapis/gapic-generator-typescript/commit/f7b1110e8b5a5a63b72c710b0982a897e08331b3))
+
 ## [4.11.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.10.4...v4.11.0) (2025-08-29)
 
 
