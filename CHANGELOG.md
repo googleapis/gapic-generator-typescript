@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.11.0](https://github.com/googleapis/gapic-generator-typescript/compare/v4.10.4...v4.11.0) (2025-08-29)
+
+
+### Features
+
+* Create top-level BUILD rule to generate a combined library ([#1811](https://github.com/googleapis/gapic-generator-typescript/issues/1811)) ([726c211](https://github.com/googleapis/gapic-generator-typescript/commit/726c21166ae9f013085b8e0d7df6c63651aad0f6))
+* Update generator to published type ([#1819](https://github.com/googleapis/gapic-generator-typescript/issues/1819)) ([d3dd723](https://github.com/googleapis/gapic-generator-typescript/commit/d3dd7235cf61f2da2e56e4d85e098d860129bfeb))
+
 ## [4.10.4](https://github.com/googleapis/gapic-generator-typescript/compare/v4.10.3...v4.10.4) (2025-08-21)
 
 
