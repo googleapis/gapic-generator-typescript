@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.11.4](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.3...v4.11.4) (2025-09-05)
+
+
+### Bug Fixes
+
+* Match all ids case-insensitive ([#1831](https://github.com/googleapis/gapic-generator-typescript/issues/1831)) ([0dadd1e](https://github.com/googleapis/gapic-generator-typescript/commit/0dadd1ea5f436603f96461380b4d074d106f8c56))
+
+## [4.11.3](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.2...v4.11.3) (2025-09-05)
+
+
+### Bug Fixes
+
+* Small issues with end-to-end generation test ([#1828](https://github.com/googleapis/gapic-generator-typescript/issues/1828)) ([6b5390a](https://github.com/googleapis/gapic-generator-typescript/commit/6b5390a58d40951041e70c183aaeb2a6ba082dea))
+
 ## [4.11.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.1...v4.11.2) (2025-09-03)
 
 
