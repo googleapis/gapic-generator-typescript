@@ -45,6 +45,7 @@ export class API {
   restNumericEnums: boolean;
   documentationUri: any;
   newIssueUri: string;
+  title?: string;
 
   static isIgnoredService(
     fd: protos.google.protobuf.IFileDescriptorProto,
@@ -111,6 +112,7 @@ export class API {
     this.documentationUri =
       options.serviceYaml?.publishing?.documentation_uri ?? '';
     this.newIssueUri = options.serviceYaml?.publishing?.new_issue_uri ?? '';
+    this.title = options.serviceYaml?.title;
 
     const [allResourceDatabase, resourceDatabase] =
       getResourceDatabase(fileDescriptors);

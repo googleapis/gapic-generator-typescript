@@ -40,8 +40,8 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     echo "EXCLUDING THE FOLLOWING TEMPLATES: "
     echo "{templates_excludes}"
     echo -e "{templates_excludes}" | while read template; do
-        echo "rm -rf $template";
-        rm -rf "$template";
+        echo "rm -rf $LIBRARY_DIR/$template";
+        rm -rf "$LIBRARY_DIR"/"$template";
     done
     # Rezip package
     tar cfz "{pkg}" -C "$LIBRARY_DIR/.." "{package_dir}"
