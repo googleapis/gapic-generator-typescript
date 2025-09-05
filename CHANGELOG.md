@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.11.2](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.1...v4.11.2) (2025-09-03)
+
+
+### Bug Fixes
+
+* Remove template that is not needed ([#1824](https://github.com/googleapis/gapic-generator-typescript/issues/1824)) ([72c8505](https://github.com/googleapis/gapic-generator-typescript/commit/72c8505584d5ccd781c31f82f007ade0d7fd8220))
+
 ## [4.11.1](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.0...v4.11.1) (2025-09-02)
 
 
