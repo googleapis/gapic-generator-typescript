@@ -40,6 +40,7 @@ export class Naming {
   protoPackage: string;
   nameNotCapitalized: string;
   namePath: string;
+  namePathWithDashes: string;
 
   constructor(
     fileDescriptors: protos.google.protobuf.IFileDescriptorProto[],
@@ -104,6 +105,7 @@ export class Naming {
     this.version = version || '';
     this.protoPackage = rootPackage;
     this.namePath = segments.slice(0, versionIndex).join('-');
+    this.namePathWithDashes = segments.slice(0, versionIndex).join('/');
 
     if (!this.version && protoPackages.length > 1) {
       throw new Error(
