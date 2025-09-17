@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.11.5](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.4...v4.11.5) (2025-09-17)
+
+
+### Bug Fixes
+
+* Some remaining cleanups for post processor fixes ([#1837](https://github.com/googleapis/gapic-generator-typescript/issues/1837)) ([2833d91](https://github.com/googleapis/gapic-generator-typescript/commit/2833d917af2da2858f9507d61a5554141e03bcbd))
+
 ## [4.11.4](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.3...v4.11.4) (2025-09-05)
 
 
