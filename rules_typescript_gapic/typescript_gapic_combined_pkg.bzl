@@ -8,6 +8,15 @@ def _typescript_gapic_combined_pkg_impl(ctx):
 
     paths = construct_package_dir_paths(ctx.attr.package_dir, ctx.outputs.pkg, ctx.label.name)
 
+    # 1. Check if templates_excludes is NOT None and NOT empty.
+    # The Starlark attr.string_list defaults to [], which is falsy in Starlark.
+    if ctx.attr.templates_excludes:
+        # 2. If it's valid, join the list with newlines.
+        templates_excludes_var = "\\n".join(ctx.attr.templates_excludes)
+    else:
+        # 3. If it's empty or None, use an empty string.
+        templates_excludes_var = ""
+
     script = """
     mkdir "{package_dir}"
     echo -e "{srcs}" | while read src; do
@@ -21,12 +30,14 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     cd $LIBRARY_DIR
     ESM_FLAG=""
     IS_ESM=false
-    if [ -e "esm/src" ]; then
+    # Check if any nested path contains esm/src
+    FOUND_ESM_SRC=$(find . -type d -path '*/esm/src' -print -quit 2>/dev/null)
+    if [ -n "$FOUND_ESM_SRC" ]; then
         ESM_FLAG="--isEsm=true"
-        IS_ESM=true
+        IS_ESM=true      
     fi
+    echo "Library is ESM: $IS_ESM"
     cd $CWD
-    $PROCESS_LIBRARIES combine-library --source-path $LIBRARY_DIR --default-version "{default_version}" $ESM_FLAG
     # If we ever want to change the replacement string
     # in the README to add in the samples table and/or
     # releaseLevel, make sure to change the search string in this command
@@ -37,12 +48,17 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     # the generator to clobber over. However this *might* cause a library
     # to not be runnable. We'll need to reconsider this step once
     # we fully move to librarian.
-    echo "EXCLUDING THE FOLLOWING TEMPLATES: "
+    echo "EXCLUDING THE FOLLOWING TEMPLATES:"
     echo "{templates_excludes}"
-    echo -e "{templates_excludes}" | while read template; do
-        echo "rm -rf $LIBRARY_DIR/$template";
-        rm -rf "$LIBRARY_DIR"/"$template";
-    done
+    if [ -n "{templates_excludes}" ]; then
+        echo -e "{templates_excludes}" | while read template; do
+            # Added an extra check for empty lines in case of trailing newline
+            if [ -n "$template" ]; then
+                echo "rm -rf $LIBRARY_DIR/$template";
+                rm -rf "$LIBRARY_DIR"/"$template";
+            fi
+        done
+    fi
     # Rezip package
     tar cfz "{pkg}" -C "$LIBRARY_DIR/.." "{package_dir}"
     """.format(
@@ -50,7 +66,7 @@ def _typescript_gapic_combined_pkg_impl(ctx):
         package_dir_path = paths.package_dir_path,
         package_dir = paths.package_dir,
         default_version = ctx.attr.default_version,
-        templates_excludes = "\\n".join(ctx.attr.templates_excludes),
+        templates_excludes = templates_excludes_var,
         pkg = ctx.outputs.pkg.path,
         compile_protos = ctx.executable.compile_protos.path,
         combine_libraries = ctx.executable.combine_libraries.path,
