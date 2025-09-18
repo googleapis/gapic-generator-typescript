@@ -38,6 +38,7 @@ def _typescript_gapic_combined_pkg_impl(ctx):
     fi
     echo "Library is ESM: $IS_ESM"
     cd $CWD
+    $PROCESS_LIBRARIES combine-library --source-path $LIBRARY_DIR --default-version "{default_version}" $ESM_FLAG
     # If we ever want to change the replacement string
     # in the README to add in the samples table and/or
     # releaseLevel, make sure to change the search string in this command
