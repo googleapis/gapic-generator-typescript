@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.11.6](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.5...v4.11.6) (2025-09-18)
+
+
+### Bug Fixes
+
+* Re-add process libraries combination ([#1840](https://github.com/googleapis/gapic-generator-typescript/issues/1840)) ([03b7388](https://github.com/googleapis/gapic-generator-typescript/commit/03b738827f74fa1b0e3c1ec1269d0713160aba7d))
+
 ## [4.11.5](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.4...v4.11.5) (2025-09-17)
 
 
