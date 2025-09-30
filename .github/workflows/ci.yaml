@@ -149,6 +149,36 @@ jobs:
         rm -rf build
         npm run compile
         npm run system-test
+
+  combined-lib-test:
+    needs: build
+    runs-on: ubuntu-latest
+    container: gcr.io/gapic-images/googleapis:20250404
+    steps:
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: 18.x
+  
+    - name: Install Node dependencies with npm
+      run: npm install
+
+    - name: Run bazel build for combined library
+      env:
+        # Define one or more environment variables for this step
+        TEST_ENV_DESTINATION_PATH: test-fixtures/google-cloud-speech
+      run: rules_typescript_gapic/combine_script.sh test-fixtures/google-cloud-speech-nodejs v1 "" "" node_modules/gapic-tools/build/src/compileProtos.js node_modules/gapic-node-processing/build/src/cli.js ""
+
+    - name: Test combined library
+      run: |
+        cd test-fixtures/google-cloud-speech
+        pwd
+        npm install
+        npm test
+        npm run system-test
+
   lint:
     runs-on: ubuntu-latest
     steps:
