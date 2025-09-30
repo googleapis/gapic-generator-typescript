@@ -111,7 +111,7 @@ fi
 
 cd $CWD
 
-if [ -z "$TEST_ENV" ]; then 
+if [ -z "$TEST_ENV_DESTINATION_PATH" ]; then 
     # Rezip package
     tar cfz "$PKG_PATH" -C "$LIBRARY_DIR/.." "$PACKAGE_DIR"
 fi
