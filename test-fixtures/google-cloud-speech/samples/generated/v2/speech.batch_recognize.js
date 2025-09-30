@@ -16,8 +16,6 @@
 // ** https://github.com/googleapis/gapic-generator-typescript **
 // ** All changes to this file may be overwritten. **
 
-
-
 'use strict';
 
 function main(recognizer) {
@@ -38,9 +36,9 @@ function main(recognizer) {
   /**
    *  Features and audio metadata to use for the Automatic Speech Recognition.
    *  This field in combination with the
-   *  config_mask google.cloud.speech.v2.BatchRecognizeRequest.config_mask 
+   *  config_mask google.cloud.speech.v2.BatchRecognizeRequest.config_mask
    *  field can be used to override parts of the
-   *  default_recognition_config google.cloud.speech.v2.Recognizer.default_recognition_config 
+   *  default_recognition_config google.cloud.speech.v2.Recognizer.default_recognition_config
    *  of the Recognizer resource.
    */
   // const config = {}
@@ -48,7 +46,7 @@ function main(recognizer) {
    *  The list of fields in
    *  config google.cloud.speech.v2.BatchRecognizeRequest.config  that override
    *  the values in the
-   *  default_recognition_config google.cloud.speech.v2.Recognizer.default_recognition_config 
+   *  default_recognition_config google.cloud.speech.v2.Recognizer.default_recognition_config
    *  of the recognizer during this recognition request. If no mask is provided,
    *  all given fields in
    *  config google.cloud.speech.v2.BatchRecognizeRequest.config  override the
