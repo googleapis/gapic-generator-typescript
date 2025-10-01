@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.11.8](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.7...v4.11.8) (2025-10-01)
+
+
+### Bug Fixes
+
+* Update gapic-node-processing and add ESM tests ([#1853](https://github.com/googleapis/gapic-generator-typescript/issues/1853)) ([0748ee2](https://github.com/googleapis/gapic-generator-typescript/commit/0748ee2a3ceda1e5722817bc727a6afeacffac99))
+
 ## [4.11.7](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.6...v4.11.7) (2025-09-30)
 
 
