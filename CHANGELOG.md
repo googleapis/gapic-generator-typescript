@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.11.7](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.6...v4.11.7) (2025-09-30)
+
+
+### Bug Fixes
+
+* Broken compileProto step and add tests ([#1846](https://github.com/googleapis/gapic-generator-typescript/issues/1846)) ([7f8744b](https://github.com/googleapis/gapic-generator-typescript/commit/7f8744b6a793ac89e30355d843d15ffb9240bc36))
+
 ## [4.11.6](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.5...v4.11.6) (2025-09-18)
 
 
