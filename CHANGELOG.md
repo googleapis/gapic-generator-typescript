@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.11.9](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.8...v4.11.9) (2025-10-14)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency proto3-json-serializer to ^3.0.3 ([#1872](https://github.com/googleapis/gapic-generator-typescript/issues/1872)) ([e953a31](https://github.com/googleapis/gapic-generator-typescript/commit/e953a31fddc7fd8917b290b83c4582b792ebd74d))
+* Update gapic-node-processing ([#1870](https://github.com/googleapis/gapic-generator-typescript/issues/1870)) ([7261461](https://github.com/googleapis/gapic-generator-typescript/commit/7261461062c283cc424046b5b76570efc41eae99))
+
 ## [4.11.8](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.7...v4.11.8) (2025-10-01)
 
 
