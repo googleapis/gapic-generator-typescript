@@ -28,7 +28,7 @@ VERSION=`cat package.json | grep version | awk -F'"' '{ print $4; }'`
 cp "google-cloud-gapic-generator-$VERSION.tgz" "docker/package.tgz"
 cd docker
 
-docker build -t gapic-generator-typescript .
+docker build -t gapic-generator-typescript:latest .
 
 # Cleanup
 rm -f gitlog.txt package.tgz

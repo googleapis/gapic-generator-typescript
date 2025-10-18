@@ -13,7 +13,18 @@ echo 1>&2
 # --grpc-service-config google/cloud/texttospeech/v1/texttospeech_grpc_service_config.json
 
 cd /in
+
+echo "gapic-generator-typescript \
+  --protoc=/usr/local/bin/protoc \
+  --gapic-validator_out=. \
+  --common-proto-path /protos \
+  -I /in \
+  --output-dir /out \
+  $* \
+  `find /in -name '*.proto'`
+"
 gapic-generator-typescript \
+  --protoc=/usr/local/bin/protoc \
   --gapic-validator_out=. \
   --common-proto-path /protos \
   -I /in \
@@ -21,4 +32,5 @@ gapic-generator-typescript \
   $* \
   `find /in -name '*.proto'`
 
+echo "$(ls -al /out)"
 exit 0

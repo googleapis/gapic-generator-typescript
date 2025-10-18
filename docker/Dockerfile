@@ -1,4 +1,6 @@
-FROM node:12
+FROM node:18
+
+ENV PATH="/usr/local/bin:${PATH}"
 
 # Create folder structure
 RUN mkdir -p /in
@@ -9,6 +11,8 @@ RUN mkdir -p /root/files
 # Install the generator
 COPY ./package.tgz /root/files/
 RUN npm install -g /root/files/package.tgz
+
+RUN npm install -g google-gax
 
 # Download and install protoc
 RUN cd /root/files && \
@@ -36,9 +40,6 @@ RUN chmod +x /usr/local/bin/start.sh
 # Delete downloaded files
 RUN rm -rf /root/files
 
-# Print versions for debugging purposes
-RUN gapic-generator-typescript --version
-RUN protoc --version
 
 # Save git log output for debugging purposes
 COPY ./gitlog.txt /

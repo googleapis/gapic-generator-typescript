@@ -244,6 +244,8 @@ async function main(processArgv: string[]) {
   protocCommand.push(...protoDirsArg);
   protocCommand.push(...protoFiles);
   protocCommand.push(`-I${commonProtoPath}`);
+  
+  // throw new Error(`Logging the protoc command!!!!\n: ${protoc} ${protocCommand}`);
 
   try {
     const {stdout, stderr} = await execFileAsync(protoc, protocCommand);
