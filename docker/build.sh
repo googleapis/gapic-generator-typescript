@@ -20,15 +20,20 @@ set -e
 SCRIPTDIR=`dirname "$0"`
 cd "$SCRIPTDIR"
 cd ..   # now in the package.json directory
+
+# Ensure gitlog.txt is created in the docker directory
 git log | head -n 3 > docker/gitlog.txt
+
+npm run compile
 npm pack
 
 VERSION=`cat package.json | grep version | awk -F'"' '{ print $4; }'`
 
+# Ensure package.tgz is copied to the docker directory
 cp "google-cloud-gapic-generator-$VERSION.tgz" "docker/package.tgz"
-cd docker
 
-docker build -t gapic-generator-typescript:latest .
+# Run docker build from the project root, with the docker directory as context
+docker build -t gapic-generator-typescript:latest docker
 
 # Cleanup
-rm -f gitlog.txt package.tgz
+rm -f docker/gitlog.txt docker/package.tgz

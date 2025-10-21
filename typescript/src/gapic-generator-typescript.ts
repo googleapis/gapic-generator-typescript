@@ -49,10 +49,12 @@ async function main(processArgv: string[]) {
   // If we're built with bazel, we'll have a shell wrapper to be used as a protoc plugin.
   // Just in case if someone builds us without bazel, let's have a fallback to an actual
   // JS protoc plugin without a wrapper.
-  const protocPluginBash = path.join(__dirname, '..', 'protoc_plugin.sh');
-  const protocPlugin = fs.existsSync(protocPluginBash)
-    ? protocPluginBash
-    : path.join(__dirname, 'protoc-plugin.js');
+  // const protocPluginBash = path.join(__dirname, '..', 'protoc_plugin.sh');
+  // const protocPlugin = fs.existsSync(protocPluginBash)
+  //   ? protocPluginBash
+  //   : path.join(__dirname, 'protoc-plugin-wrapper.cjs');
+
+  const protocPlugin = path.join(__dirname, 'protoc-plugin-wrapper.cjs');
 
   const argv = await yargs(processArgv)
     .array('I')

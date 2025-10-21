@@ -12,6 +12,10 @@ RUN mkdir -p /root/files
 COPY ./package.tgz /root/files/
 RUN npm install -g /root/files/package.tgz
 
+# Copy the wrapper script and make it executable
+COPY ./protoc-gen-typescript_gapic_wrapper.sh /usr/local/bin/protoc-gen-typescript_gapic
+RUN chmod +x /usr/local/bin/protoc-gen-typescript_gapic
+
 RUN npm install -g google-gax
 
 # Download and install protoc
@@ -36,6 +40,8 @@ COPY --from=gcr.io/gapic-images/gapic-config-validator /usr/local/bin/protoc-gen
 # Copy the start script
 COPY ./start.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/start.sh
+
+
 
 # Delete downloaded files
 RUN rm -rf /root/files
