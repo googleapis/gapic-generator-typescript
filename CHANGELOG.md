@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.9.12](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.9...v4.9.12) (2025-10-25)
+
+
+### Bug Fixes
+
+* Release as 4.9.12 ([8579ed1](https://github.com/googleapis/gapic-generator-typescript/commit/8579ed1ada6f1d286df5ea3efdb2b29f48ac3cb2))
+
 ## [4.11.9](https://github.com/googleapis/gapic-generator-typescript/compare/v4.11.8...v4.11.9) (2025-10-14)
 
 
