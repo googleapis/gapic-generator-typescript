@@ -14,6 +14,7 @@ echo 1>&2
 
 cd /in
 gapic-generator-typescript \
+  --protoc=/usr/local/bin/protoc \
   --gapic-validator_out=. \
   --common-proto-path /protos \
   -I /in \

@@ -1,4 +1,4 @@
-FROM node:12
+FROM node:18
 
 # Create folder structure
 RUN mkdir -p /in
@@ -12,8 +12,8 @@ RUN npm install -g /root/files/package.tgz
 
 # Download and install protoc
 RUN cd /root/files && \
-    wget https://github.com/protocolbuffers/protobuf/releases/download/v21.5/protoc-21.5-linux-x86_64.zip
-RUN cd /usr/local && unzip /root/files/protoc-21.5-linux-x86_64.zip
+    wget https://github.com/protocolbuffers/protobuf/releases/download/v27.5/protoc-27.5-linux-x86_64.zip
+RUN cd /usr/local && unzip /root/files/protoc-27.5-linux-x86_64.zip
 RUN chmod -R ugo+rX /usr/local
 RUN chmod ugo+rx /usr/local/bin/protoc
 
